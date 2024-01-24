@@ -1,0 +1,65 @@
+name: CI/CD for Kloo-Merge-integration-erp
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - stage
+
+jobs:
+  deployment-job:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v2
+              
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Login to AWS ECR
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region ${{ vars.REGION }}
+          aws ecr get-login-password --region ${{ vars.REGION }} | docker login --username AWS --password-stdin ${{ vars.DOCKER_REGISTRY }}
+       
+      - name: Dynamically setting function names
+        run: |
+            #Following code dynamically set's the function name based on the repo. 
+            #So no need to create additional func name variables in git.
+            
+            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+              UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/prod/')
+              echo "env=prod" >> $GITHUB_ENV
+              echo "It's prod"
+            elif [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
+              UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/stage/')
+              echo "env=stage" >> $GITHUB_ENV
+              echo "It's stage"
+            elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+              UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/dev/')
+              echo "env=dev" >> $GITHUB_ENV
+              echo "It's dev"
+            else
+              echo "It's nothing"
+            fi
+              
+            echo "MERGE_INT_ERP_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
+                      
+      - name: Modifying approve invoice
+        run: |
+          cd ./approve-invoice
+          #----------------------------------------------------------------------------
+          # Building images for Approve invoice
+          #----------------------------------------------------------------------------
+          docker build -t ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest -f APPROVE_INVOICE_DOCKERFILE .
+          docker push ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest
+          echo "Uploading the docker image to Lambda function ${MERGE_INT_ERP_FUNC_NAME}"
+          aws lambda update-function-code --region eu-west-2 --function-name ${MERGE_INT_ERP_FUNC_NAME} --image-uri ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest
+          
+
+      
