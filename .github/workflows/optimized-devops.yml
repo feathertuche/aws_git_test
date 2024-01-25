@@ -56,7 +56,7 @@ jobs:
           #----------------------------------------------------------------------------
           # Building images for Approve invoice
           #----------------------------------------------------------------------------
-          docker build -t ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest -f APPROVE_INVOICE_DOCKERFILE .
+          docker build -t ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest -f MERGE_INT_ERP_DOCKERFILE .
           docker push ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest
           echo "Uploading the docker image to Lambda function ${MERGE_INT_ERP_FUNC_NAME}"
           aws lambda update-function-code --region eu-west-2 --function-name ${MERGE_INT_ERP_FUNC_NAME} --image-uri ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest
