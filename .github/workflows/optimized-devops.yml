@@ -50,11 +50,10 @@ jobs:
               
             echo "MERGE_INT_ERP_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
                       
-      - name: Modifying approve invoice
+      - name: Deploying merge integration erp
         run: |
-          cd ./approve-invoice
           #----------------------------------------------------------------------------
-          # Building images for Approve invoice
+          # Building images for merge integration erp
           #----------------------------------------------------------------------------
           docker build -t ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest -f MERGE_INT_ERP_DOCKERFILE .
           docker push ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest
