@@ -57,9 +57,7 @@ jobs:
           #----------------------------------------------------------------------------
           docker build -t ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest -f MERGE_INT_ERP_DOCKERFILE .
           docker push ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest
-          echo "Uploading the docker image to Lambda function ${MERGE_INT_ERP_FUNC_NAME}"
-          aws lambda update-function-code --region eu-west-2 --function-name ${MERGE_INT_ERP_FUNC_NAME} --image-uri ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest
-          
+       
       - name: Deploy to Development environment  kloo-dev-merge-integration-erp
         run: |
           aws ecs update-service --cluster ${{ vars.DEV_CLUSTER_NAME }} --service ${{ vars.DEV_ECS_SERVICE_NAME }} --force-new-deployment
