@@ -20,7 +20,7 @@ from .views import health_check
 
 urlpatterns = [
     path('api/erp/admin/', admin.site.urls),
-    path('api/v1/erp/', include('ACCOUNTS.urls')),
-    path('api/v1/', include('LINKTOKEN.urls')),
-    path('api/v1/health/', health_check, name='health_check'),
+    path('api/erp/', include('ACCOUNTS.urls')),
+    path('api/erp/', include('LINKTOKEN.urls')),
+    path('api/erp/health/', health_check, name='health_check'),
 ]
