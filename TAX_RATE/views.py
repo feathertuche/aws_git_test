@@ -25,7 +25,7 @@ class mergeTaxRatesList(APIView):
             {
                 "organization_defined_targets": {},
                 "linked_account_defined_targets": {}
-            },
+            }
         ]
 
         formatted_list = []

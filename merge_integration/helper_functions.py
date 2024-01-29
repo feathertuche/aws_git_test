@@ -2,7 +2,7 @@ import logging
 from marshmallow import ValidationError
 from flask import jsonify, make_response
 
-file = '/merge_integration/apiLog'
+file = "apiLog"
 
 
 def api_log(level=logging.DEBUG, msg=""):
