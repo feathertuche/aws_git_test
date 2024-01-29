@@ -39,8 +39,6 @@ class LinkToken(APIView):
         """
         print("webhook-data-start")
         data = json.loads(request.body)
-        print("webhook-data-end")
-        print("webhook-data-start")
         print("Webhook Data:", data)
         print("webhook-data-end")
         if request.method == 'POST':
