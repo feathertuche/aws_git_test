@@ -27,7 +27,6 @@ class LinkToken(APIView):
 def webhook_handler(request):
     # Print the request body for debugging
     print("Request Body:", request.body)
-
     try:
         data = json.loads(request.body)
         print("Webhook Data:", data)
