@@ -25,4 +25,5 @@ urlpatterns = [
     path('comp-info/', include('COMPANY_INFO.urls')),
     path('invoice-info/', include('INVOICES.urls')),
     path('tax-info/', include('TAX_RATE.urls')),
+    path('api/erp/health/', health_check, name='health_check'),
 ]
