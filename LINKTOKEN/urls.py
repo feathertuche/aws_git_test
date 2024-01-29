@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import LinkToken
+from .views import LinkToken, webhook_handler
 
 urlpatterns = [
     path('linktoken/', LinkToken.as_view(), name='linktoken'),
-    path('webhook/', LinkToken.webhook_handler, name='webhook_handler')
+    path('linktoken/webhook/', webhook_handler, name='webhook_handler'),
 ]
