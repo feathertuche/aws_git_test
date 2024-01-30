@@ -14,7 +14,19 @@ from pathlib import Path
 from dotenv import load_dotenv
 from .utils import get_db_password
 db_password = get_db_password(os.getenv('RDS_HOST'))
-os.environ['DB_PASSWORD'] = db_password
+print(f"db_password: {db_password}")
+# Specify the environment variable to use as the default value
+env_db_password = os.getenv('ENV_DB_PASSWORD', 'default_password')
+print(f"env_db_password: {env_db_password}")
+
+# Check if db_password is not None before setting it in the environment variable
+if db_password is not None:
+    os.environ['DB_PASSWORD'] = db_password
+else:
+    # Set the default value for env_db_password
+    os.environ['DB_PASSWORD'] = env_db_password
+#os.environ['DB_PASSWORD'] = db_password
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
