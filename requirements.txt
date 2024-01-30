@@ -8,3 +8,4 @@ pylint==3.0.3
 marshmallow==3.20.2
 mysqlclient==2.1.1
 boto3==1.25.12
+django-cors-headers
