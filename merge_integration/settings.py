@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from .utils import get_db_password
+db_password = get_db_password(os.getenv('RDS_HOST'))
+os.environ['DB_PASSWORD'] = db_password
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,6 +25,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 ACCOUNT_TOKEN = os.getenv('ACCOUNT_TOKEN')
 BASE_URL = os.getenv('BASE_URL')
 API_KEY = os.getenv('API_KEY')
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -91,10 +95,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+        'USER': os.getenv('USER_NAME'),
+        'PASSWORD': get_db_password(os.getenv('RDS_HOST')),
+        'HOST': os.getenv('RDS_HOST'),
+        'PORT': os.getenv('PORT'),
         'OPTIONS': {
             'charset': 'utf8mb4',
         },
