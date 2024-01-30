@@ -27,20 +27,21 @@ def get_db_password(rds_host):
     """
     Get the database password from RDS.
     """
-    secretid_key_dict = {'dev' : {'secret_id' : 'kloo-dev-environment-variables' , 'key' : 'Dev_DB_PASSWORD'},
-                        'stage' : {'secret_id' : 'kloo-Stage-Environment-Variables' , 'key' : 'Stage_db_password'},
-                        'demo' : {'secret_id' : 'kloo_environment_variables_demo' , 'key' : 'Demo_DB_Password'},
-                        'prod' : {'secret_id' : 'kloo_environment_variable_prod' , 'key' : 'Production_DB_Password'}}
+    secretid_key_dict = {'dev': {'secret_id': 'kloo-dev-environment-variables', 'key': 'Dev_DB_PASSWORD'},
+                        'stage': {'secret_id': 'kloo-Stage-Environment-Variables', 'key': 'Stage_db_password'},
+                        'demo': {'secret_id': 'kloo_environment_variables_demo', 'key': 'Demo_DB_Password'},
+                        'prod': {'secret_id': 'kloo_environment_variable_prod', 'key': 'Production_DB_Password'}}
 
     environments_list = list(secretid_key_dict.keys())
-    environment = next((substring for substring in environments_list if substring in rds_host), None)
 
-    if environment:
-        secretid_key = secretid_key_dict[environment]
-        secret_id = secretid_key['secret_id']
-        data2 = get_secret_data(secret_id)
-        ERP_DB_PASSWORD = data2[secretid_key['key']]
-    else:
-        ERP_DB_PASSWORD = None
+    if rds_host is not None:
+        environment = next((substring for substring in environments_list if substring in rds_host), None)
+        if environment:
+            secretid_key = secretid_key_dict[environment]
+            secret_id = secretid_key['secret_id']
+            data2 = get_secret_data(secret_id)
+            ERP_DB_PASSWORD = data2[secretid_key['key']]
+            return ERP_DB_PASSWORD
 
-    return ERP_DB_PASSWORD
+    # Return a default value or handle the case when no environment is found
+    return None
