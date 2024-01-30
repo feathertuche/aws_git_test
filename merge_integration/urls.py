@@ -27,4 +27,5 @@ urlpatterns = [
     path('tax-info/', include('TAX_RATE.urls')),
     path('api/erp/health/', health_check, name='health_check'),
     path('api/erp/', include('LINKTOKEN.urls')),
+    path('tracking-info/', include('TRACKING_CATAGORIES.urls')),
 ]
