@@ -2,10 +2,10 @@ djangorestframework~=3.14.0
 python-dotenv~=1.0.1
 MergePythonClient
 Django~=5.0.1
-urllib3==2.0.7
-requests==2.31.0
-pylint==3.0.3
-marshmallow==3.20.2
-mysqlclient==2.1.1
-boto3==1.25.12
+urllib3
+requests
+pylint
+marshmallow
+mysqlclient
+boto3
 django-cors-headers
