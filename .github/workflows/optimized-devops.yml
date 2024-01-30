@@ -26,6 +26,13 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region ${{ vars.REGION }}
           aws ecr get-login-password --region ${{ vars.REGION }} | docker login --username AWS --password-stdin ${{ vars.DOCKER_REGISTRY }}
+
+      - name: DB Configure
+        run: |
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "RDS_HOST=mysql-kloo-dev.internal-service-kloo.com" >> .env
+          echo "DB_PORT=3306" >> .env
+          echo "DB_DATABASE=myrdssql01" >> .env
        
       - name: Dynamically setting function names
         run: |
