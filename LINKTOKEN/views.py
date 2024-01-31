@@ -8,10 +8,17 @@ from merge_integration.utils import create_merge_client
 import json
 import os
 from .models import ErpLinkToken
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.renderers import JSONRenderer
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse, JsonResponse
+
 from dotenv import load_dotenv
 
 class LinkToken(APIView):
-    def dispatch(self, request):
+    def post(self, request):
         try:
             merge_client = create_merge_client()
             link_token_response = merge_client.ats.link_token.create(
@@ -22,9 +29,18 @@ class LinkToken(APIView):
                 should_create_magic_link_url=request.data.get("should_create_magic_link_url"),
                 link_expiry_mins=30,
             )
-            return Response(link_token_response, status=status.HTTP_201_CREATED)
+
+            # Ensure link_token_response is serializable to JSON
+            data_to_return = link_token_response  # You may need to modify this based on the structure of link_token_response
+
+            # Set the renderer explicitly to JSONRenderer
+            response = Response(data_to_return, status=status.HTTP_201_CREATED)
+            response.accepted_renderer = JSONRenderer()
+
+            return response
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         
 @csrf_exempt
 def webhook_handler(request):
