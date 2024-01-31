@@ -35,10 +35,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 # settings.py
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'https://dev.getkloo.com', # Replace with your React app's origin
-]
+CORS_ORIGIN_ALLOW_ALL = True
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
