@@ -40,11 +40,6 @@ class LinkToken(APIView):
             # Set the renderer explicitly to JSONRenderer
             response = Response(data_to_return, status=status.HTTP_201_CREATED)
             response.accepted_renderer = JSONRenderer()
-            # Explicitly set CORS headers
-            response["Access-Control-Allow-Origin"] = "http://localhost:3000"
-            response["Access-Control-Allow-Methods"] = "GET, OPTIONS, PATCH, POST, PUT"
-            response["Access-Control-Allow-Headers"] = "accept, authorization, content-type, user-agent, x-csrftoken, x-requested-with"
-
             return response
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
