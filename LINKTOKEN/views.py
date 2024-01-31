@@ -30,16 +30,15 @@ class LinkToken(APIView):
                 link_expiry_mins=30,
             )
 
-            # Ensure link_token_response is serializable to JSON
-            data_to_return = link_token_response  # You may need to modify this based on the structure of link_token_response
+            response_data = {
+                "message": "Webhook received and processed successfully",
+                "link_token_response": link_token_response
+            }
 
-            # Set the renderer explicitly to JSONRenderer
-            response = Response(data_to_return, status=status.HTTP_201_CREATED)
-            response.accepted_renderer = JSONRenderer()
-
-            return response
+            return JsonResponse(response_data, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_message = {"Error processing webhook": str(e)}
+            return JsonResponse(error_message, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         
 @csrf_exempt
