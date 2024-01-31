@@ -65,5 +65,6 @@ def webhook_handler(request):
         return HttpResponse("Invalid JSON data", status=400, content_type='text/plain')
     except Exception as e:
         print("Webhook Handling Error:", str(e))
+        errorlist = str(e)
         # If there's an error in your webhook handling logic, respond with an error using HttpResponse
-        return HttpResponse("Error processing webhook", status=500, content_type='text/plain')
+        return HttpResponse(errorlist, status=500, content_type='text/plain')
