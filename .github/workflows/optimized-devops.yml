@@ -26,7 +26,15 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region ${{ vars.REGION }}
           aws ecr get-login-password --region ${{ vars.REGION }} | docker login --username AWS --password-stdin ${{ vars.DOCKER_REGISTRY }}
-
+      
+      - name: Set up AWS Cli
+        run: |
+          AWS_ACCESS_KEYID=$(aws secretsmanager get-secret-value --secret-id kloo-dev-environment-variables | jq --raw-output '.SecretString' | jq -r .\"AWS_ACCESS_KEYID\")
+          echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEYID" >> .env
+          AWS_SECRET_ACCESSKEY=$(aws secretsmanager get-secret-value --secret-id kloo-dev-environment-variables | jq --raw-output '.SecretString' | jq -r .\"AWS_SECRET_ACCESSKEY\")
+          echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESSKEY" >> .env
+          echo "AWS_DEFAULT_REGION=${{ vars.REGION }}" >> .env
+          
       - name: DB Configure
         run: |
           cd ./merge_integration
