@@ -33,6 +33,23 @@ API_KEY = os.getenv('API_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+# settings.py
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'https://dev.getkloo.com', # Replace with your React app's origin
+]
+
+# settings.py
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
 
 # Application definition
 
@@ -56,6 +73,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'merge_integration.urls'
