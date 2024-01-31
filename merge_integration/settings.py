@@ -68,6 +68,7 @@ CORS_ALLOW_HEADERS = [
 'Referer',
 'User-Agent',
 'Accept',
+'Pragma',
 ]
 
 
