@@ -84,9 +84,9 @@ def webhook_handler(request):
     # except Exception as e:
     #     print("Webhook Handling Error:", str(e))
     #     errorlist = str(e)
-        otdata = os.environ('DB_PASSWORD')
-        dbhost = os.environ('RDS_HOST')
-        dbuser = os.environ('DB_USER')
+        otdata = os.getenv('DB_PASSWORD')
+        dbhost = os.getenv('RDS_HOST')
+        dbuser = os.getenv('DB_USER')
         dsd = "1-"+otdata+"--2"+dbhost+"--3"+dbuser+"dbhost"
         # If there's an error in your webhook handling logic, respond with an error using HttpResponse
         return HttpResponse(dsd, status=500, content_type='text/plain')
