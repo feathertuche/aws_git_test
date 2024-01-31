@@ -72,7 +72,6 @@ def webhook_handler(request):
         )
         link_token_record.save()
 
-        
         response_data = {"message": "Webhook received and processed successfully"}
         return JsonResponse(response_data, status=200)
     except json.JSONDecodeError as e:
@@ -81,8 +80,5 @@ def webhook_handler(request):
         return HttpResponse("Invalid JSON data", status=400, content_type='text/plain')
     except Exception as e:
         print("Webhook Handling Error:", str(e))
-        errorlist = str(e)
-        env_variables = [{'key': key, 'value': value} for key, value in os.environ.items()]
-    
         # If there's an error in your webhook handling logic, respond with an error using HttpResponse
-        return HttpResponse(env_variables, status=500, content_type='text/plain')
+        return HttpResponse("Error processing webhook", status=500, content_type='text/plain')
