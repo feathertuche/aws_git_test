@@ -14,11 +14,11 @@ def create_merge_client():
 
     return MergeClient(base_url=base_url, account_token=account_token, api_key=api_key)
 
-def get_secret_data(secret_id):
+def get_secret_data(secret_id, region_name='eu-west-2'):
     """
     This function is used to retrieve secret password.
     """
-    client = boto3.client('secretsmanager')
+    client = boto3.client('secretsmanager', region_name=region_name)
     response = client.get_secret_value(SecretId=secret_id)
     data = response['SecretString']
     return json.loads(data)
