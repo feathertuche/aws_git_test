@@ -75,5 +75,5 @@ def webhook_handler(request):
         response_data = {"message": "Webhook received and processed successfully"}
         return JsonResponse(response_data, status=200)
     except Exception as e:
-            return Response({"Error processing webhook": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"Error processing webhook": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
    
