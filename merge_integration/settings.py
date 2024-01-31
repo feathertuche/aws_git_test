@@ -90,19 +90,19 @@ WSGI_APPLICATION = 'merge_integration.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'myrdssql01',
-#         'USER': 'masterkloo',
-#         'PASSWORD': get_db_password('mysql-kloo-dev.internal-service-kloo.com'),
-#         'HOST': 'mysql-kloo-dev.internal-service-kloo.com',
-#         'PORT': '3306',
-#         'OPTIONS': {
-#             'charset': 'utf8mb4',
-#         },
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': get_db_password(os.getenv('RDS_HOST')),
+        'PORT': os.getenv('DB_PORT'),
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
+    }
+}
 
 
 # Password validation
