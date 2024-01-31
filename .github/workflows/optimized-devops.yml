@@ -42,7 +42,7 @@ jobs:
           echo "RDS_HOST=mysql-kloo-dev.internal-service-kloo.com" >> .env
           echo "DB_PORT=3306" >> .env
           echo "DB_USER=masterkloo" >> .env
-          echo "DB_DATABASE=myrdssql01" >> .env
+          echo "DB_NAME=myrdssql01" >> .env
           DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id kloo-dev-environment-variables | jq --raw-output '.SecretString' | jq -r ."Dev_DB_PASSWORD"`
           echo "DB_PASSWORD=$DB_PASSWORD" >> .env
           
