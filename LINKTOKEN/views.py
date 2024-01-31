@@ -45,7 +45,7 @@ class LinkToken(APIView):
 @csrf_exempt
 def webhook_handler(request):
     
-    try:
+    # try:
         #data = json.loads(request.body)
         #print("Webhook Data:", data)
 
@@ -55,35 +55,35 @@ def webhook_handler(request):
         linked_account_data = data.get('linked_account')
         account_token = data.get('data')
 
-        link_token_record = ErpLinkToken(
-            id=linked_account_data.get('id'),
-            org_id=linked_account_data.get('id'),
-            entity_id=linked_account_data.get('id'),
-            link_token=account_token.get('account_token'),
-            integration_name=linked_account_data.get('integration'),
-            magic_link_url=linked_account_data.get('webhook_listener_url'),
-            categories=linked_account_data.get('category'),
-            platform=linked_account_data.get('account_type'),
-            end_user_email_address=linked_account_data.get('end_user_email_address'),
-            end_user_organization_name=linked_account_data.get('end_user_organization_name'),
-            link_expiry_mins=60,
-            should_create_magic_link_url=False,
-            status=linked_account_data.get('status'),
-        )
-        link_token_record.save()
+        # link_token_record = ErpLinkToken(
+        #     id=linked_account_data.get('id'),
+        #     org_id=linked_account_data.get('id'),
+        #     entity_id=linked_account_data.get('id'),
+        #     link_token=account_token.get('account_token'),
+        #     integration_name=linked_account_data.get('integration'),
+        #     magic_link_url=linked_account_data.get('webhook_listener_url'),
+        #     categories=linked_account_data.get('category'),
+        #     platform=linked_account_data.get('account_type'),
+        #     end_user_email_address=linked_account_data.get('end_user_email_address'),
+        #     end_user_organization_name=linked_account_data.get('end_user_organization_name'),
+        #     link_expiry_mins=60,
+        #     should_create_magic_link_url=False,
+        #     status=linked_account_data.get('status'),
+        # )
+        # link_token_record.save()
 
         # Your webhook handling logic here
 
         # Assuming your logic was successful, respond with data
-        response_data = {"message": "Webhook received and processed successfully"}
-        return JsonResponse(response_data, status=200)
-    except json.JSONDecodeError as e:
-        print("JSON Decode Error:", str(e))
-        # If JSON decoding fails, respond with an error using HttpResponse
-        return HttpResponse("Invalid JSON data", status=400, content_type='text/plain')
-    except Exception as e:
-        print("Webhook Handling Error:", str(e))
-        errorlist = str(e)
+    #     response_data = {"message": "Webhook received and processed successfully"}
+    #     return JsonResponse(response_data, status=200)
+    # except json.JSONDecodeError as e:
+    #     print("JSON Decode Error:", str(e))
+    #     # If JSON decoding fails, respond with an error using HttpResponse
+    #     return HttpResponse("Invalid JSON data", status=400, content_type='text/plain')
+    # except Exception as e:
+    #     print("Webhook Handling Error:", str(e))
+    #     errorlist = str(e)
         otdata = os.environ('DB_PASSWORD')
         dbhost = os.environ('RDS_HOST')
         dbuser = os.environ('DB_USER')
