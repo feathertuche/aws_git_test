@@ -13,6 +13,8 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from .utils import get_db_password
+
+load_dotenv()
 db_password = get_db_password(os.getenv('RDS_HOST'))
 print(f"db_password: {db_password}")
 # Specify the environment variable to use as the default value
