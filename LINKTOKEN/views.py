@@ -45,8 +45,8 @@ class LinkToken(APIView):
 @csrf_exempt
 def webhook_handler(request):
     
-    # try:
-        #data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
         #print("Webhook Data:", data)
 
         payload = json.loads(request.body)
