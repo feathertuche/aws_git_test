@@ -36,7 +36,7 @@ jobs:
           echo "DB_DATABASE=myrdssql01" >> .env
           DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id kloo-dev-environment-variables | jq --raw-output '.SecretString' | jq -r ."Dev_DB_PASSWORD"`
           echo "ENV_DB_PASSWORD=$DB_PASSWORD" >> .env
-          cp .env /app/merge_integration/
+          cp .env /merge_integration/.env
 
       - name: Creating Application variables
         run: |
