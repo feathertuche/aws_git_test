@@ -9,4 +9,3 @@ marshmallow==3.20.2
 mysqlclient==2.1.1
 django-cors-headers
 boto3
-djangorestframework
