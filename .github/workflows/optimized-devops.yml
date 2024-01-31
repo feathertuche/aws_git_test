@@ -36,6 +36,13 @@ jobs:
           echo "DB_DATABASE=myrdssql01" >> .env
           DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id kloo-dev-environment-variables | jq --raw-output '.SecretString' | jq -r ."Dev_DB_PASSWORD"`
           echo "ENV_DB_PASSWORD=$DB_PASSWORD" >> .env
+
+      - name: Creating Application variables
+        run: |
+          echo "SECRET_KEY=django-insecure-7ifve=ho3gf#jl6u8!5gp0#$r#q1^djdclyxomxykrrd&1)v46" >> .env
+          echo "ACCOUNT_TOKEN=n5lJI9Lj0cI1sLHmxfMr06dz-Sb-y27i1ZLdxqwBosX3rry8h52RGw" >> .env
+          echo "BASE_URL=https://api-eu.merge.dev" >> .env
+          echo "API_KEY=eVK6zjdRHiN04-Q0lDDjlOKMv9IRizbPIZLYWjZO2QpIpX7Iycko5w" >> .env
        
       - name: Dynamically setting function names
         run: |

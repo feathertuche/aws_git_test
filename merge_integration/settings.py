@@ -96,7 +96,7 @@ DATABASES = {
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': get_db_password(os.getenv('RDS_HOST')),
-        'HOST': os.getenv('DB_HOST'),
+        'HOST': os.getenv('RDS_HOST'),
         'PORT': os.getenv('DB_PORT'),
         'OPTIONS': {
             'charset': 'utf8mb4',
