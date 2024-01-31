@@ -34,12 +34,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "https://dev.getkloo.com",
-]
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -52,7 +46,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'ACCOUNTS',
     'LINKTOKEN',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -63,7 +56,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'merge_integration.urls'
