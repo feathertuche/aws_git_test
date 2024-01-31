@@ -35,7 +35,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWED_ORIGINS = ['*']
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000", 
+    "https://dev.getkloo.com", # Replace with the origin of your front-end application
+]
 
 # Application definition
 

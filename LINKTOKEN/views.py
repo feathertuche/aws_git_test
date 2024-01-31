@@ -9,7 +9,7 @@ import json
 from .models import ErpLinkToken
 
 class LinkToken(APIView):
-    def post(self, request):
+    def dispatch(self, request):
         try:
             merge_client = create_merge_client()
             link_token_response = merge_client.ats.link_token.create(
