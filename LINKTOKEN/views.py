@@ -74,11 +74,6 @@ def webhook_handler(request):
 
         response_data = {"message": "Webhook received and processed successfully"}
         return JsonResponse(response_data, status=200)
-    except json.JSONDecodeError as e:
-        print("JSON Decode Error:", str(e))
-        # If JSON decoding fails, respond with an error using HttpResponse
-        return HttpResponse("Invalid JSON data", status=400, content_type='text/plain')
     except Exception as e:
-        print("Webhook Handling Error:", str(e))
-        # If there's an error in your webhook handling logic, respond with an error using HttpResponse
-        return HttpResponse("Error processing webhook", status=500, content_type='text/plain')
+            return Response({"Error processing webhook": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+   
