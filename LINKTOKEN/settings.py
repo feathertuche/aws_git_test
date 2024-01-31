@@ -39,7 +39,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000", 
     "https://dev.getkloo.com", # Replace with the origin of your front-end application
 ]
-
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 # Application definition
 
 INSTALLED_APPS = [
