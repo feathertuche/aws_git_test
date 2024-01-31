@@ -17,7 +17,7 @@ from django.http import HttpResponse, JsonResponse
 
 from dotenv import load_dotenv
 
-@csrf_exempt
+
 class LinkToken(APIView):
     def post(self, request):
         try:
