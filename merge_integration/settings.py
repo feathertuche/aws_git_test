@@ -16,7 +16,7 @@ from .utils import get_db_password
 db_password = get_db_password(os.getenv('RDS_HOST'))
 print(f"db_password: {db_password}")
 # Specify the environment variable to use as the default value
-env_db_password = os.getenv('ENV_DB_PASSWORD', 'default_password')
+env_db_password = os.getenv('ENV_DB_PASSWORD')
 print(f"env_db_password: {env_db_password}")
 
 # Check if db_password is not None before setting it in the environment variable
@@ -96,10 +96,24 @@ WSGI_APPLICATION = 'merge_integration.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
     }
 }
 

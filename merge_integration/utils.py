@@ -3,6 +3,7 @@ import sys
 from merge.client import Merge as MergeClient
 import boto3
 import json
+from dotenv import load_dotenv
 
 def create_merge_client():
     base_url = os.environ.get("BASE_URL")
