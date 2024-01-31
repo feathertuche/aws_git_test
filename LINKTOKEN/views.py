@@ -25,7 +25,7 @@ class LinkToken(APIView):
                 end_user_email_address=request.data.get("end_user_email_address"),
                 end_user_organization_name=request.data.get("end_user_organization_name"),
                 end_user_origin_id=request.data.get("end_user_origin_id"),
-                categories=[CategoriesEnum.ATS],
+                categories=[CategoriesEnum.ACCOUNTING],
                 should_create_magic_link_url=request.data.get("should_create_magic_link_url"),
                 link_expiry_mins=30,
             )
