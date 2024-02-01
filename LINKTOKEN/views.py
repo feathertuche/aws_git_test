@@ -77,6 +77,7 @@ def webhook_handler(request):
         # link_token_record.save()
 
         #response_data = {"message": "Webhook received and processed successfully"}
+        api_log(msg=f"FORMATTED DATA: {payload} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
         return JsonResponse(payload, status=status.HTTP_200_OK)
     except Exception as e:
         error_message = {"Error processing webhook": str(e)}
