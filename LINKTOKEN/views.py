@@ -57,24 +57,24 @@ def webhook_handler(request):
         linked_account_data = payload.get('linked_account', {})
         # data = payload.get('data', {})
         # linked_account_data = data.get('linked_account')
-        # account_token = data.get('data')
+        account_token = payload.get('data')
 
-        # link_token_record = ErpLinkToken(
-        #     id=linked_account_data.get('id'),
-        #     org_id=linked_account_data.get('id'),
-        #     entity_id=linked_account_data.get('id'),
-        #     link_token=account_token.get('account_token'),
-        #     integration_name=linked_account_data.get('integration'),
-        #     magic_link_url=linked_account_data.get('webhook_listener_url'),
-        #     categories=linked_account_data.get('category'),
-        #     platform=linked_account_data.get('account_type'),
-        #     end_user_email_address=linked_account_data.get('end_user_email_address'),
-        #     end_user_organization_name=linked_account_data.get('end_user_organization_name'),
-        #     link_expiry_mins=60,
-        #     should_create_magic_link_url=False,
-        #     status=linked_account_data.get('status'),
-        # )
-        # link_token_record.save()
+        link_token_record = ErpLinkToken(
+            id=linked_account_data.get('id'),
+            org_id=linked_account_data.get('id'),
+            entity_id=linked_account_data.get('id'),
+            link_token=account_token.get('account_token'),
+            integration_name=linked_account_data.get('integration'),
+            magic_link_url=linked_account_data.get('webhook_listener_url'),
+            categories=linked_account_data.get('category'),
+            platform=linked_account_data.get('account_type'),
+            end_user_email_address=linked_account_data.get('end_user_origin_id'),
+            end_user_organization_name=linked_account_data.get('end_user_organization_name'),
+            link_expiry_mins=60,
+            should_create_magic_link_url=False,
+            status=linked_account_data.get('status'),
+        )
+        link_token_record.save()
 
         #response_data = {"message": "Webhook received and processed successfully"}
         api_log(msg=f"FORMATTED DATA to get payload: {payload}{linked_account_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
