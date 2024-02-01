@@ -50,36 +50,36 @@ class LinkToken(APIView):
 def webhook_handler(request):
     
     try:
-        data = json.loads(request.body)
+        #data = json.loads(request.body)
         #print("Webhook Data:", data)
 
         payload = json.loads(request.body)
-        linked_account_data = payload.get('linked_account', {})
-        data = payload.get('data', {})
-        linked_account_data = data.get('linked_account')
-        account_token = data.get('data')
+        # linked_account_data = payload.get('linked_account', {})
+        # data = payload.get('data', {})
+        # linked_account_data = data.get('linked_account')
+        # account_token = data.get('data')
 
-        link_token_record = ErpLinkToken(
-            id=linked_account_data.get('id'),
-            org_id=linked_account_data.get('id'),
-            entity_id=linked_account_data.get('id'),
-            link_token=account_token.get('account_token'),
-            integration_name=linked_account_data.get('integration'),
-            magic_link_url=linked_account_data.get('webhook_listener_url'),
-            categories=linked_account_data.get('category'),
-            platform=linked_account_data.get('account_type'),
-            end_user_email_address=linked_account_data.get('end_user_email_address'),
-            end_user_organization_name=linked_account_data.get('end_user_organization_name'),
-            link_expiry_mins=60,
-            should_create_magic_link_url=False,
-            status=linked_account_data.get('status'),
-        )
-        link_token_record.save()
+        # link_token_record = ErpLinkToken(
+        #     id=linked_account_data.get('id'),
+        #     org_id=linked_account_data.get('id'),
+        #     entity_id=linked_account_data.get('id'),
+        #     link_token=account_token.get('account_token'),
+        #     integration_name=linked_account_data.get('integration'),
+        #     magic_link_url=linked_account_data.get('webhook_listener_url'),
+        #     categories=linked_account_data.get('category'),
+        #     platform=linked_account_data.get('account_type'),
+        #     end_user_email_address=linked_account_data.get('end_user_email_address'),
+        #     end_user_organization_name=linked_account_data.get('end_user_organization_name'),
+        #     link_expiry_mins=60,
+        #     should_create_magic_link_url=False,
+        #     status=linked_account_data.get('status'),
+        # )
+        # link_token_record.save()
 
-        response_data = {"message": "Webhook received and processed successfully"}
-        return JsonResponse(response_data, status=status.HTTP_200_OK)
+        #response_data = {"message": "Webhook received and processed successfully"}
+        return JsonResponse(payload, status=status.HTTP_200_OK)
     except Exception as e:
         error_message = {"Error processing webhook": str(e)}
         api_log(
-                msg=f"Error retrieving organizations details: {data} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
+                msg=f"Error retrieving organizations details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
         return JsonResponse(error_message, status=500)
