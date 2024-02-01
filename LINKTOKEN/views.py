@@ -31,13 +31,12 @@ class LinkToken(APIView):
                 link_expiry_mins=30,
             )
 
-            # Convert the link_token_response to a JSON-serializable format
             data_to_return = {
                 "link_token": link_token_response.link_token,
-                # Add other attributes if needed
+                "magic_link_url": link_token_response.magic_link_url,
+                "integration_name": link_token_response.integration_name,
             }
 
-            # Set the renderer explicitly to JSONRenderer
             response = Response(data_to_return, status=status.HTTP_201_CREATED)
             response.accepted_renderer = JSONRenderer()
             return response
