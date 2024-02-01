@@ -73,7 +73,7 @@ def webhook_handler(request):
         link_token_record.link_expiry_mins = 60
         link_token_record.should_create_magic_link_url = False
         link_token_record.status = linked_account_data.get('status')
-
+        link_token_record.save()
         # link_token_record = ErpLinkToken(
         #     id=linked_account_data.get('id'),
         #     org_id=linked_account_data.get('id'),
