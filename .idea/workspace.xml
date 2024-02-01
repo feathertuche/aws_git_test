@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2de9ce5c-4c04-4014-b355-a7a72a9d15b0" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/kloo-merge-integration-erp.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/kloo-merge-integration-erp.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merge_integration/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/merge_integration/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LINKTOKEN/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/LINKTOKEN/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
