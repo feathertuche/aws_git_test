@@ -62,7 +62,7 @@ def webhook_handler(request):
         
         try:
             
-            ErpLinkToken.objects.filter(end_user_organization_name=linked_account_data.get('end_user_organization_name'),
+            ErpLinkToken.objects.filter(
                 end_user_email_address=linked_account_data.get('end_user_email_address')).update(
                 integration_name=linked_account_data.get('integration'),
                 magic_link_url=linked_account_data.get('webhook_listener_url'),
