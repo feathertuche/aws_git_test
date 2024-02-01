@@ -81,5 +81,5 @@ def webhook_handler(request):
     except Exception as e:
         error_message = {"Error processing webhook": str(e)}
         api_log(
-                msg=f"Error retrieving organizations details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
+                msg=f"Error retrieving organizations details: {data} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
         return JsonResponse(error_message, status=500)
