@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from merge_integration.utils import create_merge_client
 import json
 import os
+import traceback
 from .models import ErpLinkToken
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -14,6 +15,7 @@ from rest_framework import status
 from rest_framework.renderers import JSONRenderer
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
+from merge_integration.helper_functions import api_log
 
 from dotenv import load_dotenv
 
@@ -78,4 +80,6 @@ def webhook_handler(request):
         return JsonResponse(response_data, status=status.HTTP_200_OK)
     except Exception as e:
         error_message = {"Error processing webhook": str(e)}
+        api_log(
+                msg=f"Error retrieving organizations details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
         return JsonResponse(error_message, status=500)
