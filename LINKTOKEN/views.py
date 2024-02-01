@@ -61,21 +61,19 @@ def webhook_handler(request):
         account_token = payload.get('data')
         
         try:
-            # Fetch the specific record to update
-            link_token_record = ErpLinkToken.objects.get(link_token=account_token.get('account_token'))
-
-            # Update the fields accordingly
             
-            link_token_record.integration_name = linked_account_data.get('integration')
-            link_token_record.magic_link_url = linked_account_data.get('webhook_listener_url')
-            link_token_record.categories = linked_account_data.get('category')
-            link_token_record.platform = linked_account_data.get('account_type')
-            link_token_record.end_user_email_address = linked_account_data.get('end_user_email_address')
-            link_token_record.end_user_organization_name = linked_account_data.get('end_user_organization_name')
-            link_token_record.link_expiry_mins = 60
-            link_token_record.should_create_magic_link_url = False
-            link_token_record.status = linked_account_data.get('status')
-            link_token_record.save()
+            ErpLinkToken.objects.filter(link_token=account_token.get('account_token')).update(
+                integration_name=linked_account_data.get('integration'),
+                magic_link_url=linked_account_data.get('webhook_listener_url'),
+                categories=linked_account_data.get('category'),
+                platform=linked_account_data.get('account_type'),
+                end_user_email_address=linked_account_data.get('end_user_email_address'),
+                end_user_organization_name=linked_account_data.get('end_user_organization_name'),
+                link_expiry_mins=60,
+                should_create_magic_link_url=False,
+                status=linked_account_data.get('status')
+            )
+            
             # link_token_record = ErpLinkToken(
             #     id=linked_account_data.get('id'),
             #     org_id=linked_account_data.get('id'),
