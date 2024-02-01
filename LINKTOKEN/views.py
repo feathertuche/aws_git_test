@@ -54,7 +54,7 @@ def webhook_handler(request):
         #print("Webhook Data:", data)
 
         payload = json.loads(request.body)
-        # linked_account_data = payload.get('linked_account', {})
+        linked_account_data = payload.get('linked_account', {})
         # data = payload.get('data', {})
         # linked_account_data = data.get('linked_account')
         # account_token = data.get('data')
@@ -77,7 +77,7 @@ def webhook_handler(request):
         # link_token_record.save()
 
         #response_data = {"message": "Webhook received and processed successfully"}
-        api_log(msg=f"FORMATTED DATA: {payload} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
+        api_log(msg=f"FORMATTED DATA to get payload: {payload}{linked_account_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
         return JsonResponse(payload, status=status.HTTP_200_OK)
     except Exception as e:
         error_message = {"Error processing webhook": str(e)}
