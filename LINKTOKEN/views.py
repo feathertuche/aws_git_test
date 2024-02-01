@@ -68,6 +68,7 @@ def webhook_handler(request):
                 magic_link_url=linked_account_data.get('webhook_listener_url'),
                 categories=linked_account_data.get('category'),
                 platform=linked_account_data.get('account_type'),
+                account_token = account_token.get('account_token'),
                 end_user_email_address=linked_account_data.get('end_user_email_address'),
                 end_user_organization_name=linked_account_data.get('end_user_organization_name'),
                 link_expiry_mins=60,
