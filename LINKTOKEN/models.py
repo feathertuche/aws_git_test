@@ -9,6 +9,7 @@ class ErpLinkToken(models.Model):
     org_id = models.CharField(max_length=255)
     entity_id = models.CharField(max_length=255)
     link_token = models.CharField(max_length=255)
+    account_token = models.CharField(max_length=255)
     integration_name = models.CharField(max_length=255)
     magic_link_url = models.CharField(max_length=255)
     categories = models.JSONField()
