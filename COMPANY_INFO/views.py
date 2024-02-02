@@ -1,3 +1,4 @@
+import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -137,3 +138,26 @@ class MergeCompanyDetails(APIView):
             api_log(
                 msg=f"Error retrieving organizations details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class MergeKlooCompanyInsert(APIView):
+    @staticmethod
+    def post(request):
+        merge_company_list = MergeCompanyInfo()
+        response = merge_company_list.get(request=request)
+        try:
+            if response.status_code == status.HTTP_200_OK:
+                merge_payload = response.data
+                kloo_url = 'https://dev.getkloo.com/api/v1/organizations/insert-erp-companies'
+                kloo_data_insert = requests.post(kloo_url, json=merge_payload)
+
+                if kloo_data_insert.status_code == status.HTTP_201_CREATED:
+                    return Response(f"successfully inserted the data for COMPANY INFO")
+                else:
+                    return Response({'error': 'Failed to send data to Kloo API'}, status=kloo_data_insert.status_code)
+
+        except Exception as e:
+            error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
+            return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({'error': 'Failed to retrieve company information'}, status=response.status_code)
