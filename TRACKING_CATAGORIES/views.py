@@ -136,11 +136,31 @@ class MergeTrackingCategoriesDetails(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# posting data each accordingly
 class MergePostTrackingCategories(APIView):
+    """
+    API endpoint for merging and posting tracking categories to the Kloo API.
+
+    This class handles the POST request to merge and send tracking category data to the Kloo API.
+
+    Attributes:
+    - KLOO_API_URL (str): The URL of the Kloo API endpoint for tracking categories.
+    """
+    
     KLOO_API_URL = 'https://dev.getkloo.com/api/v1/organizations/erp-tracking-categories'
 
     def post(self, request):
+        """
+        Handle POST requests.
+
+        This method processes the POST request, merges tracking category data, and sends it to the Kloo API.
+
+        Args:
+        - request (HttpRequest): The HTTP request object containing data to be processed.
+
+        Returns:
+        - Response: The HTTP response indicating the success or failure of the operation.
+        """
+        
         try:
             merge_tracking_categories = MergeTrackingCategoriesList()
             response = MergeTrackingCategoriesList.get(request)
@@ -162,7 +182,6 @@ class MergePostTrackingCategories(APIView):
                 payload_list = []
 
                 for post_category in post_data:
-                    # Find the corresponding tracking category in the retrieved data
                     matching_category = next(
                         (category for category in tracking_categories if category['id'] == post_category['id']),
                         None
