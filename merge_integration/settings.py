@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     'ACCOUNTS',
     'LINKTOKEN',
     'corsheaders',
+    'TRACKING_CATAGORIES',
 ]
 
 MIDDLEWARE = [
