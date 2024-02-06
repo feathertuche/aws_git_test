@@ -593,3 +593,46 @@ TypeError: MergeCompanyInfo.get_company_info() missing 1 required positional arg
 02/06/2024 05:17:55 PM [DEBUG] Starting new HTTPS connection (1): dev.getkloo.com:443
 02/06/2024 05:17:56 PM [DEBUG] https://dev.getkloo.com:443 "POST /api/v1/organizations/insert-erp-companies HTTP/1.1" 201 1173
 02/06/2024 05:21:09 PM [INFO] C:\Users\AmiteshSahay\Documents\ERP_Integration\kloo-merge-integration-erp\COMPANY_INFO\urls.py changed, reloading.
+02/06/2024 05:39:36 PM [DEBUG] Processing GET request in MergeAccounts...
+02/06/2024 05:39:36 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/06/2024 05:39:36 PM [DEBUG] load_verify_locations cafile='C:\\Users\\AmiteshSahay\\Documents\\ERP_Integration\\kloo-merge-integration-erp\\venv\\lib\\site-packages\\certifi\\cacert.pem'
+02/06/2024 05:39:36 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/06/2024 05:39:36 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000023AAC65F100>
+02/06/2024 05:39:36 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x0000023AACB27BC0> server_hostname='api-eu.merge.dev' timeout=60
+02/06/2024 05:39:36 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000023AAC65C280>
+02/06/2024 05:39:36 PM [DEBUG] send_request_headers.started request=<Request [b'GET']>
+02/06/2024 05:39:36 PM [DEBUG] send_request_headers.complete
+02/06/2024 05:39:36 PM [DEBUG] send_request_body.started request=<Request [b'GET']>
+02/06/2024 05:39:36 PM [DEBUG] send_request_body.complete
+02/06/2024 05:39:36 PM [DEBUG] receive_response_headers.started request=<Request [b'GET']>
+02/06/2024 05:39:37 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Tue, 06 Feb 2024 12:09:35 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"default-src 'self'; script-src 'self'; frame-ancestors 'self'; style-src 'self'; connect-src 'self'; font-src 'self'; img-src 'self'"), (b'Expires', b'Tue, 06 Feb 2024 12:09:35 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=0sf_Be0IpZBMXSRkwxDAB43nQLlkthIUFYGoTJqOWtM-1707221375-1-AQVIh/GgkVpSt9RwnSAYQitLvtNN06vivduj+rUWIGN+efNSvkPBRllmUMo2Y7ItEpT8HaIA85ShFk8W7ikU34g=; path=/; expires=Tue, 06-Feb-24 12:39:35 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'X-Content-Type-Options', b'nosniff'), (b'X-Frame-Options', b'SAMEORIGIN'), (b'Server', b'cloudflare'), (b'CF-RAY', b'851348fa5ad385b7-BOM'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/06/2024 05:39:37 PM [INFO] HTTP Request: GET https://api-eu.merge.dev/api/accounting/v1/company-info?expand=CompanyInfoListRequestExpand.ADDRESSES "HTTP/1.1 200 OK"
+02/06/2024 05:39:37 PM [DEBUG] receive_response_body.started request=<Request [b'GET']>
+02/06/2024 05:39:37 PM [DEBUG] receive_response_body.complete
+02/06/2024 05:39:37 PM [DEBUG] response_closed.started
+02/06/2024 05:39:37 PM [DEBUG] response_closed.complete
+02/06/2024 05:39:37 PM [DEBUG] FORMATTED DATA: {'companies': [{'id': 'a5945ed8-932d-4c9d-9090-e8a50c58fbb6', 'remote_id': '3f03913f-d173-4aa9-a7d8-cf8fc0525fa4', 'name': 'Demo Company (Global)', 'legal_name': 'Demo Company (Global)', 'tax_number': '101-2-303', 'fiscal_year_end_month': 12, 'fiscal_year_end_day': 31, 'currency': 'USD', 'remote_created_at': '2024-01-15T07:43:25.967000+00:00Z', 'urls': [], 'addresses': [{'type': None, 'street_1': '23 Main Street', 'street_2': 'Central City', 'city': 'Marineville', 'state': '', 'country_subdivision': '', 'country': None, 'zip_code': '12345', 'created_at': '2024-01-16T06:44:57.937035+00:00Z', 'modified_at': '2024-01-16T06:44:57.937052+00:00Z'}], 'phone_numbers': [{'number': '1234 5678', 'type': 'OFFICE', 'created_at': '2024-01-16T06:44:57.908319+00:00Z', 'modified_at': '2024-01-16T06:44:57.908337+00:00Z'}], 'remote_was_deleted': False, 'created_at': '2024-01-16T06:44:57.908319+00:00Z', 'modified_at': '2024-01-16T06:44:57.908337+00:00Z', 'field_mappings': {'organization_defined_targets': {}, 'linked_account_defined_targets': {}}, 'remote_data': None}]}              - Status Code: 200: NoneType: None
+
+02/06/2024 05:41:09 PM [DEBUG] Processing GET request in MergeAccounts...
+02/06/2024 05:41:09 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/06/2024 05:41:09 PM [DEBUG] load_verify_locations cafile='C:\\Users\\AmiteshSahay\\Documents\\ERP_Integration\\kloo-merge-integration-erp\\venv\\lib\\site-packages\\certifi\\cacert.pem'
+02/06/2024 05:41:09 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/06/2024 05:41:09 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000023AAC65F1F0>
+02/06/2024 05:41:09 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x0000023AACB27740> server_hostname='api-eu.merge.dev' timeout=60
+02/06/2024 05:41:09 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000023AAC65C100>
+02/06/2024 05:41:09 PM [DEBUG] send_request_headers.started request=<Request [b'GET']>
+02/06/2024 05:41:09 PM [DEBUG] send_request_headers.complete
+02/06/2024 05:41:09 PM [DEBUG] send_request_body.started request=<Request [b'GET']>
+02/06/2024 05:41:09 PM [DEBUG] send_request_body.complete
+02/06/2024 05:41:09 PM [DEBUG] receive_response_headers.started request=<Request [b'GET']>
+02/06/2024 05:41:10 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Tue, 06 Feb 2024 12:11:09 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"default-src 'self'; script-src 'self'; frame-ancestors 'self'; style-src 'self'; connect-src 'self'; font-src 'self'; img-src 'self'"), (b'Expires', b'Tue, 06 Feb 2024 12:11:09 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=MDvxSXjwWteLtdVZCbei0Ra5nGX_AzagtY1RbwvhqrE-1707221469-1-AdKg1WJTLYT1rAD9Yg/2vi1a56UTBvdFr6iLJI548UL6mRqk8XmBF45AJp7mYilOygeBDHYBfkNTymC/Es+0fXk=; path=/; expires=Tue, 06-Feb-24 12:41:09 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'X-Content-Type-Options', b'nosniff'), (b'X-Frame-Options', b'SAMEORIGIN'), (b'Server', b'cloudflare'), (b'CF-RAY', b'85134b432cacf296-BOM'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/06/2024 05:41:10 PM [INFO] HTTP Request: GET https://api-eu.merge.dev/api/accounting/v1/company-info?expand=CompanyInfoListRequestExpand.ADDRESSES "HTTP/1.1 200 OK"
+02/06/2024 05:41:10 PM [DEBUG] receive_response_body.started request=<Request [b'GET']>
+02/06/2024 05:41:10 PM [DEBUG] receive_response_body.complete
+02/06/2024 05:41:10 PM [DEBUG] response_closed.started
+02/06/2024 05:41:10 PM [DEBUG] response_closed.complete
+02/06/2024 05:41:10 PM [DEBUG] FORMATTED DATA: {'companies': [{'id': 'a5945ed8-932d-4c9d-9090-e8a50c58fbb6', 'remote_id': '3f03913f-d173-4aa9-a7d8-cf8fc0525fa4', 'name': 'Demo Company (Global)', 'legal_name': 'Demo Company (Global)', 'tax_number': '101-2-303', 'fiscal_year_end_month': 12, 'fiscal_year_end_day': 31, 'currency': 'USD', 'remote_created_at': '2024-01-15T07:43:25.967000+00:00Z', 'urls': [], 'addresses': [{'type': None, 'street_1': '23 Main Street', 'street_2': 'Central City', 'city': 'Marineville', 'state': '', 'country_subdivision': '', 'country': None, 'zip_code': '12345', 'created_at': '2024-01-16T06:44:57.937035+00:00Z', 'modified_at': '2024-01-16T06:44:57.937052+00:00Z'}], 'phone_numbers': [{'number': '1234 5678', 'type': 'OFFICE', 'created_at': '2024-01-16T06:44:57.908319+00:00Z', 'modified_at': '2024-01-16T06:44:57.908337+00:00Z'}], 'remote_was_deleted': False, 'created_at': '2024-01-16T06:44:57.908319+00:00Z', 'modified_at': '2024-01-16T06:44:57.908337+00:00Z', 'field_mappings': {'organization_defined_targets': {}, 'linked_account_defined_targets': {}}, 'remote_data': None}]}              - Status Code: 200: NoneType: None
+
+02/06/2024 05:41:10 PM [DEBUG] Starting new HTTPS connection (1): dev.getkloo.com:443
+02/06/2024 05:41:11 PM [DEBUG] https://dev.getkloo.com:443 "POST /api/v1/organizations/insert-erp-companies HTTP/1.1" 201 1173
+02/06/2024 05:54:42 PM [INFO] C:\Users\AmiteshSahay\Documents\ERP_Integration\kloo-merge-integration-erp\SYNC\views.py changed, reloading.

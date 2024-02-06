@@ -11,6 +11,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
 from merge_integration.helper_functions import api_log
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.generics import ListAPIView
+from LINKTOKEN.serializers import AccountTokenSerializers
 
 from dotenv import load_dotenv
 
@@ -99,3 +101,13 @@ def webhook_handler(request):
         api_log(
                  msg=f"Error retrieving organizations details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
         return JsonResponse(error_message, status=500)
+
+
+class ListAccountTokenView(ListAPIView):
+    serializer_class = AccountTokenSerializers
+
+    def get_queryset(self):
+        org_id = self.kwargs.get('org_id')
+        entity_id = self.kwargs.get('entity_id')
+        queryset = ErpLinkToken.objects.filter(org_id=org_id, entity_id=entity_id)
+        return queryset
