@@ -20,12 +20,13 @@ from .views import health_check
 
 urlpatterns = [
     path('api/erp/admin/', admin.site.urls),
-    path('api/erp/', include('ACCOUNTS.urls')),
-    path('contact-info/', include('CONTACTS.urls')),
-    path('comp-info/', include('COMPANY_INFO.urls')),
-    path('invoice-info/', include('INVOICES.urls')),
-    path('tax-info/', include('TAX_RATE.urls')),
+    path('api/erp/account-info/', include('ACCOUNTS.urls')),
+    path('api/erp/contact-info/', include('CONTACTS.urls')),
+    path('api/erp/comp-info/', include('COMPANY_INFO.urls')),
+    path('api/erp/invoice-info/', include('INVOICES.urls')),
+    path('api/erp/tax-info/', include('TAX_RATE.urls')),
     path('api/erp/health/', health_check, name='health_check'),
     path('api/erp/', include('LINKTOKEN.urls')),
-    path('tracking-info/', include('TRACKING_CATAGORIES.urls')),
+    path('api/erp/tracking-info/', include('TRACKING_CATAGORIES.urls')),
+    path('api/erp/sync-data/', include('SYNC.urls')),
 ]

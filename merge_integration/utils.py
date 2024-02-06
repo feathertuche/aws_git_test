@@ -1,18 +1,25 @@
 import os
-import sys
 from merge.client import Merge as MergeClient
 import boto3
 import json
-from dotenv import load_dotenv
 
-def create_merge_client():
+
+def create_merge_client(account_token=None):
     base_url = os.environ.get("BASE_URL")
-    account_token = os.environ.get("ACCOUNT_TOKEN")
+    account_token = account_token
     api_key = os.environ.get("API_KEY")
+
+    if not account_token:
+        raise ValueError("Access token is required")
+
+    if isinstance(account_token, str) or not account_token.strip():
+        raise ValueError("Account token must be a non-empty string.")
+
     if not all([base_url, account_token, api_key]):
         raise ValueError("Missing required environment variables for Merge client.")
 
     return MergeClient(base_url=base_url, account_token=account_token, api_key=api_key)
+
 
 def get_secret_data(secret_id, region_name='eu-west-2'):
     """

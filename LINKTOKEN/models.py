@@ -4,6 +4,7 @@ from django.db import models
 class ErpLinkTokenManager(models.Manager):
     pass
 
+
 class ErpLinkToken(models.Model):
     id = models.UUIDField(primary_key=True, editable=False)
     org_id = models.CharField(max_length=255)

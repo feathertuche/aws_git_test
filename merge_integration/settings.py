@@ -19,12 +19,10 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 SECRET_KEY = os.getenv('SECRET_KEY')
 ACCOUNT_TOKEN = os.getenv('ACCOUNT_TOKEN')
 BASE_URL = os.getenv('BASE_URL')
 API_KEY = os.getenv('API_KEY')
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -34,7 +32,7 @@ DEBUG = True
 APPEND_SLASH = False
 ALLOWED_HOSTS = ['*']
 
-###CORS setting
+# CORS setting
 CORS_ORIGIN_ALLOW_ALL = True
 
 CSRF_TRUSTED_ORIGINS = [
@@ -43,34 +41,33 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 CORS_ALLOW_METHODS = [
-'DELETE',
-'GET',
-'OPTIONS',
-'PATCH',
-'POST',
-'PUT',
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
 ]
 
 CORS_ALLOW_HEADERS = [
-'accept',
-'accept-encoding',
-'authorization',
-'content-type',
-'dnt',
-'origin',
-'user-agent',
-'x-csrftoken',
-'x-requested-with',
-'Authorization',
-'Cache-Control',
-'Content-Type',
-'Expires',
-'Referer',
-'User-Agent',
-'Accept',
-'Pragma',
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'Authorization',
+    'Cache-Control',
+    'Content-Type',
+    'Expires',
+    'Referer',
+    'User-Agent',
+    'Accept',
+    'Pragma',
 ]
-
 
 # Application definition
 
@@ -86,6 +83,7 @@ INSTALLED_APPS = [
     'LINKTOKEN',
     'corsheaders',
     'TRACKING_CATAGORIES',
+    'SYNC'
 ]
 
 MIDDLEWARE = [
@@ -119,7 +117,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'merge_integration.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -145,6 +142,20 @@ DATABASES = {
 }
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'myrdssql01',
+#         'USER': 'masterkloo',
+#         'PASSWORD': 'ptKJDHJTXd3J0kYF',
+#         'HOST': '127.0.0.1',
+#         'PORT': 3308,
+#         'OPTIONS': {
+#             'charset': 'utf8mb4',
+#         },
+#     }
+# }
+
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -163,7 +174,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -174,7 +184,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/

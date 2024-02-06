@@ -1,12 +1,6 @@
 from merge.resources.accounting import CategoriesEnum
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.http import HttpResponse,JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from merge_integration.utils import create_merge_client
 import json
-import os
 import traceback
 from .models import ErpLinkToken
 from rest_framework.views import APIView
@@ -68,7 +62,7 @@ def webhook_handler(request):
                 magic_link_url=linked_account_data.get('webhook_listener_url'),
                 categories=linked_account_data.get('category'),
                 platform=linked_account_data.get('account_type'),
-                account_token = account_token.get('account_token'),
+                account_token=account_token.get('account_token'),
                 end_user_email_address=linked_account_data.get('end_user_email_address'),
                 end_user_organization_name=linked_account_data.get('end_user_organization_name'),
                 link_expiry_mins=60,
