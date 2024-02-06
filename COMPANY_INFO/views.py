@@ -8,21 +8,21 @@ from merge.client import Merge
 import traceback
 from merge_integration.helper_functions import api_log
 from merge.resources.accounting import CompanyInfoListRequestExpand, CompanyInfoRetrieveRequestExpand
-from SYNC.views import ListAccountTokenView
-from merge_integration.utils import create_merge_client
+# from SYNC.views import ListAccountTokenView
+# from merge_integration.utils import create_merge_client
 
 
 class MergeCompanyInfo(APIView):
     @staticmethod
-    def get_company_info(request):
-        get_token = ListAccountTokenView.as_view()
-        queryset = get_token(Request(request=request)).data
-        account_token = queryset[0]['account_token'] if queryset else None
-        account_token_client = create_merge_client(account_token)
-        # comp_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN, api_key=settings.API_KEY)
+    def get_company_info():
+        # get_token = ListAccountTokenView.as_view()
+        # queryset = get_token(Request(request=request)).data
+        # account_token = queryset[0]['account_token'] if queryset else None
+        # account_token_client = create_merge_client(account_token)
+        comp_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN, api_key=settings.API_KEY)
 
         try:
-            organization_data = account_token_client.accounting.company_info.list(expand=CompanyInfoListRequestExpand.ADDRESSES)
+            organization_data = comp_client.accounting.company_info.list(expand=CompanyInfoListRequestExpand.ADDRESSES)
             return organization_data
         except Exception as e:
             api_log(
