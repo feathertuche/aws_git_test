@@ -4,58 +4,57 @@ Module docstring: This module provides functions related to traceback.
 import traceback
 import requests
 from merge.client import Merge
-from merge_integration import settings
-from merge_integration.helper_functions import api_log
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from datetime import datetime
-import json
+from merge_integration import settings
+from merge_integration.helper_functions import api_log
 
 
 class MergeTrackingCategoriesList(APIView):
     """
-        API view for retrieving Merge Tracking_Category list.
+    API view for retrieving Merge Tracking_Category list.
     """
-
     @staticmethod
-    def get(_):
+    def get_tc():
         """
-                Handle GET request for Merge Tracking_Category list.
+        Retrieve Merge Tracking_Category data.
 
-                Args:
-                    _: HTTP request object.
-
-                Returns:
-                    Response: JSON response containing Merge Tracking_Category list or error message.
+        Returns:
+            The retrieved Merge Tracking_Category data.
         """
-        api_log(msg="Processing GET request Merge Tracking_Category list...")
-
-        tracking_client = Merge(
-            base_url=settings.BASE_URL,
-            account_token=settings.ACCOUNT_TOKEN,
-            api_key=settings.API_KEY
-        )
+        tc_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN, api_key=settings.API_KEY)
 
         try:
-            tracking_data = tracking_client.accounting.tracking_categories.list(
+            organization_data = tc_client.accounting.tracking_categories.list(
                 expand="company",
                 remote_fields="status",
                 show_enum_origins="status",
             )
+            return organization_data
         except Exception as e:
-            error_msg = f"Error retrieving tracking category details: {str(e)} \
-            - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()} "
-            api_log(msg=error_msg)
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            api_log(
+                msg=f"Error retrieving organizations details: {str(e)} \
+                 - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
 
+    @staticmethod
+    def response_payload(organization_data):
+        """
+        Formats the Merge Tracking_Category data into the required format for Kloo API.
+
+        Args:
+            organization_data: The Merge Tracking_Category data to be formatted.
+
+        Returns:
+            The formatted Merge Tracking_Category data.
+        """
         field_mappings = [{
             "organization_defined_targets": {},
             "linked_account_defined_targets": {}}]
 
-        list_data = []
-        for category in tracking_data.results:
-            total_data = {
+        formatted_data = []
+        for category in organization_data.results:
+            formatted_entry = {
                 "id": category.id,
                 "name": category.name,
                 "status": category.status,
@@ -64,17 +63,31 @@ class MergeTrackingCategoriesList(APIView):
                 "company": category.company,
                 "remote_was_deleted": category.remote_was_deleted,
                 "remote_id": category.remote_id,
-                "created_at": category.created_at,
-                "updated_at": category.modified_at,
+                "created_at": category.created_at.isoformat() + "Z",
+                "updated_at": category.modified_at.isoformat() + "Z",
                 "field_mappings": field_mappings,
                 "remote_data": category.remote_data,
             }
+            formatted_data.append(formatted_entry)
+            kloo_format_json = {"tracking_category": formatted_data}
 
-            list_data.append(total_data)
-        formatted_response = {"tracking_category": list_data}
+        return kloo_format_json
 
-        api_log(msg=f"FORMATTED DATA: {formatted_response} - Status Code: {status.HTTP_200_OK}")
-        return Response(formatted_response, status=status.HTTP_200_OK)
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to retrieve Merge Tracking_Category data.
+
+        Returns:
+            Response containing the formatted Merge Tracking_Category data.
+        """
+        api_log(msg="Processing GET request in MergeTrackingCategories...")
+
+        organization_data = self.get_tc()
+        formatted_data = self.response_payload(organization_data)
+
+        api_log(msg=f"FORMATTED DATA: {formatted_data} \
+         - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
+        return Response(formatted_data, status=status.HTTP_200_OK)
 
 
 class MergeTrackingCategoriesDetails(APIView):
@@ -138,109 +151,34 @@ class MergeTrackingCategoriesDetails(APIView):
 
 class MergePostTrackingCategories(APIView):
     """
-    API endpoint for merging and posting tracking categories to the Kloo API.
-
-    This class handles the POST request to merge and send tracking category data to the Kloo API.
-
-    Attributes:
-    - KLOO_API_URL (str): The URL of the Kloo API endpoint for tracking categories.
+    API view for handling POST requests to insert Merge Tracking_Category data into the Kloo account system.
     """
-    
-    KLOO_API_URL = 'https://dev.getkloo.com/api/v1/organizations/erp-tracking-categories'
-
     def post(self, request):
         """
-        Handle POST requests.
-
-        This method processes the POST request, merges tracking category data, and sends it to the Kloo API.
-
-        Args:
-        - request (HttpRequest): The HTTP request object containing data to be processed.
+        Handles POST requests to insert Merge Tracking_Category data into the Kloo account system.
 
         Returns:
-        - Response: The HTTP response indicating the success or failure of the operation.
+            Response indicating success or failure of data insertion.
         """
-        
+        fetch_data = MergeTrackingCategoriesList()
+        account_data = fetch_data.get(request=request)
+
         try:
-            merge_tracking_categories = MergeTrackingCategoriesList()
-            response = MergeTrackingCategoriesList.get(request)
+            if account_data.status_code == status.HTTP_200_OK:
+                tc_payload = account_data.data
+                # print("@@@@@@@@@@@@@@@@",tc_payload)
+                tc_url = 'https://dev.getkloo.com/api/v1/organizations/erp-tracking-categories'
+                tc_response_data = requests.post(tc_url, json=tc_payload)
 
-            if response.status_code == status.HTTP_200_OK:
-                merge_payload = response.data
+                if tc_response_data.status_code == status.HTTP_201_CREATED:
+                    api_log(msg=f"data inserted successfully in the kloo account system")
+                    return Response(f"{tc_response_data} data inserted successfully in kloo account system")
 
-                def default_serializer(obj):
-                    if isinstance(obj, datetime):
-                        return obj.isoformat()
-                    raise TypeError(f'Type {type(obj)} is not serializable')
-
-                merge_payload_json = merge_payload
-                tracking_categories = merge_payload_json['tracking_category']
-
-                # Extract the data you want to post from the request
-                post_data = request.data.get('tracking_category', [])
-
-                payload_list = []
-
-                for post_category in post_data:
-                    matching_category = next(
-                        (category for category in tracking_categories if category['id'] == post_category['id']),
-                        None
-                    )
-
-                    if matching_category:
-                        created_at_str = matching_category["created_at"]
-                        updated_at_str = matching_category["updated_at"]
-                        id1 = matching_category["id"]
-                        name = matching_category["name"]
-                        status1 = matching_category["status"]
-                        category_type = matching_category["category_type"]
-                        parent_category = matching_category["parent_category"]
-                        company = matching_category["company"]
-                        remote_was_deleted = matching_category["remote_was_deleted"]
-                        remote_id = matching_category["remote_id"]
-                        field_mappings = matching_category["field_mappings"]
-                        remote_data = matching_category["remote_data"]
-
-                        tracking_category_dict = {
-                            "id": id1,
-                            "name": name,
-                            "status": status1,
-                            "category_type": category_type,
-                            "parent_category": parent_category,
-                            "company": company,
-                            "remote_was_deleted": remote_was_deleted,
-                            "remote_id": remote_id,
-                            "field_mappings": field_mappings,
-                            "remote_data": remote_data,
-                            "created_at": created_at_str,
-                            "updated_at": updated_at_str
-                        }
-
-                        payload_list.append(tracking_category_dict)
-
-                response_data = {
-                    'merge_tracking_categories': merge_tracking_categories,
-                    'payload': {
-                        "tracking_category": payload_list
-                    }
-                }
-
-                headers = {'Content-Type': 'application/json'}
-                kloo_data_insert = requests.post(
-                    self.KLOO_API_URL,
-                    json=response_data['payload'],
-                    headers=headers,
-                    data=json.dumps(response_data['payload'], default=default_serializer)
-                )
-
-                if kloo_data_insert.status_code == status.HTTP_201_CREATED:
-                    return Response("Successfully inserted the data", status=status.HTTP_201_CREATED)
-
-                return Response({'error': f'Failed to send data to Kloo API. Status Code: {kloo_data_insert.status_code}'},
-                                status=kloo_data_insert.status_code)
+                else:
+                    return Response({'error': 'Failed to send data to Kloo API'}, status=tc_response_data.status_code)
 
         except Exception as e:
             error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
             return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response({'error': 'Failed to retrieve company information'}, status=response.status_code)
 
+        return Response(f"Failed to insert data to the kloo account system", traceback)
