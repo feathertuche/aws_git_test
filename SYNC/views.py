@@ -9,8 +9,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import APIException
 from COMPANY_INFO.views import MergeKlooCompanyInsert
 from TAX_RATE.views import MergePostTaxRates
-from TRACKING_CATAGORIES.views import MergePostTrackingCategories
-import requests
+from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from .model import ERPLogs
 
 
@@ -23,8 +22,8 @@ class DummySerializer(serializers.Serializer):
 
 class ProxySyncAPI(CreateAPIView):
     serializer_class = DummySerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
 
     def log_error(self, error_message):
         # Log the error to the database
@@ -45,7 +44,7 @@ class ProxySyncAPI(CreateAPIView):
         combined_response = {}
 
         post_api_views = [
-            MergePostTrackingCategories,
+            # MergePostTrackingCategories,
             MergeKlooCompanyInsert,
             MergePostTaxRates
         ]

@@ -1392,3 +1392,147 @@ django.core.exceptions.ValidationError: ['“cn465ov456bcof94” is not a valid 
 02/07/2024 04:00:47 PM [DEBUG] Starting new HTTPS connection (1): devs.getkloo.com:443
 02/07/2024 04:00:49 PM [ERROR] Internal Server Error: /api/erp/sync-data/proxy-sync/
 02/07/2024 04:08:56 PM [INFO] C:\Users\AmiteshSahay\Documents\ERP_Integration\kloo-merge-integration-erp\SYNC\views.py changed, reloading.
+02/07/2024 05:12:51 PM [DEBUG] Processing GET request in MergeTrackingCategories
+02/07/2024 05:12:51 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/07/2024 05:12:51 PM [DEBUG] load_verify_locations cafile='C:\\Users\\AmiteshSahay\\AppData\\Local\\Programs\\Python\\Python310\\lib\\site-packages\\certifi\\cacert.pem'
+02/07/2024 05:12:51 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/07/2024 05:12:51 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x00000164A08E3100>
+02/07/2024 05:12:51 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x00000164A086FDC0> server_hostname='api-eu.merge.dev' timeout=60
+02/07/2024 05:12:51 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x00000164A08E30D0>
+02/07/2024 05:12:51 PM [DEBUG] send_request_headers.started request=<Request [b'GET']>
+02/07/2024 05:12:51 PM [DEBUG] send_request_headers.complete
+02/07/2024 05:12:51 PM [DEBUG] send_request_body.started request=<Request [b'GET']>
+02/07/2024 05:12:51 PM [DEBUG] send_request_body.complete
+02/07/2024 05:12:51 PM [DEBUG] receive_response_headers.started request=<Request [b'GET']>
+02/07/2024 05:12:52 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 07 Feb 2024 11:42:52 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"connect-src 'self'; default-src 'self'; img-src 'self'; font-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'self'"), (b'X-Frame-Options', b'DENY'), (b'Expires', b'Wed, 07 Feb 2024 11:42:52 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=SAAOs2lfHMxqT0OJZAPe_1TLoP.yiFysheUTgqAmJII-1707306172-1-AdCNPDcQxvQJA1RChiunu/CCdmLApMo92ZrdvwJ5VFriHZwkT8C8XgRl3MjQiuZ88bIxfd42APlz5tLNTmeBR5s=; path=/; expires=Wed, 07-Feb-24 12:12:52 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'851b5f33dc734ada-HYD'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/07/2024 05:12:52 PM [INFO] HTTP Request: GET https://api-eu.merge.dev/api/accounting/v1/tracking-categories?expand=company&remote_fields=status&show_enum_origins=status "HTTP/1.1 200 OK"
+02/07/2024 05:12:52 PM [DEBUG] receive_response_body.started request=<Request [b'GET']>
+02/07/2024 05:12:52 PM [DEBUG] receive_response_body.complete
+02/07/2024 05:12:52 PM [DEBUG] response_closed.started
+02/07/2024 05:12:52 PM [DEBUG] response_closed.complete
+02/07/2024 05:12:52 PM [DEBUG] FORMATTED DATA: {'tracking_category': [{'id': 'b5f9fe17-310c-45a3-a8a5-72551de72af7', 'name': 'West Coast', 'status': 'ACTIVE', 'category_type': 'Region', 'parent_category': None, 'company': None, 'remote_was_deleted': False, 'remote_id': 'fc96efd9-b832-4b31-a93e-61f56158adad', 'created_at': '2024-01-16T06:46:01.851434+00:00Z', 'updated_at': '2024-01-16T06:46:01.851439+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}, {'id': 'e9c5dcf6-a5dd-46ba-adbc-a546be121c07', 'name': 'South', 'status': 'ACTIVE', 'category_type': 'Region', 'parent_category': None, 'company': None, 'remote_was_deleted': False, 'remote_id': 'e83ea9f2-de2c-44d8-b4f8-a5065bed339e', 'created_at': '2024-01-16T06:46:01.851398+00:00Z', 'updated_at': '2024-01-16T06:46:01.851403+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}, {'id': '8fd638bd-1076-4612-a05c-d64234b2e3c5', 'name': 'North', 'status': 'ACTIVE', 'category_type': 'Region', 'parent_category': None, 'company': None, 'remote_was_deleted': False, 'remote_id': '5e2974a2-097d-4f3b-bfd5-605d78c4a282', 'created_at': '2024-01-16T06:46:01.851359+00:00Z', 'updated_at': '2024-01-16T06:46:01.851364+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}, {'id': '950c54f0-8334-4f91-ab9a-604ec1caee9d', 'name': 'Eastside', 'status': 'ACTIVE', 'category_type': 'Region', 'parent_category': None, 'company': None, 'remote_was_deleted': False, 'remote_id': '7b354c1c-cf59-42fc-9449-a65c51988335', 'created_at': '2024-01-16T06:46:01.851288+00:00Z', 'updated_at': '2024-01-16T06:46:01.851304+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}]}          - Status Code: 200: NoneType: None
+
+02/07/2024 05:12:52 PM [DEBUG] Starting new HTTPS connection (1): dev.getkloo.com:443
+02/07/2024 05:12:53 PM [DEBUG] https://dev.getkloo.com:443 "POST /api/v1/organizations/erp-tracking-categories HTTP/1.1" 500 88
+02/07/2024 05:12:53 PM [ERROR] Internal Server Error: /api/erp/sync-data/proxy-sync/
+Traceback (most recent call last):
+  File "C:\Users\AmiteshSahay\Documents\ERP_Integration\kloo-merge-integration-erp\SYNC\views.py", line 61, in post
+    raise APIException(f"API {index} failed with status code {response.status_code}")
+rest_framework.exceptions.APIException: API 1 failed with status code 500
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\AmiteshSahay\Documents\ERP_Integration\kloo-merge-integration-erp\SYNC\views.py", line 65, in post
+    self.log_error(error_message=error_message)
+  File "C:\Users\AmiteshSahay\Documents\ERP_Integration\kloo-merge-integration-erp\SYNC\views.py", line 41, in log_error
+    log_entry.save()
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\base.py", line 822, in save
+    self.save_base(
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\base.py", line 909, in save_base
+    updated = self._save_table(
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\base.py", line 1036, in _save_table
+    updated = self._do_update(
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\base.py", line 1101, in _do_update
+    return filtered._update(values) > 0
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\query.py", line 1276, in _update
+    return query.get_compiler(self.db).execute_sql(CURSOR)
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\sql\compiler.py", line 1990, in execute_sql
+    cursor = super().execute_sql(result_type)
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\sql\compiler.py", line 1549, in execute_sql
+    sql, params = self.as_sql()
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\sql\compiler.py", line 1966, in as_sql
+    values.append("%s = %s" % (qn(name), placeholder))
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\models\sql\compiler.py", line 537, in quote_name_unless_alias
+    r = self.connection.ops.quote_name(name)
+  File "C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\django\db\backends\dummy\base.py", line 20, in complain
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: settings.DATABASES is improperly configured. Please supply the ENGINE value. Check settings documentation for more details.
+02/07/2024 05:13:28 PM [INFO] C:\Users\AmiteshSahay\Documents\ERP_Integration\kloo-merge-integration-erp\merge_integration\settings.py changed, reloading.
+02/07/2024 05:54:04 PM [DEBUG] Processing GET request in MergeTrackingCategories
+02/07/2024 05:54:04 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/07/2024 05:54:04 PM [DEBUG] load_verify_locations cafile='C:\\Users\\AmiteshSahay\\AppData\\Local\\Programs\\Python\\Python310\\lib\\site-packages\\certifi\\cacert.pem'
+02/07/2024 05:54:04 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/07/2024 05:54:04 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x00000172A4217610>
+02/07/2024 05:54:04 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x00000172A41B5CC0> server_hostname='api-eu.merge.dev' timeout=60
+02/07/2024 05:54:04 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x00000172A42175E0>
+02/07/2024 05:54:04 PM [DEBUG] send_request_headers.started request=<Request [b'GET']>
+02/07/2024 05:54:04 PM [DEBUG] send_request_headers.complete
+02/07/2024 05:54:04 PM [DEBUG] send_request_body.started request=<Request [b'GET']>
+02/07/2024 05:54:04 PM [DEBUG] send_request_body.complete
+02/07/2024 05:54:04 PM [DEBUG] receive_response_headers.started request=<Request [b'GET']>
+02/07/2024 05:54:04 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 07 Feb 2024 12:24:04 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"img-src 'self'; font-src 'self'; script-src 'self'; default-src 'self'; connect-src 'self'; style-src 'self'; frame-ancestors 'self'"), (b'X-Frame-Options', b'DENY'), (b'Expires', b'Wed, 07 Feb 2024 12:24:04 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=Ux8CkcKTwBYv25uHKDZkPh790H8etjZlE6U07XDK55A-1707308644-1-AX3o4rUXgP8DJXGD/C5KEYT00jUPGfcMBhhgZFcS6Hgr1VR7kh4sdt1IqqUEOtMhis4Xje99LoZVjhw73ssTjPQ=; path=/; expires=Wed, 07-Feb-24 12:54:04 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'851b9b92190df557-BOM'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/07/2024 05:54:04 PM [INFO] HTTP Request: GET https://api-eu.merge.dev/api/accounting/v1/tracking-categories?expand=company&remote_fields=status&show_enum_origins=status "HTTP/1.1 200 OK"
+02/07/2024 05:54:04 PM [DEBUG] receive_response_body.started request=<Request [b'GET']>
+02/07/2024 05:54:04 PM [DEBUG] receive_response_body.complete
+02/07/2024 05:54:04 PM [DEBUG] response_closed.started
+02/07/2024 05:54:04 PM [DEBUG] response_closed.complete
+02/07/2024 05:54:04 PM [DEBUG] FORMATTED DATA: {'tracking_category': [{'id': 'b5f9fe17-310c-45a3-a8a5-72551de72af7', 'name': 'West Coast', 'status': 'ACTIVE', 'category_type': 'Region', 'parent_category': None, 'company': None, 'remote_was_deleted': False, 'remote_id': 'fc96efd9-b832-4b31-a93e-61f56158adad', 'created_at': '2024-01-16T06:46:01.851434+00:00Z', 'updated_at': '2024-01-16T06:46:01.851439+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}, {'id': 'e9c5dcf6-a5dd-46ba-adbc-a546be121c07', 'name': 'South', 'status': 'ACTIVE', 'category_type': 'Region', 'parent_category': None, 'company': None, 'remote_was_deleted': False, 'remote_id': 'e83ea9f2-de2c-44d8-b4f8-a5065bed339e', 'created_at': '2024-01-16T06:46:01.851398+00:00Z', 'updated_at': '2024-01-16T06:46:01.851403+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}, {'id': '8fd638bd-1076-4612-a05c-d64234b2e3c5', 'name': 'North', 'status': 'ACTIVE', 'category_type': 'Region', 'parent_category': None, 'company': None, 'remote_was_deleted': False, 'remote_id': '5e2974a2-097d-4f3b-bfd5-605d78c4a282', 'created_at': '2024-01-16T06:46:01.851359+00:00Z', 'updated_at': '2024-01-16T06:46:01.851364+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}, {'id': '950c54f0-8334-4f91-ab9a-604ec1caee9d', 'name': 'Eastside', 'status': 'ACTIVE', 'category_type': 'Region', 'parent_category': None, 'company': None, 'remote_was_deleted': False, 'remote_id': '7b354c1c-cf59-42fc-9449-a65c51988335', 'created_at': '2024-01-16T06:46:01.851288+00:00Z', 'updated_at': '2024-01-16T06:46:01.851304+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}]}          - Status Code: 200: NoneType: None
+
+02/07/2024 05:54:04 PM [DEBUG] Starting new HTTPS connection (1): dev.getkloo.com:443
+02/07/2024 05:54:05 PM [DEBUG] https://dev.getkloo.com:443 "POST /api/v1/organizations/erp-tracking-categories HTTP/1.1" 500 88
+02/07/2024 05:54:08 PM [ERROR] Internal Server Error: /api/erp/sync-data/proxy-sync/
+02/07/2024 05:55:07 PM [INFO] C:\Users\AmiteshSahay\Documents\ERP_Integration\kloo-merge-integration-erp\SYNC\views.py changed, reloading.
+02/07/2024 05:55:12 PM [DEBUG] Processing GET request in MergeAccounts...
+02/07/2024 05:55:12 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/07/2024 05:55:12 PM [DEBUG] load_verify_locations cafile='C:\\Users\\AmiteshSahay\\AppData\\Local\\Programs\\Python\\Python310\\lib\\site-packages\\certifi\\cacert.pem'
+02/07/2024 05:55:12 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/07/2024 05:55:13 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000022E59E484C0>
+02/07/2024 05:55:13 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x0000022E59DDAEC0> server_hostname='api-eu.merge.dev' timeout=60
+02/07/2024 05:55:13 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000022E59E48490>
+02/07/2024 05:55:13 PM [DEBUG] send_request_headers.started request=<Request [b'GET']>
+02/07/2024 05:55:13 PM [DEBUG] send_request_headers.complete
+02/07/2024 05:55:13 PM [DEBUG] send_request_body.started request=<Request [b'GET']>
+02/07/2024 05:55:13 PM [DEBUG] send_request_body.complete
+02/07/2024 05:55:13 PM [DEBUG] receive_response_headers.started request=<Request [b'GET']>
+02/07/2024 05:55:14 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 07 Feb 2024 12:25:14 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"img-src 'self'; font-src 'self'; script-src 'self'; default-src 'self'; connect-src 'self'; style-src 'self'; frame-ancestors 'self'"), (b'X-Frame-Options', b'DENY'), (b'Expires', b'Wed, 07 Feb 2024 12:25:13 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=No1C3GqLZRQa5FF9j7XYNr.g66GSsDEmeSgU6cPSMEA-1707308714-1-AQCP/c/8kD2hD9Fyg0rm+xyfcZNv66wFLV9BtK4BAj99EoAMEJQqzmgqxTbLM5W477A0O5PEY8EZ+ZSrgae5lKA=; path=/; expires=Wed, 07-Feb-24 12:55:14 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'851b9d416d283217-BOM'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/07/2024 05:55:14 PM [INFO] HTTP Request: GET https://api-eu.merge.dev/api/accounting/v1/company-info?expand=CompanyInfoListRequestExpand.ADDRESSES "HTTP/1.1 200 OK"
+02/07/2024 05:55:14 PM [DEBUG] receive_response_body.started request=<Request [b'GET']>
+02/07/2024 05:55:14 PM [DEBUG] receive_response_body.complete
+02/07/2024 05:55:14 PM [DEBUG] response_closed.started
+02/07/2024 05:55:14 PM [DEBUG] response_closed.complete
+02/07/2024 05:55:14 PM [DEBUG] FORMATTED DATA: {'companies': [{'id': 'a5945ed8-932d-4c9d-9090-e8a50c58fbb6', 'remote_id': '3f03913f-d173-4aa9-a7d8-cf8fc0525fa4', 'name': 'Demo Company (Global)', 'legal_name': 'Demo Company (Global)', 'tax_number': '101-2-303', 'fiscal_year_end_month': 12, 'fiscal_year_end_day': 31, 'currency': 'USD', 'remote_created_at': '2024-01-15T07:43:25.967000+00:00Z', 'urls': [], 'addresses': [{'type': None, 'street_1': '23 Main Street', 'street_2': 'Central City', 'city': 'Marineville', 'state': '', 'country_subdivision': '', 'country': None, 'zip_code': '12345', 'created_at': '2024-01-16T06:44:57.937035+00:00Z', 'modified_at': '2024-01-16T06:44:57.937052+00:00Z'}], 'phone_numbers': [{'number': '1234 5678', 'type': 'OFFICE', 'created_at': '2024-01-16T06:44:57.908319+00:00Z', 'modified_at': '2024-01-16T06:44:57.908337+00:00Z'}], 'remote_was_deleted': False, 'created_at': '2024-01-16T06:44:57.908319+00:00Z', 'modified_at': '2024-01-16T06:44:57.908337+00:00Z', 'field_mappings': {'organization_defined_targets': {}, 'linked_account_defined_targets': {}}, 'remote_data': None}]}              - Status Code: 200: NoneType: None
+
+02/07/2024 05:55:14 PM [DEBUG] Starting new HTTPS connection (1): dev.getkloo.com:443
+02/07/2024 05:55:14 PM [DEBUG] https://dev.getkloo.com:443 "POST /api/v1/organizations/insert-erp-companies HTTP/1.1" 201 1173
+02/07/2024 05:55:14 PM [DEBUG] Processing GET request in MergeTaxRate
+02/07/2024 05:55:14 PM [DEBUG] Fetching list of Tax rates
+02/07/2024 05:55:14 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/07/2024 05:55:14 PM [DEBUG] load_verify_locations cafile='C:\\Users\\AmiteshSahay\\AppData\\Local\\Programs\\Python\\Python310\\lib\\site-packages\\certifi\\cacert.pem'
+02/07/2024 05:55:14 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/07/2024 05:55:14 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000022E59DA0B50>
+02/07/2024 05:55:14 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x0000022E59F4AA40> server_hostname='api-eu.merge.dev' timeout=60
+02/07/2024 05:55:14 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000022E59DA07F0>
+02/07/2024 05:55:14 PM [DEBUG] send_request_headers.started request=<Request [b'GET']>
+02/07/2024 05:55:14 PM [DEBUG] send_request_headers.complete
+02/07/2024 05:55:14 PM [DEBUG] send_request_body.started request=<Request [b'GET']>
+02/07/2024 05:55:14 PM [DEBUG] send_request_body.complete
+02/07/2024 05:55:14 PM [DEBUG] receive_response_headers.started request=<Request [b'GET']>
+02/07/2024 05:55:15 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 07 Feb 2024 12:25:15 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"connect-src 'self'; default-src 'self'; img-src 'self'; font-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'self'"), (b'X-Frame-Options', b'DENY'), (b'Expires', b'Wed, 07 Feb 2024 12:25:15 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=I6YpAYGi1LVLENAApmr6UbR526FfUSp5X6j9l.vYaOs-1707308715-1-AaLFTiJQyRLO+f4H87lh0Da/fgmupS7XHKJFx1dQZiayjoxJQ2EOn0mX1YSKYFBXVWU92KeDI2jYAYnPDzI0mD0=; path=/; expires=Wed, 07-Feb-24 12:55:15 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'851b9d4c7c2c8566-BOM'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/07/2024 05:55:15 PM [INFO] HTTP Request: GET https://api-eu.merge.dev/api/accounting/v1/tax-rates?expand=company "HTTP/1.1 200 OK"
+02/07/2024 05:55:15 PM [DEBUG] receive_response_body.started request=<Request [b'GET']>
+02/07/2024 05:55:15 PM [DEBUG] receive_response_body.complete
+02/07/2024 05:55:15 PM [DEBUG] response_closed.started
+02/07/2024 05:55:15 PM [DEBUG] response_closed.complete
+02/07/2024 05:55:15 PM [DEBUG] FORMATTED DATA: {'taxRates': [{'description': 'Tax on Purchases', 'total_tax_rate': 8.25, 'effective_tax_rate': 8.25, 'company': None, 'remote_was_deleted': False, 'id': 'b092d018-1781-463b-9723-f4863b26f2a8', 'remote_id': 'INPUT', 'created_at': '2024-01-16T06:58:02.096420+00:00Z', 'modified_at': '2024-01-16T06:58:02.096425+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}, {'description': 'Tax on Goods', 'total_tax_rate': 8.75, 'effective_tax_rate': 8.75, 'company': None, 'remote_was_deleted': False, 'id': '40514bc5-369c-4b51-91c7-812a7e706465', 'remote_id': 'TAX001', 'created_at': '2024-01-16T06:58:02.096385+00:00Z', 'modified_at': '2024-01-16T06:58:02.096390+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}, {'description': 'Tax on Consulting', 'total_tax_rate': 8.25, 'effective_tax_rate': 8.25, 'company': None, 'remote_was_deleted': False, 'id': '7120f348-3217-4410-824d-3110c5ec59aa', 'remote_id': 'OUTPUT', 'created_at': '2024-01-16T06:58:02.096349+00:00Z', 'modified_at': '2024-01-16T06:58:02.096354+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}, {'description': 'Tax Exempt', 'total_tax_rate': 0.0, 'effective_tax_rate': 0.0, 'company': None, 'remote_was_deleted': False, 'id': '8c2f28a8-9dd1-4a44-a817-03416290acb1', 'remote_id': 'NONE', 'created_at': '2024-01-16T06:58:02.096312+00:00Z', 'modified_at': '2024-01-16T06:58:02.096317+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}, {'description': 'Sales Tax on Imports', 'total_tax_rate': 0.0, 'effective_tax_rate': 0.0, 'company': None, 'remote_was_deleted': False, 'id': '27b2839f-efdf-4a40-9b59-5f9f74ecc657', 'remote_id': 'GSTONIMPORTS', 'created_at': '2024-01-16T06:58:02.096275+00:00Z', 'modified_at': '2024-01-16T06:58:02.096281+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}, {'description': 'MB - GST/RST on Sales', 'total_tax_rate': 12.0, 'effective_tax_rate': 12.0, 'company': None, 'remote_was_deleted': False, 'id': 'ae3e4a05-b1de-4414-a1e2-adfca5d1bc81', 'remote_id': 'CAN028', 'created_at': '2024-01-16T06:58:02.096238+00:00Z', 'modified_at': '2024-01-16T06:58:02.096243+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}, {'description': 'MB - GST/RST on Purchases', 'total_tax_rate': 12.0, 'effective_tax_rate': 12.0, 'company': None, 'remote_was_deleted': False, 'id': 'f4ae442d-ad29-421d-86fb-09bb4be392c6', 'remote_id': 'CAN029', 'created_at': '2024-01-16T06:58:02.096197+00:00Z', 'modified_at': '2024-01-16T06:58:02.096204+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}, {'description': 'Exempt Sales', 'total_tax_rate': 0.0, 'effective_tax_rate': 0.0, 'company': None, 'remote_was_deleted': False, 'id': '54c69444-1d35-41a9-b8d0-8ae28df810e3', 'remote_id': 'CAN030', 'created_at': '2024-01-16T06:58:02.096094+00:00Z', 'modified_at': '2024-01-16T06:58:02.096112+00:00Z', 'field_mappings': [{'organization_defined_targets': {}, 'linked_account_defined_targets': {}}], 'remote_data': None}]}          - Status Code: 200: NoneType: None
+
+02/07/2024 05:55:15 PM [DEBUG] Starting new HTTPS connection (1): dev.getkloo.com:443
+02/07/2024 05:55:16 PM [DEBUG] https://dev.getkloo.com:443 "POST /api/v1/organizations/insert-erp-tax-rates HTTP/1.1" 201 4124
+02/07/2024 05:55:16 PM [DEBUG] data inserted successfully in the kloo Tax Rate system
+02/07/2024 05:56:34 PM [INFO] C:\Users\AmiteshSahay\Documents\ERP_Integration\kloo-merge-integration-erp\merge_integration\settings.py changed, reloading.
