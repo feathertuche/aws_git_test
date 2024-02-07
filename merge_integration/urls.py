@@ -28,5 +28,5 @@ urlpatterns = [
     path('api/erp/health/', health_check, name='health_check'),
     path('api/erp/', include('LINKTOKEN.urls')),
     path('api/erp/tracking-info/', include('TRACKING_CATAGORIES.urls')),
-    # path('api/erp/sync-data/', include('SYNC.urls')),
+    path('api/erp/sync-data/', include('SYNC.urls')),
 ]

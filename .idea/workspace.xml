@@ -6,18 +6,22 @@
   <component name="ChangeListManager">
     <list default="true" id="b09943b7-74fd-4558-a343-c2d26f814df8" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LINKTOKEN/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/LINKTOKEN/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LINKTOKEN/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/LINKTOKEN/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SYNC/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/LINKTOKEN/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SYNC/urls.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/SYNC/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/SYNC/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apiLog" beforeDir="false" afterPath="$PROJECT_DIR$/apiLog" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/merge_integration/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/merge_integration/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/merge_integration/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/merge_integration/urls.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
