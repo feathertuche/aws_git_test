@@ -886,3 +886,4 @@ TypeError: MergePostTrackingCategories.post() missing 1 required positional argu
 02/07/2024 10:54:43 AM [DEBUG] Starting new HTTPS connection (1): dev.getkloo.com:443
 02/07/2024 10:54:48 AM [DEBUG] https://dev.getkloo.com:443 "POST /api/v1/organizations/insert-erp-tax-rates HTTP/1.1" 201 4124
 02/07/2024 10:54:48 AM [DEBUG] data inserted successfully in the kloo Tax Rate system
+02/07/2024 11:30:34 AM [INFO] C:\Users\AmiteshSahay\Documents\ERP_Integration\kloo-merge-integration-erp\merge_integration\settings.py changed, reloading.
