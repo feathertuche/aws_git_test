@@ -34,7 +34,7 @@ class MergeTrackingCategoriesList(APIView):
             return organization_data
         except Exception as e:
             api_log(
-                msg=f"Error retrieving organizations details: {str(e)} \
+                msg=f"Error retrieving details: {str(e)} \
                  - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
 
     @staticmethod
@@ -80,7 +80,7 @@ class MergeTrackingCategoriesList(APIView):
         Returns:
             Response containing the formatted Merge Tracking_Category data.
         """
-        api_log(msg="Processing GET request in MergeTrackingCategories...")
+        api_log(msg="Processing GET request in MergeTrackingCategories")
 
         organization_data = self.get_tc()
         formatted_data = self.response_payload(organization_data)
@@ -145,7 +145,7 @@ class MergeTrackingCategoriesDetails(APIView):
 
         except Exception as e:
             api_log(
-                msg=f"Error retrieving organizations details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
+                msg=f"Error retrieving details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -161,24 +161,23 @@ class MergePostTrackingCategories(APIView):
             Response indicating success or failure of data insertion.
         """
         fetch_data = MergeTrackingCategoriesList()
-        account_data = fetch_data.get(request=request)
+        tc_data = fetch_data.get(request=request)
 
         try:
-            if account_data.status_code == status.HTTP_200_OK:
-                tc_payload = account_data.data
-                # print("@@@@@@@@@@@@@@@@",tc_payload)
-                tc_url = 'https://dev.getkloo.com/api/v1/organizations/erp-tracking-categories'
+            if tc_data.status_code == status.HTTP_200_OK:
+                tc_payload = tc_data.data
+                tc_url = "https://dev.getkloo.com/api/v1/organizations/erp-tracking-categories"
                 tc_response_data = requests.post(tc_url, json=tc_payload)
 
                 if tc_response_data.status_code == status.HTTP_201_CREATED:
-                    api_log(msg=f"data inserted successfully in the kloo account system")
-                    return Response(f"{tc_response_data} data inserted successfully in kloo account system")
+                    api_log(msg=f"data inserted successfully in the kloo Tracking_Category system")
+                    return Response(f"{tc_response_data} data inserted successfully in kloo Tracking_Category system")
 
                 else:
-                    return Response({'error': 'Failed to send data to Kloo API'}, status=tc_response_data.status_code)
+                    return Response({'error': 'Failed to send data to Kloo Tracking_Category API'}, status=tc_response_data.status_code)
 
         except Exception as e:
-            error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
+            error_message = f"Failed to send data to Kloo Tracking_Category API. Error: {str(e)}"
             return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response(f"Failed to insert data to the kloo account system", traceback)
+        return Response(f"Failed to insert data to the kloo Tracking_Category system", traceback)

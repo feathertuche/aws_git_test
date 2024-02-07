@@ -82,8 +82,13 @@ INSTALLED_APPS = [
     'ACCOUNTS',
     'LINKTOKEN',
     'corsheaders',
-    'TRACKING_CATAGORIES',
-    'SYNC'
+    'TRACKING_CATEGORIES',
+    'TAX_RATE',
+    'COMPANY_INFO',
+    'PURCHASE_ORDERS',
+    'CONTACTS',
+    'SYNC',
+
 ]
 
 MIDDLEWARE = [
