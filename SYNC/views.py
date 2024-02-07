@@ -1,6 +1,8 @@
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status, serializers
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 from COMPANY_INFO.views import MergeKlooCompanyInsert
 from TAX_RATE.views import MergePostTaxRates
 from TRACKING_CATAGORIES.views import MergePostTrackingCategories
@@ -12,6 +14,8 @@ class DummySerializer(serializers.Serializer):
 
 class ProxySyncAPI(CreateAPIView):
     serializer_class = DummySerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
     def post(self, request, *args, **kwargs):
         combined_response = {}
