@@ -7,9 +7,9 @@ class ErpLinkTokenManager(models.Manager):
 
 class ERPLogs(models.Model):
     class SyncStatus(models.TextChoices):
-        SUCCESS = 'success', 'Success'
-        FAILURE = 'failure', 'Failure'
-        PENDING = 'pending', 'Pending'
+        IN_PROGRESS = 'in progress', 'in progress'
+        SUCCESS = 'success', 'success'
+        FAILED = 'failed', 'failed'
 
     id = models.UUIDField(primary_key=True, editable=False)
     org_id = models.CharField(max_length=255)
@@ -18,7 +18,7 @@ class ERPLogs(models.Model):
     label = models.CharField(max_length=255)
     sync_start_time = models.DateTimeField()
     sync_end_time = models.DateTimeField()
-    sync_status = models.CharField(max_length=10, choices=SyncStatus.choices, default=SyncStatus.PENDING)
+    sync_status = models.CharField(max_length=15, choices=SyncStatus.choices, default=SyncStatus.IN_PROGRESS)
     error_message = models.TextField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
