@@ -228,7 +228,6 @@ class MergePostContacts(APIView):
                     }
 
                 contact_response_data = requests.post(contact_url, json=contact_payload, headers=headers)
-                print("!!!!!!!!!", contact_response_data)
 
                 if contact_response_data.status_code == status.HTTP_201_CREATED:
                     api_log(msg=f"data inserted successfully in the kloo Contacts system")

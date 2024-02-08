@@ -8,12 +8,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import APIException
 from COMPANY_INFO.views import MergeKlooCompanyInsert
-from TAX_RATE.views import MergePostTaxRates
-from TRACKING_CATEGORIES.views import MergePostTrackingCategories
+from CONTACTS.views import MergePostContacts
+# from TAX_RATE.views import MergePostTaxRates
+# from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from .model import ERPLogs
-
-
-
 
 
 class DummySerializer(serializers.Serializer):
@@ -42,11 +40,9 @@ class ProxySyncAPI(CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         combined_response = {}
-
         post_api_views = [
-            # MergePostTrackingCategories,
-            MergeKlooCompanyInsert,
-            MergePostTaxRates
+            MergePostContacts,
+            MergeKlooCompanyInsert
         ]
 
         for index, api_view_class in enumerate(post_api_views, start=1):
