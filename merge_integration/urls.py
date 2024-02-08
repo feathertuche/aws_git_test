@@ -19,7 +19,7 @@ from django.urls import path, include
 from .views import health_check
 
 urlpatterns = [
-    path('api/erp/admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('api/erp/account-info/', include('ACCOUNTS.urls')),
     path('api/erp/contact-info/', include('CONTACTS.urls')),
     path('api/erp/comp-info/', include('COMPANY_INFO.urls')),
