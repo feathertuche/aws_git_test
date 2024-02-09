@@ -6,6 +6,8 @@ from rest_framework import status, serializers
 from rest_framework.exceptions import APIException
 from COMPANY_INFO.views import MergeKlooCompanyInsert
 from CONTACTS.views import MergePostContacts
+from TAX_RATE.views import MergePostTaxRates
+from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from .model import ERPLogs
 
 
@@ -32,9 +34,9 @@ class ProxySyncAPI(CreateAPIView):
         log_entry.save()
 
     def post(self, request, *args, **kwargs):
-        combined_response = {}
+        combined_response = []
         post_api_views = [
-            # MergePostContacts,
+            MergePostTrackingCategories,
             MergeKlooCompanyInsert
         ]
         for index, api_view_class in enumerate(post_api_views, start=1):
@@ -43,10 +45,27 @@ class ProxySyncAPI(CreateAPIView):
                 response = api_instance.post(request)
 
                 if response.status_code == status.HTTP_200_OK:
-                    combined_response[f"merge_response_{index}"] = response.data
+                    # combined_response[f"merge_response_{index}"] = response.data
+
+                    combined_response.append({
+                        "key": api_view_class.__name__,
+                        "Status": status.HTTP_200_OK,
+                        "successMessage": f"API {api_view_class.__name__} executed successfully"
+                    })
 
                 else:
-                    raise APIException(f"API {index} failed with status code {response.status_code}")
+                    error_message = f"API {api_view_class.__name__} failed with status code {response.status_code}"
+                    raise APIException(error_message)
+
+            except APIException as e:
+                error_message = str(e)
+                self.log_error(error_message=error_message)
+
+                combined_response.append({
+                    'key': api_view_class.__name__,
+                    'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    'errorMessage': error_message
+                })
 
             except Exception as e:
                 error_message = f"An error occurred while calling API {index}: {str(e)}"

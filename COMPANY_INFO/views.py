@@ -160,11 +160,9 @@ class MergeCompanyDetails(APIView):
 class MergeKlooCompanyInsert(APIView):
     @staticmethod
     def post(request):
-        authorizer = request.headers
-        header = authorizer['Authorization']
-        token_out = header.split()
-        if len(token_out) == 2 and token_out[0] == "Bearer":
-            token_auth = token_out[1]
+        authorization_header = request.headers.get('Authorization')
+        if authorization_header and authorization_header.startswith('Bearer '):
+            token = authorization_header.split(' ')[1]
 
             merge_company_list = MergeCompanyInfo()
             response = merge_company_list.get(request=request)
@@ -172,12 +170,12 @@ class MergeKlooCompanyInsert(APIView):
                 if response.status_code == status.HTTP_200_OK:
                     merge_payload = response.data
                     kloo_url = 'https://dev.getkloo.com/api/v1/organizations/insert-erp-companies'
-                    kloo_data_insert = requests.post(kloo_url, json=merge_payload, headers=token_auth)
+                    kloo_data_insert = requests.post(kloo_url, json=merge_payload, headers={'Authorization': f'Bearer {token}'})
 
                     if kloo_data_insert.status_code == status.HTTP_201_CREATED:
                         return Response(f"successfully inserted the data for COMPANY INFO with ")
                     else:
-                        return Response({'error': 'Failed to send data to Kloo API'}, status=kloo_data_insert.status_code)
+                        return Response({'error': 'Failed to send data to Kloo API'}, status=kloo_data_insert.text)
 
             except Exception as e:
                 error_message = f"Failed to send data to Kloo API. Error: {str(e)}"

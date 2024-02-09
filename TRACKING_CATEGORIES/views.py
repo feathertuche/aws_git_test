@@ -160,24 +160,28 @@ class MergePostTrackingCategories(APIView):
         Returns:
             Response indicating success or failure of data insertion.
         """
-        fetch_data = MergeTrackingCategoriesList()
-        tc_data = fetch_data.get(request=request)
+        authorization_header = request.headers.get('Authorization')
+        if authorization_header and authorization_header.startswith('Bearer '):
+            token = authorization_header.split(' ')[1]
 
-        try:
-            if tc_data.status_code == status.HTTP_200_OK:
-                tc_payload = tc_data.data
-                tc_url = "https://dev.getkloo.com/api/v1/organizations/erp-tracking-categories"
-                tc_response_data = requests.post(tc_url, json=tc_payload)
+            fetch_data = MergeTrackingCategoriesList()
+            tc_data = fetch_data.get(request=request)
 
-                if tc_response_data.status_code == status.HTTP_201_CREATED:
-                    api_log(msg=f"data inserted successfully in the kloo Tracking_Category system")
-                    return Response(f"{tc_response_data} data inserted successfully in kloo Tracking_Category system")
+            try:
+                if tc_data.status_code == status.HTTP_200_OK:
+                    tc_payload = tc_data.data
+                    tc_url = "https://dev.getkloo.com/api/v1/organizations/erp-tracking-categories"
+                    tc_response_data = requests.post(tc_url, json=tc_payload, headers={'Authorization': f'Bearer {token}'})
 
-                else:
-                    return Response({'error': 'Failed to send data to Kloo Tracking_Category API'}, status=tc_response_data.status_code)
+                    if tc_response_data.status_code == status.HTTP_201_CREATED:
+                        api_log(msg=f"data inserted successfully in the kloo Tracking_Category system")
+                        return Response(f"{tc_response_data} data inserted successfully in kloo Tracking_Category system")
 
-        except Exception as e:
-            error_message = f"Failed to send data to Kloo Tracking_Category API. Error: {str(e)}"
-            return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    else:
+                        return Response({'error': 'Failed to send data to Kloo Tracking_Category API'}, status=tc_response_data.status_code)
 
-        return Response(f"Failed to insert data to the kloo Tracking_Category system", traceback)
+            except Exception as e:
+                error_message = f"Failed to send data to Kloo Tracking_Category API. Error: {str(e)}"
+                return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            return Response(f"Failed to insert data to the kloo Tracking_Category system", traceback)
