@@ -48,39 +48,34 @@ class MergeInvoices(APIView):
 
 class MergeInvoiceCreate(APIView):
     def post(self, request, *args, **kwargs):
+        request.data
         api_log(msg="Processing GET request in MergeInvoice...")
         merge_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN, api_key=settings.API_KEY)
         try:
             response = merge_client.accounting.invoices.create(model=InvoiceRequest(
-                type="ACCOUNTS_RECEIVABLE",
-                contact="fb9ab654-67d5-43ba-870c-95ab566781f8",
+                type=request.data.get('type'),
+                contact=request.data.get('contact'),
                 line_items=[
                     InvoiceLineItemRequest(
-                        id="c926f339-1531-4c8b-8f29-a67c475041b2",
-                        remote_id="TSM - Black",
-                        name="T-Shirt Medium Black",
-                        # description= "Pickleball lessons",
-                        # quantity=1,
-                        status=None,
-                        unit_price=40.0,
-                       # total_amount=50,
-                        # currency="USD",
-                        #exchange_rate="2.9",
-                        purchase_price=20.0,
-                        purchase_account=None,
-                        sales_account="707cf8b3-e2b4-471e-bd45-d2bcf1af3bd1",
-                        company=None,
-                        remote_updated_at="2024-01-15T07:43:26.363000Z",
-                        remote_was_deleted=False,
-                        created_at="2024-01-16T06:48:02.878806Z",
-                        modified_at="2024-01-16T06:48:02.878811Z",
-                        account="67df4fa6-f282-4734-aa9b-1cb37a44e46c",
+                        id=request.data.get('id'),
+                        remote_id=request.data.get('remote_id'),
+                        name=request.data.get('name'),
+                        status=request.data.get('status'),
+                        unit_price=request.data.get('unit_price'),
+                        purchase_price=request.data.get('purchase_price'),
+                        purchase_account=request.data.get('purchase_account'),
+                        sales_account=request.data.get('sales_account'),
+                        company=request.data.get('company'),
+                        remote_updated_at=request.data.get('remote_updated_at'),
+                        remote_was_deleted=request.data.get('remote_was_deleted'),
+                        created_at=request.data.get('created_at'),
+                        modified_at=request.data.get('modified_at'),
+                        account=request.data.get('account'),
                         remote_data=None
                     )
                 ]
             )
             )
-            print("@@@@@@@@@@@@@", response.errors)
 
             if not response.errors:
                 api_log(msg="Invoice created successfully.")

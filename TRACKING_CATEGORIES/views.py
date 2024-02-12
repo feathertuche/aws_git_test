@@ -160,6 +160,8 @@ class MergePostTrackingCategories(APIView):
         Returns:
             Response indicating success or failure of data insertion.
         """
+
+        erp_link_token_id = request.data.get('erp_link_token_id')
         authorization_header = request.headers.get('Authorization')
         if authorization_header and authorization_header.startswith('Bearer '):
             token = authorization_header.split(' ')[1]
@@ -170,6 +172,8 @@ class MergePostTrackingCategories(APIView):
             try:
                 if tc_data.status_code == status.HTTP_200_OK:
                     tc_payload = tc_data.data
+                    tc_payload["erp_link_token_id"] = erp_link_token_id
+
                     tc_url = "https://dev.getkloo.com/api/v1/organizations/erp-tracking-categories"
                     tc_response_data = requests.post(tc_url, json=tc_payload, headers={'Authorization': f'Bearer {token}'})
 

@@ -29,6 +29,7 @@ class MergeCompanyInfo(APIView):
                 msg=f"Error retrieving organizations details: {str(e)} \
                  - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
 
+
     @staticmethod
     def build_response_payload(organization_data):
         formatted_addresses = [
@@ -82,14 +83,14 @@ class MergeCompanyInfo(APIView):
         return kloo_format_json
 
     def get(self, request, *args, **kwargs):
-            api_log(msg="Processing GET request in MergeAccounts...")
+        api_log(msg="Processing GET request in MergeAccounts...")
 
-            organization_data = self.get_company_info()
-            formatted_data = self.build_response_payload(organization_data)
+        organization_data = self.get_company_info()
+        formatted_data = self.build_response_payload(organization_data)
 
-            api_log(msg=f"FORMATTED DATA: {formatted_data} \
+        api_log(msg=f"FORMATTED DATA: {formatted_data} \
              - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
-            return Response(formatted_data, status=status.HTTP_200_OK)
+        return Response(formatted_data, status=status.HTTP_200_OK)
 
 
 class MergeCompanyDetails(APIView):
@@ -97,10 +98,11 @@ class MergeCompanyDetails(APIView):
     def get(_, id=None):
         api_log(msg="Processing GET request in MergeAccounts...")
         comp_id_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN,
-                                api_key=settings.API_KEY)
+                               api_key=settings.API_KEY)
 
         try:
-            organization_data = comp_id_client.accounting.company_info.retrieve(id=id, expand=CompanyInfoRetrieveRequestExpand.ADDRESSES)
+            organization_data = comp_id_client.accounting.company_info.retrieve(id=id,
+                                                                                expand=CompanyInfoRetrieveRequestExpand.ADDRESSES)
 
             formatted_addresses = [
                 {
@@ -148,14 +150,15 @@ class MergeCompanyDetails(APIView):
             }
             formatted_data.append(formatted_entry)
 
-            api_log(msg=f"FORMATTED DATA: {formatted_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
+            api_log(
+                msg=f"FORMATTED DATA: {formatted_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
             return Response(formatted_data, status=status.HTTP_200_OK)
 
         except Exception as e:
             api_log(
                 msg=f"Error retrieving organizations details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
 
 class MergeKlooCompanyInsert(APIView):
     @staticmethod
@@ -170,7 +173,8 @@ class MergeKlooCompanyInsert(APIView):
                 if response.status_code == status.HTTP_200_OK:
                     merge_payload = response.data
                     kloo_url = 'https://dev.getkloo.com/api/v1/organizations/insert-erp-companies'
-                    kloo_data_insert = requests.post(kloo_url, json=merge_payload, headers={'Authorization': f'Bearer {token}'})
+                    kloo_data_insert = requests.post(kloo_url, json=merge_payload,
+                                                     headers={'Authorization': f'Bearer {token}'})
 
                     if kloo_data_insert.status_code == status.HTTP_201_CREATED:
                         return Response(f"successfully inserted the data for COMPANY INFO with ")
