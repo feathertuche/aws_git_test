@@ -48,35 +48,47 @@ class MergeInvoices(APIView):
 
 class MergeInvoiceCreate(APIView):
     def post(self, request, *args, **kwargs):
-        request.data
         api_log(msg="Processing GET request in MergeInvoice...")
         merge_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN, api_key=settings.API_KEY)
         try:
-            response = merge_client.accounting.invoices.create(model=InvoiceRequest(
-                type=request.data.get('type'),
-                contact=request.data.get('contact'),
-                line_items=[
-                    InvoiceLineItemRequest(
-                        id=request.data.get('id'),
-                        remote_id=request.data.get('remote_id'),
-                        name=request.data.get('name'),
-                        status=request.data.get('status'),
-                        unit_price=request.data.get('unit_price'),
-                        purchase_price=request.data.get('purchase_price'),
-                        purchase_account=request.data.get('purchase_account'),
-                        sales_account=request.data.get('sales_account'),
-                        company=request.data.get('company'),
-                        remote_updated_at=request.data.get('remote_updated_at'),
-                        remote_was_deleted=request.data.get('remote_was_deleted'),
-                        created_at=request.data.get('created_at'),
-                        modified_at=request.data.get('modified_at'),
-                        account=request.data.get('account'),
-                        remote_data=None
-                    )
-                ]
-            )
-            )
+            line_items_data = []
+            line_items_payload = request.data.get('line_items', [])
+            for line_item_payload in line_items_payload:
+                remote_data_payload = line_item_payload.get('remote_data', [])
+                remote_data_list = []
+                for remote_data_item in remote_data_payload:
+                    remote_data_list.append({
+                        'invoice_id': remote_data_item.get('invoice_id'),
+                        'quantity': remote_data_item.get('quantity'),
+                        'total_amount': remote_data_item.get('total_amount')
+                    })
 
+                line_item_data = {
+                    'id': line_item_payload.get('id'),
+                    'remote_id': line_item_payload.get('id'),
+                    'name': line_item_payload.get('item'),
+                    # 'status': line_item_payload.get('status'),
+                    'unit_price': line_item_payload.get('unit_price'),
+                    'purchase_price': line_item_payload.get('purchase_price'),
+                    'purchase_account': line_item_payload.get('purchase_account'),
+                    'sales_account': line_item_payload.get('sales_account'),
+                    'company': line_item_payload.get('company'),
+                    'remote_updated_at': line_item_payload.get('remote_updated_at'),
+                    'remote_was_deleted': line_item_payload.get('remote_was_deleted'),
+                    'created_at': line_item_payload.get('created_at'),
+                    'modified_at': line_item_payload.get('modified_at'),
+                    'account': line_item_payload.get('account'),
+                    'remote_data': remote_data_list
+                }
+                line_items_data.append(line_item_data)
+
+            invoice_request = InvoiceRequest(
+                type=request.data.get('model', {}).get('type'),
+                contact=request.data.get('model', {}).get('contact'),
+                number=request.data.get('number'),  # Assuming number is not nested under 'model'
+                line_items=[InvoiceLineItemRequest(**line_item) for line_item in line_items_data]
+            )
+            response = merge_client.accounting.invoices.create(model=invoice_request)
             if not response.errors:
                 api_log(msg="Invoice created successfully.")
                 return Response({"status": "success", "message": f"Invoice created successfully.{response.model}"},
@@ -92,3 +104,6 @@ class MergeInvoiceCreate(APIView):
             error_message = f"An error occurred while creating invoice: {str(e)}"
             api_log(msg=error_message)
             return Response({"status": "error", "message": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
