@@ -52,9 +52,9 @@ jobs:
         run: |
           cd ./merge_integration
           echo "SECRET_KEY=django-insecure-7ifve=ho3gf#jl6u8!5gp0#$r#q1^djdclyxomxykrrd&1)v46" >> .env
-          echo "ACCOUNT_TOKEN=tO_EPCCEc1BeuK9oMvwLnK4Q9tAwVRTCauC7-csOq_943DFzqlGCGg" >> .env
+          echo "ACCOUNT_TOKEN=ZgjvA2e0f0DPnP2UXU3Yrl9beSZ6BWxOTuXJyvH7ylFBsM2b6hSnLA" >> .env
           echo "BASE_URL=https://api-eu.merge.dev" >> .env
-          echo "API_KEY=ZgjvA2e0f0DPnP2UXU3Yrl9beSZ6BWxOTuXJyvH7ylFBsM2b6hSnLA" >> .env
+          echo "API_KEY=tO_EPCCEc1BeuK9oMvwLnK4Q9tAwVRTCauC7-csOq_943DFzqlGCGg" >> .env
        
       - name: Dynamically setting function names
         run: |
