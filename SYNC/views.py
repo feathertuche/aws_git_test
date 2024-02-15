@@ -50,11 +50,11 @@ class ProxySyncAPI(CreateAPIView):
                     combined_response.append({
                         "key": f"{module_name}",
                         "Status": status.HTTP_200_OK,
-                        "successMessage": f"API {api_view_class.__name__} executed successfully"
+                        "successMessage": f"API {{module_name} executed successfully"
                     })
     
                 else:
-                    error_message = f"API {api_view_class.__name__} failed with status code {response.status_code}"
+                    error_message = f"API {module_name} failed with status code {response.status_code}"
                     raise APIException(error_message)
     
             except APIException as e:
