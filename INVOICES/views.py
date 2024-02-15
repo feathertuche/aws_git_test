@@ -66,10 +66,15 @@ class MergeInvoiceCreate(APIView):
                     'purchase_price': line_item_payload.get('purchase_price'),
                     'purchase_account': line_item_payload.get('purchase_account'),
                     'sales_account': line_item_payload.get('sales_account'),
-                    'company': line_item_payload.get('company'),
+                    'currency': line_item_payload.get('currency'),
+                    'exchange_rate': line_items_payload.get('exchange_rate'),
                     'remote_updated_at': line_item_payload.get('remote_updated_at'),
                     'remote_was_deleted': line_item_payload.get('remote_was_deleted'),
+                    'description': line_item_payload.get('description'),
+                    'quantity': line_item_payload.get('quantity'),
                     'created_at': line_item_payload.get('created_at'),
+                    'tracking_category': line_item_payload.get('tracking_category'),
+                    'tracking_categories': line_item_payload.get('tracking_categories'),
                     'modified_at': line_item_payload.get('modified_at'),
                     'account': line_item_payload.get('account'),
                     'remote_data': None
@@ -81,11 +86,12 @@ class MergeInvoiceCreate(APIView):
                     type=line_items_payload.get('type'),
                     contact=line_items_payload.get('contact'),
                     number=line_items_payload.get('number'),
-                    line_items=[
-                        InvoiceLineItemRequest(**line_item) for line_item in line_items_data
-                    ],
-                ),
-            )
+                    memo=line_items_payload.get('memo'),
+                    company=line_items_payload.get('company'),
+                    exchange_rate=line_items_payload.get('exchange_rate'),
+                    tracking_categories=line_items_payload.get('tracking_categories'),
+                    line_items=[InvoiceLineItemRequest(**line_item) for line_item in line_items_data]))
+
             return Response({"status": "success", "message": f"Invoice created successfully."},
                             status=status.HTTP_201_CREATED)
 
