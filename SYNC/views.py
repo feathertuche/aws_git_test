@@ -41,30 +41,36 @@ class ProxySyncAPI(CreateAPIView):
             try:
                 api_instance = api_view_class()
                 response = api_instance.post(request)
-
+    
                 if response.status_code == status.HTTP_200_OK:
-                    # combined_response[f"merge_response_{index}"] = response.data
-
+                    module_name = api_view_class.__module__
+                    if module_name.endswith(".views"):
+                        module_name = module_name[:-6]
+    
                     combined_response.append({
-                        "key": api_view_class.__name__,
+                        "key": f"{module_name}",
                         "Status": status.HTTP_200_OK,
                         "successMessage": f"API {api_view_class.__name__} executed successfully"
                     })
-
+    
                 else:
                     error_message = f"API {api_view_class.__name__} failed with status code {response.status_code}"
                     raise APIException(error_message)
-
+    
             except APIException as e:
                 error_message = str(e)
                 self.log_error(error_message=error_message)
-
+    
+                module_name = api_view_class.__module__
+                if module_name.endswith(".views"):
+                    module_name = module_name[:-6]
+    
                 combined_response.append({
-                    'key': api_view_class.__name__,
+                    'key': f"{module_name}",
                     'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                     'errorMessage': error_message
                 })
-
+    
             except Exception as e:
                 error_message = f"An error occurred while calling API {index}: {str(e)}"
                 self.log_error(error_message=error_message)
