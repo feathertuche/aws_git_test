@@ -87,6 +87,7 @@ class MergeInvoiceCreate(APIView):
                     contact=line_items_payload.get('contact'),
                     number=line_items_payload.get('number'),
                     memo=line_items_payload.get('memo'),
+                    status=line_items_payload.get('status'),
                     company=line_items_payload.get('company'),
                     exchange_rate=line_items_payload.get('exchange_rate'),
                     tracking_categories=line_items_payload.get('tracking_categories'),
