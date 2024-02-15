@@ -5,10 +5,8 @@ from rest_framework.response import Response
 from rest_framework import status, serializers
 from rest_framework.exceptions import APIException
 from COMPANY_INFO.views import MergeKlooCompanyInsert
-from CONTACTS.views import MergePostContacts
-from TAX_RATE.views import MergePostTaxRates
 from TRACKING_CATEGORIES.views import MergePostTrackingCategories
-from .model import ERPLogs
+from .models import ERPLogs
 
 
 class DummySerializer(serializers.Serializer):

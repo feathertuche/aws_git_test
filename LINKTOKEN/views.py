@@ -2,7 +2,7 @@ from merge.resources.accounting import CategoriesEnum
 from merge_integration.utils import create_merge_client
 import json
 import traceback
-from COMPANY_INFO.models import ErpLinkToken
+from .model import ErpLinkToken
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,7 +11,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from merge_integration.helper_functions import api_log
 from django.core.exceptions import ObjectDoesNotExist
-from COMPANY_INFO.serializers import AccountTokenSerializers
 
 
 class LinkToken(APIView):
@@ -98,18 +97,3 @@ def webhook_handler(request):
         api_log(
                  msg=f"Error retrieving organizations details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
         return JsonResponse(error_message, status=500)
-
-
-# class ListAccountTokenView(ListAPIView):
-#
-#     serializer_class = AccountTokenSerializers
-#
-#     def get_queryset(self):
-#         org_id = self.kwargs.get('org_id')
-#         print(org_id)
-#         entity_id = self.kwargs.get('entity_id')
-#         print(entity_id)
-#         queryset = ErpLinkToken.objects.filter(org_id=org_id, entity_id=entity_id)
-#         return queryset
-#
-
