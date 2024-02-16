@@ -208,8 +208,8 @@ class MergePostContacts(APIView):
     """
     API view for inserting Merge Contact data into the Kloo Contacts system.
     """
-
-    def post(self, request):
+    @staticmethod
+    def post(request):
         """
         Handles POST requests to insert Merge Contact data into the Kloo Contacts system.
 
@@ -236,15 +236,15 @@ class MergePostContacts(APIView):
 
                     if contact_response_data.status_code == status.HTTP_201_CREATED:
                         api_log(msg=f"data inserted successfully in the kloo Contacts system")
-                        return Response(f"{contact_response_data} data inserted successfully in kloo Contacts system")
+                        return Response(f"data inserted successfully in the kloo Contacts system")
 
                     else:
                         return Response({'error': 'Failed to send data to Kloo Contacts API'},
-                                        status=contact_response_data.status_code)
+                                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             except Exception as e:
                 error_message = f"Failed to send data to Kloo Contacts API. Error: {str(e)}"
                 return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            return Response(f"Failed to insert data to the kloo Contacts system", traceback)
+            return Response(f"Failed to insert data to the kloo Contacts system")
 

@@ -29,7 +29,6 @@ class MergeCompanyInfo(APIView):
                 msg=f"Error retrieving organizations details: {str(e)} \
                  - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
 
-
     @staticmethod
     def build_response_payload(organization_data):
         formatted_addresses = [
@@ -161,8 +160,8 @@ class MergeCompanyDetails(APIView):
 
 
 class MergeKlooCompanyInsert(APIView):
-
-     def post(request):
+    @staticmethod
+    def post(request):
         erp_link_token_id = request.data.get('erp_link_token_id')
         authorization_header = request.headers.get('Authorization')
         if authorization_header and authorization_header.startswith('Bearer '):
