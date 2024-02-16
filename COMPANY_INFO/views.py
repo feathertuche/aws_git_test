@@ -164,6 +164,7 @@ class MergeKlooCompanyInsert(APIView):
     def post(request):
         erp_link_token_id = request.data.get('erp_link_token_id')
         authorization_header = request.headers.get('Authorization')
+        print(authorization_header)
         if authorization_header and authorization_header.startswith('Bearer '):
             token = authorization_header.split(' ')[1]
 
@@ -173,6 +174,7 @@ class MergeKlooCompanyInsert(APIView):
                 if response.status_code == status.HTTP_200_OK:
                     merge_payload = response.data
                     merge_payload["erp_link_token_id"] = erp_link_token_id
+                    print(merge_payload)
                     kloo_url = 'https://dev.getkloo.com/api/v1/organizations/insert-erp-companies'
                     kloo_data_insert = requests.post(kloo_url, json=merge_payload,
                                                      headers={'Authorization': f'Bearer {token}'})
@@ -180,11 +182,11 @@ class MergeKlooCompanyInsert(APIView):
                     if kloo_data_insert.status_code == status.HTTP_201_CREATED:
                         return Response(f"successfully inserted the data for COMPANY INFO with ")
                     else:
-                        return Response({'error': 'Failed to send data to Kloo API'}, status=kloo_data_insert.text)
+                        return Response({'error': 'Failed to send data to Kloo API'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             except Exception as e:
                 error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
                 return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            return Response({'error': 'Failed to retrieve company information'}, status=response.status_code)
+        return Response({'error': 'Failed to retrieve company information'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

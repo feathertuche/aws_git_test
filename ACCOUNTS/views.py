@@ -74,21 +74,28 @@ class MergeAccounts(APIView):
 
 class InsertAccountData(APIView):
     def post(self, request):
+        erp_link_token_id = request.data.get('erp_link_token_id')
+        authorization_header = request.headers.get('Authorization')
+        print(authorization_header)
+        if authorization_header and authorization_header.startswith('Bearer '):
+            token = authorization_header.split(' ')[1]
+
         fetch_account_data = MergeAccounts()
         request_account_data = fetch_account_data.get(request=request)
 
         try:
             if request_account_data.status_code == status.HTTP_200_OK:
                 account_payload = request_account_data.data
+                account_payload['erp_link_token_id'] = erp_link_token_id
                 account_url = "https://dev.getkloo.com/api/v1/organizations/insert-erp-accounts"
-                account_rersponse_data = requests.post(account_url, json=account_payload)
+                account_response_data = requests.post(account_url, json=account_payload, headers={'Authorization': f'Bearer {token}'})
 
-                if account_rersponse_data.status_code == status.HTTP_201_CREATED:
+                if account_response_data.status_code == status.HTTP_201_CREATED:
                     api_log(msg=f"data inserted successfully in the kloo account system")
-                    return Response(f"{account_rersponse_data} data inserted successfully in kloo account system")
+                    return Response(f"{account_response_data} data inserted successfully in kloo account system")
 
                 else:
-                    return Response({'error': 'Failed to send data to Kloo API'}, status=account_rersponse_data.status_code)
+                    return Response({'error': 'Failed to send data to Kloo API'}, status=account_response_data.status_code)
 
         except Exception as e:
             error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
