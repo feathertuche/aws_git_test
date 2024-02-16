@@ -161,7 +161,7 @@ class MergeCompanyDetails(APIView):
 
 
 class MergeKlooCompanyInsert(APIView):
-    @staticmethod
+
      def post(request):
         erp_link_token_id = request.data.get('erp_link_token_id')
         authorization_header = request.headers.get('Authorization')
