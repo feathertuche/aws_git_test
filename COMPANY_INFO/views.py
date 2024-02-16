@@ -162,7 +162,8 @@ class MergeCompanyDetails(APIView):
 
 class MergeKlooCompanyInsert(APIView):
     @staticmethod
-    def post(request):
+     def post(request):
+        erp_link_token_id = request.data.get('erp_link_token_id')
         authorization_header = request.headers.get('Authorization')
         if authorization_header and authorization_header.startswith('Bearer '):
             token = authorization_header.split(' ')[1]
@@ -172,6 +173,7 @@ class MergeKlooCompanyInsert(APIView):
             try:
                 if response.status_code == status.HTTP_200_OK:
                     merge_payload = response.data
+                    merge_payload["erp_link_token_id"] = erp_link_token_id
                     kloo_url = 'https://dev.getkloo.com/api/v1/organizations/insert-erp-companies'
                     kloo_data_insert = requests.post(kloo_url, json=merge_payload,
                                                      headers={'Authorization': f'Bearer {token}'})
@@ -186,3 +188,4 @@ class MergeKlooCompanyInsert(APIView):
                 return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             return Response({'error': 'Failed to retrieve company information'}, status=response.status_code)
+
