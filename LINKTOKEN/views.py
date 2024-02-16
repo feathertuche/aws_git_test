@@ -2,7 +2,7 @@ import json
 import traceback
 from merge.resources.accounting import CategoriesEnum
 from merge_integration.utils import create_merge_client
-from .models import ErpLinkToken
+from .model import ErpLinkToken
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -97,8 +97,3 @@ def webhook_handler(request):
         api_log(
                  msg=f"Error retrieving organizations details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
         return JsonResponse(error_message, status=500)
-
-
-
-
-

@@ -7,7 +7,7 @@ from rest_framework.exceptions import APIException
 from COMPANY_INFO.views import MergeKlooCompanyInsert
 from LINKTOKEN.models import ErpLinkToken
 from TRACKING_CATEGORIES.views import MergePostTrackingCategories
-from .model import ERPLogs
+from .models import ERPLogs
 
 
 class DummySerializer(serializers.Serializer):
@@ -44,19 +44,19 @@ class ProxySyncAPI(CreateAPIView):
             try:
                 api_instance = api_view_class()
                 response = api_instance.post(request)
-
+    
                 if response.status_code == status.HTTP_200_OK:
                     module_name = api_view_class.__module__
                     if module_name.endswith(".views"):
                         module_name = module_name[:-6]
-
+    
                     combined_response.append({
                         "key": f"{module_name}",
                         'label': f"{module_name.replace('_', ' ')}",
                         "Status": status.HTTP_200_OK,
                         "successMessage": f"API {module_name} executed successfully"
                     })
-
+    
                 else:
                     module_name = api_view_class.__module__
                     if module_name.endswith(".views"):
@@ -81,7 +81,7 @@ class ProxySyncAPI(CreateAPIView):
                     'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                     'errorMessage': error_message
                 })
-
+    
             except Exception as e:
                 error_message = f"An error occurred while calling API {index}: {str(e)}"
                 self.log_error(error_message=error_message)

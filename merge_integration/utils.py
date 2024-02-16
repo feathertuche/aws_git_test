@@ -4,16 +4,10 @@ import boto3
 import json
 
 
-def create_merge_client(account_token=None):
+def create_merge_client():
     base_url = os.environ.get("BASE_URL")
-    account_token = account_token
+    account_token = os.environ.get("ACCOUNT_TOKEN")
     api_key = os.environ.get("API_KEY")
-
-    if not account_token:
-        raise ValueError("Access token is required")
-
-    if isinstance(account_token, str) or not account_token.strip():
-        raise ValueError("Account token must be a non-empty string.")
 
     if not all([base_url, account_token, api_key]):
         raise ValueError("Missing required environment variables for Merge client.")
