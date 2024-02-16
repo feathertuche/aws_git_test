@@ -24,19 +24,19 @@ class ProxySyncAPI(CreateAPIView):
         super().__init__(*args, **kwargs)
         self.org_id = None
         self.entity_id = None
-        self.link_token_id = None
+        self.erp_link_token_id = None
 
     def post(self, request, *args, **kwargs):
         org_id = request.data.get("org_id")
         entity_id = request.data.get("entity_id")
-        link_token_id = request.data.get("link_token_id")
+        erp_link_token_id = request.data.get("erp_link_token_id")
 
         if org_id is None or entity_id is None:
             return Response("Both fields are required to fetch link token..", status=status.HTTP_400_BAD_REQUEST)
 
         self.org_id = org_id
         self.entity_id = entity_id
-        self.link_token_id = link_token_id
+        self.erp_link_token_id = erp_link_token_id
 
         combined_response = []
         post_api_views = [
@@ -105,13 +105,15 @@ class ProxySyncAPI(CreateAPIView):
                 "account_token": item[1]  # Adjust the index for account_token
             })
 
-        # Adding response data to the combined response
         combined_response.append({
             "key": "link_token_data",
             "label": "Link Token Data",
             "data": response_data,
             "Status": status.HTTP_200_OK
         })
+
+        list_response = self.list(request, *args, *kwargs)
+        combined_response.append(list_response.data)
 
         return Response(combined_response, status=status.HTTP_200_OK)
 
