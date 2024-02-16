@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from COMPANY_INFO.models import ErpLinkToken
+from LINKTOKEN.models import ErpLinkToken
 
 
 class AccountTokenSerializers(serializers.ModelSerializer):

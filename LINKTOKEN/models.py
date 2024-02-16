@@ -24,5 +24,6 @@ class ErpLinkToken(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     objects = ErpLinkTokenManager()
+
     class Meta:
         db_table = 'erp_link_token'  # Set the actual table name here
