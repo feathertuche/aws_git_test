@@ -8,7 +8,7 @@ from rest_framework.exceptions import APIException
 from ACCOUNTS.views import InsertAccountData
 from COMPANY_INFO.views import MergeKlooCompanyInsert
 from CONTACTS.views import MergePostContacts
-from LINKTOKEN.models import ErpLinkToken
+from LINKTOKEN.model import ErpLinkToken
 from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from .models import ERPLogs
 
