@@ -24,18 +24,19 @@ class ProxySyncAPI(CreateAPIView):
         super().__init__(*args, **kwargs)
         self.org_id = None
         self.entity_id = None
+        self.link_token_id = None
 
     def post(self, request, *args, **kwargs):
         org_id = request.data.get("org_id")
-        print(org_id)
         entity_id = request.data.get("entity_id")
+        link_token_id = request.data.get("link_token_id")
 
         if org_id is None or entity_id is None:
             return Response("Both fields are required to fetch link token..", status=status.HTTP_400_BAD_REQUEST)
 
         self.org_id = org_id
-        print(self.org_id)
         self.entity_id = entity_id
+        self.link_token_id = link_token_id
 
         combined_response = []
         post_api_views = [
@@ -141,7 +142,7 @@ class ProxySyncAPI(CreateAPIView):
         log_entry = ERPLogs(
             id=uuid.uuid1(),
             org_id=self.org_id,
-            link_token_id='c5ocb9c',
+            link_token_id=self.link_token_id,
             link_token=account_token,
             label=label,
             sync_start_time=datetime.now(),
