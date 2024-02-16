@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b09943b7-74fd-4558-a343-c2d26f814df8" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SYNC/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/SYNC/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CONTACTS/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/CONTACTS/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +40,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../new_git/merge_integration" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
