@@ -4,7 +4,10 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status, serializers
 from rest_framework.exceptions import APIException
+
+from ACCOUNTS.views import InsertAccountData
 from COMPANY_INFO.views import MergeKlooCompanyInsert
+from CONTACTS.views import MergePostContacts
 from LINKTOKEN.models import ErpLinkToken
 from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from .models import ERPLogs
@@ -37,7 +40,9 @@ class ProxySyncAPI(CreateAPIView):
         combined_response = []
         post_api_views = [
             MergePostTrackingCategories,
-            MergeKlooCompanyInsert
+            MergeKlooCompanyInsert,
+            InsertAccountData,
+            MergePostContacts
         ]
 
         for index, api_view_class in enumerate(post_api_views, start=1):
