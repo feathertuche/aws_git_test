@@ -75,7 +75,7 @@ class ProxySyncAPI(CreateAPIView):
             except APIException as e:
                 error_message = str(e)
                 module_name = getattr(e, "module_name", "")
-                self.log_error(error_message=error_message, label=module_name)
+                #self.log_error(error_message=error_message, label=module_name)
 
                 module_name = api_view_class.__module__
                 if module_name.endswith(".views"):
@@ -90,7 +90,7 @@ class ProxySyncAPI(CreateAPIView):
     
             except Exception as e:
                 error_message = f"An error occurred while calling API {index}: {str(e)}"
-                self.log_error(error_message=error_message)
+                #self.log_error(error_message=error_message)
                 return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Fetching queryset and constructing response data
@@ -139,17 +139,17 @@ class ProxySyncAPI(CreateAPIView):
             })
         return Response(response_data)
 
-    def log_error(self, error_message, account_token, label):
-        # Log the error to the database
-        log_entry = ERPLogs(
-            id=uuid.uuid1(),
-            org_id=self.org_id,
-            link_token_id=self.link_token_id,
-            link_token=account_token,
-            label=label,
-            sync_start_time=datetime.now(),
-            sync_end_time=datetime.now(),
-            sync_status="Failed",
-            error_message=error_message
-        )
-        log_entry.save()
+    # def log_error(self, error_message, account_token, label):
+    #     # Log the error to the database
+    #     log_entry = ERPLogs(
+    #         id=uuid.uuid1(),
+    #         org_id=self.org_id,
+    #         link_token_id=self.erp_link_token_id,
+    #         link_token=account_token,
+    #         label=label,
+    #         sync_start_time=datetime.now(),
+    #         sync_end_time=datetime.now(),
+    #         sync_status="Failed",
+    #         error_message=error_message
+    #     )
+    #     log_entry.save()
