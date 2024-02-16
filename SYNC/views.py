@@ -49,6 +49,7 @@ class ProxySyncAPI(CreateAPIView):
     
                     combined_response.append({
                         "key": f"{module_name}",
+                        'label': f"{module_name.replace('_', ' ')}",
                         "Status": status.HTTP_200_OK,
                         "successMessage": f"API {module_name} executed successfully"
                     })
@@ -70,6 +71,7 @@ class ProxySyncAPI(CreateAPIView):
     
                 combined_response.append({
                     'key': f"{module_name}",
+                    'label': f"{module_name.replace('_', ' ')}",
                     'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
                     'errorMessage': error_message
                 })
