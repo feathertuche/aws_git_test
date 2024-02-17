@@ -9,17 +9,32 @@ import traceback
 from merge_integration.helper_functions import api_log
 from merge.resources.accounting import CompanyInfoListRequestExpand, CompanyInfoRetrieveRequestExpand
 # from SYNC.views import ListAccountTokenView
-# from merge_integration.utils import create_merge_client
+from merge_integration.utils import create_merge_client
 
 
 class MergeCompanyInfo(APIView):
-    @staticmethod
-    def get_company_info():
+
+    def __init__(self, link_token_details=None):
+        super().__init__()
+        self.link_token_details = link_token_details
+
+    def get_company_info(self):
+
+        if self.link_token_details is None:
+            # Handle the case where link_token_details is None
+            print("link_token_details is None")
+            return None
+
+        if len(self.link_token_details) == 0:
+            # Handle the case where link_token_details is an empty list
+            print("link_token_details is an empty list")
+            return None
         # get_token = ListAccountTokenView.as_view()
         # queryset = get_token(Request(request=request)).data
         # account_token = queryset[0]['account_token'] if queryset else None
         # account_token_client = create_merge_client(account_token)
-        comp_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN, api_key=settings.API_KEY)
+        account_token = self.link_token_details[0]
+        comp_client = create_merge_client(account_token)
 
         try:
             organization_data = comp_client.accounting.company_info.list(expand=CompanyInfoListRequestExpand.ADDRESSES)
@@ -160,21 +175,24 @@ class MergeCompanyDetails(APIView):
 
 
 class MergeKlooCompanyInsert(APIView):
-    @staticmethod
-    def post(request):
+
+    def __init__(self, link_token_details=None):
+        super().__init__()
+        self.link_token_details = link_token_details
+
+
+    def post(self, request):
         erp_link_token_id = request.data.get('erp_link_token_id')
         authorization_header = request.headers.get('Authorization')
-        print(authorization_header)
         if authorization_header and authorization_header.startswith('Bearer '):
             token = authorization_header.split(' ')[1]
-
-            merge_company_list = MergeCompanyInfo()
+            #clmerge_company_list = MergeCompanyInfo()
+            merge_company_list = MergeCompanyInfo(link_token_details=self.link_token_details)
             response = merge_company_list.get(request=request)
             try:
                 if response.status_code == status.HTTP_200_OK:
                     merge_payload = response.data
                     merge_payload["erp_link_token_id"] = erp_link_token_id
-                    print(merge_payload)
                     kloo_url = 'https://dev.getkloo.com/api/v1/organizations/insert-erp-companies'
                     kloo_data_insert = requests.post(kloo_url, json=merge_payload,
                                                      headers={'Authorization': f'Bearer {token}'})

@@ -39,16 +39,16 @@ class ProxySyncAPI(CreateAPIView):
         self.erp_link_token_id = erp_link_token_id
 
         combined_response = []
+        link_token_details = self.get_queryset(org_id, entity_id)
         post_api_views = [
-            MergePostTrackingCategories,
-            MergeKlooCompanyInsert,
-            InsertAccountData,
-            MergePostContacts
+            #(MergePostTrackingCategories, {'link_token_details': link_token_details}),  # Example of passing arguments
+            (MergeKlooCompanyInsert, {'link_token_details': link_token_details})
+            #(InsertAccountData, {'link_token_details': link_token_details}),
+            #(MergePostContacts, {'link_token_details': link_token_details})
         ]
-
-        for index, api_view_class in enumerate(post_api_views, start=1):
+        for index, (api_view_class, kwargs) in enumerate(post_api_views, start=1):
             try:
-                api_instance = api_view_class()
+                api_instance = api_view_class(**kwargs)
                 response = api_instance.post(request)
     
                 if response.status_code == status.HTTP_200_OK:
@@ -94,7 +94,7 @@ class ProxySyncAPI(CreateAPIView):
                 return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Fetching queryset and constructing response data
-        queryset = self.get_queryset()
+        queryset = self.get_queryset(self.org_id, self.entity_id)
         if not queryset:
             return Response("No matching records found.", status=status.HTTP_404_NOT_FOUND)
 
@@ -117,17 +117,17 @@ class ProxySyncAPI(CreateAPIView):
 
         return Response(combined_response, status=status.HTTP_200_OK)
 
-    def get_queryset(self):
+    def get_queryset(self, org_id, entity_id):
         if self.org_id is None or self.entity_id is None:
             return ErpLinkToken.objects.none()
         else:
-            filter_token = ErpLinkToken.objects.filter(org_id=self.org_id, entity_id=self.entity_id)
-            lnk_token = filter_token.values_list('id', 'account_token')
+            filter_token = ErpLinkToken.objects.filter(org_id=org_id, entity_id=entity_id)
+            lnk_token = filter_token.values_list('account_token', flat=1)
 
         return lnk_token
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        queryset = self.get_queryset(self.org_id, self.entity_id)
         if not queryset:
             return Response(f"Both IDs are the required fields.....")
 
