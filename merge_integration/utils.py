@@ -4,9 +4,9 @@ import boto3
 import json
 
 
-def create_merge_client():
+def create_merge_client(erp_link_token_id):
     base_url = os.environ.get("BASE_URL")
-    account_token = os.environ.get("ACCOUNT_TOKEN")
+    account_token = erp_link_token_id
     api_key = os.environ.get("API_KEY")
 
     if not all([base_url, account_token, api_key]):
