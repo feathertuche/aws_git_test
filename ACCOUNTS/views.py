@@ -11,12 +11,30 @@ from merge.resources.accounting import (
 )
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
+from merge_integration.utils import create_merge_client
 
 
 class MergeAccounts(APIView):
-    @staticmethod
-    def account_source_data():
-        merge_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN, api_key=settings.API_KEY)
+
+    def __init__(self, link_token_details=None):
+        super().__init__()
+        self.link_token_details = link_token_details
+
+    def account_source_data(self):
+
+        if self.link_token_details is None:
+            # Handle the case where link_token_details is None
+            print("link_token_details is None")
+            return None
+
+        if len(self.link_token_details) == 0:
+            # Handle the case where link_token_details is an empty list
+            print("link_token_details is an empty list")
+            return None
+
+        account_token = self.link_token_details[0]
+        merge_client = create_merge_client(account_token)
+
         try:
             accounts_data = merge_client.accounting.accounts.list(
                 expand="company",
@@ -73,33 +91,38 @@ class MergeAccounts(APIView):
 
 
 class InsertAccountData(APIView):
+
+    def __init__(self, link_token_details=None):
+        super().__init__()
+        self.link_token_details = link_token_details
+
     def post(self, request):
         erp_link_token_id = request.data.get('erp_link_token_id')
         authorization_header = request.headers.get('Authorization')
-        print(authorization_header)
         if authorization_header and authorization_header.startswith('Bearer '):
             token = authorization_header.split(' ')[1]
 
-        fetch_account_data = MergeAccounts()
-        request_account_data = fetch_account_data.get(request=request)
+            fetch_account_data = MergeAccounts(link_token_details=self.link_token_details)
+            request_account_data = fetch_account_data.get(request=request)
 
-        try:
-            if request_account_data.status_code == status.HTTP_200_OK:
-                account_payload = request_account_data.data
-                account_payload['erp_link_token_id'] = erp_link_token_id
-                account_url = "https://dev.getkloo.com/api/v1/organizations/insert-erp-accounts"
-                account_response_data = requests.post(account_url, json=account_payload, headers={'Authorization': f'Bearer {token}'})
+            try:
+                if request_account_data.status_code == status.HTTP_200_OK:
+                    account_payload = request_account_data.data
+                    account_payload["erp_link_token_id"] = erp_link_token_id
+                    account_url = "https://dev.getkloo.com/api/v1/organizations/insert-erp-accounts"
+                    account_response_data = requests.post(account_url, json=account_payload, headers={'Authorization': f'Bearer {token}'})
+                    print("ACCOUNT INFO........",account_response_data)
 
-                if account_response_data.status_code == status.HTTP_201_CREATED:
-                    api_log(msg=f"data inserted successfully in the kloo account system")
-                    return Response(f"{account_response_data} data inserted successfully in kloo account system")
+                    if account_response_data.status_code == status.HTTP_201_CREATED:
+                        api_log(msg=f"data inserted successfully in the kloo account system")
+                        return Response(f"{account_response_data} data inserted successfully in kloo account system")
 
-                else:
-                    return Response({'error': 'Failed to send data to Kloo API'}, status=account_response_data.status_code)
+                    else:
+                        return Response({'error': 'Failed to send data to Kloo API'}, status=account_response_data.status_code)
 
-        except Exception as e:
-            error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
-            return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            except Exception as e:
+                error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
+                return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response(f"Failed to insert data to the kloo account system", traceback)
+            return Response(f"Failed to insert data to the kloo account system", traceback)
 

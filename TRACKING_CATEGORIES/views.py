@@ -9,21 +9,29 @@ from rest_framework.response import Response
 from rest_framework import status
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
+from merge_integration.utils import create_merge_client
 
 
 class MergeTrackingCategoriesList(APIView):
     """
     API view for retrieving Merge Tracking_Category list.
     """
-    @staticmethod
-    def get_tc():
-        """
-        Retrieve Merge Tracking_Category data.
 
-        Returns:
-            The retrieved Merge Tracking_Category data.
-        """
-        tc_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN, api_key=settings.API_KEY)
+    def __init__(self, link_token_details=None):
+        super().__init__()
+        self.link_token_details = link_token_details
+
+    def get_tc(self):
+        if self.link_token_details is None:
+            print("link_token_details is None")
+            return None
+
+        if len(self.link_token_details) == 0:
+            print("link_token_details is an empty list")
+            return None
+
+        account_token = self.link_token_details[0]
+        tc_client = create_merge_client(account_token)
 
         try:
             organization_data = tc_client.accounting.tracking_categories.list(
@@ -74,12 +82,6 @@ class MergeTrackingCategoriesList(APIView):
         return kloo_format_json
 
     def get(self, request, *args, **kwargs):
-        """
-        Handles GET requests to retrieve Merge Tracking_Category data.
-
-        Returns:
-            Response containing the formatted Merge Tracking_Category data.
-        """
         api_log(msg="Processing GET request in MergeTrackingCategories")
 
         organization_data = self.get_tc()
@@ -153,29 +155,30 @@ class MergePostTrackingCategories(APIView):
     """
     API view for handling POST requests to insert Merge Tracking_Category data into the Kloo account system.
     """
+
+    def __init__(self, link_token_details=None):
+        super().__init__()
+        self.link_token_details = link_token_details
+
     def post(self, request):
-        """
-        Handles POST requests to insert Merge Tracking_Category data into the Kloo account system.
-
-        Returns:
-            Response indicating success or failure of data insertion.
-        """
-
         erp_link_token_id = request.data.get('erp_link_token_id')
         authorization_header = request.headers.get('Authorization')
         if authorization_header and authorization_header.startswith('Bearer '):
             token = authorization_header.split(' ')[1]
 
-            fetch_data = MergeTrackingCategoriesList()
+            fetch_data = MergeTrackingCategoriesList(link_token_details=self.link_token_details)
             tc_data = fetch_data.get(request=request)
 
             try:
                 if tc_data.status_code == status.HTTP_200_OK:
                     tc_payload = tc_data.data
+
                     tc_payload["erp_link_token_id"] = erp_link_token_id
+                    print(tc_payload)
 
                     tc_url = "https://dev.getkloo.com/api/v1/organizations/erp-tracking-categories"
                     tc_response_data = requests.post(tc_url, json=tc_payload, headers={'Authorization': f'Bearer {token}'})
+                    print("4444444444", tc_response_data)
 
                     if tc_response_data.status_code == status.HTTP_201_CREATED:
                         api_log(msg=f"data inserted successfully in the kloo Tracking_Category system")

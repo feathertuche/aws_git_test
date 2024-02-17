@@ -8,7 +8,6 @@ from merge.client import Merge
 import traceback
 from merge_integration.helper_functions import api_log
 from merge.resources.accounting import CompanyInfoListRequestExpand, CompanyInfoRetrieveRequestExpand
-# from SYNC.views import ListAccountTokenView
 from merge_integration.utils import create_merge_client
 
 
@@ -29,10 +28,7 @@ class MergeCompanyInfo(APIView):
             # Handle the case where link_token_details is an empty list
             print("link_token_details is an empty list")
             return None
-        # get_token = ListAccountTokenView.as_view()
-        # queryset = get_token(Request(request=request)).data
-        # account_token = queryset[0]['account_token'] if queryset else None
-        # account_token_client = create_merge_client(account_token)
+
         account_token = self.link_token_details[0]
         comp_client = create_merge_client(account_token)
 
@@ -180,13 +176,12 @@ class MergeKlooCompanyInsert(APIView):
         super().__init__()
         self.link_token_details = link_token_details
 
-
     def post(self, request):
         erp_link_token_id = request.data.get('erp_link_token_id')
         authorization_header = request.headers.get('Authorization')
         if authorization_header and authorization_header.startswith('Bearer '):
             token = authorization_header.split(' ')[1]
-            #clmerge_company_list = MergeCompanyInfo()
+
             merge_company_list = MergeCompanyInfo(link_token_details=self.link_token_details)
             response = merge_company_list.get(request=request)
             try:

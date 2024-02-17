@@ -12,22 +12,33 @@ from merge.client import Merge
 from merge.resources.accounting import ContactsListRequestExpand, ContactsRetrieveRequestExpand
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
+from merge_integration.utils import create_merge_client
 
 
 class MergeContactsList(APIView):
     """
     API view for retrieving Merge Contacts list.
     """
-    @staticmethod
-    def get_contacts():
-        """
-        Retrieves contacts data from the Merge API.
 
-        Returns:
-            Contacts data retrieved from the Merge API.
-        """
-        api_log(msg="Processing GET request Merge Contacts list")
-        contacts_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN, api_key=settings.API_KEY)
+    def __init__(self, link_token_details=None):
+        super().__init__()
+        self.link_token_details = link_token_details
+
+    def get_contacts(self):
+
+        if self.link_token_details is None:
+            # Handle the case where link_token_details is None
+            print("link_token_details is None")
+            return None
+
+        if len(self.link_token_details) == 0:
+            # Handle the case where link_token_details is an empty list
+            print("link_token_details is an empty list")
+            return None
+
+        account_token = self.link_token_details[0]
+        contacts_client = create_merge_client(account_token)
+
         try:
             contact_data = contacts_client.accounting.contacts.list(
                     expand=ContactsListRequestExpand.ADDRESSES,
@@ -208,8 +219,12 @@ class MergePostContacts(APIView):
     """
     API view for inserting Merge Contact data into the Kloo Contacts system.
     """
-    @staticmethod
-    def post(request):
+
+    def __init__(self, link_token_details=None):
+        super().__init__()
+        self.link_token_details = link_token_details
+
+    def post(self, request):
         """
         Handles POST requests to insert Merge Contact data into the Kloo Contacts system.
 
@@ -222,7 +237,7 @@ class MergePostContacts(APIView):
         if authorization_header and authorization_header.startswith('Bearer '):
             token = authorization_header.split(' ')[1]
 
-            fetch_data = MergeContactsList()
+            fetch_data = MergeContactsList(link_token_details=self.link_token_details)
             contact_data = fetch_data.get(request=request)
 
             try:
