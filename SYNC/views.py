@@ -20,7 +20,7 @@ class DummySerializer(serializers.Serializer):
 class ProxySyncAPI(CreateAPIView):
     serializer_class = DummySerializer
 
-    def __init__(self,*args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.org_id = None
         self.entity_id = None

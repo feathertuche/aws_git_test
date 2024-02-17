@@ -1,6 +1,4 @@
-import sys
-
-from django.http import HttpResponse
+from LINKTOKEN.model import ErpLinkToken
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -12,6 +10,7 @@ from merge.resources.accounting import (
 )
 import traceback
 from merge_integration.helper_functions import api_log
+from merge_integration.utils import create_merge_client
 
 
 class MergeInvoices(APIView):
@@ -50,9 +49,48 @@ class MergeInvoices(APIView):
 
 
 class MergeInvoiceCreate(APIView):
+
+    def __init__(self,  *args, link_token_details=None, **kwargs):
+        super().__init__()
+        self.org_id = None
+        self.entity_id = None
+
+    def get_queryset(self):
+        if self.org_id is None or self.entity_id is None:
+            return ErpLinkToken.objects.none()
+        else:
+            filter_token = ErpLinkToken.objects.filter(org_id=self.org_id, entity_id=self.entity_id)
+            lnk_token = filter_token.values_list('account_token', flat=1)
+
+        return lnk_token
+
     def post(self, request, *args, **kwargs):
         api_log(msg="Processing GET request in MergeInvoice...")
-        merge_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN, api_key=settings.API_KEY)
+
+        org_id = request.data.get("org_id")
+        entity_id = request.data.get("entity_id")
+
+        self.org_id = org_id
+        self.entity_id = entity_id
+
+        if self.org_id is None and self.entity_id is None:
+            return Response(f"not possible")
+
+        queryset = self.get_queryset()
+
+        if queryset is None:
+            # Handle the case where link_token_details is None
+            print("link_token_details is None")
+            return None
+
+        if len(queryset) == 0:
+            # Handle the case where link_token_details is an empty list
+            print("link_token_details is an empty list")
+            return None
+
+        account_token = queryset[0]
+        comp_client = create_merge_client(account_token)
+
         try:
             line_items_payload = request.data.get('model')
             line_items_data = []
@@ -77,11 +115,10 @@ class MergeInvoiceCreate(APIView):
                     'tracking_categories': line_item_payload.get('tracking_categories'),
                     'modified_at': line_item_payload.get('modified_at'),
                     'account': line_item_payload.get('account'),
-                    'remote_data': None
+                    'remote_data': line_item_payload.get('remote_data')
                 }
                 line_items_data.append(line_item_data)
-
-            merge_client.accounting.invoices.create(
+                comp_client.accounting.invoices.create(
                 model=InvoiceRequest(
                     type=line_items_payload.get('type'),
                     contact=line_items_payload.get('contact'),
