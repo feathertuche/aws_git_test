@@ -11,12 +11,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from merge_integration.helper_functions import api_log
 from django.core.exceptions import ObjectDoesNotExist
-
+import os
 
 class LinkToken(APIView):
     def post(self, request):
         try:
-            merge_client = create_merge_client()
+            api_key = os.environ.get("API_KEY")
+            merge_client = create_merge_client(api_key)
             link_token_response = merge_client.ats.link_token.create(
                 end_user_email_address=request.data.get("end_user_email_address"),
                 end_user_organization_name=request.data.get("end_user_organization_name"),
