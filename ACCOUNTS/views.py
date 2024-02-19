@@ -111,7 +111,6 @@ class InsertAccountData(APIView):
                     account_payload["erp_link_token_id"] = erp_link_token_id
                     account_url = "https://dev.getkloo.com/api/v1/organizations/insert-erp-accounts"
                     account_response_data = requests.post(account_url, json=account_payload, headers={'Authorization': f'Bearer {token}'})
-                    print("ACCOUNT INFO........",account_response_data)
 
                     if account_response_data.status_code == status.HTTP_201_CREATED:
                         api_log(msg=f"data inserted successfully in the kloo account system")

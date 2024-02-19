@@ -25,6 +25,7 @@ class ProxySyncAPI(CreateAPIView):
         self.org_id = None
         self.entity_id = None
         self.erp_link_token_id = None
+        self.account_token = None
 
     def post(self, request, *args, **kwargs):
         org_id = request.data.get("org_id")
@@ -40,9 +41,10 @@ class ProxySyncAPI(CreateAPIView):
 
         combined_response = []
         link_token_details = self.get_queryset()
+        self.account_token = link_token_details[0]
 
         post_api_views = [
-            (MergePostTrackingCategories, {'link_token_details': link_token_details}),  # Example of passing arguments
+            (MergePostTrackingCategories, {'link_token_details': link_token_details}),
             (MergeKlooCompanyInsert, {'link_token_details': link_token_details}),
             (InsertAccountData, {'link_token_details': link_token_details}),
             (MergePostContacts, {'link_token_details': link_token_details})
@@ -63,6 +65,7 @@ class ProxySyncAPI(CreateAPIView):
                         "Status": status.HTTP_200_OK,
                         "successMessage": f"API {module_name} executed successfully"
                     })
+                    self.success_log(success_message=f"API {module_name} executed successfully", label=f"{module_name.replace('_', ' ')}")
     
                 else:
                     module_name = api_view_class.__module__
@@ -76,7 +79,7 @@ class ProxySyncAPI(CreateAPIView):
             except APIException as e:
                 error_message = str(e)
                 module_name = getattr(e, "module_name", "")
-                #self.log_error(error_message=error_message, label=module_name)
+                self.log_error(error_message=error_message, label=module_name)
 
                 module_name = api_view_class.__module__
                 if module_name.endswith(".views"):
@@ -91,10 +94,8 @@ class ProxySyncAPI(CreateAPIView):
     
             except Exception as e:
                 error_message = f"An error occurred while calling API {index}: {str(e)}"
-                #self.log_error(error_message=error_message)
+                self.log_error(error_message=error_message)
                 return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        # Fetching queryset and constructing response data
 
         return Response(combined_response, status=status.HTTP_200_OK)
 
@@ -107,17 +108,31 @@ class ProxySyncAPI(CreateAPIView):
 
         return lnk_token
 
-    # def log_error(self, error_message, account_token, label):
-    #     # Log the error to the database
-    #     log_entry = ERPLogs(
-    #         id=uuid.uuid1(),
-    #         org_id=self.org_id,
-    #         link_token_id=self.erp_link_token_id,
-    #         link_token=account_token,
-    #         label=label,
-    #         sync_start_time=datetime.now(),
-    #         sync_end_time=datetime.now(),
-    #         sync_status="Failed",
-    #         error_message=error_message
-    #     )
-    #     log_entry.save()
+    def log_error(self, error_message, label):
+        # Log the error to the database
+        log_entry = ERPLogs(
+            id=uuid.uuid1(),
+            org_id=self.org_id,
+            link_token_id=self.erp_link_token_id,
+            link_token=self.account_token,
+            label=label,
+            sync_start_time=datetime.now(),
+            sync_end_time=datetime.now(),
+            sync_status="Failed",
+            error_message=error_message
+        )
+        log_entry.save()
+
+    def success_log(self, success_message, label):
+        log_entry = ERPLogs(
+            id=uuid.uuid1(),
+            org_id=self.org_id,
+            link_token_id=self.erp_link_token_id,
+            link_token=self.account_token,
+            label=label,
+            sync_start_time=datetime.now(),
+            sync_end_time=datetime.now(),
+            sync_status="Success",
+            error_message=success_message
+        )
+        log_entry.save()

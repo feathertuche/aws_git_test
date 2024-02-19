@@ -50,7 +50,7 @@ class MergeInvoices(APIView):
 
 class MergeInvoiceCreate(APIView):
 
-    def __init__(self,  *args, link_token_details=None, **kwargs):
+    def __init__(self, *args, link_token_details=None, **kwargs):
         super().__init__()
         self.org_id = None
         self.entity_id = None
@@ -108,7 +108,7 @@ class MergeInvoiceCreate(APIView):
                     'exchange_rate': line_items_payload.get('exchange_rate'),
                     'remote_updated_at': line_item_payload.get('remote_updated_at'),
                     'remote_was_deleted': line_item_payload.get('remote_was_deleted'),
-                    'description': line_item_payload.get('description'),
+                    'description': line_item_payload.get('item'),
                     'quantity': line_item_payload.get('quantity'),
                     'created_at': line_item_payload.get('created_at'),
                     'tracking_category': line_item_payload.get('tracking_category'),
@@ -119,16 +119,17 @@ class MergeInvoiceCreate(APIView):
                 }
                 line_items_data.append(line_item_data)
                 comp_client.accounting.invoices.create(
-                model=InvoiceRequest(
-                    type=line_items_payload.get('type'),
-                    contact=line_items_payload.get('contact'),
-                    number=line_items_payload.get('number'),
-                    memo=line_items_payload.get('memo'),
-                    status=line_items_payload.get('status'),
-                    company=line_items_payload.get('company'),
-                    exchange_rate=line_items_payload.get('exchange_rate'),
-                    tracking_categories=line_items_payload.get('tracking_categories'),
-                    line_items=[InvoiceLineItemRequest(**line_item) for line_item in line_items_data]))
+                    model=InvoiceRequest(
+                        type=line_items_payload.get('type'),
+                        due_date=line_items_payload.get('due_date'),
+                        contact=line_items_payload.get('contact'),
+                        number=line_items_payload.get('number'),
+                        memo=line_items_payload.get('memo'),
+                        status=line_items_payload.get('status'),
+                        company=line_items_payload.get('company'),
+                        exchange_rate=line_items_payload.get('exchange_rate'),
+                        tracking_categories=line_items_payload.get('tracking_categories'),
+                        line_items=[InvoiceLineItemRequest(**line_item) for line_item in line_items_data]))
 
             return Response({"status": "success", "message": f"Invoice created successfully."},
                             status=status.HTTP_201_CREATED)

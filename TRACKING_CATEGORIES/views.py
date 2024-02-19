@@ -174,11 +174,9 @@ class MergePostTrackingCategories(APIView):
                     tc_payload = tc_data.data
 
                     tc_payload["erp_link_token_id"] = erp_link_token_id
-                    print(tc_payload)
 
                     tc_url = "https://dev.getkloo.com/api/v1/organizations/erp-tracking-categories"
                     tc_response_data = requests.post(tc_url, json=tc_payload, headers={'Authorization': f'Bearer {token}'})
-                    print("4444444444", tc_response_data)
 
                     if tc_response_data.status_code == status.HTTP_201_CREATED:
                         api_log(msg=f"data inserted successfully in the kloo Tracking_Category system")
