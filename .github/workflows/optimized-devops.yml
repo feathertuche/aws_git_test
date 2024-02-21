@@ -37,7 +37,7 @@ jobs:
             UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/prod/')
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-prod-cluster" >> $GITHUB_ENV
-            echo "rds_host=mysql-kloo-prod.internal-service-kloo.com" >> >> $GITHUB_ENV
+            echo "rds_host=mysql-kloo-prod.internal-service-kloo.com" >> $GITHUB_ENV
             
           elif [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
             echo "env=stage" >> $GITHUB_ENV
@@ -47,7 +47,7 @@ jobs:
             UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/stage/')
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-stage-cluster" >> $GITHUB_ENV
-            echo "rds_host=mysql-kloo-stage.internal-service-kloo.com" >> >> $GITHUB_ENV
+            echo "rds_host=mysql-kloo-stage.internal-service-kloo.com" >> $GITHUB_ENV
 
           else
             echo "env=dev" >> $GITHUB_ENV
@@ -57,7 +57,7 @@ jobs:
             UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/dev/')
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-dev-cluster" >> $GITHUB_ENV
-            echo "rds_host=mysql-kloo-dev.internal-service-kloo.com" >> >> $GITHUB_ENV
+            echo "rds_host=mysql-kloo-dev.internal-service-kloo.com" >> $GITHUB_ENV
           fi
       
       - name: Set up AWS Cli
