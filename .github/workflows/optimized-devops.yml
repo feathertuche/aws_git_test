@@ -71,8 +71,8 @@ jobs:
       - name: DB Configure
         run: |
           cd ./merge_integration
-          echo "DB_CONNECTION=mysql" >> .env
-          echo "RDS_HOST=mysql-kloo-${env}.internal-service-kloo.com" >> .env
+          echo "DB_CONNECTION=${rds_host}" >> .env
+          echo "RDS_HOST=" >> .env
           echo "DB_PORT=3306" >> .env
           echo "DB_USER=masterkloo" >> .env
           echo "DB_NAME=myrdssql01" >> .env
