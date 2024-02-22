@@ -109,7 +109,7 @@ class InsertAccountData(APIView):
                 if request_account_data.status_code == status.HTTP_200_OK:
                     account_payload = request_account_data.data
                     account_payload["erp_link_token_id"] = erp_link_token_id
-                    account_url = "https://dev.getkloo.com/api/v1/organizations/insert-erp-accounts"
+                    account_url = "https://stage.getkloo.com/api/v1/organizations/insert-erp-accounts"
                     account_response_data = requests.post(account_url, json=account_payload, headers={'Authorization': f'Bearer {token}'})
 
                     if account_response_data.status_code == status.HTTP_201_CREATED:

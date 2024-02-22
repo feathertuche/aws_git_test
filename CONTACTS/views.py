@@ -244,7 +244,7 @@ class MergePostContacts(APIView):
                 if contact_data.status_code == status.HTTP_200_OK:
                     contact_payload = contact_data.data
                     contact_payload["erp_link_token_id"] = erp_link_token_id
-                    contact_url = "https://dev.getkloo.com/api/v1/ap/erp-integration/insert-erp-contacts"
+                    contact_url = "https://stage.getkloo.com/api/v1/ap/erp-integration/insert-erp-contacts"
 
                     contact_response_data = requests.post(contact_url, json=contact_payload,
                                                           headers={'Authorization': f'Bearer {token}'})

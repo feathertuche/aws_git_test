@@ -170,7 +170,7 @@ class MergePostTaxRates(APIView):
         try:
             if tax_data.status_code == status.HTTP_200_OK:
                 tax_payload = tax_data.data
-                tax_url = "https://dev.getkloo.com/api/v1/organizations/insert-erp-tax-rates"
+                tax_url = "https://stage.getkloo.com/api/v1/organizations/insert-erp-tax-rates"
                 tax_response_data = requests.post(tax_url, json=tax_payload)
 
                 if tax_response_data.status_code == status.HTTP_201_CREATED:

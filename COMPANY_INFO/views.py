@@ -188,7 +188,7 @@ class MergeKlooCompanyInsert(APIView):
                 if response.status_code == status.HTTP_200_OK:
                     merge_payload = response.data
                     merge_payload["erp_link_token_id"] = erp_link_token_id
-                    kloo_url = 'https://dev.getkloo.com/api/v1/organizations/insert-erp-companies'
+                    kloo_url = 'https://stage.getkloo.com/api/v1/organizations/insert-erp-companies'
                     kloo_data_insert = requests.post(kloo_url, json=merge_payload,
                                                      headers={'Authorization': f'Bearer {token}'})
 
