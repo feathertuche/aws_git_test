@@ -30,4 +30,5 @@ urlpatterns = [
     path('api/erp/tracking-info/', include('TRACKING_CATEGORIES.urls')),
     path('api/erp/sync-data/', include('SYNC.urls')),
     path('po-info/', include('PURCHASE_ORDERS.urls')),
+    path('api/erp/delete-info/', include('DELETE.urls'))
 ]
