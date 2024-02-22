@@ -80,51 +80,56 @@ class ProxySyncAPI(CreateAPIView):
             response_data = {"message": "Sync still pending"}
             return Response(response_data, status=status.HTTP_202_ACCEPTED)
         else:
-            if org_id is None or entity_id is None:
-                return Response("Both fields are required to fetch link token..",
-                                status=status.HTTP_400_BAD_REQUEST)
-
-            post_api_views = [
-                (MergePostTrackingCategories, {'link_token_details': link_token_details}),
-                (MergeKlooCompanyInsert, {'link_token_details': link_token_details}),
-                (InsertAccountData, {'link_token_details': link_token_details}),
-                (MergePostContacts, {'link_token_details': link_token_details})
-            ]
-
-            for index, (api_view_class, kwargs) in enumerate(post_api_views, start=1):
-                try:
-                    api_instance = api_view_class(**kwargs)
-                    response = api_instance.post(request)
-                    if response.status_code == status.HTTP_200_OK:
-                        module_name = api_view_class.__module__
-                        if module_name.endswith(".views"):
-                            module_name = module_name[:-6]
-
-                        combined_response.append({
-                            "key": f"{module_name}",
-                            'label': f"{module_name.replace('_', ' ')}",
-                            "Status": status.HTTP_200_OK,
-                            "successMessage": f"API {module_name} executed successfully"
-                        })
-                        self.success_log(success_message=f"API {module_name} executed successfully",
-                                         label=f"{module_name.replace('_', ' ')}")
-                    else:
-                        module_name = api_view_class.__module__
-                        if module_name.endswith(".views"):
-                            module_name = module_name[:-6]
-                        error_message = f"API {module_name} failed with status code {response.status_code}"
-                        api_exception = APIException(error_message)
-                        api_exception.module_name = module_name
-                        raise api_exception
-                except Exception as e:
-                    error_message = f"An error occurred while calling API {index}: {str(e)}"
-                    self.log_error(error_message=error_message)
-                    return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            # Return the combined response and response_data dictionary
             response_data = get_erplogs_by_link_token_id(erp_link_token_id)
-            return Response({'response_data': response_data}, status=status.HTTP_200_OK)
+            print(response_data)
+            if not response_data:
+                if org_id is None or entity_id is None:
+                    return Response("Both fields are required to fetch link token..",
+                                    status=status.HTTP_400_BAD_REQUEST)
 
+                post_api_views = [
+                    (MergePostTrackingCategories, {'link_token_details': link_token_details}),
+                    (MergeKlooCompanyInsert, {'link_token_details': link_token_details}),
+                    (InsertAccountData, {'link_token_details': link_token_details}),
+                    (MergePostContacts, {'link_token_details': link_token_details})
+                ]
+
+                for index, (api_view_class, kwargs) in enumerate(post_api_views, start=1):
+                    try:
+                        api_instance = api_view_class(**kwargs)
+                        response = api_instance.post(request)
+                        if response.status_code == status.HTTP_200_OK:
+                            module_name = api_view_class.__module__
+                            if module_name.endswith(".views"):
+                                module_name = module_name[:-6]
+
+                            combined_response.append({
+                                "key": f"{module_name}",
+                                'label': f"{module_name.replace('_', ' ')}",
+                                "Status": status.HTTP_200_OK,
+                                "successMessage": f"API {module_name} executed successfully"
+                            })
+                            self.success_log(success_message=f"API {module_name} executed successfully",
+                                             label=f"{module_name.replace('_', ' ')}")
+                        else:
+                            module_name = api_view_class.__module__
+                            if module_name.endswith(".views"):
+                                module_name = module_name[:-6]
+                            error_message = f"API {module_name} failed with status code {response.status_code}"
+                            api_exception = APIException(error_message)
+                            api_exception.module_name = module_name
+                            raise api_exception
+                    except Exception as e:
+                        error_message = f"An error occurred while calling API {index}: {str(e)}"
+                        #self.log_error(error_message=error_message)
+                        return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                # Return the combined response and response_data dictionary
+                response_data = get_erplogs_by_link_token_id(erp_link_token_id)
+                return Response({'response_data': response_data}, status=status.HTTP_200_OK)
+            else:
+                response_data = get_erplogs_by_link_token_id(erp_link_token_id)
+                return Response({'response_data': response_data}, status=status.HTTP_200_OK)
             # except APIException as e:
             #     error_message = str(e)
             #     module_name = getattr(e, "module_name", "")
