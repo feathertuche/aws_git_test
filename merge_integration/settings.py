@@ -146,7 +146,7 @@ DATABASES = {
     }
 }
 
-
+## Dev
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
@@ -155,6 +155,21 @@ DATABASES = {
 #         'PASSWORD': 'ptKJDHJTXd3J0kYF',
 #         'HOST': '127.0.0.1',
 #         'PORT': 3308,
+#         'OPTIONS': {
+#             'charset': 'utf8mb4',
+#         },
+#     }
+# }
+
+## stage
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'myrdssql01',
+#         'USER': 'masterkloo',
+#         'PASSWORD': 'o0P62q_U!nINU7ui',
+#         'HOST': '127.0.0.1',
+#         'PORT': 3309,
 #         'OPTIONS': {
 #             'charset': 'utf8mb4',
 #         },
