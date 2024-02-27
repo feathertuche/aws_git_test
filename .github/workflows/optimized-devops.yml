@@ -1,0 +1,123 @@
+name: CI/CD for Kloo-Merge-integration-erp
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - stage
+
+jobs:
+  develop-deployment-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Login to AWS ECR
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region ${{ vars.REGION }}
+          aws ecr get-login-password --region ${{ vars.REGION }} | docker login --username AWS --password-stdin ${{ vars.DOCKER_REGISTRY }}
+
+      - name: Dynamically setting ENV variables
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "env=prod" >> $GITHUB_ENV
+            echo "secret_manager=kloo_environment_variable_prod" >> $GITHUB_ENV
+            echo "db_password=Production_DB_Password" >> $GITHUB_ENV
+            echo "app_secret_manager=prod_merge_integration" >> $GITHUB_ENV
+            UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/prod/')
+            echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
+            echo "cluster_name=kloo-prod-cluster" >> $GITHUB_ENV
+            echo "rds_host=mysql-kloo-prod.internal-service-kloo.com" >> $GITHUB_ENV
+            
+          elif [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
+            echo "env=stage" >> $GITHUB_ENV
+            echo "secret_manager=kloo-Stage-Environment-Variables" >> $GITHUB_ENV
+            echo "db_password=Stage_db_password" >> $GITHUB_ENV
+            echo "app_secret_manager=non_prod_merge_integration" >> $GITHUB_ENV
+            UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/stage/')
+            echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
+            echo "cluster_name=kloo-stage-cluster" >> $GITHUB_ENV
+            echo "rds_host=mysql-kloo-stage.internal-service-kloo.com" >> $GITHUB_ENV
+
+          else
+            echo "env=dev" >> $GITHUB_ENV
+            echo "secret_manager=kloo-dev-environment-variables" >> $GITHUB_ENV
+            echo "db_password=Dev_DB_Password" >> $GITHUB_ENV
+            echo "app_secret_manager=non_prod_merge_integration" >> $GITHUB_ENV
+            UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/dev/')
+            echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
+            echo "cluster_name=kloo-dev-cluster" >> $GITHUB_ENV
+            echo "rds_host=mysql-kloo-dev.internal-service-kloo.com" >> $GITHUB_ENV
+          fi
+      
+      - name: Set up AWS Cli
+        run: |
+          AWS_ACCESS_KEYID=$(aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .\"AWS_ACCESS_KEYID\")
+          echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEYID" >> .env
+          AWS_SECRET_ACCESSKEY=$(aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .\"AWS_SECRET_ACCESSKEY\")
+          echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESSKEY" >> .env
+          echo "AWS_DEFAULT_REGION=${{ vars.REGION }}" >> .env
+          
+      - name: DB Configure
+        run: |
+          cd ./merge_integration
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "RDS_HOST=${rds_host}" >> .env
+          echo "DB_PORT=3306" >> .env
+          echo "DB_USER=masterkloo" >> .env
+          echo "DB_NAME=myrdssql01" >> .env
+          DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .${db_password}`
+          echo "DB_PASSWORD=$DB_PASSWORD" >> .env  
+
+      - name: Creating Application variables
+        run: |
+          cd ./merge_integration
+          secret_json=$(aws secretsmanager get-secret-value --secret-id ${app_secret_manager} | jq -r .'SecretString')
+          while IFS= read -r line; do
+            echo "$line" >> .env
+          done <<< "$(echo "$secret_json" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"')"
+       
+      # - name: Dynamically setting function names
+      #   run: |
+      #       #Following code dynamically set's the function name based on the repo. 
+      #       #So no need to create additional func name variables in git.
+            
+      #       if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+      #         UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/prod/')
+      #         echo "env=prod" >> $GITHUB_ENV
+      #         echo "It's prod"
+      #       elif [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
+      #         UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/stage/')
+      #         echo "env=stage" >> $GITHUB_ENV
+      #         echo "It's stage"
+      #       elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+      #         UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/dev/')
+      #         echo "env=dev" >> $GITHUB_ENV
+      #         echo "It's dev"
+      #       else
+      #         echo "It's nothing"
+      #       fi
+              
+      #       echo "MERGE_INT_ERP_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
+                      
+      - name: Deploying merge integration erp
+        run: |
+          #----------------------------------------------------------------------------
+          # Building images for merge integration erp
+          #----------------------------------------------------------------------------
+          docker build -t ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest -f MERGE_INT_ERP_DOCKERFILE .
+          docker push ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest
+       
+      - name: Deploy to lambda
+        run: |
+          aws ecs update-service --cluster ${cluster_name} --service ${UPDATED_FUNC_NAME} --force-new-deployment
