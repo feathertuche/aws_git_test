@@ -95,7 +95,7 @@ class MergeInvoiceCreate(APIView):
                     "status": line_item_payload.get('status'),
                     'unit_price': line_item_payload.get('unit_price'),
                     'purchase_price': line_item_payload.get('purchase_price'),
-                    "TaxType": line_item_payload.get('TaxType'),
+                    #"TaxType": line_item_payload.get('TaxType'),
                     'purchase_account': line_item_payload.get('purchase_account'),
                     'currency': line_items_payload.get('currency'),
                     'exchange_rate': line_items_payload.get('exchange_rate'),
