@@ -104,12 +104,13 @@ class MergeInvoiceCreate(APIView):
                     'description': line_item_payload.get('description'),
                     'quantity': line_item_payload.get('quantity'),
                     'created_at': line_item_payload.get('created_at'),
-                    'tracking_categories': line_item_payload.get('tracking_categories'),
+                    'tracking_categories': line_items_payload.get('tracking_categories'),
                     # 'modified_at': line_item_payload.get('modified_at'),
                     'account': line_item_payload.get('account'),
                     'remote_data': line_item_payload.get('remote_data')
                 }
                 line_items_data.append(line_item_data)
+
                 comp_client.accounting.invoices.create(
                     model=InvoiceRequest(
                         type=line_items_payload.get('type'),
