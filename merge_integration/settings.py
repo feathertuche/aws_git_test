@@ -161,7 +161,7 @@ DATABASES = {
 #     }
 # }
 
-## stage
+# stage
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
