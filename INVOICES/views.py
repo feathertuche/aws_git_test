@@ -53,13 +53,12 @@ class MergeInvoiceCreate(APIView):
     def __init__(self, *args, link_token_details=None, **kwargs):
         super().__init__()
         self.org_id = None
-        self.entity_id = None
 
     def get_queryset(self):
-        if self.org_id is None or self.entity_id is None:
+        if self.org_id is None:
             return ErpLinkToken.objects.none()
         else:
-            filter_token = ErpLinkToken.objects.filter(org_id=self.org_id, entity_id=self.entity_id)
+            filter_token = ErpLinkToken.objects.filter(org_id=self.org_id)
             lnk_token = filter_token.values_list('account_token', flat=1)
 
         return lnk_token
@@ -67,17 +66,11 @@ class MergeInvoiceCreate(APIView):
     def post(self, request, *args, **kwargs):
         api_log(msg="Processing GET request in MergeInvoice...")
 
-        org_id = request.data.get("org_id")
-        entity_id = request.data.get("entity_id")
-
-        self.org_id = org_id
-        self.entity_id = entity_id
-
-        if self.org_id is None and self.entity_id is None:
+        self.org_id = request.data.get("org_id")
+        if self.org_id is None:
             return Response(f"not possible")
 
         queryset = self.get_queryset()
-
         if queryset is None:
             # Handle the case where link_token_details is None
             print("link_token_details is None")
@@ -98,22 +91,21 @@ class MergeInvoiceCreate(APIView):
                 line_item_data = {
                     'id': line_item_payload.get('id'),
                     'remote_id': line_item_payload.get('id'),
-                    'name': line_item_payload.get('item'),
+                    'name': line_item_payload.get('description'),
                     "status": line_item_payload.get('status'),
                     'unit_price': line_item_payload.get('unit_price'),
                     'purchase_price': line_item_payload.get('purchase_price'),
+                    "TaxType": line_item_payload.get('TaxType'),
                     'purchase_account': line_item_payload.get('purchase_account'),
-                    'sales_account': line_item_payload.get('sales_account'),
                     'currency': line_item_payload.get('currency'),
                     'exchange_rate': line_items_payload.get('exchange_rate'),
                     'remote_updated_at': line_item_payload.get('remote_updated_at'),
                     'remote_was_deleted': line_item_payload.get('remote_was_deleted'),
-                    'description': line_item_payload.get('item'),
+                    'description': line_item_payload.get('description'),
                     'quantity': line_item_payload.get('quantity'),
                     'created_at': line_item_payload.get('created_at'),
-                    'tracking_category': line_item_payload.get('tracking_category'),
                     'tracking_categories': line_item_payload.get('tracking_categories'),
-                    'modified_at': line_item_payload.get('modified_at'),
+                    # 'modified_at': line_item_payload.get('modified_at'),
                     'account': line_item_payload.get('account'),
                     'remote_data': line_item_payload.get('remote_data')
                 }
@@ -128,8 +120,12 @@ class MergeInvoiceCreate(APIView):
                         status=line_items_payload.get('status'),
                         company=line_items_payload.get('company'),
                         currency=line_items_payload.get('currency'),
-                        exchange_rate=line_items_payload.get('exchange_rate'),
+                        # exchange_rate=line_items_payload.get('exchange_rate'),
                         tracking_categories=line_items_payload.get('tracking_categories'),
+                        sub_total=line_items_payload.get('sub_total'),
+                        total_tax_amount=line_items_payload.get('total_tax_amount'),
+                        total_amount=line_items_payload.get('total_amount'),
+
                         line_items=[InvoiceLineItemRequest(**line_item) for line_item in line_items_data]))
 
             return Response({"status": "success", "message": f"Invoice created successfully."},
@@ -138,3 +134,5 @@ class MergeInvoiceCreate(APIView):
         except Exception as e:
             error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
             return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
