@@ -15,13 +15,12 @@ class deleteAccount(APIView):
     def __init__(self):
         super().__init__()
         self.org_id = None
-        self.entity_id = None
 
     def get_queryset(self):
-        if self.org_id is None or self.entity_id is None:
+        if self.org_id is None:
             return ErpLinkToken.objects.none()
         else:
-            filter_token = ErpLinkToken.objects.filter(org_id=self.org_id, entity_id=self.entity_id)
+            filter_token = ErpLinkToken.objects.filter(org_id=self.org_id)
             lnk_token = filter_token.values_list('account_token', flat=1)
 
         return lnk_token
@@ -29,9 +28,8 @@ class deleteAccount(APIView):
     def post(self, request, *args, **kwargs):
         api_log(msg="Processing GET request in MergeInvoice...")
         self.org_id = request.data.get("org_id")
-        self.entity_id = request.data.get("entity_id")
 
-        if self.org_id is None and self.entity_id is None:
+        if self.org_id is None:
             return Response(f"Need both attributes to fetch account token")
 
         queryset = self.get_queryset()
@@ -54,8 +52,8 @@ class deleteAccount(APIView):
                 if authorization_header and authorization_header.startswith('Bearer '):
                     token = authorization_header.split(' ')[1]
                     disconnect_url = f"https://stage.getkloo.com/api/v1/accounting-integrations/erp-disconnect/{erp_link_token_id}"
-                    disconnect_execute = requests.post(disconnect_url, headers={'Authorization': f'Bearer {token}'})
-                    if disconnect_execute.status_code == status.HTTP_201_CREATED:
+                    disconnect_execute = requests.delete(disconnect_url, headers={'Authorization': f'Bearer {token}'})
+                    if disconnect_execute.status_code == status.HTTP_204_NO_CONTENT:
                         return Response(f"successfully deleted")
                     else:
                         return Response({'error': 'Failed to delete data'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
