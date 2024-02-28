@@ -27798,3 +27798,24 @@ django.core.exceptions.ImproperlyConfigured: settings.DATABASES is improperly co
 02/16/2024 07:41:41 PM [DEBUG] https://dev.getkloo.com:443 "POST /api/v1/organizations/insert-erp-companies HTTP/1.1" 400 122
 02/16/2024 07:41:41 PM [ERROR] Internal Server Error: /api/erp/comp-info/kloo-insert/
 02/16/2024 07:43:09 PM [INFO] C:\Users\AmiteshSahay\Documents\max_change\kloo-merge-integration-erp\merge_integration\settings.py changed, reloading.
+02/28/2024 03:27:56 PM [DEBUG] Processing GET request in MergeInvoice...
+02/28/2024 03:27:58 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/28/2024 03:27:58 PM [DEBUG] load_verify_locations cafile='C:\\Users\\NabajyotiBohra\\Desktop\\kloo\\kloo-merge-integration-erp\\venv\\lib\\site-packages\\certifi\\cacert.pem'
+02/28/2024 03:27:58 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/28/2024 03:27:58 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000002482864F3D0>
+02/28/2024 03:27:58 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x000002482858B7C0> server_hostname='api-eu.merge.dev' timeout=60
+02/28/2024 03:27:58 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000002482864CE50>
+02/28/2024 03:27:58 PM [DEBUG] send_request_headers.started request=<Request [b'POST']>
+02/28/2024 03:27:58 PM [DEBUG] send_request_headers.complete
+02/28/2024 03:27:58 PM [DEBUG] send_request_body.started request=<Request [b'POST']>
+02/28/2024 03:27:58 PM [DEBUG] send_request_body.complete
+02/28/2024 03:27:58 PM [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+02/28/2024 03:27:59 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 28 Feb 2024 09:57:59 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'16'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"connect-src 'self'; frame-ancestors 'self'; font-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; default-src 'self'"), (b'Expires', b'Wed, 28 Feb 2024 09:57:59 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=9.6ZVzxqsHWpmoMMq1UsV62vVd4KyYiFLmT2dfi4Ij8-1709114279-1.0-AZhD3h9d1ZXJLJ0lkrQL/SCzlgPqg7Q92yR4gUnCOdsv1eI7bDIETT3BgT+szId35HEiawJMiETVX3oZnIdb0Fg=; path=/; expires=Wed, 28-Feb-24 10:27:59 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'X-Content-Type-Options', b'nosniff'), (b'X-Frame-Options', b'SAMEORIGIN'), (b'Server', b'cloudflare'), (b'CF-RAY', b'85c7ce722b7e1bd6-BOM'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/28/2024 03:27:59 PM [INFO] HTTP Request: POST https://api-eu.merge.dev/api/accounting/v1/delete-account "HTTP/1.1 200 OK"
+02/28/2024 03:27:59 PM [DEBUG] receive_response_body.started request=<Request [b'POST']>
+02/28/2024 03:27:59 PM [DEBUG] receive_response_body.complete
+02/28/2024 03:27:59 PM [DEBUG] response_closed.started
+02/28/2024 03:27:59 PM [DEBUG] response_closed.complete
+02/28/2024 03:27:59 PM [DEBUG] Starting new HTTPS connection (1): dev.getkloo.com:443
+02/28/2024 03:28:00 PM [DEBUG] https://dev.getkloo.com:443 "DELETE /api/v1/accounting-integrations/erp-disconnect/b85df58f-fb98-47ba-9050-dd6a023716c9 HTTP/1.1" 204 0
+02/28/2024 03:29:12 PM [INFO] C:\Users\NabajyotiBohra\Desktop\kloo\kloo-merge-integration-erp\merge_integration\settings.py changed, reloading.
