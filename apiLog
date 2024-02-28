@@ -27798,24 +27798,157 @@ django.core.exceptions.ImproperlyConfigured: settings.DATABASES is improperly co
 02/16/2024 07:41:41 PM [DEBUG] https://dev.getkloo.com:443 "POST /api/v1/organizations/insert-erp-companies HTTP/1.1" 400 122
 02/16/2024 07:41:41 PM [ERROR] Internal Server Error: /api/erp/comp-info/kloo-insert/
 02/16/2024 07:43:09 PM [INFO] C:\Users\AmiteshSahay\Documents\max_change\kloo-merge-integration-erp\merge_integration\settings.py changed, reloading.
-02/28/2024 03:27:56 PM [DEBUG] Processing GET request in MergeInvoice...
-02/28/2024 03:27:58 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
-02/28/2024 03:27:58 PM [DEBUG] load_verify_locations cafile='C:\\Users\\NabajyotiBohra\\Desktop\\kloo\\kloo-merge-integration-erp\\venv\\lib\\site-packages\\certifi\\cacert.pem'
-02/28/2024 03:27:58 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
-02/28/2024 03:27:58 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000002482864F3D0>
-02/28/2024 03:27:58 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x000002482858B7C0> server_hostname='api-eu.merge.dev' timeout=60
-02/28/2024 03:27:58 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000002482864CE50>
-02/28/2024 03:27:58 PM [DEBUG] send_request_headers.started request=<Request [b'POST']>
-02/28/2024 03:27:58 PM [DEBUG] send_request_headers.complete
-02/28/2024 03:27:58 PM [DEBUG] send_request_body.started request=<Request [b'POST']>
-02/28/2024 03:27:58 PM [DEBUG] send_request_body.complete
-02/28/2024 03:27:58 PM [DEBUG] receive_response_headers.started request=<Request [b'POST']>
-02/28/2024 03:27:59 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 28 Feb 2024 09:57:59 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'16'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"connect-src 'self'; frame-ancestors 'self'; font-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; default-src 'self'"), (b'Expires', b'Wed, 28 Feb 2024 09:57:59 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=9.6ZVzxqsHWpmoMMq1UsV62vVd4KyYiFLmT2dfi4Ij8-1709114279-1.0-AZhD3h9d1ZXJLJ0lkrQL/SCzlgPqg7Q92yR4gUnCOdsv1eI7bDIETT3BgT+szId35HEiawJMiETVX3oZnIdb0Fg=; path=/; expires=Wed, 28-Feb-24 10:27:59 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'X-Content-Type-Options', b'nosniff'), (b'X-Frame-Options', b'SAMEORIGIN'), (b'Server', b'cloudflare'), (b'CF-RAY', b'85c7ce722b7e1bd6-BOM'), (b'alt-svc', b'h3=":443"; ma=86400')])
-02/28/2024 03:27:59 PM [INFO] HTTP Request: POST https://api-eu.merge.dev/api/accounting/v1/delete-account "HTTP/1.1 200 OK"
-02/28/2024 03:27:59 PM [DEBUG] receive_response_body.started request=<Request [b'POST']>
-02/28/2024 03:27:59 PM [DEBUG] receive_response_body.complete
-02/28/2024 03:27:59 PM [DEBUG] response_closed.started
-02/28/2024 03:27:59 PM [DEBUG] response_closed.complete
-02/28/2024 03:27:59 PM [DEBUG] Starting new HTTPS connection (1): dev.getkloo.com:443
-02/28/2024 03:28:00 PM [DEBUG] https://dev.getkloo.com:443 "DELETE /api/v1/accounting-integrations/erp-disconnect/b85df58f-fb98-47ba-9050-dd6a023716c9 HTTP/1.1" 204 0
-02/28/2024 03:29:12 PM [INFO] C:\Users\NabajyotiBohra\Desktop\kloo\kloo-merge-integration-erp\merge_integration\settings.py changed, reloading.
+02/27/2024 06:01:35 PM [DEBUG] Processing GET request in MergeInvoice...
+02/27/2024 06:01:37 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/27/2024 06:01:37 PM [DEBUG] load_verify_locations cafile='C:\\Users\\NabajyotiBohra\\Desktop\\kloo\\kloo-merge-integration-erp\\venv\\lib\\site-packages\\certifi\\cacert.pem'
+02/27/2024 06:01:37 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/27/2024 06:01:37 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001DD9F3FA4D0>
+02/27/2024 06:01:37 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x000001DD9EF0B6C0> server_hostname='api-eu.merge.dev' timeout=60
+02/27/2024 06:01:37 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001DD9F3F8850>
+02/27/2024 06:01:37 PM [DEBUG] send_request_headers.started request=<Request [b'POST']>
+02/27/2024 06:01:37 PM [DEBUG] send_request_headers.complete
+02/27/2024 06:01:37 PM [DEBUG] send_request_body.started request=<Request [b'POST']>
+02/27/2024 06:01:37 PM [DEBUG] send_request_body.complete
+02/27/2024 06:01:37 PM [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+02/27/2024 06:01:38 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Date', b'Tue, 27 Feb 2024 12:31:38 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"font-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'self'; default-src 'self'; connect-src 'self'; img-src 'self'"), (b'Expires', b'Tue, 27 Feb 2024 12:31:38 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=wByuSy0T3ohPIjrwnV05E8Zh_W6wxmTRAStNRwc5gyk-1709037098-1.0-AW/qKLp9Uo/2rApDgG6J1EuzjRkiftdDx2Fex6YlBWjrFbWbsvGkMy+u1ZgCGacIrGODtdRSInim00F+UhaTUxY=; path=/; expires=Tue, 27-Feb-24 13:01:38 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'X-Content-Type-Options', b'nosniff'), (b'X-Frame-Options', b'SAMEORIGIN'), (b'Server', b'cloudflare'), (b'CF-RAY', b'85c072243f0285f7-BOM'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/27/2024 06:01:38 PM [INFO] HTTP Request: POST https://api-eu.merge.dev/api/accounting/v1/invoices "HTTP/1.1 404 Not Found"
+02/27/2024 06:01:38 PM [DEBUG] receive_response_body.started request=<Request [b'POST']>
+02/27/2024 06:01:38 PM [DEBUG] receive_response_body.complete
+02/27/2024 06:01:38 PM [DEBUG] response_closed.started
+02/27/2024 06:01:38 PM [DEBUG] response_closed.complete
+02/27/2024 06:01:38 PM [ERROR] Internal Server Error: /api/v1/erp/invoice-info/invoicesCreate/
+02/27/2024 06:09:38 PM [INFO] C:\Users\NabajyotiBohra\Desktop\kloo\kloo-merge-integration-erp\INVOICES\views.py changed, reloading.
+02/27/2024 06:09:44 PM [DEBUG] Processing GET request in MergeInvoice...
+02/27/2024 06:09:45 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/27/2024 06:09:45 PM [DEBUG] load_verify_locations cafile='C:\\Users\\NabajyotiBohra\\Desktop\\kloo\\kloo-merge-integration-erp\\venv\\lib\\site-packages\\certifi\\cacert.pem'
+02/27/2024 06:09:45 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/27/2024 06:09:46 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001758F1E0B50>
+02/27/2024 06:09:46 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x000001758F19DBC0> server_hostname='api-eu.merge.dev' timeout=60
+02/27/2024 06:09:46 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001758F1E0B20>
+02/27/2024 06:09:46 PM [DEBUG] send_request_headers.started request=<Request [b'POST']>
+02/27/2024 06:09:46 PM [DEBUG] send_request_headers.complete
+02/27/2024 06:09:46 PM [DEBUG] send_request_body.started request=<Request [b'POST']>
+02/27/2024 06:09:46 PM [DEBUG] send_request_body.complete
+02/27/2024 06:09:46 PM [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+02/27/2024 06:09:47 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Date', b'Tue, 27 Feb 2024 12:39:47 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"default-src 'self'; font-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; script-src 'self'; frame-ancestors 'self'"), (b'Expires', b'Tue, 27 Feb 2024 12:39:47 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=f0dGeSvEv1rJlDuVm1JuBfRjSjNpu_oiFbWx1nZ8jhQ-1709037587-1.0-AeSTxGYQT8fcaLKvQOMMus317SCngEad5hm5nBga0KDtjF8O7UKGye9hN9DPozlt6J6sQj9nuBW+Q05Uwru7XSY=; path=/; expires=Tue, 27-Feb-24 13:09:47 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'X-Content-Type-Options', b'nosniff'), (b'X-Frame-Options', b'SAMEORIGIN'), (b'Server', b'cloudflare'), (b'CF-RAY', b'85c07e13e912849e-BOM'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/27/2024 06:09:47 PM [INFO] HTTP Request: POST https://api-eu.merge.dev/api/accounting/v1/invoices "HTTP/1.1 404 Not Found"
+02/27/2024 06:09:47 PM [DEBUG] receive_response_body.started request=<Request [b'POST']>
+02/27/2024 06:09:47 PM [DEBUG] receive_response_body.complete
+02/27/2024 06:09:47 PM [DEBUG] response_closed.started
+02/27/2024 06:09:47 PM [DEBUG] response_closed.complete
+02/27/2024 06:09:47 PM [ERROR] Internal Server Error: /api/v1/erp/invoice-info/invoicesCreate/
+02/27/2024 06:10:37 PM [DEBUG] Processing GET request in MergeInvoice...
+02/27/2024 06:10:39 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/27/2024 06:10:39 PM [DEBUG] load_verify_locations cafile='C:\\Users\\NabajyotiBohra\\Desktop\\kloo\\kloo-merge-integration-erp\\venv\\lib\\site-packages\\certifi\\cacert.pem'
+02/27/2024 06:10:39 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/27/2024 06:10:39 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001758E7467D0>
+02/27/2024 06:10:39 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x000001758F1BCD40> server_hostname='api-eu.merge.dev' timeout=60
+02/27/2024 06:10:39 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001758E747640>
+02/27/2024 06:10:39 PM [DEBUG] send_request_headers.started request=<Request [b'POST']>
+02/27/2024 06:10:39 PM [DEBUG] send_request_headers.complete
+02/27/2024 06:10:39 PM [DEBUG] send_request_body.started request=<Request [b'POST']>
+02/27/2024 06:10:39 PM [DEBUG] send_request_body.complete
+02/27/2024 06:10:39 PM [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+02/27/2024 06:10:39 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Date', b'Tue, 27 Feb 2024 12:40:40 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"default-src 'self'; font-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; script-src 'self'; frame-ancestors 'self'"), (b'Expires', b'Tue, 27 Feb 2024 12:40:40 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=GkeskSM6.uFlSngw7B.dwGWqtS64mV_UGtIijUeQ7Oo-1709037640-1.0-AZdrF5Cf3DJnaox1Wi+xu3ceJ11LNN4PGtdIoMtFTI5EbsK7G7CC1H2tB1MfC0qTn9a/Z+LnBnpRIqIBHsKWdZM=; path=/; expires=Tue, 27-Feb-24 13:10:40 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'X-Content-Type-Options', b'nosniff'), (b'X-Frame-Options', b'SAMEORIGIN'), (b'Server', b'cloudflare'), (b'CF-RAY', b'85c07f5f2dfd8590-BOM'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/27/2024 06:10:39 PM [INFO] HTTP Request: POST https://api-eu.merge.dev/api/accounting/v1/invoices "HTTP/1.1 404 Not Found"
+02/27/2024 06:10:39 PM [DEBUG] receive_response_body.started request=<Request [b'POST']>
+02/27/2024 06:10:39 PM [DEBUG] receive_response_body.complete
+02/27/2024 06:10:39 PM [DEBUG] response_closed.started
+02/27/2024 06:10:39 PM [DEBUG] response_closed.complete
+02/27/2024 06:10:39 PM [ERROR] Internal Server Error: /api/v1/erp/invoice-info/invoicesCreate/
+02/27/2024 06:21:08 PM [DEBUG] Processing GET request in MergeInvoice...
+02/27/2024 06:21:10 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/27/2024 06:21:10 PM [DEBUG] load_verify_locations cafile='C:\\Users\\NabajyotiBohra\\Desktop\\kloo\\kloo-merge-integration-erp\\venv\\lib\\site-packages\\certifi\\cacert.pem'
+02/27/2024 06:21:10 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/27/2024 06:21:10 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001758D72B1C0>
+02/27/2024 06:21:10 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x000001758F1BCBC0> server_hostname='api-eu.merge.dev' timeout=60
+02/27/2024 06:21:10 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001758F126E30>
+02/27/2024 06:21:10 PM [DEBUG] send_request_headers.started request=<Request [b'POST']>
+02/27/2024 06:21:10 PM [DEBUG] send_request_headers.complete
+02/27/2024 06:21:10 PM [DEBUG] send_request_body.started request=<Request [b'POST']>
+02/27/2024 06:21:10 PM [DEBUG] send_request_body.complete
+02/27/2024 06:21:10 PM [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+02/27/2024 06:21:11 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Date', b'Tue, 27 Feb 2024 12:51:12 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"font-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'self'; default-src 'self'; connect-src 'self'; img-src 'self'"), (b'Expires', b'Tue, 27 Feb 2024 12:51:11 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=m9CfxFtu9Rwx9oET4F2uEN1I3BJVvjp7CKbykcexq04-1709038272-1.0-AaqQ5VeWLzKrWw8DH2z/+JYlPfQgI2uMhB3Xr7KuHUrG2mGW5aonMAG1yze4N5W+Lbzhw+ZPK3TR6+LjhJ0nNOc=; path=/; expires=Tue, 27-Feb-24 13:21:12 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'X-Content-Type-Options', b'nosniff'), (b'X-Frame-Options', b'SAMEORIGIN'), (b'Server', b'cloudflare'), (b'CF-RAY', b'85c08ecb2b4885e4-BOM'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/27/2024 06:21:11 PM [INFO] HTTP Request: POST https://api-eu.merge.dev/api/accounting/v1/invoices "HTTP/1.1 404 Not Found"
+02/27/2024 06:21:11 PM [DEBUG] receive_response_body.started request=<Request [b'POST']>
+02/27/2024 06:21:11 PM [DEBUG] receive_response_body.complete
+02/27/2024 06:21:11 PM [DEBUG] response_closed.started
+02/27/2024 06:21:11 PM [DEBUG] response_closed.complete
+02/27/2024 06:21:11 PM [ERROR] Internal Server Error: /api/v1/erp/invoice-info/invoicesCreate/
+02/27/2024 06:22:04 PM [DEBUG] Processing GET request in MergeInvoice...
+02/27/2024 06:22:05 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/27/2024 06:22:05 PM [DEBUG] load_verify_locations cafile='C:\\Users\\NabajyotiBohra\\Desktop\\kloo\\kloo-merge-integration-erp\\venv\\lib\\site-packages\\certifi\\cacert.pem'
+02/27/2024 06:22:05 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/27/2024 06:22:05 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001758E746590>
+02/27/2024 06:22:05 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x000001758F1BCD40> server_hostname='api-eu.merge.dev' timeout=60
+02/27/2024 06:22:05 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001758E7447F0>
+02/27/2024 06:22:05 PM [DEBUG] send_request_headers.started request=<Request [b'POST']>
+02/27/2024 06:22:05 PM [DEBUG] send_request_headers.complete
+02/27/2024 06:22:05 PM [DEBUG] send_request_body.started request=<Request [b'POST']>
+02/27/2024 06:22:05 PM [DEBUG] send_request_body.complete
+02/27/2024 06:22:05 PM [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+02/27/2024 06:22:06 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Date', b'Tue, 27 Feb 2024 12:52:07 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"font-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'self'; default-src 'self'; connect-src 'self'; img-src 'self'"), (b'Expires', b'Tue, 27 Feb 2024 12:52:06 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=25Tm6UNvqfU5ur3ghwMteMbB445B7jYfv1465aT2V5A-1709038327-1.0-AejDMDLDa4clrjBjSBtYELJHi8/l1Rbv7Sih+xQGlWWo4t8c2r3wEV4ujBADkNd/VuKrau4Txw5sbEWK17KH0qQ=; path=/; expires=Tue, 27-Feb-24 13:22:07 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'X-Content-Type-Options', b'nosniff'), (b'X-Frame-Options', b'SAMEORIGIN'), (b'Server', b'cloudflare'), (b'CF-RAY', b'85c090228d4085f4-BOM'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/27/2024 06:22:06 PM [INFO] HTTP Request: POST https://api-eu.merge.dev/api/accounting/v1/invoices "HTTP/1.1 404 Not Found"
+02/27/2024 06:22:06 PM [DEBUG] receive_response_body.started request=<Request [b'POST']>
+02/27/2024 06:22:06 PM [DEBUG] receive_response_body.complete
+02/27/2024 06:22:06 PM [DEBUG] response_closed.started
+02/27/2024 06:22:06 PM [DEBUG] response_closed.complete
+02/27/2024 06:22:06 PM [ERROR] Internal Server Error: /api/v1/erp/invoice-info/invoicesCreate/
+02/27/2024 06:24:18 PM [DEBUG] Processing GET request in MergeInvoice...
+02/27/2024 06:24:20 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/27/2024 06:24:20 PM [DEBUG] load_verify_locations cafile='C:\\Users\\NabajyotiBohra\\Desktop\\kloo\\kloo-merge-integration-erp\\venv\\lib\\site-packages\\certifi\\cacert.pem'
+02/27/2024 06:24:20 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/27/2024 06:24:20 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001758E746FB0>
+02/27/2024 06:24:20 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x000001758ECE0840> server_hostname='api-eu.merge.dev' timeout=60
+02/27/2024 06:24:20 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001758E7461A0>
+02/27/2024 06:24:20 PM [DEBUG] send_request_headers.started request=<Request [b'POST']>
+02/27/2024 06:24:20 PM [DEBUG] send_request_headers.complete
+02/27/2024 06:24:20 PM [DEBUG] send_request_body.started request=<Request [b'POST']>
+02/27/2024 06:24:20 PM [DEBUG] send_request_body.complete
+02/27/2024 06:24:20 PM [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+02/27/2024 06:24:21 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Date', b'Tue, 27 Feb 2024 12:54:21 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"font-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'self'; default-src 'self'; connect-src 'self'; img-src 'self'"), (b'Expires', b'Tue, 27 Feb 2024 12:54:21 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=Q2Yo.RZh0FHHOJ7Mi9zUKgi_3RGKFWGbreT5f_L7H48-1709038461-1.0-AQDBVPMCcocDtUbuXychycjSveYcb/FSMY/BdbZ8cRLd/iRnhuDl9iW7X8qewsdOV7O51SFUFjnXcd99nfS3cBQ=; path=/; expires=Tue, 27-Feb-24 13:24:21 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'X-Content-Type-Options', b'nosniff'), (b'X-Frame-Options', b'SAMEORIGIN'), (b'Server', b'cloudflare'), (b'CF-RAY', b'85c0936aff876ebc-BOM'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/27/2024 06:24:21 PM [INFO] HTTP Request: POST https://api-eu.merge.dev/api/accounting/v1/invoices "HTTP/1.1 404 Not Found"
+02/27/2024 06:24:21 PM [DEBUG] receive_response_body.started request=<Request [b'POST']>
+02/27/2024 06:24:21 PM [DEBUG] receive_response_body.complete
+02/27/2024 06:24:21 PM [DEBUG] response_closed.started
+02/27/2024 06:24:21 PM [DEBUG] response_closed.complete
+02/27/2024 06:24:21 PM [ERROR] Internal Server Error: /api/v1/erp/invoice-info/invoicesCreate/
+02/27/2024 06:26:22 PM [DEBUG] Processing GET request in MergeInvoice...
+02/27/2024 06:26:24 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/27/2024 06:26:24 PM [DEBUG] load_verify_locations cafile='C:\\Users\\NabajyotiBohra\\Desktop\\kloo\\kloo-merge-integration-erp\\venv\\lib\\site-packages\\certifi\\cacert.pem'
+02/27/2024 06:26:24 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/27/2024 06:26:24 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001758F127B80>
+02/27/2024 06:26:24 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x000001758EC7C440> server_hostname='api-eu.merge.dev' timeout=60
+02/27/2024 06:26:24 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001758F127A30>
+02/27/2024 06:26:24 PM [DEBUG] send_request_headers.started request=<Request [b'POST']>
+02/27/2024 06:26:24 PM [DEBUG] send_request_headers.complete
+02/27/2024 06:26:24 PM [DEBUG] send_request_body.started request=<Request [b'POST']>
+02/27/2024 06:26:24 PM [DEBUG] send_request_body.complete
+02/27/2024 06:26:24 PM [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+02/27/2024 06:26:27 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 400, b'Bad Request', [(b'Date', b'Tue, 27 Feb 2024 12:56:27 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'2790'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"font-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'self'; default-src 'self'; connect-src 'self'; img-src 'self'"), (b'Expires', b'Tue, 27 Feb 2024 12:56:27 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=1TVVDNWPpXEOWzvSV0fPTao0JysEMWsErrvIqs5murI-1709038587-1.0-AR/0c8aQmf+6/tQKTRIg2M9XD2dBcxeBmDRE9JZDNuPop+PHahgqI/OHUVOrax5uCKPPqMKdRDz4SWBH+bJr2UI=; path=/; expires=Tue, 27-Feb-24 13:26:27 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'X-Content-Type-Options', b'nosniff'), (b'X-Frame-Options', b'SAMEORIGIN'), (b'Server', b'cloudflare'), (b'CF-RAY', b'85c09674cabd1bde-BOM'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/27/2024 06:26:27 PM [INFO] HTTP Request: POST https://api-eu.merge.dev/api/accounting/v1/invoices "HTTP/1.1 400 Bad Request"
+02/27/2024 06:26:27 PM [DEBUG] receive_response_body.started request=<Request [b'POST']>
+02/27/2024 06:26:27 PM [DEBUG] receive_response_body.complete
+02/27/2024 06:26:27 PM [DEBUG] response_closed.started
+02/27/2024 06:26:27 PM [DEBUG] response_closed.complete
+02/27/2024 06:26:27 PM [ERROR] Internal Server Error: /api/v1/erp/invoice-info/invoicesCreate/
+02/27/2024 06:28:06 PM [INFO] C:\Users\NabajyotiBohra\Desktop\kloo\kloo-merge-integration-erp\INVOICES\views.py changed, reloading.
+02/27/2024 06:28:15 PM [DEBUG] Processing GET request in MergeInvoice...
+02/27/2024 06:28:16 PM [DEBUG] load_ssl_context verify=True cert=None trust_env=True http2=False
+02/27/2024 06:28:16 PM [DEBUG] load_verify_locations cafile='C:\\Users\\NabajyotiBohra\\Desktop\\kloo\\kloo-merge-integration-erp\\venv\\lib\\site-packages\\certifi\\cacert.pem'
+02/27/2024 06:28:16 PM [DEBUG] connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+02/27/2024 06:28:16 PM [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000018FE4EE4520>
+02/27/2024 06:28:16 PM [DEBUG] start_tls.started ssl_context=<ssl.SSLContext object at 0x0000018FE4B08CC0> server_hostname='api-eu.merge.dev' timeout=60
+02/27/2024 06:28:16 PM [DEBUG] start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000018FE4EE5540>
+02/27/2024 06:28:16 PM [DEBUG] send_request_headers.started request=<Request [b'POST']>
+02/27/2024 06:28:16 PM [DEBUG] send_request_headers.complete
+02/27/2024 06:28:16 PM [DEBUG] send_request_body.started request=<Request [b'POST']>
+02/27/2024 06:28:16 PM [DEBUG] send_request_body.complete
+02/27/2024 06:28:16 PM [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+02/27/2024 06:28:19 PM [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 400, b'Bad Request', [(b'Date', b'Tue, 27 Feb 2024 12:58:20 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'2790'), (b'Connection', b'keep-alive'), (b'Content-Security-Policy', b"default-src 'self'; font-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; script-src 'self'; frame-ancestors 'self'"), (b'Expires', b'Tue, 27 Feb 2024 12:58:20 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'Pragma', b'no-cache'), (b'Vary', b'Accept-Language, Origin'), (b'Content-Language', b'en'), (b'Strict-Transport-Security', b'max-age=15552000; includeSubDomains; preload'), (b'Referrer-Policy', b'same-origin'), (b'Cross-Origin-Opener-Policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=iHIKdpdbBKuTLykgbGWFvvKILzv2ADuU6QeeiAoJvIU-1709038700-1.0-AW+rFZzYd4ymuaT9yF5Iu6KFT3UTtxwfhvRYyhZ6hRpcNuwJXKO0vDhMOoiOFnBoSwzou5JHKIzsDz70SoFgYmk=; path=/; expires=Tue, 27-Feb-24 13:28:20 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'X-Content-Type-Options', b'nosniff'), (b'X-Frame-Options', b'SAMEORIGIN'), (b'Server', b'cloudflare'), (b'CF-RAY', b'85c099327af085f7-BOM'), (b'alt-svc', b'h3=":443"; ma=86400')])
+02/27/2024 06:28:19 PM [INFO] HTTP Request: POST https://api-eu.merge.dev/api/accounting/v1/invoices "HTTP/1.1 400 Bad Request"
+02/27/2024 06:28:19 PM [DEBUG] receive_response_body.started request=<Request [b'POST']>
+02/27/2024 06:28:19 PM [DEBUG] receive_response_body.complete
+02/27/2024 06:28:19 PM [DEBUG] response_closed.started
+02/27/2024 06:28:19 PM [DEBUG] response_closed.complete
+02/27/2024 06:28:19 PM [ERROR] Internal Server Error: /api/v1/erp/invoice-info/invoicesCreate/
