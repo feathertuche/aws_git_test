@@ -11,7 +11,6 @@ class deleteAccount(APIView):
     def __init__(self):
         super().__init__()
         self.org_id = None
-        self.entity_id = None
 
     def get_queryset(self):
         if self.org_id is None:
@@ -49,8 +48,8 @@ class deleteAccount(APIView):
                 if authorization_header and authorization_header.startswith('Bearer '):
                     token = authorization_header.split(' ')[1]
                     disconnect_url = f"https://dev.getkloo.com/api/v1/accounting-integrations/erp-disconnect/{erp_link_token_id}"
-                    disconnect_execute = requests.post(disconnect_url, headers={'Authorization': f'Bearer {token}'})
-                    if disconnect_execute.status_code == status.HTTP_201_CREATED:
+                    disconnect_execute = requests.delete(disconnect_url, headers={'Authorization': f'Bearer {token}'})
+                    if disconnect_execute.status_code == status.HTTP_204_NO_CONTENT:
                         return Response(f"successfully deleted")
                     else:
                         return Response({'error': 'Failed to delete data'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
