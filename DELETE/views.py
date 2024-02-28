@@ -54,10 +54,12 @@ class deleteAccount(APIView):
                     disconnect_url = f"https://stage.getkloo.com/api/v1/accounting-integrations/erp-disconnect/{erp_link_token_id}"
                     disconnect_execute = requests.delete(disconnect_url, headers={'Authorization': f'Bearer {token}'})
                     if disconnect_execute.status_code == status.HTTP_204_NO_CONTENT:
-                        return Response(f"successfully deleted")
+                        return Response({'message': 'Data deleted successfully'}, status=status.HTTP_200_OK)
                     else:
-                        return Response({'error': 'Failed to delete data'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                        return Response({'error': 'Failed to delete data'},
+                                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as e:
+            api_log(msg=f"Failed to send data to Kloo API. Error: {str(e)}")
             error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
             return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
