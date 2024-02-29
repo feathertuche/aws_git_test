@@ -3,25 +3,29 @@ FROM python:3.11
 WORKDIR /app
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y \
-    wget \
-    curl \
-    patch \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     wget \
+#     curl \
+#     patch \
+#     && rm -rf /var/lib/apt/lists/*
 
 # # Download and apply the patch for the AOM library
 # RUN wget https://aomedia.googlesource.com/aom/+/7ae7bef246e85c8f349513d668b4571c79a43c5c && \
 #     patch -p0 < aom_patch.diff
 
-# Upgrade pip and all packages
-RUN pip install --upgrade pip && \
-    pip install --upgrade $(pip freeze | awk '{split($0, a, "=="); print a[1]}')
+
  
 COPY requirements.txt .
  
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Upgrade pip and all packages
+RUN pip install --upgrade pip && \
+    pip install --upgrade $(pip freeze | awk '{split($0, a, "=="); print a[1]}')
  
 COPY . .
+
+
 
 COPY .env /app/merge_integration/.env
 
