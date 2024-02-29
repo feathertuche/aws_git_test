@@ -1,52 +1,27 @@
-FROM python:3.12.0b3-slim
+FROM ubuntu:latest
+
+# Install software-properties-common for managing PPAs
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    apt-get clean
+
+# Add deadsnakes PPA for Python 3.11
+RUN add-apt-repository ppa:deadsnakes/ppa
+
+# Update package repositories and install Python 3.11
+RUN apt-get update && \
+    apt-get install -y python3.11 python3.11-dev && \
+    apt-get install -y python3-pip && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# # Install necessary build dependencies
-# RUN apt-get update && \
-#     apt-get install -y git cmake build-essential && \
-#     apt-get install -y doxygen yasm nasm graphviz
-
-# # Clone AOM repository
-# RUN git clone --branch v3.8.1 https://aomedia.googlesource.com/aom /app/aom
-
-# # Build AOM
-# WORKDIR /app/aom_build
-# RUN cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DAOM_TARGET_CPU=generic /app/aom && \
-#     make && \
-#     make install
-
-# # Switch back to the app directory
-# WORKDIR /app
-# Update package repositories and install necessary dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends pkg-config && \
-    rm -rf /var/lib/apt/lists/*
-
-# Update package repositories and upgrade installed packages
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get autoremove -y && \
-    apt-get clean
-
-
-
-# Copy requirements.txt
-COPY requirements.txt .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy your application code
+# Copy the application code into the image
 COPY . .
 
-# Copy environment file
-COPY .env /app/merge_integration/.env
-
-# Expose the port your app runs on
-EXPOSE 8000
+# Install Python dependencies from requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Command to run your application
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python3.11", "manage.py", "runserver", "0.0.0.0:8000"]
