@@ -5,15 +5,21 @@ WORKDIR /app
 
 # Install necessary build dependencies
 RUN apt-get update && \
-    apt-get install -y git cmake build-essential
+    apt-get install -y git cmake build-essential && \
+    apt-get install doxygen -y && \
+    apt-get install yasm -y && \
+    apt-get install nasm -y && \
+    apt-get install doxygen -y && \
+    apt-get install graphviz -y
 
 # Clone AOM repository
 RUN git clone --branch v3.8.1 https://aomedia.googlesource.com/aom
 
 # Build AOM
-WORKDIR /app/aom
-RUN mkdir build && cd build && \
-    cmake .. && \
+RUN cd aom && \
+    rm -rf CMakeCache.txt CMakeFiles && \
+    mkdir build && cd build && \
+    cmake -DAOM_TARGET_CPU=generic ../aom \
     make && \
     make install
 
