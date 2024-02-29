@@ -19,7 +19,7 @@ RUN git clone --branch v3.8.1 https://aomedia.googlesource.com/aom
 RUN mkdir aom_build && cd aom_build && \
     cd aom && \
     rm -rf CMakeCache.txt CMakeFiles && \
-    cd aom_build && \
+    cd ../aom_build && \
     cmake -DAOM_TARGET_CPU=generic ../aom \
     make && \
     make install
