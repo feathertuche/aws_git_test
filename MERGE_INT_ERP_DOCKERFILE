@@ -19,12 +19,18 @@ WORKDIR /app
 
 # # Switch back to the app directory
 # WORKDIR /app
+# Update package repositories and install necessary dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends pkg-config && \
+    rm -rf /var/lib/apt/lists/*
 
 # Update package repositories and upgrade installed packages
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get autoremove -y && \
     apt-get clean
+
+
 
 # Copy requirements.txt
 COPY requirements.txt .
