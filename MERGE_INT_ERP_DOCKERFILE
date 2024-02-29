@@ -1,29 +1,36 @@
-FROM python:3.11
+FROM python:3.12
 
 # Set working directory
 WORKDIR /app
 
-# Install necessary build dependencies
+# # Install necessary build dependencies
+# RUN apt-get update && \
+#     apt-get install -y git cmake build-essential && \
+#     apt-get install -y doxygen yasm nasm graphviz
+
+# # Clone AOM repository
+# RUN git clone --branch v3.8.1 https://aomedia.googlesource.com/aom /app/aom
+
+# # Build AOM
+# WORKDIR /app/aom_build
+# RUN cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DAOM_TARGET_CPU=generic /app/aom && \
+#     make && \
+#     make install
+
+# # Switch back to the app directory
+# WORKDIR /app
+
+# Update package repositories and upgrade installed packages
 RUN apt-get update && \
-    apt-get install -y git cmake build-essential && \
-    apt-get install -y doxygen yasm nasm graphviz
-
-# Clone AOM repository
-RUN git clone --branch v3.8.1 https://aomedia.googlesource.com/aom /app/aom
-
-# Build AOM
-WORKDIR /app/aom_build
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DAOM_TARGET_CPU=generic /app/aom && \
-    make && \
-    make install
-
-# Switch back to the app directory
-WORKDIR /app
+    apt-get upgrade -y && \
+    apt-get autoremove -y && \
+    apt-get clean
 
 # Copy requirements.txt
 COPY requirements.txt .
 
 # Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy your application code
