@@ -9,9 +9,13 @@ RUN apt-get update && apt-get install -y \
     patch \
     && rm -rf /var/lib/apt/lists/*
 
-# Download and apply the patch for the AOM library
-RUN wget https://aomedia.googlesource.com/aom/+/7ae7bef246e85c8f349513d668b4571c79a43c5c && \
-    patch -p0 < aom_patch.diff
+# # Download and apply the patch for the AOM library
+# RUN wget https://aomedia.googlesource.com/aom/+/7ae7bef246e85c8f349513d668b4571c79a43c5c && \
+#     patch -p0 < aom_patch.diff
+
+# Upgrade pip and all packages
+RUN pip install --upgrade pip && \
+    pip install --upgrade $(pip freeze | awk '{split($0, a, "=="); print a[1]}')
  
 COPY requirements.txt .
  
