@@ -38,6 +38,7 @@ class MergeTrackingCategoriesList(APIView):
                 expand="company",
                 remote_fields="status",
                 show_enum_origins="status",
+                page_size=100000
             )
             return organization_data
         except Exception as e:
