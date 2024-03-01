@@ -5,8 +5,10 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN python -m venv venv
-RUN /bin/ash -c "source venv/bin/activate && pip install --no-cache-dir -r requirements.txt"
+RUN apk update && \
+    apk add --no-cache mariadb-connector-c && \
+    python -m venv venv && \
+    /bin/ash -c "source venv/bin/activate && pip install --no-cache-dir -r requirements.txt"
 
 # Stage 2: Production environment
 FROM python:3.10-alpine
@@ -17,15 +19,11 @@ COPY --from=builder /app/venv /app/venv
 COPY . .
 
 # Update OS package and Python packages
-RUN apk update && apk upgrade && \
-    apk add --no-cache gcc musl-dev linux-headers && \
+RUN apk update && \
+    apk add --no-cache mariadb-connector-c && \
     pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir --upgrade setuptools wheel && \
-    apk del gcc musl-dev linux-headers && \
-    rm -rf /var/cache/apk/* && \
-    # Install fixed versions of the vulnerable packages
-    pip install --no-cache-dir --upgrade aom==3.6.0.post1 && \
-    pip install --no-cache-dir --upgrade pyminizip==0.2.8
+    rm -rf /var/cache/apk/*
 
 EXPOSE 8000
 
