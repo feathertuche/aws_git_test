@@ -1,0 +1,2 @@
+class MergeApiException(Exception):
+    pass
