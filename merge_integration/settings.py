@@ -23,6 +23,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 ACCOUNT_TOKEN = os.getenv('ACCOUNT_TOKEN')
 BASE_URL = os.getenv('BASE_URL')
 API_KEY = os.getenv('API_KEY')
+GETKLOO_BASE_URL = os.getenv('GETKLOO_BASE_URL')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/

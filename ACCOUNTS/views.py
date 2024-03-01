@@ -40,6 +40,7 @@ class MergeAccounts(APIView):
                 expand="company",
                 remote_fields=AccountsListRequestRemoteFields.CLASSIFICATION,
                 show_enum_origins=AccountsListRequestShowEnumOrigins.CLASSIFICATION,
+                page_size=100000
             )
             return accounts_data
 

@@ -34,6 +34,7 @@ class MergeTaxRatesList(APIView):
         try:
             tax_data = tax_client.accounting.tax_rates.list(
                 expand="company",
+                page_size=100000
             )
             return tax_data
 

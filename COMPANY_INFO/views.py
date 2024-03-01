@@ -33,7 +33,10 @@ class MergeCompanyInfo(APIView):
         comp_client = create_merge_client(account_token)
 
         try:
-            organization_data = comp_client.accounting.company_info.list(expand=CompanyInfoListRequestExpand.ADDRESSES)
+            organization_data = comp_client.accounting.company_info.list(
+                expand=CompanyInfoListRequestExpand.ADDRESSES,
+                page_size=100000
+            )
             return organization_data
         except Exception as e:
             api_log(

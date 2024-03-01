@@ -44,6 +44,7 @@ class MergeContactsList(APIView):
                     expand=ContactsListRequestExpand.ADDRESSES,
                     remote_fields="status",
                     show_enum_origins="status",
+                    page_size=100000
             )
             return contact_data
         except Exception as e:
