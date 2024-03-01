@@ -5,7 +5,7 @@ from rest_framework.fields import ListField
 class AttachmentSerializer(serializers.Serializer):
     file_name = serializers.CharField()
     file_url = serializers.URLField()
-    integration_params = serializers.DictField(child=serializers.CharField())
+    transaction_name = serializers.CharField()
 
 
 class ModelSerializer(serializers.Serializer):
