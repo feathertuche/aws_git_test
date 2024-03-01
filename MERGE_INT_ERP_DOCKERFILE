@@ -31,7 +31,7 @@ RUN apk add --no-cache mariadb-connector-c
 
 # Update Python packages
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir --upgrade setuptools wheel libexpat
+    pip install --no-cache-dir --upgrade setuptools wheel
 
 EXPOSE 8000
 
