@@ -162,9 +162,9 @@ class MergeInvoiceCreate(APIView):
                 "file_url": line_items_payload.get("attachment").get("file_url"),
                 "integration_params": {
                     "transaction_id": invoice_created.model.id,
-                    "transaction_name": line_items_payload["attachment"]
-                    .get("integration_params")
-                    .get("transaction_name"),
+                    "transaction_name": line_items_payload.get("attachment").get(
+                        "transaction_name"
+                    ),
                 },
             }
 
