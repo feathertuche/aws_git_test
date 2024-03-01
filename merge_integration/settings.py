@@ -22,18 +22,12 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-<<<<<<< HEAD
+
 SECRET_KEY = os.getenv('SECRET_KEY')
 ACCOUNT_TOKEN = os.getenv('ACCOUNT_TOKEN')
 BASE_URL = os.getenv('BASE_URL')
 API_KEY = os.getenv('API_KEY')
 GETKLOO_BASE_URL = os.getenv('GETKLOO_BASE_URL')
-=======
-SECRET_KEY = os.getenv("SECRET_KEY")
-ACCOUNT_TOKEN = os.getenv("ACCOUNT_TOKEN")
-BASE_URL = os.getenv("BASE_URL")
-API_KEY = os.getenv("API_KEY")
->>>>>>> a9f2343a5f0fda34a7fb7a9e022d17dff0386830
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
