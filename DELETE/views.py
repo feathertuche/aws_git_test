@@ -1,9 +1,11 @@
 import requests
-from LINKTOKEN.model import ErpLinkToken
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
+from merge_integration.settings import GETKLOO_BASE_URL
 from merge_integration.utils import create_merge_client
 
 
@@ -17,7 +19,7 @@ class deleteAccount(APIView):
             return ErpLinkToken.objects.none()
         else:
             filter_token = ErpLinkToken.objects.filter(org_id=self.org_id)
-            lnk_token = filter_token.values_list('account_token', flat=1)
+            lnk_token = filter_token.values_list("account_token", flat=1)
 
         return lnk_token
 
@@ -44,17 +46,27 @@ class deleteAccount(APIView):
             account_del_response = comp_client.accounting.delete_account.delete()
             if account_del_response is None:
                 erp_link_token_id = request.data.get("erp_link_token_id")
-                authorization_header = request.headers.get('Authorization')
-                if authorization_header and authorization_header.startswith('Bearer '):
-                    token = authorization_header.split(' ')[1]
-                    disconnect_url = f"https://dev.getkloo.com/api/v1/accounting-integrations/erp-disconnect/{erp_link_token_id}"
-                    disconnect_execute = requests.delete(disconnect_url, headers={'Authorization': f'Bearer {token}'})
+                authorization_header = request.headers.get("Authorization")
+                if authorization_header and authorization_header.startswith("Bearer "):
+                    token = authorization_header.split(" ")[1]
+                    disconnect_url = f"{GETKLOO_BASE_URL}/accounting-integrations/erp-disconnect/{erp_link_token_id}"
+                    disconnect_execute = requests.delete(
+                        disconnect_url, headers={"Authorization": f"Bearer {token}"}
+                    )
                     if disconnect_execute.status_code == status.HTTP_204_NO_CONTENT:
-                        return Response({'message': 'Data deleted successfully'}, status=status.HTTP_200_OK)
+                        return Response(
+                            {"message": "Data deleted successfully"},
+                            status=status.HTTP_200_OK,
+                        )
                     else:
-                        return Response({'error': 'Failed to delete data'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                        return Response(
+                            {"error": "Failed to delete data"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        )
 
         except Exception as e:
             api_log(msg=f"Failed to send data to Kloo API. Error: {str(e)}")
             error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
-            return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

@@ -1,14 +1,18 @@
 """
 Module docstring: This module provides functions related to traceback.
 """
+
 import traceback
+
 import requests
 from merge.client import Merge
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
+from merge_integration.settings import GETKLOO_BASE_URL
 from merge_integration.utils import create_merge_client
 
 
@@ -38,13 +42,14 @@ class MergeTrackingCategoriesList(APIView):
                 expand="company",
                 remote_fields="status",
                 show_enum_origins="status",
-                page_size=100000
+                page_size=100000,
             )
             return organization_data
         except Exception as e:
             api_log(
                 msg=f"Error retrieving details: {str(e)} \
-                 - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
+                 - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}"
+            )
 
     @staticmethod
     def response_payload(organization_data):
@@ -57,9 +62,9 @@ class MergeTrackingCategoriesList(APIView):
         Returns:
             The formatted Merge Tracking_Category data.
         """
-        field_mappings = [{
-            "organization_defined_targets": {},
-            "linked_account_defined_targets": {}}]
+        field_mappings = [
+            {"organization_defined_targets": {}, "linked_account_defined_targets": {}}
+        ]
 
         formatted_data = []
         for category in organization_data.results:
@@ -88,42 +93,53 @@ class MergeTrackingCategoriesList(APIView):
         organization_data = self.get_tc()
         formatted_data = self.response_payload(organization_data)
 
-        api_log(msg=f"FORMATTED DATA: {formatted_data} \
-         - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
+        api_log(
+            msg=f"FORMATTED DATA: {formatted_data} \
+         - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
+        )
         return Response(formatted_data, status=status.HTTP_200_OK)
 
 
 class MergeTrackingCategoriesDetails(APIView):
     """
-        API view for retrieving details of a specific Merge Tracking Category.
+    API view for retrieving details of a specific Merge Tracking Category.
     """
+
     @staticmethod
     def get(_, id=None):
         """
-                Handle GET request for retrieving details of a specific Merge Tracking Category.
+        Handle GET request for retrieving details of a specific Merge Tracking Category.
 
-                Args:
-                    -: HTTP request object.
-                    id (str): Identifier of the Merge Tracking Category.
+        Args:
+            -: HTTP request object.
+            id (str): Identifier of the Merge Tracking Category.
 
-                Returns:
-                    Response: JSON response containing details of the Merge Tracking Category or error message.
+        Returns:
+            Response: JSON response containing details of the Merge Tracking Category or error message.
         """
         api_log(msg="Processing GET request in Merge Tracking_Category")
-        tracking_id_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN,
-                                api_key=settings.API_KEY)
+        tracking_id_client = Merge(
+            base_url=settings.BASE_URL,
+            account_token=settings.ACCOUNT_TOKEN,
+            api_key=settings.API_KEY,
+        )
 
         try:
-            tracking_id_data = tracking_id_client.accounting.tracking_categories.retrieve(
-                                id=id,
-                                expand="company",
-                                remote_fields="status",
-                                show_enum_origins="status",)
+            tracking_id_data = (
+                tracking_id_client.accounting.tracking_categories.retrieve(
+                    id=id,
+                    expand="company",
+                    remote_fields="status",
+                    show_enum_origins="status",
+                )
+            )
 
-            field_mappings = [{
-                "organization_defined_targets": {},
-                "linked_account_defined_targets": {},
-            }]
+            field_mappings = [
+                {
+                    "organization_defined_targets": {},
+                    "linked_account_defined_targets": {},
+                }
+            ]
 
             tracking_id_total_data = []
             total_id_data = {
@@ -139,17 +155,22 @@ class MergeTrackingCategoriesDetails(APIView):
                 "modified_at": tracking_id_data.modified_at,
                 "field_mappings": field_mappings,
                 "remote_data": tracking_id_data.remote_data,
-                }
+            }
 
             tracking_id_total_data.append(total_id_data)
 
-            api_log(msg=f"FORMATTED DATA: {tracking_id_total_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
+            api_log(
+                msg=f"FORMATTED DATA: {tracking_id_total_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
+            )
             return Response(tracking_id_total_data, status=status.HTTP_200_OK)
 
         except Exception as e:
             api_log(
-                msg=f"Error retrieving details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                msg=f"Error retrieving details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}"
+            )
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class MergePostTrackingCategories(APIView):
@@ -162,12 +183,14 @@ class MergePostTrackingCategories(APIView):
         self.link_token_details = link_token_details
 
     def post(self, request):
-        erp_link_token_id = request.data.get('erp_link_token_id')
-        authorization_header = request.headers.get('Authorization')
-        if authorization_header and authorization_header.startswith('Bearer '):
-            token = authorization_header.split(' ')[1]
+        erp_link_token_id = request.data.get("erp_link_token_id")
+        authorization_header = request.headers.get("Authorization")
+        if authorization_header and authorization_header.startswith("Bearer "):
+            token = authorization_header.split(" ")[1]
 
-            fetch_data = MergeTrackingCategoriesList(link_token_details=self.link_token_details)
+            fetch_data = MergeTrackingCategoriesList(
+                link_token_details=self.link_token_details
+            )
             tc_data = fetch_data.get(request=request)
 
             try:
@@ -176,18 +199,36 @@ class MergePostTrackingCategories(APIView):
 
                     tc_payload["erp_link_token_id"] = erp_link_token_id
 
-                    tc_url = "https://dev.getkloo.com/api/v1/organizations/erp-tracking-categories"
-                    tc_response_data = requests.post(tc_url, json=tc_payload, headers={'Authorization': f'Bearer {token}'})
+                    tc_url = f"{GETKLOO_BASE_URL}/organizations/erp-tracking-categories"
+                    tc_response_data = requests.post(
+                        tc_url,
+                        json=tc_payload,
+                        headers={"Authorization": f"Bearer {token}"},
+                    )
 
                     if tc_response_data.status_code == status.HTTP_201_CREATED:
-                        api_log(msg=f"data inserted successfully in the kloo Tracking_Category system")
-                        return Response(f"{tc_response_data} data inserted successfully in kloo Tracking_Category system")
+                        api_log(
+                            msg=f"data inserted successfully in the kloo Tracking_Category system"
+                        )
+                        return Response(
+                            f"{tc_response_data} data inserted successfully in kloo Tracking_Category system"
+                        )
 
                     else:
-                        return Response({'error': 'Failed to send data to Kloo Tracking_Category API'}, status=tc_response_data.status_code)
+                        return Response(
+                            {
+                                "error": "Failed to send data to Kloo Tracking_Category API"
+                            },
+                            status=tc_response_data.status_code,
+                        )
 
             except Exception as e:
                 error_message = f"Failed to send data to Kloo Tracking_Category API. Error: {str(e)}"
-                return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(
+                    {"error": error_message},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
-            return Response(f"Failed to insert data to the kloo Tracking_Category system", traceback)
+            return Response(
+                f"Failed to insert data to the kloo Tracking_Category system", traceback
+            )
