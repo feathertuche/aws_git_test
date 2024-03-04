@@ -1,6 +1,6 @@
 import logging
-from datetime import datetime
 import os
+from datetime import datetime
 
 
 def api_log(level=logging.DEBUG, msg=""):
@@ -16,8 +16,27 @@ def api_log(level=logging.DEBUG, msg=""):
     file = os.path.join(log_folder, f"apiLog_{current_date}.log")
 
     # Configure logging to write to the log file
-    logging.basicConfig(level=level, filename=file, filemode='a', format='%(asctime)s [%(levelname)s] : %(filename)s:%(lineno)d - %(message)s',
-                        datefmt='%m/%d/%Y %I:%M:%S %p', encoding='utf-8')
+    logging.basicConfig(
+        level=level,
+        filename=file,
+        filemode="a",
+        format="%(asctime)s [%(levelname)s] : %(filename)s:%(lineno)d - %(message)s",
+        datefmt="%m/%d/%Y %I:%M:%S %p",
+        encoding="utf-8",
+    )
+
+    # Create a console handler and set its level
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(level)
+
+    # Create a formatter and set it for the console handler
+    formatter = logging.Formatter(
+        "%(asctime)s [%(levelname)s] : %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p"
+    )
+    console_handler.setFormatter(formatter)
+
+    # Add the console handler to the root logger
+    logging.getLogger().addHandler(console_handler)
 
     # Log the message
     logging.log(level, msg)
