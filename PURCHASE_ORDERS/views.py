@@ -32,6 +32,7 @@ class MergePOList(APIView):
                 expand=PurchaseOrdersListRequestExpand.ACCOUNTING_PERIOD,
                 remote_fields="status",
                 show_enum_origins="status",
+                page_size=100000
             )
             return po_data
         except Exception as e:

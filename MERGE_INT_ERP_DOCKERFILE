@@ -1,13 +1,37 @@
-FROM python:3.11
+# Stage 1: Build environment
+FROM python:3.10 AS builder
 
 WORKDIR /app
 
+# Install build dependencies
+RUN apt-get update && \
+    apt-get install -y \
+    gcc \
+    python3-dev \
+    libmariadb-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and install Python dependencies
 COPY requirements.txt .
+RUN python -m venv venv && \
+    /bin/bash -c "source venv/bin/activate && \
+    pip install --no-cache-dir -r requirements.txt"
 
-RUN python -m venv venv
-RUN /bin/bash -c "source venv/bin/activate && pip install --no-cache-dir -r requirements.txt"
+# Stage 2: Production environment
+FROM python:3.10-alpine
 
+WORKDIR /app
+
+# Copy virtual environment from the builder stage
+COPY --from=builder /app/venv /app/venv
 COPY . .
+
+# Install runtime dependencies
+RUN apk add --no-cache mariadb-connector-c
+
+# Update Python packages
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade setuptools wheel
 
 EXPOSE 8000
 
