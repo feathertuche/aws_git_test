@@ -10,6 +10,7 @@ from COMPANY_INFO.views import MergeKlooCompanyInsert
 from CONTACTS.views import MergePostContacts
 from LINKTOKEN.model import ErpLinkToken
 from TRACKING_CATEGORIES.views import MergePostTrackingCategories
+from merge_integration.helper_functions import api_log
 from .models import ERPLogs
 from merge_integration.utils import create_merge_client
 from merge.core.api_error import ApiError
@@ -55,6 +56,7 @@ class ProxySyncAPI(CreateAPIView):
         if link_token_details is None:
             response_data = {"message": "Sync still pending"}
             return Response(response_data, status=status.HTTP_202_ACCEPTED)
+        api_log(msg=f"SYNC :link token details{link_token_details}")
         self.account_token = link_token_details[0]
         tc_client = create_merge_client(self.account_token)
         try:
@@ -81,7 +83,7 @@ class ProxySyncAPI(CreateAPIView):
             return Response(response_data, status=status.HTTP_202_ACCEPTED)
         else:
             response_data = get_erplogs_by_link_token_id(erp_link_token_id)
-            print(response_data)
+            api_log(msg=f"SYNC :ERP Log Data {response_data}")
             if not response_data:
                 if org_id is None or entity_id is None:
                     return Response("Both fields are required to fetch link token..",
@@ -95,13 +97,16 @@ class ProxySyncAPI(CreateAPIView):
                 ]
 
                 for index, (api_view_class, kwargs) in enumerate(post_api_views, start=1):
+                    api_log(msg=f"SYNC :POST API list {api_view_class} and Index is : {index}")
                     module_name = api_view_class.__module__
                     if module_name.endswith(".views"):
                         module_name = module_name[:-6]
                     try:
                         api_instance = api_view_class(**kwargs)
                         response = api_instance.post(request)
+                        api_log(msg=f"SYNC : model name is: {module_name}, {response.status_code}")
                         if response.status_code == status.HTTP_200_OK:
+                            api_log(msg=f"SYNC : model name is succsssfullllll")
                             combined_response.append({
                                 "key": f"{module_name}",
                                 'label': f"{module_name.replace('_', ' ')}",
@@ -111,44 +116,22 @@ class ProxySyncAPI(CreateAPIView):
                             self.success_log(success_message=f"API {module_name} executed successfully",
                                              label=f"{module_name.replace('_', ' ')}")
                         else:
-                            module_name = api_view_class.__module__
-                            if module_name.endswith(".views"):
-                                module_name = module_name[:-6]
+                            api_log(msg=f"SYNC : model name {module_name} is failureeeee")
                             error_message = f"API {module_name} failed with status code {response.status_code}"
                             api_exception = APIException(error_message)
                             raise api_exception
                     except Exception as e:
+                        api_log(msg=f"SYNC : Exception for model {module_name}")
                         error_message = f"An error occurred while calling API {index}: {str(e)}"
                         self.log_error(error_message=error_message, label=module_name)
                         # return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+                api_log(msg=f"SYNC COMPLETEDDDDDDDD")
                 # Return the combined response and response_data dictionary
                 response_data = get_erplogs_by_link_token_id(erp_link_token_id)
                 return Response({'response_data': response_data}, status=status.HTTP_200_OK)
             else:
                 response_data = get_erplogs_by_link_token_id(erp_link_token_id)
                 return Response({'response_data': response_data}, status=status.HTTP_200_OK)
-            # except APIException as e:
-            #     error_message = str(e)
-            #     module_name = getattr(e, "module_name", "")
-            #     self.log_error(error_message=error_message, label=module_name)
-            #
-            #     module_name = api_view_class.__module__
-            #     if module_name.endswith(".views"):
-            #         module_name = module_name[:-6]
-            #
-            #     combined_response.append({
-            #         'key': f"{module_name}",
-            #         'label': f"{module_name.replace('_', ' ')}",
-            #         'status': status.HTTP_500_INTERNAL_SERVER_ERROR,
-            #         'errorMessage': error_message
-            #     })
-            #
-            # except Exception as e:
-            #     error_message = f"An error occurred while calling API {index}: {str(e)}"
-            #     self.log_error(error_message=error_message)
-            #     return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            #return Response(response_data, status=status.HTTP_200_OK)
 
     def get_queryset(self):
         if self.org_id is None or self.entity_id is None:
@@ -172,6 +155,7 @@ class ProxySyncAPI(CreateAPIView):
             sync_status="Failed",
             error_message=error_message
         )
+        api_log(msg=f"SYNC : LOG ERROR {log_entry}")
         log_entry.save()
 
     def success_log(self, success_message, label):
@@ -186,4 +170,5 @@ class ProxySyncAPI(CreateAPIView):
             sync_status="Success",
             error_message=success_message
         )
+        api_log(msg=f"SYNC : LOG success {log_entry}")
         log_entry.save()
