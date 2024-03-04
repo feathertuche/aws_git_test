@@ -121,8 +121,8 @@ class ProxySyncAPI(CreateAPIView):
                             raise api_exception
                     except Exception as e:
                         error_message = f"An error occurred while calling API {index}: {str(e)}"
-                        #self.log_error(error_message=error_message)
-                        return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                        self.log_error(error_message=error_message)
+                        # return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
                 # Return the combined response and response_data dictionary
                 response_data = get_erplogs_by_link_token_id(erp_link_token_id)
