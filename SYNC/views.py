@@ -95,14 +95,13 @@ class ProxySyncAPI(CreateAPIView):
                 ]
 
                 for index, (api_view_class, kwargs) in enumerate(post_api_views, start=1):
+                    module_name = api_view_class.__module__
+                    if module_name.endswith(".views"):
+                        module_name = module_name[:-6]
                     try:
                         api_instance = api_view_class(**kwargs)
                         response = api_instance.post(request)
                         if response.status_code == status.HTTP_200_OK:
-                            module_name = api_view_class.__module__
-                            if module_name.endswith(".views"):
-                                module_name = module_name[:-6]
-
                             combined_response.append({
                                 "key": f"{module_name}",
                                 'label': f"{module_name.replace('_', ' ')}",
@@ -117,11 +116,10 @@ class ProxySyncAPI(CreateAPIView):
                                 module_name = module_name[:-6]
                             error_message = f"API {module_name} failed with status code {response.status_code}"
                             api_exception = APIException(error_message)
-                            api_exception.module_name = module_name
                             raise api_exception
                     except Exception as e:
                         error_message = f"An error occurred while calling API {index}: {str(e)}"
-                        self.log_error(error_message=error_message)
+                        self.log_error(error_message=error_message, label=module_name)
                         # return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
                 # Return the combined response and response_data dictionary
