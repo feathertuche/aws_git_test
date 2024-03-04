@@ -54,7 +54,7 @@ jobs:
             echo "secret_manager=kloo-dev-environment-variables" >> $GITHUB_ENV
             echo "db_password=Dev_DB_Password" >> $GITHUB_ENV
             echo "app_secret_manager=non_prod_merge_integration" >> $GITHUB_ENV
-            UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/dev/')
+            UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/-env//')
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-dev-cluster" >> $GITHUB_ENV
             echo "rds_host=mysql-kloo-dev.internal-service-kloo.com" >> $GITHUB_ENV
@@ -86,30 +86,8 @@ jobs:
           while IFS= read -r line; do
             echo "$line" >> .env
           done <<< "$(echo "$secret_json" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"')"
-
-      # - name: Dynamically setting function names
-      #   run: |
-      #       #Following code dynamically set's the function name based on the repo.
-      #       #So no need to create additional func name variables in git.
-
-      #       if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-      #         UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/prod/')
-      #         echo "env=prod" >> $GITHUB_ENV
-      #         echo "It's prod"
-      #       elif [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
-      #         UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/stage/')
-      #         echo "env=stage" >> $GITHUB_ENV
-      #         echo "It's stage"
-      #       elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-      #         UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/dev/')
-      #         echo "env=dev" >> $GITHUB_ENV
-      #         echo "It's dev"
-      #       else
-      #         echo "It's nothing"
-      #       fi
-
-      #       echo "MERGE_INT_ERP_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
-
+       
+                      
       - name: Deploying merge integration erp
         run: |
           #----------------------------------------------------------------------------
@@ -121,3 +99,4 @@ jobs:
       - name: Deploy to lambda
         run: |
           aws ecs update-service --cluster ${cluster_name} --service ${UPDATED_FUNC_NAME} --force-new-deployment
+          
