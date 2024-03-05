@@ -107,7 +107,7 @@ class MergeInvoiceCreate(APIView):
                 line_item_data = {
                     "id": line_item_payload.get("id"),
                     "remote_id": line_item_payload.get("id"),
-                    "name": line_item_payload.get("description"),
+                    "name": line_item_payload.get("item"),
                     "status": line_item_payload.get("status"),
                     "unit_price": line_item_payload.get("unit_price"),
                     "purchase_price": line_item_payload.get("purchase_price"),
@@ -117,7 +117,7 @@ class MergeInvoiceCreate(APIView):
                     "exchange_rate": line_items_payload.get("exchange_rate"),
                     "remote_updated_at": line_item_payload.get("remote_updated_at"),
                     "remote_was_deleted": line_item_payload.get("remote_was_deleted"),
-                    "description": line_item_payload.get("description"),
+                    "description": line_item_payload.get("item"),
                     "quantity": line_item_payload.get("quantity"),
                     "created_at": line_item_payload.get("created_at"),
                     "tracking_categories": line_items_payload.get(

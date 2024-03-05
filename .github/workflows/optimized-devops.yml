@@ -43,7 +43,7 @@ jobs:
             echo "env=stage" >> $GITHUB_ENV
             echo "secret_manager=kloo-Stage-Environment-Variables" >> $GITHUB_ENV
             echo "db_password=Stage_db_password" >> $GITHUB_ENV
-            echo "app_secret_manager=non_prod_merge_integration" >> $GITHUB_ENV
+            echo "app_secret_manager=stage_merge_integration" >> $GITHUB_ENV
             UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/stage/')
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-stage-cluster" >> $GITHUB_ENV
@@ -52,7 +52,7 @@ jobs:
           else
             echo "env=dev" >> $GITHUB_ENV
             echo "secret_manager=kloo-dev-environment-variables" >> $GITHUB_ENV
-            echo "db_password=Dev_DB_Password" >> $GITHUB_ENV
+            echo "db_password=Dev_DB_PASSWORD" >> $GITHUB_ENV
             echo "app_secret_manager=non_prod_merge_integration" >> $GITHUB_ENV
             UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/-env//')
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
