@@ -10,3 +10,4 @@ mysqlclient
 django-cors-headers
 boto3
 chardet
+gunicorn
