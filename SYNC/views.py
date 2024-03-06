@@ -1,6 +1,3 @@
-import uuid
-from datetime import datetime
-
 from merge.core.api_error import ApiError
 from rest_framework import status, serializers
 from rest_framework.generics import CreateAPIView
@@ -124,34 +121,3 @@ class ProxySyncAPI(CreateAPIView):
             lnk_token = filter_token.values_list("account_token", flat=1)
 
         return lnk_token
-
-    def log_error(self, error_message, label):
-        # Log the error to the database
-        log_entry = ERPLogs(
-            id=uuid.uuid1(),
-            org_id=self.org_id,
-            link_token_id=self.erp_link_token_id,
-            link_token=self.account_token,
-            label=label,
-            sync_start_time=datetime.now(),
-            sync_end_time=datetime.now(),
-            sync_status="Failed",
-            error_message=error_message,
-        )
-        api_log(msg=f"SYNC : LOG ERROR {log_entry}")
-        log_entry.save()
-
-    def success_log(self, success_message, label):
-        log_entry = ERPLogs(
-            id=uuid.uuid1(),
-            org_id=self.org_id,
-            link_token_id=self.erp_link_token_id,
-            link_token=self.account_token,
-            label=label,
-            sync_start_time=datetime.now(),
-            sync_end_time=datetime.now(),
-            sync_status="Success",
-            error_message=success_message,
-        )
-        api_log(msg=f"SYNC : LOG success {log_entry}")
-        log_entry.save()

@@ -1,4 +1,3 @@
-import threading
 import uuid
 from datetime import datetime
 
@@ -31,25 +30,34 @@ def sync_modules_status(
         (InsertAccountData, {"link_token_details": link_token_details}),
         (MergePostContacts, {"link_token_details": link_token_details}),
     ]
-
-    threads = []
     for index, (api_view_class, kwargs) in enumerate(post_api_views, start=1):
-        thread = threading.Thread(
-            target=api_call,
-            args=(
-                request,
-                api_view_class,
-                kwargs,
-                org_id,
-                erp_link_token_id,
-                account_token,
-            ),
+        api_call(
+            request,
+            api_view_class,
+            kwargs,
+            org_id,
+            erp_link_token_id,
+            account_token,
         )
-        threads.append(thread)
-        thread.start()
 
-    for thread in threads:
-        thread.join()
+    # threads = []
+    # for index, (api_view_class, kwargs) in enumerate(post_api_views, start=1):
+    #     thread = threading.Thread(
+    #         target=api_call,
+    #         args=(
+    #             request,
+    #             api_view_class,
+    #             kwargs,
+    #             org_id,
+    #             erp_link_token_id,
+    #             account_token,
+    #         ),
+    #     )
+    #     threads.append(thread)
+    #     thread.start()
+    #
+    # for thread in threads:
+    #     thread.join()
 
     api_log(msg=f"SYNC COMPLETED")
 
@@ -58,6 +66,8 @@ def api_call(request, api_view_class, kwargs, org_id, erp_link_token_id, account
     module_name = api_view_class.__module__
     if module_name.endswith(".views"):
         module_name = module_name[:-6]
+
+    api_log(msg=f"SYNC : model name is: {module_name} has started")
     try:
         api_instance = api_view_class(**kwargs)
         response = api_instance.post(request)
