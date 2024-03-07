@@ -159,7 +159,7 @@ DATABASES = {
 #         "NAME": "myrdssql01",
 #         "USER": "masterkloo",
 #         "PASSWORD": "ptKJDHJTXd3J0kYF",
-#         "HOST": "127.0.0.1",
+#         "HOST": "host.docker.internal",
 #         "PORT": 3308,
 #         "OPTIONS": {
 #             "charset": "utf8mb4",
