@@ -1,13 +1,18 @@
-import requests
-from rest_framework.views import APIView
-from rest_framework.request import Request
-from rest_framework.response import Response
-from rest_framework import status
-from merge_integration import settings
-from merge.client import Merge
 import traceback
+
+import requests
+from merge.client import Merge
+from merge.resources.accounting import (
+    CompanyInfoListRequestExpand,
+    CompanyInfoRetrieveRequestExpand,
+)
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from merge_integration import settings
 from merge_integration.helper_functions import api_log
-from merge.resources.accounting import CompanyInfoListRequestExpand, CompanyInfoRetrieveRequestExpand
+from merge_integration.settings import GETKLOO_BASE_URL
 from merge_integration.utils import create_merge_client
 
 
@@ -33,12 +38,15 @@ class MergeCompanyInfo(APIView):
         comp_client = create_merge_client(account_token)
 
         try:
-            organization_data = comp_client.accounting.company_info.list(expand=CompanyInfoListRequestExpand.ADDRESSES)
+            organization_data = comp_client.accounting.company_info.list(
+                expand=CompanyInfoListRequestExpand.ADDRESSES, page_size=100000
+            )
             return organization_data
         except Exception as e:
             api_log(
                 msg=f"Error retrieving organizations details: {str(e)} \
-                 - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
+                 - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}"
+            )
 
     @staticmethod
     def build_response_payload(organization_data):
@@ -98,8 +106,10 @@ class MergeCompanyInfo(APIView):
         organization_data = self.get_company_info()
         formatted_data = self.build_response_payload(organization_data)
 
-        api_log(msg=f"FORMATTED DATA: {formatted_data} \
-             - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
+        api_log(
+            msg=f"FORMATTED DATA: {formatted_data} \
+             - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
+        )
         return Response(formatted_data, status=status.HTTP_200_OK)
 
 
@@ -107,12 +117,16 @@ class MergeCompanyDetails(APIView):
     @staticmethod
     def get(_, id=None):
         api_log(msg="Processing GET request in MergeAccounts...")
-        comp_id_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN,
-                               api_key=settings.API_KEY)
+        comp_id_client = Merge(
+            base_url=settings.BASE_URL,
+            account_token=settings.ACCOUNT_TOKEN,
+            api_key=settings.API_KEY,
+        )
 
         try:
-            organization_data = comp_id_client.accounting.company_info.retrieve(id=id,
-                                                                                expand=CompanyInfoRetrieveRequestExpand.ADDRESSES)
+            organization_data = comp_id_client.accounting.company_info.retrieve(
+                id=id, expand=CompanyInfoRetrieveRequestExpand.ADDRESSES
+            )
 
             formatted_addresses = [
                 {
@@ -126,7 +140,8 @@ class MergeCompanyDetails(APIView):
                     "zip_code": addr.zip_code,
                     "created_at": addr.created_at,
                     "modified_at": addr.modified_at,
-                } for addr in organization_data.addresses
+                }
+                for addr in organization_data.addresses
             ]
 
             phone_types = [
@@ -135,7 +150,8 @@ class MergeCompanyDetails(APIView):
                     "type": phone.type,
                     "created_at": phone.created_at,
                     "modified_at": phone.modified_at,
-                } for phone in organization_data.phone_numbers
+                }
+                for phone in organization_data.phone_numbers
             ]
 
             formatted_data = []
@@ -161,13 +177,17 @@ class MergeCompanyDetails(APIView):
             formatted_data.append(formatted_entry)
 
             api_log(
-                msg=f"FORMATTED DATA: {formatted_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
+                msg=f"FORMATTED DATA: {formatted_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
+            )
             return Response(formatted_data, status=status.HTTP_200_OK)
 
         except Exception as e:
             api_log(
-                msg=f"Error retrieving organizations details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                msg=f"Error retrieving organizations details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}"
+            )
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class MergeKlooCompanyInsert(APIView):
@@ -177,29 +197,44 @@ class MergeKlooCompanyInsert(APIView):
         self.link_token_details = link_token_details
 
     def post(self, request):
-        erp_link_token_id = request.data.get('erp_link_token_id')
-        authorization_header = request.headers.get('Authorization')
-        if authorization_header and authorization_header.startswith('Bearer '):
-            token = authorization_header.split(' ')[1]
+        erp_link_token_id = request.data.get("erp_link_token_id")
+        authorization_header = request.headers.get("Authorization")
+        if authorization_header and authorization_header.startswith("Bearer "):
+            token = authorization_header.split(" ")[1]
 
-            merge_company_list = MergeCompanyInfo(link_token_details=self.link_token_details)
+            merge_company_list = MergeCompanyInfo(
+                link_token_details=self.link_token_details
+            )
             response = merge_company_list.get(request=request)
             try:
                 if response.status_code == status.HTTP_200_OK:
                     merge_payload = response.data
                     merge_payload["erp_link_token_id"] = erp_link_token_id
-                    kloo_url = 'https://stage.getkloo.com/api/v1/organizations/insert-erp-companies'
-                    kloo_data_insert = requests.post(kloo_url, json=merge_payload,
-                                                     headers={'Authorization': f'Bearer {token}'})
+                    kloo_url = f"{GETKLOO_BASE_URL}/organizations/insert-erp-companies"
+                    kloo_data_insert = requests.post(
+                        kloo_url,
+                        json=merge_payload,
+                        headers={"Authorization": f"Bearer {token}"},
+                    )
 
                     if kloo_data_insert.status_code == status.HTTP_201_CREATED:
-                        return Response(f"successfully inserted the data for COMPANY INFO with ")
+                        return Response(
+                            f"successfully inserted the data for COMPANY INFO with "
+                        )
                     else:
-                        return Response({'error': 'Failed to send data to Kloo API'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                        return Response(
+                            {"error": "Failed to send data to Kloo API"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        )
 
             except Exception as e:
                 error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
-                return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(
+                    {"error": error_message},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
-        return Response({'error': 'Failed to retrieve company information'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+        return Response(
+            {"error": "Failed to retrieve company information"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )

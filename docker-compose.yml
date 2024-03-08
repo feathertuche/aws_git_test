@@ -1,0 +1,17 @@
+version: '3.3'
+services:
+  web:
+    container_name: merge_erp_backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app/
+    restart: unless-stopped
+    networks:
+      - merge_erp_network
+
+networks:
+  merge_erp_network:
