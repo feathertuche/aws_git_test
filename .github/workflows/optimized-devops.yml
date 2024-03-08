@@ -86,6 +86,7 @@ jobs:
           while IFS= read -r line; do
             echo "$line" >> .env
           done <<< "$(echo "$secret_json" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"')"
+          cp .env ../.env
        
                       
       - name: Deploying merge integration erp
