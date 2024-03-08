@@ -1,17 +1,22 @@
 """
 Module docstring: This module provides functions related to traceback.
 """
-import json
-from datetime import datetime
+
 import traceback
+
 import requests
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
 from merge.client import Merge
-from merge.resources.accounting import ContactsListRequestExpand, ContactsRetrieveRequestExpand
+from merge.resources.accounting import (
+    ContactsListRequestExpand,
+    ContactsRetrieveRequestExpand,
+)
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
+from merge_integration.settings import GETKLOO_BASE_URL
 from merge_integration.utils import create_merge_client
 
 
@@ -41,15 +46,17 @@ class MergeContactsList(APIView):
 
         try:
             contact_data = contacts_client.accounting.contacts.list(
-                    expand=ContactsListRequestExpand.ADDRESSES,
-                    remote_fields="status",
-                    show_enum_origins="status",
+                expand=ContactsListRequestExpand.ADDRESSES,
+                remote_fields="status",
+                show_enum_origins="status",
+                page_size=100000,
             )
             return contact_data
         except Exception as e:
             api_log(
                 msg=f"Error retrieving details: {str(e)} \
-                 - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
+                 - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}"
+            )
 
     @staticmethod
     def response_payload(contact_data):
@@ -123,8 +130,10 @@ class MergeContactsList(APIView):
         contact_data = self.get_contacts()
         formatted_data = self.response_payload(contact_data)
 
-        api_log(msg=f"FORMATTED DATA: {formatted_data} \
-         - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
+        api_log(
+            msg=f"FORMATTED DATA: {formatted_data} \
+         - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
+        )
         return Response(formatted_data, status=status.HTTP_200_OK)
 
 
@@ -132,6 +141,7 @@ class MergeContactDetails(APIView):
     """
     API view for retrieving details of a specific Merge Contact.
     """
+
     @staticmethod
     def get(_, id=None):
         """
@@ -144,13 +154,17 @@ class MergeContactDetails(APIView):
             Response containing contact details.
         """
         api_log(msg="Processing GET request Merge Contacts list")
-        merg_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN, api_key=settings.API_KEY)
+        merg_client = Merge(
+            base_url=settings.BASE_URL,
+            account_token=settings.ACCOUNT_TOKEN,
+            api_key=settings.API_KEY,
+        )
         try:
             contact_data = merg_client.accounting.contacts.retrieve(
-                        id=id,
-                        expand=ContactsRetrieveRequestExpand.ADDRESSES,
-                        remote_fields="status",
-                        show_enum_origins="status",
+                id=id,
+                expand=ContactsRetrieveRequestExpand.ADDRESSES,
+                remote_fields="status",
+                show_enum_origins="status",
             )
 
             formatted_addresses = [
@@ -165,7 +179,8 @@ class MergeContactDetails(APIView):
                     "zip_code": addr.zip_code,
                     "created_at": addr.created_at,
                     "modified_at": addr.modified_at,
-                } for addr in contact_data.addresses
+                }
+                for addr in contact_data.addresses
             ]
 
             phone_types = [
@@ -174,12 +189,13 @@ class MergeContactDetails(APIView):
                     "type": phone.type,
                     "created_at": phone.created_at,
                     "modified_at": phone.modified_at,
-                } for phone in contact_data.phone_numbers
+                }
+                for phone in contact_data.phone_numbers
             ]
             field_map = [
                 {
                     "organization_defined_targets": {},
-                    "linked_account_defined_targets": {}
+                    "linked_account_defined_targets": {},
                 },
             ]
 
@@ -202,17 +218,22 @@ class MergeContactDetails(APIView):
                 "created_at": contact_data.created_at,
                 "modified_at": contact_data.modified_at,
                 "field_mappings": field_map,
-                "remote_data": contact_data.remote_data
+                "remote_data": contact_data.remote_data,
             }
             formatted_list.append(format_response)
 
-            api_log(msg=f"FORMATTED DATA: {formatted_list} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
+            api_log(
+                msg=f"FORMATTED DATA: {formatted_list} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
+            )
             return Response(formatted_list, status=status.HTTP_200_OK)
 
         except Exception as e:
             api_log(
-                msg=f"Error retrieving Contacts details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                msg=f"Error retrieving Contacts details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}"
+            )
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class MergePostContacts(APIView):
@@ -232,10 +253,10 @@ class MergePostContacts(APIView):
             Response indicating success or failure of data insertion.
         """
 
-        erp_link_token_id = request.data.get('erp_link_token_id')
-        authorization_header = request.headers.get('Authorization')
-        if authorization_header and authorization_header.startswith('Bearer '):
-            token = authorization_header.split(' ')[1]
+        erp_link_token_id = request.data.get("erp_link_token_id")
+        authorization_header = request.headers.get("Authorization")
+        if authorization_header and authorization_header.startswith("Bearer "):
+            token = authorization_header.split(" ")[1]
 
             fetch_data = MergeContactsList(link_token_details=self.link_token_details)
             contact_data = fetch_data.get(request=request)
@@ -244,22 +265,37 @@ class MergePostContacts(APIView):
                 if contact_data.status_code == status.HTTP_200_OK:
                     contact_payload = contact_data.data
                     contact_payload["erp_link_token_id"] = erp_link_token_id
-                    contact_url = "https://stage.getkloo.com/api/v1/ap/erp-integration/insert-erp-contacts"
+                    contact_url = (
+                        f"{GETKLOO_BASE_URL}/ap/erp-integration/insert-erp-contacts"
+                    )
 
-                    contact_response_data = requests.post(contact_url, json=contact_payload,
-                                                          headers={'Authorization': f'Bearer {token}'})
+                    contact_response_data = requests.post(
+                        contact_url,
+                        json=contact_payload,
+                        headers={"Authorization": f"Bearer {token}"},
+                    )
 
                     if contact_response_data.status_code == status.HTTP_201_CREATED:
-                        api_log(msg=f"data inserted successfully in the kloo Contacts system")
-                        return Response(f"data inserted successfully in the kloo Contacts system")
+                        api_log(
+                            msg=f"data inserted successfully in the kloo Contacts system"
+                        )
+                        return Response(
+                            f"data inserted successfully in the kloo Contacts system"
+                        )
 
                     else:
-                        return Response({'error': 'Failed to send data to Kloo Contacts API'},
-                                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                        return Response(
+                            {"error": "Failed to send data to Kloo Contacts API"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        )
 
             except Exception as e:
-                error_message = f"Failed to send data to Kloo Contacts API. Error: {str(e)}"
-                return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                error_message = (
+                    f"Failed to send data to Kloo Contacts API. Error: {str(e)}"
+                )
+                return Response(
+                    {"error": error_message},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
             return Response(f"Failed to insert data to the kloo Contacts system")
-
