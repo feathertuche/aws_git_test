@@ -36,6 +36,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 EXPOSE 8000
 
 #CMD ["venv/bin/gunicorn", "--workers", "2", "--bind", "0.0.0.0:8000","--timeout", "60", "merge_integration.wsgi:application"]
-CMD ["venv/bin/gunicorn", "--workers", "2", "--bind", "0.0.0.0:8000", "-k", "gevent", "--timeout", "60", "merge_integration.wsgi:application"]
+CMD ["venv/bin/gunicorn", "--workers", "1", "--bind", "0.0.0.0:8000","--timeout", "60", "--log-level", "debug", "merge_integration.wsgi:application"]
 
 
