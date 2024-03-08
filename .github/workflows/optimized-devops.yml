@@ -77,7 +77,7 @@ jobs:
           echo "DB_USER=masterkloo" >> .env
           echo "DB_NAME=myrdssql01" >> .env
           DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .${db_password}`
-          echo "DB_PASSWORD=$DB_PASSWORD" >> .env  
+          echo "DB_PASSWORD=$DB_PASSWORD" >> .env
 
       - name: Creating Application variables
         run: |
