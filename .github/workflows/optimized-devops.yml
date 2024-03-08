@@ -96,7 +96,13 @@ jobs:
           docker build -t ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest -f MERGE_INT_ERP_DOCKERFILE .
           docker push ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest
 
-      - name: Deploy to lambda
+      - name: Deploying to non-prod environment
+        if: ${{ env.env != 'prod' }}
         run: |
           aws ecs update-service --cluster ${cluster_name} --service ${UPDATED_FUNC_NAME} --force-new-deployment
           
+      - name: Deploying to production
+        if: ${{ env.env == 'prod' }}
+        run: |
+          aws codepipeline update-pipeline --cli-input-json file://codepipeline.json
+          aws codepipeline start-pipeline-execution --name codepipeline-oauthapi
