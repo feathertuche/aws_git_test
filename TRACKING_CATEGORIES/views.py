@@ -34,7 +34,7 @@ class MergeTrackingCategoriesList(APIView):
             print("link_token_details is an empty list")
             return None
 
-        account_token = self.link_token_details[0]
+        account_token = self.link_token_details
         tc_client = create_merge_client(account_token)
 
         try:
@@ -215,6 +215,10 @@ class MergePostTrackingCategories(APIView):
                         )
 
                     else:
+                        api_log(
+                            msg=f"Failed to insert data to the kloo Tracking_Category system "
+                            f"- Status Code: {tc_response_data.status_code}"
+                        )
                         return Response(
                             {
                                 "error": "Failed to send data to Kloo Tracking_Category API"
@@ -223,6 +227,9 @@ class MergePostTrackingCategories(APIView):
                         )
 
             except Exception as e:
+                api_log(
+                    msg=f"Failed to send data to Kloo Tracking_Category API. Error: {str(e)}"
+                )
                 error_message = f"Failed to send data to Kloo Tracking_Category API. Error: {str(e)}"
                 return Response(
                     {"error": error_message},
@@ -230,5 +237,11 @@ class MergePostTrackingCategories(APIView):
                 )
 
             return Response(
-                f"Failed to insert data to the kloo Tracking_Category system", traceback
+                {"error": "Failed to send data to Kloo Tracking_Category API"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+        return Response(
+            {"error": "Authorization header is missing"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )

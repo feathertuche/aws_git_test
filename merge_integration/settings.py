@@ -15,7 +15,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from .utils import get_db_password
+from merge_integration.utils import get_db_password
 
 load_dotenv()
 
@@ -137,6 +137,7 @@ WSGI_APPLICATION = "merge_integration.wsgi.application"
 #     }
 # }
 
+# prod
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
@@ -154,15 +155,15 @@ DATABASES = {
 
 ## Dev
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'myrdssql01',
-#         'USER': 'masterkloo',
-#         'PASSWORD': 'ptKJDHJTXd3J0kYF',
-#         'HOST': '127.0.0.1',
-#         'PORT': 3308,
-#         'OPTIONS': {
-#             'charset': 'utf8mb4',
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": "myrdssql01",
+#         "USER": "masterkloo",
+#         "PASSWORD": "ptKJDHJTXd3J0kYF",
+#         "HOST": "host.docker.internal",
+#         "PORT": 3308,
+#         "OPTIONS": {
+#             "charset": "utf8mb4",
 #         },
 #     }
 # }

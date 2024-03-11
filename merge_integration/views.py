@@ -8,8 +8,8 @@ def health_check(request):
     # For health check
 
     health_status = {
-        'status': 'ok',
-        'details': 'Application is healthy',
+        "status": "ok",
+        "details": "Application is healthy",
     }
 
     return JsonResponse(health_status)
