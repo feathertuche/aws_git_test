@@ -10,44 +10,83 @@ from rest_framework import status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from datetime import datetime, timedelta, timezone
 from merge_integration.helper_functions import api_log
 from merge_integration.utils import create_merge_client
 from .model import ErpLinkToken
 
 
 class LinkToken(APIView):
+
+    def get_linktoken(self, org_id, status, end_user_email_address):
+        if org_id is None or status is None:
+            missing_fields = []
+            if org_id is None:
+                missing_fields.append("organization ID (org_id)")
+            if status is None:
+                missing_fields.append("status")
+        else:
+            filter_token = ErpLinkToken.objects.filter(org_id=org_id, status=status, end_user_email_address=end_user_email_address)
+            first_token = filter_token.first()
+            timestamp = first_token.created_at.replace(tzinfo=timezone.utc)
+            current_time = datetime.now(tz=timezone.utc)
+            time_difference = current_time - timestamp
+            difference_in_minutes = time_difference.total_seconds() / 60
+            if first_token and difference_in_minutes < first_token.link_expiry_mins:
+                data = {
+                    "link_token": first_token.account_token,
+                    "magic_link_url": first_token.magic_link_url,
+                    "integration_name": first_token.integration_name,
+                    # "time_difference": difference_in_minutes,
+                    # "current_time": current_time,
+                    "timestamp": timestamp,
+                    "is_available": 1
+                   }
+                return data
+            else:
+                return {"is_available": 0}
+
     def post(self, request):
-        try:
-            api_key = os.environ.get("API_KEY")
-            merge_client = create_merge_client(api_key)
-            link_token_response = merge_client.ats.link_token.create(
-                end_user_email_address=request.data.get("end_user_email_address"),
-                end_user_organization_name=request.data.get(
-                    "end_user_organization_name"
-                ),
-                end_user_origin_id=request.data.get("end_user_origin_id"),
-                categories=[CategoriesEnum.ACCOUNTING],
-                should_create_magic_link_url=request.data.get(
-                    "should_create_magic_link_url"
-                ),
-                link_expiry_mins=30,
-                integration=request.data.get("integration"),
-            )
-
-            data_to_return = {
-                "link_token": link_token_response.link_token,
-                "magic_link_url": link_token_response.magic_link_url,
-                "integration_name": link_token_response.integration_name,
-            }
-
-            response = Response(data_to_return, status=status.HTTP_201_CREATED)
+        org_id = request.data.get("organisation_id")
+        end_user_email_address = request.data.get("end_user_email_address")
+        check_exist_linktoken = self.get_linktoken(org_id, 'INCOMPLETE', end_user_email_address)
+        is_available = check_exist_linktoken.get('is_available')
+        if is_available == 1:
+            response = Response(check_exist_linktoken, status=status.HTTP_201_CREATED)
             response.accepted_renderer = JSONRenderer()
             return response
-        except Exception as e:
-            return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        else:
+            try:
+                api_key = os.environ.get("API_KEY")
+                merge_client = create_merge_client(api_key)
+                current_time = datetime.now(tz=timezone.utc)
+                link_token_response = merge_client.ats.link_token.create(
+                    end_user_email_address=end_user_email_address,
+                    end_user_organization_name=request.data.get(
+                        "end_user_organization_name"
+                    ),
+                    end_user_origin_id=current_time,
+                    categories=[CategoriesEnum.ACCOUNTING],
+                    should_create_magic_link_url=request.data.get(
+                        "should_create_magic_link_url"
+                    ),
+                    link_expiry_mins=30,
+                    integration=request.data.get("integration"),
+                )
+
+                data_to_return = {
+                    "link_token": link_token_response.link_token,
+                    "magic_link_url": link_token_response.magic_link_url,
+                    "integration_name": link_token_response.integration_name,
+                }
+
+                response = Response(data_to_return, status=status.HTTP_201_CREATED)
+                response.accepted_renderer = JSONRenderer()
+                return response
+            except Exception as e:
+                return Response(
+                    {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
 
 
 @csrf_exempt
