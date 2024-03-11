@@ -32,7 +32,7 @@ class MergeAccounts(APIView):
             print("link_token_details is an empty list")
             return None
 
-        account_token = self.link_token_details[0]
+        account_token = self.link_token_details
         merge_client = create_merge_client(account_token)
 
         try:
@@ -146,3 +146,8 @@ class InsertAccountData(APIView):
             return Response(
                 f"Failed to insert data to the kloo account system", traceback
             )
+
+        return Response(
+            {"error": "Authorization header is missing"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )

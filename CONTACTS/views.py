@@ -41,7 +41,7 @@ class MergeContactsList(APIView):
             print("link_token_details is an empty list")
             return None
 
-        account_token = self.link_token_details[0]
+        account_token = self.link_token_details
         contacts_client = create_merge_client(account_token)
 
         try:
@@ -299,3 +299,8 @@ class MergePostContacts(APIView):
                 )
 
             return Response(f"Failed to insert data to the kloo Contacts system")
+
+        return Response(
+            {"error": "Authorization header is missing"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
