@@ -34,7 +34,7 @@ class LinkToken(APIView):
         difference_in_minutes = time_difference.total_seconds() / 60
         if first_token and difference_in_minutes < first_token.link_expiry_mins:
             data = {
-                "link_token": first_token.account_token,
+                "link_token": first_token.link_token,
                 "magic_link_url": first_token.magic_link_url,
                 "integration_name": first_token.integration_name,
                 # "time_difference": difference_in_minutes,
@@ -49,6 +49,13 @@ class LinkToken(APIView):
     def post(self, request):
         org_id = request.data.get("organisation_id")
         end_user_email_address = request.data.get("end_user_email_address")
+
+        if not org_id or not end_user_email_address:
+            return Response(
+                {"error": "organisation_id and end_user_email_address are required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         check_exist_linktoken = self.get_linktoken(
             org_id, "INCOMPLETE", end_user_email_address
         )
