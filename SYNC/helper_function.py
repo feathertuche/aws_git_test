@@ -4,32 +4,22 @@ from datetime import datetime
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
-from ACCOUNTS.views import InsertAccountData
-from COMPANY_INFO.views import MergeKlooCompanyInsert
-from CONTACTS.views import MergePostContacts
 from SYNC.models import ERPLogs
-from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from merge_integration.helper_functions import api_log
 
 
 def sync_modules_status(
-    request, link_token_details, org_id, erp_link_token_id, account_token
+    request,
+    link_token_details,
+    org_id,
+    erp_link_token_id,
+    account_token,
+    post_api_views,
 ):
     """
     Syncs the status of the different modules with the ERP system.
     """
-    post_api_views = [
-        (
-            MergePostTrackingCategories,
-            {"link_token_details": link_token_details},
-        ),
-        (
-            MergeKlooCompanyInsert,
-            {"link_token_details": link_token_details},
-        ),
-        (InsertAccountData, {"link_token_details": link_token_details}),
-        (MergePostContacts, {"link_token_details": link_token_details}),
-    ]
+
     for index, (api_view_class, kwargs) in enumerate(post_api_views, start=1):
         api_call(
             request,
@@ -71,7 +61,7 @@ def api_call(request, api_view_class, kwargs, org_id, erp_link_token_id, account
     try:
         api_instance = api_view_class(**kwargs)
         response = api_instance.post(request)
-        api_log(msg=f"SYNC : model name is: {module_name}, {response.status_code}")
+        api_log(msg=f"SYNC : model name is: {module_name}, {response}")
         if response.status_code == status.HTTP_200_OK:
             api_log(msg=f"SYNC : model name is succsssfull")
             log_sync_status(
@@ -95,7 +85,7 @@ def api_call(request, api_view_class, kwargs, org_id, erp_link_token_id, account
         log_sync_status(
             sync_status="Failed",
             message=error_message,
-            label=module_name,
+            label=f"{module_name.replace('_', ' ')}",
             org_id=org_id,
             erp_link_token_id=erp_link_token_id,
             account_token=account_token,
@@ -105,8 +95,25 @@ def api_call(request, api_view_class, kwargs, org_id, erp_link_token_id, account
 def log_sync_status(
     sync_status, message, label, org_id, erp_link_token_id, account_token
 ):
+
+    api_log(
+        msg=f"SYNC : STATUS {sync_status} {message} {label} {org_id} {erp_link_token_id} {account_token}"
+    )
+    # check if sync status is present , then update the status
+    log_entry = ERPLogs.objects.filter(
+        link_token_id=erp_link_token_id, label=label, org_id=org_id
+    ).first()
+
+    if log_entry:
+        log_entry.sync_status = sync_status
+        log_entry.sync_end_time = datetime.now()
+        log_entry.error_message = message
+        log_entry.save()
+        api_log(msg=f"SYNC : STATUS UPDATED {log_entry}")
+        return
+
     # Log the error to the database
-    log_entry = ERPLogs(
+    log_entry_create = ERPLogs(
         id=uuid.uuid1(),
         org_id=org_id,
         link_token_id=erp_link_token_id,
@@ -117,5 +124,5 @@ def log_sync_status(
         sync_status=sync_status,
         error_message=message,
     )
+    log_entry_create.save()
     api_log(msg=f"SYNC : STATUS {log_entry}")
-    log_entry.save()

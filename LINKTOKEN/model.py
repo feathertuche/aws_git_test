@@ -2,7 +2,16 @@ from django.db import models
 
 
 class ErpLinkTokenManager(models.Manager):
-    pass
+
+    def get_link_token(self, org_id, entity_id):
+        """
+        Get link token by org_id and entity_id
+        """
+        filter_token = self.filter(org_id=org_id, entity_id=entity_id)
+        if filter_token.exists():
+            return filter_token.values_list("account_token", flat=True).first()
+
+        return None
 
 
 class ErpLinkToken(models.Model):
@@ -23,7 +32,8 @@ class ErpLinkToken(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    objects = ErpLinkTokenManager()
+    objects = models.Manager()
+    custom_manager = ErpLinkTokenManager()
 
     class Meta:
-        db_table = 'erp_link_token'  # Set the actual table name here
+        db_table = "erp_link_token"  # Set the actual table name here

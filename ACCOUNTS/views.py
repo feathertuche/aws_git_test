@@ -146,3 +146,8 @@ class InsertAccountData(APIView):
             return Response(
                 f"Failed to insert data to the kloo account system", traceback
             )
+
+        return Response(
+            {"error": "Authorization header is missing"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )

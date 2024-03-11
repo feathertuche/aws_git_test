@@ -299,3 +299,8 @@ class MergePostContacts(APIView):
                 )
 
             return Response(f"Failed to insert data to the kloo Contacts system")
+
+        return Response(
+            {"error": "Authorization header is missing"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
