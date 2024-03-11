@@ -137,6 +137,7 @@ WSGI_APPLICATION = "merge_integration.wsgi.application"
 #     }
 # }
 
+# prod
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
