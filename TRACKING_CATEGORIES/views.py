@@ -34,7 +34,7 @@ class MergeTrackingCategoriesList(APIView):
             print("link_token_details is an empty list")
             return None
 
-        account_token = self.link_token_details[0]
+        account_token = self.link_token_details
         tc_client = create_merge_client(account_token)
 
         try:
