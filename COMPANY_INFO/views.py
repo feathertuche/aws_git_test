@@ -34,7 +34,7 @@ class MergeCompanyInfo(APIView):
             print("link_token_details is an empty list")
             return None
 
-        account_token = self.link_token_details[0]
+        account_token = self.link_token_details
         comp_client = create_merge_client(account_token)
 
         try:
@@ -235,6 +235,6 @@ class MergeKlooCompanyInsert(APIView):
                 )
 
         return Response(
-            {"error": "Failed to retrieve company information"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            {"error": "Authorization header is missing"},
+            status=status.HTTP_401_UNAUTHORIZED,
         )
