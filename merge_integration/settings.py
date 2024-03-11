@@ -15,6 +15,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from merge_integration.utils import get_db_password
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
