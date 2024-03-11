@@ -1,6 +1,7 @@
 import json
 import os
 import traceback
+from datetime import datetime, timezone
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
@@ -10,7 +11,7 @@ from rest_framework import status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from datetime import datetime, timedelta, timezone
+
 from merge_integration.helper_functions import api_log
 from merge_integration.utils import create_merge_client
 from .model import ErpLinkToken
@@ -19,38 +20,39 @@ from .model import ErpLinkToken
 class LinkToken(APIView):
 
     def get_linktoken(self, org_id, status, end_user_email_address):
-        if org_id is None or status is None:
-            missing_fields = []
-            if org_id is None:
-                missing_fields.append("organization ID (org_id)")
-            if status is None:
-                missing_fields.append("status")
+        filter_token = ErpLinkToken.objects.filter(
+            org_id=org_id, status=status, end_user_email_address=end_user_email_address
+        )
+
+        if not filter_token:
+            return {"is_available": 0}
+
+        first_token = filter_token.first()
+        timestamp = first_token.created_at.replace(tzinfo=timezone.utc)
+        current_time = datetime.now(tz=timezone.utc)
+        time_difference = current_time - timestamp
+        difference_in_minutes = time_difference.total_seconds() / 60
+        if first_token and difference_in_minutes < first_token.link_expiry_mins:
+            data = {
+                "link_token": first_token.account_token,
+                "magic_link_url": first_token.magic_link_url,
+                "integration_name": first_token.integration_name,
+                # "time_difference": difference_in_minutes,
+                # "current_time": current_time,
+                "timestamp": timestamp,
+                "is_available": 1,
+            }
+            return data
         else:
-            filter_token = ErpLinkToken.objects.filter(org_id=org_id, status=status, end_user_email_address=end_user_email_address)
-            first_token = filter_token.first()
-            timestamp = first_token.created_at.replace(tzinfo=timezone.utc)
-            current_time = datetime.now(tz=timezone.utc)
-            time_difference = current_time - timestamp
-            difference_in_minutes = time_difference.total_seconds() / 60
-            if first_token and difference_in_minutes < first_token.link_expiry_mins:
-                data = {
-                    "link_token": first_token.account_token,
-                    "magic_link_url": first_token.magic_link_url,
-                    "integration_name": first_token.integration_name,
-                    # "time_difference": difference_in_minutes,
-                    # "current_time": current_time,
-                    "timestamp": timestamp,
-                    "is_available": 1
-                   }
-                return data
-            else:
-                return {"is_available": 0}
+            return {"is_available": 0}
 
     def post(self, request):
         org_id = request.data.get("organisation_id")
         end_user_email_address = request.data.get("end_user_email_address")
-        check_exist_linktoken = self.get_linktoken(org_id, 'INCOMPLETE', end_user_email_address)
-        is_available = check_exist_linktoken.get('is_available')
+        check_exist_linktoken = self.get_linktoken(
+            org_id, "INCOMPLETE", end_user_email_address
+        )
+        is_available = check_exist_linktoken.get("is_available")
         if is_available == 1:
             response = Response(check_exist_linktoken, status=status.HTTP_201_CREATED)
             response.accepted_renderer = JSONRenderer()
