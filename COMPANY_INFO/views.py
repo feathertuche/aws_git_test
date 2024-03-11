@@ -235,6 +235,6 @@ class MergeKlooCompanyInsert(APIView):
                 )
 
         return Response(
-            {"error": "Failed to retrieve company information"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            {"error": "Authorization header is missing"},
+            status=status.HTTP_401_UNAUTHORIZED,
         )
