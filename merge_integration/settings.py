@@ -130,20 +130,13 @@ WSGI_APPLICATION = "merge_integration.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 
-# prod
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": os.getenv("DB_NAME"),
         "USER": os.getenv("DB_USER"),
-        "PASSWORD": get_db_password(os.getenv("RDS_HOST")),
+        "PASSWORD": get_db_password(os.getenv("RDS_HOST")) or os.getenv("DB_PASSWORD"),
         "HOST": os.getenv("RDS_HOST"),
         "PORT": os.getenv("DB_PORT"),
         "OPTIONS": {
@@ -152,36 +145,6 @@ DATABASES = {
     }
 }
 
-
-## Dev
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.mysql",
-#         "NAME": "myrdssql01",
-#         "USER": "masterkloo",
-#         "PASSWORD": "ptKJDHJTXd3J0kYF",
-#         "HOST": "host.docker.internal",
-#         "PORT": 3308,
-#         "OPTIONS": {
-#             "charset": "utf8mb4",
-#         },
-#     }
-# }
-
-# stage
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'myrdssql01',
-#         'USER': 'masterkloo',
-#         'PASSWORD': 'o0P62q_U!nINU7ui',
-#         'HOST': '127.0.0.1',
-#         'PORT': 3309,
-#         'OPTIONS': {
-#             'charset': 'utf8mb4',
-#         },
-#     }
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
