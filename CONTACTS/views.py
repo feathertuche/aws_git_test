@@ -27,7 +27,9 @@ class MergeContactsList(APIView):
 
     def __init__(self, link_token_details=None):
         super().__init__()
-        self.link_token_details = link_token_details
+        self.link_token_details = (
+            "nN3C4PAkyjbOVHHDYpZPpMMB3TV7-hWcmp4J8nfc6D42WSYC4BcVHw"
+        )
 
     def get_contacts(self):
 
@@ -50,6 +52,7 @@ class MergeContactsList(APIView):
                 remote_fields="status",
                 show_enum_origins="status",
                 page_size=100000,
+                is_supplier=True,
             )
             return contact_data
         except Exception as e:
