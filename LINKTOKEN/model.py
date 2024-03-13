@@ -15,7 +15,7 @@ class ErpLinkTokenManager(models.Manager):
 
 
 class ErpLinkToken(models.Model):
-    id = models.UUIDField(primary_key=True, editable=False)
+    id = models.CharField(primary_key=True, editable=False)
     org_id = models.CharField(max_length=255)
     entity_id = models.CharField(max_length=255)
     link_token = models.CharField(max_length=255)
