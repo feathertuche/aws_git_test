@@ -13,12 +13,15 @@ class deleteAccount(APIView):
     def __init__(self):
         super().__init__()
         self.org_id = None
+        self.erp_link_token_id = None
 
     def get_queryset(self):
         if self.org_id is None:
             return ErpLinkToken.objects.none()
         else:
-            filter_token = ErpLinkToken.objects.filter(org_id=self.org_id)
+            filter_token = ErpLinkToken.objects.filter(
+                org_id=self.org_id, id=self.erp_link_token_id
+            )
             lnk_token = filter_token.values_list("account_token", flat=1)
 
         return lnk_token
@@ -26,9 +29,13 @@ class deleteAccount(APIView):
     def post(self, request, *args, **kwargs):
         api_log(msg="Processing GET request in MergeInvoice...")
         self.org_id = request.data.get("org_id")
+        self.erp_link_token_id = request.data.get("erp_link_token_id")
 
-        if self.org_id is None:
-            return Response(f"Need both attributes to fetch account token")
+        if self.org_id is None or self.erp_link_token_id is None:
+            return Response(
+                f"Need both attributes to fetch account token",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         queryset = self.get_queryset()
 
