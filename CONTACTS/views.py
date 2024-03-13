@@ -27,9 +27,7 @@ class MergeContactsList(APIView):
 
     def __init__(self, link_token_details=None):
         super().__init__()
-        self.link_token_details = (
-            "nN3C4PAkyjbOVHHDYpZPpMMB3TV7-hWcmp4J8nfc6D42WSYC4BcVHw"
-        )
+        self.link_token_details = link_token_details
 
     def get_contacts(self):
 
