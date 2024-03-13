@@ -9,22 +9,20 @@ from merge_integration.settings import GETKLOO_BASE_URL
 from merge_integration.utils import create_merge_client
 
 
-class deleteAccount(APIView):
+class DeleteAccount(APIView):
     def __init__(self):
         super().__init__()
         self.org_id = None
         self.erp_link_token_id = None
 
     def get_queryset(self):
-        if self.org_id is None:
-            return ErpLinkToken.objects.none()
-        else:
-            filter_token = ErpLinkToken.objects.filter(
-                org_id=self.org_id, id=self.erp_link_token_id
-            )
-            lnk_token = filter_token.values_list("account_token", flat=1)
+        erp_link_token_id = self.erp_link_token_id
+        filter_token = ErpLinkToken.objects.filter(id=erp_link_token_id)
+        if filter_token.exists():
+            lnk_token = filter_token.values_list("account_token", flat=True)
+            return lnk_token
 
-        return lnk_token
+        return None
 
     def post(self, request, *args, **kwargs):
         api_log(msg="Processing GET request in MergeInvoice...")
@@ -48,8 +46,8 @@ class deleteAccount(APIView):
             return None
 
         account_token = queryset[0]
-        comp_client = create_merge_client(account_token)
         try:
+            comp_client = create_merge_client(account_token)
             account_del_response = comp_client.accounting.delete_account.delete()
             if account_del_response is None:
                 erp_link_token_id = request.data.get("erp_link_token_id")

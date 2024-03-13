@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import deleteAccount
+
+from .views import DeleteAccount
 
 urlpatterns = [
-    path('deleteusr/', deleteAccount.as_view(), name='deleteusr'),
+    path("deleteusr/", DeleteAccount.as_view(), name="deleteusr"),
 ]
