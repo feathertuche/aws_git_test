@@ -16,7 +16,6 @@ from .serializers import ProxyReSyncSerializer
 
 
 class ProxySyncAPI(CreateAPIView):
-
     def post(self, request, *args, **kwargs):
         # validate the request using serializer
         serializer = ProxyReSyncSerializer(data=request.data)

@@ -32,7 +32,7 @@ class MergeInvoices(APIView):
                 remote_fields="type",
                 show_enum_origins="type",
                 type=InvoicesListRequestType.ACCOUNTS_PAYABLE,
-                page_size=100000
+                page_size=100000,
             )
         except Exception as e:
             api_log(
@@ -63,7 +63,6 @@ class MergeInvoices(APIView):
 
 
 class MergeInvoiceCreate(APIView):
-
     def __init__(self, *args, link_token_details=None, **kwargs):
         super().__init__()
         self.org_id = None

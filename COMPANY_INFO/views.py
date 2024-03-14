@@ -17,13 +17,11 @@ from merge_integration.utils import create_merge_client
 
 
 class MergeCompanyInfo(APIView):
-
     def __init__(self, link_token_details=None):
         super().__init__()
         self.link_token_details = link_token_details
 
     def get_company_info(self):
-
         if self.link_token_details is None:
             # Handle the case where link_token_details is None
             print("link_token_details is None")
@@ -191,7 +189,6 @@ class MergeCompanyDetails(APIView):
 
 
 class MergeKlooCompanyInsert(APIView):
-
     def __init__(self, link_token_details=None):
         super().__init__()
         self.link_token_details = link_token_details
@@ -219,7 +216,7 @@ class MergeKlooCompanyInsert(APIView):
 
                     if kloo_data_insert.status_code == status.HTTP_201_CREATED:
                         return Response(
-                            f"successfully inserted the data for COMPANY INFO with "
+                            "successfully inserted the data for COMPANY INFO with "
                         )
                     else:
                         return Response(

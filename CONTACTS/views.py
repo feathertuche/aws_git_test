@@ -30,7 +30,6 @@ class MergeContactsList(APIView):
         self.link_token_details = link_token_details
 
     def get_contacts(self):
-
         if self.link_token_details is None:
             # Handle the case where link_token_details is None
             print("link_token_details is None")
@@ -278,10 +277,10 @@ class MergePostContacts(APIView):
 
                     if contact_response_data.status_code == status.HTTP_201_CREATED:
                         api_log(
-                            msg=f"data inserted successfully in the kloo Contacts system"
+                            msg="data inserted successfully in the kloo Contacts system"
                         )
                         return Response(
-                            f"data inserted successfully in the kloo Contacts system"
+                            "data inserted successfully in the kloo Contacts system"
                         )
 
                     else:
@@ -299,7 +298,7 @@ class MergePostContacts(APIView):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
-            return Response(f"Failed to insert data to the kloo Contacts system")
+            return Response("Failed to insert data to the kloo Contacts system")
 
         return Response(
             {"error": "Authorization header is missing"},

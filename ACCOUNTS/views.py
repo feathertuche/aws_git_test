@@ -15,13 +15,11 @@ from merge_integration.utils import create_merge_client
 
 
 class MergeAccounts(APIView):
-
     def __init__(self, link_token_details=None):
         super().__init__()
         self.link_token_details = link_token_details
 
     def account_source_data(self):
-
         if self.link_token_details is None:
             # Handle the case where link_token_details is None
             print("link_token_details is None")
@@ -93,7 +91,6 @@ class MergeAccounts(APIView):
 
 
 class InsertAccountData(APIView):
-
     def __init__(self, link_token_details=None):
         super().__init__()
         self.link_token_details = link_token_details
@@ -124,7 +121,7 @@ class InsertAccountData(APIView):
 
                     if account_response_data.status_code == status.HTTP_201_CREATED:
                         api_log(
-                            msg=f"data inserted successfully in the kloo account system"
+                            msg="data inserted successfully in the kloo account system"
                         )
                         return Response(
                             f"{account_response_data} data inserted successfully in kloo account system"
@@ -144,7 +141,7 @@ class InsertAccountData(APIView):
                 )
 
             return Response(
-                f"Failed to insert data to the kloo account system", traceback
+                "Failed to insert data to the kloo account system", traceback
             )
 
         return Response(

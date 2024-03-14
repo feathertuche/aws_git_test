@@ -208,7 +208,7 @@ class MergePostTrackingCategories(APIView):
 
                     if tc_response_data.status_code == status.HTTP_201_CREATED:
                         api_log(
-                            msg=f"data inserted successfully in the kloo Tracking_Category system"
+                            msg="data inserted successfully in the kloo Tracking_Category system"
                         )
                         return Response(
                             f"{tc_response_data} data inserted successfully in kloo Tracking_Category system"

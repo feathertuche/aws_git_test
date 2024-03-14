@@ -190,7 +190,7 @@ class MergePostTaxRates(APIView):
 
                 if tax_response_data.status_code == status.HTTP_201_CREATED:
                     api_log(
-                        msg=f"data inserted successfully in the kloo Tax Rate system"
+                        msg="data inserted successfully in the kloo Tax Rate system"
                     )
                     return Response(
                         f"{tax_response_data} data inserted successfully in kloo Tax Rate system"
@@ -208,4 +208,4 @@ class MergePostTaxRates(APIView):
                 {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-        return Response(f"Failed to insert data to the kloo Tax Rate system", traceback)
+        return Response("Failed to insert data to the kloo Tax Rate system", traceback)

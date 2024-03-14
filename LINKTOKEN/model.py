@@ -2,7 +2,6 @@ from django.db import models
 
 
 class ErpLinkTokenManager(models.Manager):
-
     def get_link_token(self, org_id, entity_id):
         """
         Get link token by org_id and entity_id
