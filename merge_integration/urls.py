@@ -14,21 +14,22 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from .views import health_check
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/erp/account-info/', include('ACCOUNTS.urls')),
-    path('api/erp/contact-info/', include('CONTACTS.urls')),
-    path('api/erp/comp-info/', include('COMPANY_INFO.urls')),
-    path('api/v1/erp/invoice-info/', include('INVOICES.urls')),
-    path('api/erp/tax-info/', include('TAX_RATE.urls')),
-    path('api/erp/health/', health_check, name='health_check'),
-    path('api/erp/', include('LINKTOKEN.urls')),
-    path('api/erp/tracking-info/', include('TRACKING_CATEGORIES.urls')),
-    path('api/erp/sync-data/', include('SYNC.urls')),
-    path('po-info/', include('PURCHASE_ORDERS.urls')),
-    path('api/erp/delete-info/', include('DELETE.urls'))
+    path("admin/", admin.site.urls),
+    path("api/erp/account-info/", include("ACCOUNTS.urls")),
+    path("api/erp/contact-info/", include("CONTACTS.urls")),
+    path("api/erp/comp-info/", include("COMPANY_INFO.urls")),
+    path("api/v1/erp/invoice-info/", include("INVOICES.urls")),
+    path("api/erp/tax-info/", include("TAX_RATE.urls")),
+    path("api/erp/health/", health_check, name="health_check"),
+    path("api/erp/", include("LINKTOKEN.urls")),
+    path("api/erp/tracking-info/", include("TRACKING_CATEGORIES.urls")),
+    path("api/erp/sync-data/", include("SYNC.urls")),
+    path("po-info/", include("PURCHASE_ORDERS.urls")),
+    path("api/erp/delete-info/", include("DELETE.urls")),
 ]

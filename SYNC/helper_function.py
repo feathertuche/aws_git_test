@@ -49,7 +49,7 @@ def sync_modules_status(
     # for thread in threads:
     #     thread.join()
 
-    api_log(msg=f"SYNC COMPLETED")
+    api_log(msg="SYNC COMPLETED")
 
 
 def api_call(request, api_view_class, kwargs, org_id, erp_link_token_id, account_token):
@@ -63,7 +63,7 @@ def api_call(request, api_view_class, kwargs, org_id, erp_link_token_id, account
         response = api_instance.post(request)
         api_log(msg=f"SYNC : model name is: {module_name}, {response}")
         if response.status_code == status.HTTP_200_OK:
-            api_log(msg=f"SYNC : model name is succsssfull")
+            api_log(msg="SYNC : model name is succsssfull")
             log_sync_status(
                 sync_status="Success",
                 message=f"API {module_name} executed successfully",
@@ -95,7 +95,6 @@ def api_call(request, api_view_class, kwargs, org_id, erp_link_token_id, account
 def log_sync_status(
     sync_status, message, label, org_id, erp_link_token_id, account_token
 ):
-
     api_log(
         msg=f"SYNC : STATUS {sync_status} {message} {label} {org_id} {erp_link_token_id} {account_token}"
     )

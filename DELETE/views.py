@@ -31,7 +31,7 @@ class DeleteAccount(APIView):
 
         if self.org_id is None or self.erp_link_token_id is None:
             return Response(
-                f"Need both attributes to fetch account token",
+                "Need both attributes to fetch account token",
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

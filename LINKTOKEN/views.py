@@ -18,7 +18,6 @@ from .model import ErpLinkToken
 
 
 class LinkToken(APIView):
-
     def get_linktoken(self, org_id, status, end_user_email_address):
         filter_token = ErpLinkToken.objects.filter(
             org_id=org_id, status=status, end_user_email_address=end_user_email_address
@@ -100,7 +99,6 @@ class LinkToken(APIView):
 
 @csrf_exempt
 def webhook_handler(request):
-
     try:
         # data = json.loads(request.body)
         # print("Webhook Data:", data)
@@ -112,7 +110,6 @@ def webhook_handler(request):
         account_token = payload.get("data")
 
         try:
-
             ErpLinkToken.objects.filter(
                 end_user_email_address=linked_account_data.get("end_user_email_address")
             ).update(
