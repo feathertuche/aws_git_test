@@ -8,7 +8,7 @@ def get_org_entity(organization_id):
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT
-        soe.*
+        soe.id
         FROM organization_configurations soc1
         JOIN organization_entity_details soe ON soe.organization_configurations_id = soc1.id
         WHERE 1 = 1
