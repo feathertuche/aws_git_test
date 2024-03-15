@@ -1,3 +1,4 @@
+import json
 import traceback
 
 import requests
@@ -39,6 +40,7 @@ class MergeAccounts(APIView):
                 remote_fields=AccountsListRequestRemoteFields.CLASSIFICATION,
                 show_enum_origins=AccountsListRequestShowEnumOrigins.CLASSIFICATION,
                 page_size=100000,
+                include_remote_data=True,
             )
             return accounts_data
 
@@ -55,6 +57,13 @@ class MergeAccounts(APIView):
 
         accounts_list = []
         for account in accounts_data.results:
+            erp_remote_data = None
+            if account.remote_data is not None:
+                erp_remote_data = [
+                    json.dumps(account_remote_data.data)
+                    for account_remote_data in account.remote_data
+                ]
+
             account_dict = {
                 "id": account.id,
                 "remote_id": account.remote_id,
@@ -72,7 +81,7 @@ class MergeAccounts(APIView):
                 "created_at": account.created_at.isoformat() + "Z",
                 "modified_at": account.modified_at.isoformat() + "Z",
                 "field_mappings": field_list,
-                "remote_data": account.remote_data,
+                "remote_data": erp_remote_data,
             }
             accounts_list.append(account_dict)
         accounts_formatted_data = {"accounts": accounts_list}
@@ -128,6 +137,9 @@ class InsertAccountData(APIView):
                         )
 
                     else:
+                        api_log(
+                            msg=f"Failed to send data to Kloo API. Error: {account_response_data}"
+                        )
                         return Response(
                             {"error": "Failed to send data to Kloo API"},
                             status=account_response_data.status_code,

@@ -37,7 +37,9 @@ class MergeCompanyInfo(APIView):
 
         try:
             organization_data = comp_client.accounting.company_info.list(
-                expand=CompanyInfoListRequestExpand.ADDRESSES, page_size=100000
+                expand=CompanyInfoListRequestExpand.ADDRESSES,
+                page_size=100000,
+                include_remote_data=True,
             )
             return organization_data
         except Exception as e:
@@ -91,7 +93,7 @@ class MergeCompanyInfo(APIView):
                 "created_at": organization.created_at.isoformat() + "Z",
                 "modified_at": organization.modified_at.isoformat() + "Z",
                 "field_mappings": organization.field_mappings,
-                "remote_data": organization.remote_data,
+                "remote_data": None,
             }
             formatted_data.append(formatted_entry)
             kloo_format_json = {"companies": formatted_data}
@@ -170,7 +172,7 @@ class MergeCompanyDetails(APIView):
                 "created_at": organization_data.created_at,
                 "modified_at": organization_data.modified_at,
                 "field_mappings": organization_data.field_mappings,
-                "remote_data": organization_data.remote_data,
+                "erp_remote_data": organization_data.remote_data,
             }
             formatted_data.append(formatted_entry)
 

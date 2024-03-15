@@ -2,6 +2,7 @@
 Module docstring: This module provides functions related to traceback.
 """
 
+import json
 import traceback
 
 import requests
@@ -43,6 +44,7 @@ class MergeTrackingCategoriesList(APIView):
                 remote_fields="status",
                 show_enum_origins="status",
                 page_size=100000,
+                include_remote_data=True,
             )
             return organization_data
         except Exception as e:
@@ -80,10 +82,13 @@ class MergeTrackingCategoriesList(APIView):
                 "created_at": category.created_at.isoformat() + "Z",
                 "updated_at": category.modified_at.isoformat() + "Z",
                 "field_mappings": field_mappings,
-                "remote_data": category.remote_data,
+                "remote_data": [
+                    json.dumps(category_remote_data.data)
+                    for category_remote_data in category.remote_data
+                ],
             }
             formatted_data.append(formatted_entry)
-            kloo_format_json = {"tracking_category": formatted_data}
+        kloo_format_json = {"tracking_category": formatted_data}
 
         return kloo_format_json
 
