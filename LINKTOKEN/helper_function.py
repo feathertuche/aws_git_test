@@ -14,11 +14,12 @@ def get_org_entity(organization_id):
         WHERE 1 = 1
         AND soc1.organization_id = %s
         AND soc1.config_key_name = 'org_entities'
-        AND soe.`status` IS NULL
-        AND soe.deleted_at IS NULL""",
+        AND soe.deleted_at IS NULL
+        ORDER BY CASE WHEN soe.status = 'default' THEN 0 ELSE 1 END, soe.id ASC""",
             [organization_id],
         )
         row = cursor.fetchone()
+        print("@@@@", row)
         return row
 
 
