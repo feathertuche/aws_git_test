@@ -3,6 +3,7 @@ import os
 import traceback
 import uuid
 from datetime import datetime, timezone
+from threading import Thread
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
@@ -12,9 +13,11 @@ from rest_framework import status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .helper_function import create_erp_link_token, get_org_entity
+
+from SYNC.helper_function import start_sync_process
 from merge_integration.helper_functions import api_log
 from merge_integration.utils import create_merge_client
+from .helper_function import create_erp_link_token, get_org_entity
 from .model import ErpLinkToken
 
 
@@ -154,8 +157,24 @@ def webhook_handler(request):
             api_log(
                 msg=f"FORMATTED DATA to get data account token: {account_token}{linked_account_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
             )
-            return JsonResponse(payload, status=status.HTTP_200_OK)
 
+            erp_data = ErpLinkToken.objects.filter(
+                id=linked_account_data.get("end_user_origin_id")
+            ).first()
+
+            thread = Thread(
+                target=start_sync_process,
+                args=(
+                    request,
+                    erp_data.id,
+                    erp_data.org_id,
+                    erp_data.account_token,
+                ),
+            )
+
+            thread.start()
+
+            return JsonResponse(payload, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             # Handle the case where the record does not exist
             return JsonResponse(
