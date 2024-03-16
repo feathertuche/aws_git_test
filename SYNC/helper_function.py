@@ -16,9 +16,7 @@ from merge_integration.helper_functions import api_log
 from services.merge_service import MergeSyncService
 
 
-def start_sync_process(
-    request, erp_link_token_id, org_id, account_token, new_sync=False
-):
+def start_failed_sync_process(request, erp_link_token_id, org_id, account_token):
     """
     Starts the sync process.
     """
@@ -38,7 +36,7 @@ def start_sync_process(
 
             if not sync_status_response["status"]:
                 api_log(msg="SYNC : Sync Status is not available")
-                continue
+                break
 
             # Check if all modules are done syncing
             sync_status_result = sync_status_response["data"].results
@@ -94,7 +92,7 @@ def start_sync_process(
 
         # if logs are present check if any module is failed
         post_api_views = []
-        if response_data and not new_sync:
+        if response_data:
             for log in response_data:
                 if log["sync_status"] == "failed":
                     log_sync_status(
@@ -126,6 +124,88 @@ def start_sync_process(
             account_token,
             post_api_views,
         )
+
+        # Return the combined response and response_data dictionary
+        api_log(msg="SYNC : All modules are successfull")
+    except Exception:
+        api_log(msg="SYNC : Exception for model")
+        return
+
+
+def start_new_sync_process(request, erp_link_token_id, org_id, account_token):
+    """
+    Starts the sync process.
+    """
+
+    api_log(msg=f"SYNC : Starting the sync process account_token {account_token}")
+
+    try:
+        modules = [
+            "TrackingCategory",
+            "CompanyInfo",
+            "Account",
+            "Contact",
+            "TaxRate",
+        ]
+
+        api_views = {
+            "TrackingCategory": (
+                MergePostTrackingCategories,
+                {"link_token_details": account_token},
+            ),
+            "CompanyInfo": (
+                MergeKlooCompanyInsert,
+                {"link_token_details": account_token},
+            ),
+            "Account": (InsertAccountData, {"link_token_details": account_token}),
+            "Contact": (
+                MergePostContacts,
+                {"link_token_details": account_token},
+            ),
+            "TaxRate": (
+                MergePostTaxRates,
+                {"link_token_details": account_token},
+            ),
+        }
+
+        modules_copy = modules.copy()
+
+        while True:
+            api_log(msg="SYNC : Checking the status of the modules")
+            # sleep for 30 seconds
+            api_log(msg="SYNC : Sleeping for 30 seconds")
+            time.sleep(30)
+            api_log(msg="SYNC : Waking up")
+
+            merge_client = MergeSyncService(account_token)
+            sync_status_response = merge_client.sync_status()
+
+            if not sync_status_response["status"]:
+                api_log(msg="SYNC : Sync Status is not available")
+                break
+
+            # Check if all modules are done syncing
+            sync_status_result = sync_status_response["data"].results
+            for module in modules_copy:
+                for sync_filter_array in sync_status_result:
+                    if sync_filter_array.model_name == module:
+                        if sync_filter_array.status == "DONE":
+                            api_log(
+                                msg=f"SYNC :Syncing module {module} is done, removing from the list"
+                            )
+                            post_api_views = [api_views[module]]
+                            sync_modules_status(
+                                request,
+                                org_id,
+                                erp_link_token_id,
+                                account_token,
+                                post_api_views,
+                            )
+                            modules.remove(module)
+
+            # if all modules are synced then break the loop
+            if not modules:
+                break
 
         # Return the combined response and response_data dictionary
         api_log(msg="SYNC : All modules are successfull")
