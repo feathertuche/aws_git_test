@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from threading import Thread
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest
 from django.views.decorators.csrf import csrf_exempt
 from merge.resources.accounting import CategoriesEnum
 from rest_framework import status
@@ -14,7 +14,10 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from SYNC.helper_function import start_sync_process, log_sync_status
+from SYNC.helper_function import (
+    log_sync_status,
+    start_new_sync_process,
+)
 from merge_integration.helper_functions import api_log
 from merge_integration.utils import create_merge_client
 from .helper_function import create_erp_link_token, get_org_entity
@@ -191,10 +194,19 @@ def webhook_handler(request):
                     account_token=erp_data.account_token,
                 )
 
+            custom_request = HttpRequest()
+            custom_request.method = "POST"
+            custom_request.data = {
+                "erp_link_token_id": erp_data.id,
+            }
+            custom_request.headers = {
+                "Authorization": erp_data.bearer,
+            }
+
             thread = Thread(
-                target=start_sync_process,
+                target=start_new_sync_process,
                 args=(
-                    request,
+                    custom_request,
                     erp_data.id,
                     erp_data.org_id,
                     erp_data.account_token,
