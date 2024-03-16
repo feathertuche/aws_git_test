@@ -2,7 +2,6 @@ import time
 import uuid
 from datetime import datetime
 
-from django.db import connection
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
@@ -175,8 +174,10 @@ def start_new_sync_process(request, erp_link_token_id, org_id, account_token):
             api_log(msg="SYNC : Checking the status of the modules")
             # sleep for 30 seconds
             api_log(msg="SYNC : Sleeping for 30 seconds")
-            time.sleep(30)
+            time.sleep(60)
             api_log(msg="SYNC : Waking up")
+
+            get_erplogs_by_link_token_id(erp_link_token_id)
 
             merge_client = MergeSyncService(account_token)
             sync_status_response = merge_client.sync_status()
@@ -300,20 +301,12 @@ def log_sync_status(
     ).first()
 
     if log_entry:
-        with connection.cursor() as cursor:
-            cursor.execute(
-                f"""UPDATE erp_sync_logs SET
-                    sync_status = '{sync_status}',
-                    sync_end_time = '{datetime.now()}',
-                    error_message = '{message}'
-                    WHERE
-                     link_token_id = '{erp_link_token_id}'
-                        AND label = '{label}'
-                        AND org_id = '{org_id}'"""
-            )
+        log_entry.sync_status = sync_status
+        log_entry.sync_end_time = datetime.now()
+        log_entry.error_message = message
+        log_entry.save()
         api_log(msg=f"SYNC : STATUS UPDATED {log_entry}")
         return
-
     # Log the error to the database
     log_entry_create = ERPLogs(
         id=uuid.uuid1(),
@@ -328,3 +321,4 @@ def log_sync_status(
     )
     log_entry_create.save()
     api_log(msg=f"SYNC : STATUS {log_entry}")
+    return
