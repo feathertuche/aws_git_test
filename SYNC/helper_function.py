@@ -2,6 +2,7 @@ import time
 import uuid
 from datetime import datetime
 
+from django.db import connection
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
@@ -299,10 +300,17 @@ def log_sync_status(
     ).first()
 
     if log_entry:
-        log_entry.sync_status = sync_status
-        log_entry.sync_end_time = datetime.now()
-        log_entry.error_message = message
-        log_entry.save()
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"""UPDATE erp_sync_logs SET
+                    sync_status = '{sync_status}',
+                    sync_end_time = '{datetime.now()}',
+                    error_message = '{message}'
+                    WHERE
+                     link_token_id = '{erp_link_token_id}'
+                        AND label = '{label}'
+                        AND org_id = '{org_id}'"""
+            )
         api_log(msg=f"SYNC : STATUS UPDATED {log_entry}")
         return
 
