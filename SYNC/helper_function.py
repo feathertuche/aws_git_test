@@ -193,18 +193,23 @@ def start_new_sync_process(request, erp_link_token_id, org_id, account_token):
                             api_log(
                                 msg=f"SYNC :Syncing module {module} is done, removing from the list"
                             )
-                            post_api_views = [api_views[module]]
                             sync_modules_status(
                                 request,
                                 org_id,
                                 erp_link_token_id,
                                 account_token,
-                                post_api_views,
+                                [api_views[module]],
                             )
                             modules.remove(module)
 
+                # assign the latest modules to module copy
+                modules_copy = modules.copy()
+
             # if all modules are synced then break the loop
             if not modules:
+                api_log(
+                    msg="SYNC : All modules are synced, starting the fetching process"
+                )
                 break
 
         # Return the combined response and response_data dictionary
@@ -226,14 +231,18 @@ def sync_modules_status(
     """
 
     for index, (api_view_class, kwargs) in enumerate(post_api_views, start=1):
-        api_call(
-            request,
-            api_view_class,
-            kwargs,
-            org_id,
-            erp_link_token_id,
-            account_token,
-        )
+        try:
+            api_call(
+                request,
+                api_view_class,
+                kwargs,
+                org_id,
+                erp_link_token_id,
+                account_token,
+            )
+        except Exception:
+            api_log(msg=f"SYNC : Exception for model {api_view_class}")
+            return
 
     api_log(msg="SYNC COMPLETED")
 
