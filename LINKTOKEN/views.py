@@ -117,23 +117,24 @@ def webhook_handler(request):
         api_log( msg=f"**********************************--------------------------")
 
         api_log( msg=f"starttmodel Name Zeroooo***********--------------------------************rrrrrrrrrr")
-        sync_status_data = account_token.get('sync_status')
-        if sync_status_data is not None:
-            err = sync_status_data 
-            model_name = sync_status_data.get('model_name')
-            status = sync_status_data.get('status')
-        else:
-            err = None 
-            model_name = ''
-            status = ''
-        api_log(
-                msg=f"-----------------webhook-rcvscd: {err} - Status Code:----------------"
-            )
-        api_log( msg=f"indi ----- ---model Name Zeroooo***********--------------------------************rrrrrrrrrr")
-        api_log(
-                msg=f"-----------------webhook-rcvscd: {model_name, sync_status} - Status Code:----------------"
-            )
-        api_log( msg=f"endddd**********************************--------------------------")
+        if 'sync_status' in account_token:
+            sync_status_data = account_token.get('sync_status')
+            if sync_status_data is not None:
+                err = sync_status_data 
+                model_name = sync_status_data.get('model_name')
+                status = sync_status_data.get('status')
+            else:
+                err = None 
+                model_name = ''
+                status = ''
+            api_log(
+                    msg=f"-----------------webhook-rcvscd: {err} - Status Code:----------------"
+                )
+            api_log( msg=f"indi ----- ---model Name Zeroooo***********--------------------------************rrrrrrrrrr")
+            api_log(
+                    msg=f"-----------------webhook-rcvscd: {model_name, sync_status} - Status Code:----------------"
+                )
+            api_log( msg=f"endddd**********************************--------------------------")
        
 
         try:
