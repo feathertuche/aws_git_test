@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
-from .helper_function import start_sync_process
+from .helper_function import start_failed_sync_process
 from .models import ERPLogs
 from .queries import get_link_token, get_erplogs_by_link_token_id
 from .serializers import ProxyReSyncSerializer
@@ -44,7 +44,7 @@ class ProxySyncAPI(CreateAPIView):
         account_token = link_token_details
 
         thread = Thread(
-            target=start_sync_process,
+            target=start_failed_sync_process,
             args=(
                 request,
                 serializer.validated_data["erp_link_token_id"],
