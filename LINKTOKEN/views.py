@@ -117,14 +117,15 @@ def webhook_handler(request):
         api_log( msg=f"**********************************--------------------------")
 
         api_log( msg=f"starttmodel Name Zeroooo***********--------------------------************rrrrrrrrrr")
-        if hasattr(account_token, 'sync_status') and account_token.sync_status is None:
-                 err = account_token.sync_status
-                 model_name = account_token.sync_status.model_name
-                 sync_status = account_token.sync_status.status
+        sync_status_data = account_token.get('sync_status')
+        if sync_status_data is not None:
+            err = sync_status_data 
+            model_name = sync_status_data.get('model_name')
+            status = sync_status_data.get('status')
         else:
-            err = []
-            model_name =''
-            sync_status = ''   
+            err = None 
+            model_name = ''
+            status = ''
         api_log(
                 msg=f"-----------------webhook-rcvscd: {err} - Status Code:----------------"
             )
