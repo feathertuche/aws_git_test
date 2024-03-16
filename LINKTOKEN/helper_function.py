@@ -1,10 +1,9 @@
-from LINKTOKEN.model import ErpLinkToken
 from django.db import connection
+
+from LINKTOKEN.model import ErpLinkToken
 
 
 def get_org_entity(organization_id):
-    print("######", organization_id)
-
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT
@@ -19,7 +18,6 @@ def get_org_entity(organization_id):
             [organization_id],
         )
         row = cursor.fetchone()
-        print("@@@@", row)
         return row
 
 
