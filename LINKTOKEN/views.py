@@ -132,7 +132,7 @@ def webhook_handler(request):
                 )
             api_log( msg=f"indi ----- ---model Name Zeroooo***********--------------------------************rrrrrrrrrr")
             api_log(
-                    msg=f"-----------------webhook-rcvscd: {model_name, sync_status} - Status Code:----------------"
+                    msg=f"-----------------webhook-rcvscd: {model_name, status} - Status Code:----------------"
                 )
             api_log( msg=f"endddd**********************************--------------------------")
        
