@@ -102,21 +102,19 @@ class LinkToken(APIView):
 def webhook_handler(request):
 
     try:
-         
-        data = json.loads(request.body)
         
-        api_log( msg=f"***********--------------------------************")
-               
-        api_log(
-                msg=f"-----------------webhook-rcvscd: {data} - Status Code:----------------"
-            )
-        api_log( msg=f"**********************************--------------------------")
-
         payload = json.loads(request.body)
         linked_account_data = payload.get("linked_account", {})
         # data = payload.get('data', {})
         # linked_account_data = data.get('linked_account')
         account_token = payload.get("data")
+
+        api_log( msg=f"***********--------------------------************")
+               
+        api_log(
+                msg=f"-----------------webhook-rcvscd: {account_token} - Status Code:----------------"
+            )
+        api_log( msg=f"**********************************--------------------------")
 
         try:
 
