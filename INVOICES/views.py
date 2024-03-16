@@ -20,7 +20,7 @@ from merge_integration.helper_functions import api_log
 class MergeInvoices(APIView):
     @staticmethod
     def get(_):
-        api_log(msg="Processing GET request in MergeAccounts...")
+        api_log(msg="Processing GET request in Invoices...")
         merge_client = Merge(
             base_url=settings.BASE_URL,
             account_token=settings.ACCOUNT_TOKEN,

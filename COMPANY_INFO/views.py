@@ -101,7 +101,7 @@ class MergeCompanyInfo(APIView):
         return kloo_format_json
 
     def get(self, request, *args, **kwargs):
-        api_log(msg="Processing GET request in MergeAccounts...")
+        api_log(msg="Processing GET request in MergeCompany...")
 
         organization_data = self.get_company_info()
         formatted_data = self.build_response_payload(organization_data)
@@ -116,7 +116,7 @@ class MergeCompanyInfo(APIView):
 class MergeCompanyDetails(APIView):
     @staticmethod
     def get(_, id=None):
-        api_log(msg="Processing GET request in MergeAccounts...")
+        api_log(msg="Processing GET request in MergeCompany...")
         comp_id_client = Merge(
             base_url=settings.BASE_URL,
             account_token=settings.ACCOUNT_TOKEN,
