@@ -28,6 +28,11 @@ def start_sync_process(
     try:
         while True:
             api_log(msg="SYNC : Checking the status of the modules")
+            # sleep for 30 seconds
+            api_log(msg="SYNC : Sleeping for 30 seconds")
+            time.sleep(30)
+            api_log(msg="SYNC : Waking up")
+
             merge_client = MergeSyncService(account_token)
             sync_status_response = merge_client.sync_status()
 
@@ -63,11 +68,6 @@ def start_sync_process(
                     msg="SYNC : All modules are synced, starting the fetching process"
                 )
                 break
-
-            # sleep for 30 seconds
-            api_log(msg="SYNC : Sleeping for 30 seconds")
-            time.sleep(30)
-            api_log(msg="SYNC : Waking up")
 
         # check if the logs are present in the database
         response_data = get_erplogs_by_link_token_id(erp_link_token_id)
