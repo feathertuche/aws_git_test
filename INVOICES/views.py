@@ -122,7 +122,11 @@ class MergeInvoiceCreate(APIView):
                     "tracking_categories": line_items_payload.get(
                         "tracking_categories"
                     ),
-                    # 'modified_at': line_item_payload.get('modified_at'),
+                    "integration_params": {
+                        "tax_rate_remote_id": line_items_payload.get(
+                            "tax_rate_remote_id"
+                        )
+                    },
                     "account": line_item_payload.get("account"),
                     "remote_data": line_item_payload.get("remote_data"),
                 }
@@ -143,6 +147,11 @@ class MergeInvoiceCreate(APIView):
                 "sub_total": line_items_payload.get("sub_total"),
                 "total_tax_amount": line_items_payload.get("total_tax_amount"),
                 "total_amount": line_items_payload.get("total_amount"),
+                "integration_params": {
+                    "tax_application_type": line_items_payload.get(
+                        "tax_application_type"
+                    )
+                },
                 "line_items": [
                     InvoiceLineItemRequest(**line_item) for line_item in line_items_data
                 ],
