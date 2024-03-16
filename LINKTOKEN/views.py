@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from threading import Thread
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest
 from django.views.decorators.csrf import csrf_exempt
 from merge.resources.accounting import CategoriesEnum
 from rest_framework import status
@@ -194,10 +194,19 @@ def webhook_handler(request):
                     account_token=erp_data.account_token,
                 )
 
+            custom_request = HttpRequest()
+            custom_request.method = "POST"
+            custom_request.data = {
+                "erp_link_token_id": erp_data.id,
+            }
+            custom_request.headers = {
+                "Authorization": erp_data.bearer,
+            }
+
             thread = Thread(
                 target=start_new_sync_process,
                 args=(
-                    request,
+                    custom_request,
                     erp_data.id,
                     erp_data.org_id,
                     erp_data.account_token,
