@@ -123,7 +123,7 @@ class MergeInvoiceCreate(APIView):
                         "tracking_categories"
                     ),
                     "integration_params": {
-                        "tax_rate_remote_id": line_items_payload.get(
+                        "tax_rate_remote_id": line_item_payload.get(
                             "tax_rate_remote_id"
                         )
                     },
