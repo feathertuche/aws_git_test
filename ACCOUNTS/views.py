@@ -1,4 +1,3 @@
-import json
 import traceback
 
 import requests
@@ -60,7 +59,7 @@ class MergeAccounts(APIView):
             erp_remote_data = None
             if account.remote_data is not None:
                 erp_remote_data = [
-                    json.dumps(account_remote_data.data)
+                    account_remote_data.data
                     for account_remote_data in account.remote_data
                 ]
 

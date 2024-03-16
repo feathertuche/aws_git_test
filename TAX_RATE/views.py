@@ -2,7 +2,6 @@
 Module docstring: This module provides functions related to traceback.
 """
 
-import json
 import traceback
 
 import requests
@@ -77,6 +76,12 @@ class MergeTaxRatesList(APIView):
 
         formatted_list = []
         for taxdata in tax_data.results:
+            erp_remote_data = None
+            if taxdata.remote_data is not None:
+                erp_remote_data = [
+                    tax_remote_data.data for tax_remote_data in taxdata.remote_data
+                ]
+
             format_response = {
                 "description": taxdata.description,
                 "total_tax_rate": taxdata.total_tax_rate,
@@ -88,13 +93,11 @@ class MergeTaxRatesList(APIView):
                 "created_at": taxdata.created_at.isoformat() + "Z",
                 "modified_at": taxdata.modified_at.isoformat() + "Z",
                 "field_mappings": field_map,
-                "remote_data": [
-                    json.dumps(tax_remote_data.data)
-                    for tax_remote_data in taxdata.remote_data
-                ],
+                "remote_data": erp_remote_data,
             }
             formatted_list.append(format_response)
-            kloo_format_json = {"taxRates": formatted_list}
+
+        kloo_format_json = {"taxRates": formatted_list}
 
         return kloo_format_json
 

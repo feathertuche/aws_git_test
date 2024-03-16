@@ -14,7 +14,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from SYNC.helper_function import start_sync_process
+from SYNC.helper_function import start_sync_process, log_sync_status
 from merge_integration.helper_functions import api_log
 from merge_integration.utils import create_merge_client
 from .helper_function import create_erp_link_token, get_org_entity
@@ -161,6 +161,25 @@ def webhook_handler(request):
             erp_data = ErpLinkToken.objects.filter(
                 id=linked_account_data.get("end_user_origin_id")
             ).first()
+
+            modules = [
+                "TAX RATE",
+                "TRACKING CATEGORIES",
+                "COMPANY INFO",
+                "ACCOUNTS",
+                "CONTACTS",
+            ]
+
+            for module in modules:
+                api_log(msg=f"SYNC: {module} in progress")
+                log_sync_status(
+                    sync_status="in progress",
+                    message=f"API {module} executed successfully",
+                    label=module,
+                    org_id=erp_data.org_id,
+                    erp_link_token_id=erp_data.id,
+                    account_token=erp_data.account_token,
+                )
 
             thread = Thread(
                 target=start_sync_process,

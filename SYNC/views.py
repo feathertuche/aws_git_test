@@ -8,7 +8,7 @@ from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
 from .helper_function import start_sync_process
 from .models import ERPLogs
-from .queries import get_link_token
+from .queries import get_link_token, get_erplogs_by_link_token_id
 from .serializers import ProxyReSyncSerializer
 
 
@@ -25,9 +25,20 @@ class ProxySyncAPI(CreateAPIView):
             serializer.validated_data["erp_link_token_id"]
         )
         if link_token_details is None:
-            response_data = {"message": "Sync still pending", "retry": 1}
+            response_data = {"message": "No link token found"}
             return Response(response_data, status=status.HTTP_202_ACCEPTED)
         api_log(msg=f"SYNC :link token details{link_token_details}")
+
+        # check if any modules is in progress
+        response_data = get_erplogs_by_link_token_id(
+            serializer.validated_data["erp_link_token_id"]
+        )
+
+        if response_data:
+            for data in response_data:
+                if data["sync_status"] == "in progress":
+                    response_data = {"message": "Sync In Progress"}
+                    return Response(response_data, status=status.HTTP_202_ACCEPTED)
 
         # check the status of the modules in merge
         account_token = link_token_details
