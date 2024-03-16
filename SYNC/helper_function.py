@@ -1,3 +1,4 @@
+import time
 import uuid
 from datetime import datetime
 
@@ -45,12 +46,19 @@ def start_sync_process(request, erp_link_token_id, org_id, account_token):
                         if sync_filter_array.status == "DONE":
                             sync_module_status.append(sync_filter_array.model_name)
 
+            api_log(msg=f"SYNC :Current Sync Modules {sync_module_status}")
+
             # Check if all modules are synced
             if set(modules) == set(sync_module_status):
                 api_log(
                     msg="SYNC : All modules are synced, starting the fetching process"
                 )
                 break
+
+            # sleep for 30 seconds
+            api_log(msg="SYNC : Sleeping for 30 seconds")
+            time.sleep(30)
+            api_log(msg="SYNC : Waking up")
 
         # check if the logs are present in the database
         response_data = get_erplogs_by_link_token_id(erp_link_token_id)
@@ -80,19 +88,28 @@ def start_sync_process(request, erp_link_token_id, org_id, account_token):
         if response_data:
             for log in response_data:
                 if log["sync_status"] == "failed":
+                    log_sync_status(
+                        sync_status="in progress",
+                        message=f"API {log['label']} executed successfully",
+                        label=log["label"],
+                        org_id=org_id,
+                        erp_link_token_id=erp_link_token_id,
+                        account_token=account_token,
+                    )
+
                     post_api_views.append(api_views[log["label"]])
 
-            # if all modules are successfull return the response
+            # if all modules are successfully return the response
             if not post_api_views:
-                api_log(msg="SYNC : All modules are successfull")
+                api_log(msg="SYNC : All modules are already successfully synced")
                 return
 
         # if logs are not present then add all the modules to the post_api_views
         if not post_api_views:
+            api_log(msg="SYNC : Logs are not present syncing all modules")
             post_api_views = list(api_views.values())
 
         api_log(msg=f"SYNC :post_api_views {post_api_views}")
-
         sync_modules_status(
             request,
             org_id,
