@@ -16,10 +16,15 @@ from merge_integration.helper_functions import api_log
 from services.merge_service import MergeSyncService
 
 
-def start_sync_process(request, erp_link_token_id, org_id, account_token):
+def start_sync_process(
+    request, erp_link_token_id, org_id, account_token, new_sync=False
+):
     """
     Starts the sync process.
     """
+
+    api_log(msg=f"SYNC : Starting the sync process account_token {account_token}")
+
     try:
         while True:
             api_log(msg="SYNC : Checking the status of the modules")
@@ -40,9 +45,13 @@ def start_sync_process(request, erp_link_token_id, org_id, account_token):
                 "TaxRate",
             ]
             sync_module_status = []
+            api_log(msg=f"SYNC :sync_module_status {sync_module_status}")
             for module in modules:
                 for sync_filter_array in sync_status_result:
                     if sync_filter_array.model_name == module:
+                        api_log(
+                            msg=f"SYNC :sync_filter_array {sync_filter_array.model_name} and {sync_filter_array.status}"
+                        )
                         if sync_filter_array.status == "DONE":
                             sync_module_status.append(sync_filter_array.model_name)
 
@@ -85,7 +94,7 @@ def start_sync_process(request, erp_link_token_id, org_id, account_token):
 
         # if logs are present check if any module is failed
         post_api_views = []
-        if response_data:
+        if response_data and not new_sync:
             for log in response_data:
                 if log["sync_status"] == "failed":
                     log_sync_status(
