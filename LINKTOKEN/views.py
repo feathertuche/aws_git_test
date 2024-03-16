@@ -104,10 +104,13 @@ def webhook_handler(request):
     try:
          
         data = json.loads(request.body)
-        print("Webhook Data:", data)
+        
+        api_log( msg=f"***********--------------------------************")
+               
         api_log(
-                msg=f"webhook-rcvscd: {data} - Status Code: {status.HTTP_200_OK}"
+                msg=f"-----------------webhook-rcvscd: {data} - Status Code:----------------"
             )
+        api_log( msg=f"**********************************--------------------------")
 
         payload = json.loads(request.body)
         linked_account_data = payload.get("linked_account", {})
