@@ -53,6 +53,7 @@ class LinkToken(APIView):
             return {"is_available": 0}
 
     def post(self, request):
+        authorization_header = request.headers.get("Authorization")
         org_id = request.data.get("organisation_id")
         end_user_email_address = request.data.get("end_user_email_address")
 
@@ -67,6 +68,14 @@ class LinkToken(APIView):
         )
         is_available = check_exist_linktoken.get("is_available")
         if is_available == 1:
+            link_token_data = check_exist_linktoken
+            if link_token_data["is_available"]:
+                # Update the bearer field with the new token
+                link_token_record = ErpLinkToken.objects.get(
+                    link_token=link_token_data["link_token"]
+                )
+                link_token_record.bearer = authorization_header
+                link_token_record.save()
             response = Response(check_exist_linktoken, status=status.HTTP_201_CREATED)
             response.accepted_renderer = JSONRenderer()
             return response
@@ -113,6 +122,7 @@ class LinkToken(APIView):
                         "end_user_email_address"
                     ),
                     "magic_link_url": link_token_response.magic_link_url,
+                    "bearer": authorization_header,
                     "status": "INCOMPLETE",
                 }
 
