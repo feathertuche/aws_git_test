@@ -11,10 +11,10 @@ from rest_framework import status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from merge_integration.helper_functions import api_log
 from merge_integration.utils import create_merge_client
 from .model import ErpLinkToken
+import traceback
 
 
 class LinkToken(APIView):
@@ -191,4 +191,4 @@ def webhook_handler(request):
         api_log(
             msg=f"Error retrieving organizations details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}"
         )
-        return JsonResponse(error_message, status=500)
+        return JsonResponse(error_message, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
