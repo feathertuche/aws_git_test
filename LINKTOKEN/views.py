@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from merge_integration.helper_functions import api_log
 from merge_integration.utils import create_merge_client
 from .model import ErpLinkToken
+from .merge_sync_log_model import MergeSyncLog
 import traceback
 from rest_framework import status
 
@@ -122,6 +123,25 @@ def webhook_handler(request):
                     err = sync_status_data 
                     model_name = sync_status_data.get('model_name')
                     status = sync_status_data.get('status')
+                    linked_account_model_data = payload.get('linked_account', {})
+                    sync_status_model_data = payload.get('data', {}).get('sync_status', {})
+
+                    link_token_id_model = linked_account_model_data.get('end_user_origin_id')
+                    module_name_merge = sync_status_model_data.get('model_name')
+                    merge_status = sync_status_model_data.get('status')
+                    sync_type = 'sync'
+
+                    # Create a model instance
+                    merge_sync_log = MergeSyncLog.objects.create(
+                        link_token_id=link_token_id_model,
+                        module_name=module_name_merge,
+                        status=merge_status,
+                        sync_type=sync_type,
+                        account_type=linked_account_model_data.get('account_type')
+                    )
+                    
+                    # Save the instance
+                    merge_sync_log.save()
                 else:
                     err = None 
                     model_name = None
