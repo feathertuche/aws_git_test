@@ -199,6 +199,7 @@ def start_new_sync_process(request, erp_link_token_id, org_id, account_token):
                                 account_token,
                                 [api_views[module]],
                             )
+                            modules.remove(module)
 
                         if sync_filter_array.status in ["FAILED", "PARTIALLY_SYNCED"]:
                             api_log(
@@ -213,8 +214,7 @@ def start_new_sync_process(request, erp_link_token_id, org_id, account_token):
                                 erp_link_token_id=erp_link_token_id,
                                 account_token=account_token,
                             )
-
-                        modules.remove(module)
+                            modules.remove(module)
 
                 # assign the latest modules to module copy
                 modules_copy = modules.copy()
@@ -275,7 +275,7 @@ def api_call(request, api_view_class, kwargs, org_id, erp_link_token_id, account
             api_log(msg="SYNC : model name is succsssfull")
             log_sync_status(
                 sync_status="Success",
-                message=f"API {module_name} executed successfully",
+                message=f"API {module_name} completed successfully",
                 label=f"{module_name.replace('_', ' ')}",
                 org_id=org_id,
                 erp_link_token_id=erp_link_token_id,
