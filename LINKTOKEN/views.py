@@ -192,4 +192,5 @@ def webhook_handler(request):
         # api_log(
         #     msg=f"Error retrieving organizations details:- Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}"
         # )
-        return JsonResponse(error_message)
+        error_data = {"error": error_message}  # Example
+        return JsonResponse(error_data)
