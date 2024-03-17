@@ -16,6 +16,12 @@ from .merge_sync_log_model import MergeSyncLog
 import traceback
 from rest_framework import status
 import uuid
+from django.http import JsonResponse, HttpRequest
+from threading import Thread
+from SYNC.helper_function import (
+    log_sync_status,
+    start_new_sync_process,
+)
 
 
 class LinkToken(APIView):
@@ -136,6 +142,35 @@ def webhook_handler(request):
                                 'account_type': linked_account_model_data.get('account_type')
                             }
                         )
+
+                        erp_data = ErpLinkToken.objects.filter(
+                            id=link_token_id_model
+                        ).first()
+                       
+                        
+
+                        custom_request = HttpRequest()
+                        custom_request.method = "POST"
+                        custom_request.data = {
+                            "erp_link_token_id": erp_data.id,
+                        }
+                        custom_request.headers = {
+                            "Authorization": erp_data.bearer,
+                        }
+
+                        thread = Thread(
+                            target=start_new_sync_process,
+                            args=(
+                                custom_request,
+                                erp_data.id,
+                                erp_data.org_id,
+                                module_name_merge,
+                                erp_data.account_token,
+                            ),
+                        )
+
+                        thread.start()
+
                     except Exception as e:
                         print(f"Error occurred while saving MergeSyncLog instance: {e}")
                 else:
@@ -166,6 +201,25 @@ def webhook_handler(request):
                         should_create_magic_link_url=False,
                         status=linked_account_data.get("status"),
                     )
+
+                    modules = [
+                            "TAX RATE",
+                            "TRACKING CATEGORIES",
+                            "COMPANY INFO",
+                            "ACCOUNTS",
+                            "CONTACTS",
+                        ]
+
+                    for module in modules:
+                        api_log(msg=f"SYNC: {module} in progress")
+                        log_sync_status(
+                            sync_status="in progress",
+                            message=f"API {module} executed successfully",
+                            label=module,
+                            org_id=erp_data.org_id,
+                            erp_link_token_id=erp_data.id,
+                            account_token=erp_data.account_token,
+                        )
 
                     # link_token_record = ErpLinkToken(
                     #     id=linked_account_data.get('id'),
