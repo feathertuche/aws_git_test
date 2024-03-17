@@ -15,6 +15,7 @@ from .model import ErpLinkToken
 import traceback
 from rest_framework import status
 
+
 class LinkToken(APIView):
 
     def get_linktoken(self, org_id, status, end_user_email_address):
@@ -123,8 +124,8 @@ def webhook_handler(request):
                 status = sync_status_data.get('status')
             else:
                 err = None 
-                model_name = ''
-                status = ''
+                model_name = None
+                status = None
             api_log(
                     msg=f"-----------------webhook-rcvscd: {err} - Status Code:----------------"
                 )
@@ -133,7 +134,8 @@ def webhook_handler(request):
                     msg=f"-----------------webhook-rcvscd: {model_name, status} - Status Code:----------------"
                 )
             api_log( msg=f"endddd**********************************--------------------------")
-       
+            return JsonResponse(model_name, status=status.HTTP_200_OK)
+
         else:
             try:
                 
