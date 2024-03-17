@@ -110,13 +110,12 @@ def webhook_handler(request):
         account_token = payload.get("data")
         payload_account_tokens = payload.get("linked_account", None)
         if payload_account_tokens is not None:
-            api_log( msg=f"************--------------------------************")
+            api_log( msg=f"1#####************--------------------------************")
             end_user_org_id = payload_account_tokens.get('end_user_origin_id')
             api_log(
-                    msg=f"-----------------webhook-rcvscd: {end_user_org_id} - Status Code:----------------"
+                    msg=f"1-----------------end user id-rcvscd: {end_user_org_id} - Status Code:----------------"
                 )
-            api_log( msg=f"**********************************--------------------------")
-            api_log( msg=f"starttmodel Name Zeroooo***********--------------------------************rrrrrrrrrr")
+            api_log( msg=f"1**********************************--------------------------")
             if 'sync_status' in account_token:
                 sync_status_data = account_token.get('sync_status')
                 if sync_status_data is not None:
@@ -125,7 +124,6 @@ def webhook_handler(request):
                     status = sync_status_data.get('status')
                     linked_account_model_data = payload.get('linked_account', {})
                     sync_status_model_data = payload.get('data', {}).get('sync_status', {})
-
                     link_token_id_model = linked_account_model_data.get('end_user_origin_id')
                     module_name_merge = sync_status_model_data.get('model_name')
                     merge_status = sync_status_model_data.get('status')
@@ -140,6 +138,18 @@ def webhook_handler(request):
                             account_type=linked_account_model_data.get('account_type')
                         )
                         merge_sync_log.save()
+                        #success_data = {"Success": 'Inserted data successfull on merge sunc log'}
+                        #success_json = json.dumps(success_data)
+
+                        #return JsonResponse(success_json, status=status.HTTP_200_OK)
+                        api_log(
+                        msg=f"2-----------------webhook-rcvscd: {merge_sync_log} - Status Code:----------------"
+                        )
+                        api_log( msg=f"2indi ----- ---model Name Zeroooo***********--------------------------************rrrrrrrrrr")
+                        api_log(
+                        msg=f"2-----------------webhook-rcvscd: {model_name, status} - Status Code:----------------"
+                        )
+                        api_log( msg=f"2endddd**********************************--------------------------")
                     except Exception as e:
                         # Handle the exception
                         print(f"Error occurred while saving MergeSyncLog instance: {e}")
@@ -147,14 +157,7 @@ def webhook_handler(request):
                     err = None 
                     model_name = None
                     status = None
-                api_log(
-                        msg=f"-----------------webhook-rcvscd: {payload} - Status Code:----------------"
-                    )
-                api_log( msg=f"indi ----- ---model Name Zeroooo***********--------------------------************rrrrrrrrrr")
-                api_log(
-                        msg=f"-----------------webhook-rcvscd: {model_name, status} - Status Code:----------------"
-                    )
-                api_log( msg=f"endddd**********************************--------------------------")
+                
                 return JsonResponse(model_name, status=status.HTTP_200_OK)
 
             else:
