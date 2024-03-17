@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
-from .helper_function import start_failed_sync_process
+from .helper_function import start_failed_sync_process, log_sync_status
 from .models import ERPLogs
 from .queries import get_link_token, get_erplogs_by_link_token_id
 from .serializers import ProxyReSyncSerializer
@@ -42,6 +42,20 @@ class ProxySyncAPI(CreateAPIView):
 
         # check the status of the modules in merge
         account_token = link_token_details
+
+        if response_data:
+            for log in response_data:
+                if log["sync_status"] == "failed":
+                    log_sync_status(
+                        sync_status="in progress",
+                        message=f"API {log['label']} executed successfully",
+                        label=log["label"],
+                        org_id=log["org_id"],
+                        erp_link_token_id=serializer.validated_data[
+                            "erp_link_token_id"
+                        ],
+                        account_token=account_token,
+                    )
 
         thread = Thread(
             target=start_failed_sync_process,

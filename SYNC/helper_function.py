@@ -27,8 +27,8 @@ def start_failed_sync_process(request, erp_link_token_id, org_id, account_token)
         while True:
             api_log(msg="SYNC : Checking the status of the modules")
             # sleep for 30 seconds
-            api_log(msg="SYNC : Sleeping for 30 seconds")
-            time.sleep(30)
+            api_log(msg="SYNC : Sleeping for 60 seconds")
+            time.sleep(60)
             api_log(msg="SYNC : Waking up")
 
             merge_client = MergeSyncService(account_token)
@@ -56,6 +56,12 @@ def start_failed_sync_process(request, erp_link_token_id, org_id, account_token)
                             msg=f"SYNC :sync_filter_array {sync_filter_array.model_name} and {sync_filter_array.status}"
                         )
                         if sync_filter_array.status == "DONE":
+                            sync_module_status.append(sync_filter_array.model_name)
+
+                        if sync_filter_array.status in ["FAILED", "PARTIALLY_SYNCED"]:
+                            api_log(
+                                msg=f"SYNC :Syncing module {module} is failed from merge"
+                            )
                             sync_module_status.append(sync_filter_array.model_name)
 
             api_log(msg=f"SYNC :Current Sync Modules {sync_module_status}")
@@ -95,15 +101,6 @@ def start_failed_sync_process(request, erp_link_token_id, org_id, account_token)
         if response_data:
             for log in response_data:
                 if log["sync_status"] == "failed":
-                    log_sync_status(
-                        sync_status="in progress",
-                        message=f"API {log['label']} executed successfully",
-                        label=log["label"],
-                        org_id=org_id,
-                        erp_link_token_id=erp_link_token_id,
-                        account_token=account_token,
-                    )
-
                     post_api_views.append(api_views[log["label"]])
 
             # if all modules are successfully return the response
@@ -173,7 +170,7 @@ def start_new_sync_process(request, erp_link_token_id, org_id, account_token):
         while True:
             api_log(msg="SYNC : Checking the status of the modules")
             # sleep for 30 seconds
-            api_log(msg="SYNC : Sleeping for 30 seconds")
+            api_log(msg="SYNC : Sleeping for 60 seconds")
             time.sleep(60)
             api_log(msg="SYNC : Waking up")
 
@@ -202,7 +199,22 @@ def start_new_sync_process(request, erp_link_token_id, org_id, account_token):
                                 account_token,
                                 [api_views[module]],
                             )
-                            modules.remove(module)
+
+                        if sync_filter_array.status in ["FAILED", "PARTIALLY_SYNCED"]:
+                            api_log(
+                                msg=f"SYNC :Syncing module {module} is failed from merge, "
+                                f"removing from the list"
+                            )
+                            log_sync_status(
+                                sync_status="Failed",
+                                message=f"API {module} failed from merge side",
+                                label=module,
+                                org_id=org_id,
+                                erp_link_token_id=erp_link_token_id,
+                                account_token=account_token,
+                            )
+
+                        modules.remove(module)
 
                 # assign the latest modules to module copy
                 modules_copy = modules.copy()
