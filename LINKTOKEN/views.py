@@ -178,7 +178,7 @@ def webhook_handler(request):
                                 {"link_token_details": account_token},
                             ),
                         }
-
+                        api_log(msg=f"dictionary  start")
                         custom_request = HttpRequest()
                         custom_request.method = "POST"
                         custom_request.data = {
@@ -188,7 +188,7 @@ def webhook_handler(request):
                             "Authorization": erp_data.bearer,
                         }
                         
-
+                        api_log(msg=f"thread  start")
                         thread = Thread(
                             target=sync_modules_status,
                             args=(
@@ -196,13 +196,13 @@ def webhook_handler(request):
                                 erp_data.org_id,
                                 erp_data.id,
                                 erp_data.account_token,
-                                [api_views[module]]
+                                [api_views[module_name_merge]]
                                
                             ),
                         )
 
                         thread.start()
-
+                        api_log(msg=f"thread  end")
                     except Exception as e:
                         print(f"Error occurred while saving MergeSyncLog instance: {e}")
                 else:
@@ -234,24 +234,25 @@ def webhook_handler(request):
                         status=linked_account_data.get("status"),
                     )
 
-                    modules = [
-                            "TAX RATE",
-                            "TRACKING CATEGORIES",
-                            "COMPANY INFO",
-                            "ACCOUNTS",
-                            "CONTACTS",
-                        ]
+                    # modules = [
+                    #         "TAX RATE",
+                    #         "TRACKING CATEGORIES",
+                    #         "COMPANY INFO",
+                    #         "ACCOUNTS",
+                    #         "CONTACTS",
+                    #     ]
 
-                    for module in modules:
-                        api_log(msg=f"SYNC: {module} in progress")
-                        log_sync_status(
-                            sync_status="in progress",
-                            message=f"API {module} executed successfully",
-                            label=module,
-                            org_id=erp_data.org_id,
-                            erp_link_token_id=erp_data.id,
-                            account_token=erp_data.account_token,
-                        )
+                    # for module in modules:
+                    #     api_log(msg=f"SYNC: {module} in progress")
+                    #     log_sync_status(
+
+                    #         sync_status="in progress",
+                    #         message=f"API {module} executed successfully",
+                    #         label=module,
+                    #         org_id=erp_data.org_id,
+                    #         erp_link_token_id=erp_data.id,
+                    #         account_token=erp_data.account_token,
+                    #     )
 
                     # link_token_record = ErpLinkToken(
                     #     id=linked_account_data.get('id'),
