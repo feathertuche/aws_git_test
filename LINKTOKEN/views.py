@@ -15,6 +15,7 @@ from .model import ErpLinkToken
 from .merge_sync_log_model import MergeSyncLog
 import traceback
 from rest_framework import status
+import uuid
 
 
 class LinkToken(APIView):
@@ -141,6 +142,7 @@ def webhook_handler(request):
                     try:
                     # Create a model instance
                         merge_sync_log = MergeSyncLog.objects.create(
+                            id = uuid.uuid4(),
                             link_token_id=link_token_id_model,
                             module_name=module_name_merge,
                             status=merge_status,
