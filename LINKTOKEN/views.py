@@ -2,12 +2,10 @@ import json
 import os
 import traceback
 from datetime import datetime, timezone
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from merge.resources.accounting import CategoriesEnum
-from rest_framework import status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,7 +13,7 @@ from merge_integration.helper_functions import api_log
 from merge_integration.utils import create_merge_client
 from .model import ErpLinkToken
 import traceback
-
+from rest_framework import status
 
 class LinkToken(APIView):
 
@@ -176,9 +174,10 @@ def webhook_handler(request):
                 # link_token_record.save()
 
                 # response_data = {"message": "Webhook received and processed successfully"}
-                api_log(
-                    msg=f"FORMATTED DATA to get data account token: {account_token}{linked_account_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
-                )
+                
+                # api_log(
+                #     msg=f"FORMATTED DATA to get data account token: {account_token}{linked_account_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
+                # )
                 return JsonResponse(payload, status=status.HTTP_200_OK)
 
             except ObjectDoesNotExist:
@@ -191,4 +190,4 @@ def webhook_handler(request):
         # api_log(
         #     msg=f"Error retrieving organizations details:- Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}"
         # )
-        return JsonResponse(error_message, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse(error_message)
