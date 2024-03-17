@@ -95,15 +95,6 @@ def start_failed_sync_process(request, erp_link_token_id, org_id, account_token)
         if response_data:
             for log in response_data:
                 if log["sync_status"] == "failed":
-                    log_sync_status(
-                        sync_status="in progress",
-                        message=f"API {log['label']} executed successfully",
-                        label=log["label"],
-                        org_id=org_id,
-                        erp_link_token_id=erp_link_token_id,
-                        account_token=account_token,
-                    )
-
                     post_api_views.append(api_views[log["label"]])
 
             # if all modules are successfully return the response
