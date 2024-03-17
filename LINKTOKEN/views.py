@@ -130,18 +130,19 @@ def webhook_handler(request):
                     module_name_merge = sync_status_model_data.get('model_name')
                     merge_status = sync_status_model_data.get('status')
                     sync_type = 'sync'
-
+                    try:
                     # Create a model instance
-                    merge_sync_log = MergeSyncLog.objects.create(
-                        link_token_id=link_token_id_model,
-                        module_name=module_name_merge,
-                        status=merge_status,
-                        sync_type=sync_type,
-                        account_type=linked_account_model_data.get('account_type')
-                    )
+                        merge_sync_log = MergeSyncLog.objects.create(
+                            link_token_id=link_token_id_model,
+                            module_name=module_name_merge,
+                            status=merge_status,
+                            sync_type=sync_type,
+                            account_type=linked_account_model_data.get('account_type')
+                        )
                     
-                    # Save the instance
-                    merge_sync_log.save()
+                    except Exception as e:
+                        # Handle the exception
+                        print(f"Error occurred while saving MergeSyncLog instance: {e}")
                 else:
                     err = None 
                     model_name = None
