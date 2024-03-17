@@ -287,6 +287,8 @@ def webhook_handler(request):
                         {"error": "Record not found"}, status=status.HTTP_404_NOT_FOUND
                     )
     except Exception as e:
+        error_message = f"An error occurred while calling API : {str(e)}"
+        api_log(msg=f"exception error  end {error_message}")
         error_message = "Error processing webhook"
         error_data = {"error": error_message}
         error_json = json.dumps(error_data)
