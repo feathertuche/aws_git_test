@@ -107,86 +107,86 @@ def webhook_handler(request):
         # data = payload.get('data', {})
         # linked_account_data = data.get('linked_account')
         account_token = payload.get("data")
+        payload_account_tokens = payload.get("linked_account", None)
+        if payload_account_tokens is not None:
+            api_log( msg=f"************--------------------------************")
+            end_user_org_id = payload_account_tokens.get('end_user_origin_id')
+            api_log(
+                    msg=f"-----------------webhook-rcvscd: {end_user_org_id} - Status Code:----------------"
+                )
+            api_log( msg=f"**********************************--------------------------")
+            api_log( msg=f"starttmodel Name Zeroooo***********--------------------------************rrrrrrrrrr")
+            if 'sync_status' in account_token:
+                sync_status_data = account_token.get('sync_status')
+                if sync_status_data is not None:
+                    err = sync_status_data 
+                    model_name = sync_status_data.get('model_name')
+                    status = sync_status_data.get('status')
+                else:
+                    err = None 
+                    model_name = None
+                    status = None
+                api_log(
+                        msg=f"-----------------webhook-rcvscd: {payload} - Status Code:----------------"
+                    )
+                api_log( msg=f"indi ----- ---model Name Zeroooo***********--------------------------************rrrrrrrrrr")
+                api_log(
+                        msg=f"-----------------webhook-rcvscd: {model_name, status} - Status Code:----------------"
+                    )
+                api_log( msg=f"endddd**********************************--------------------------")
+                return JsonResponse(model_name, status=status.HTTP_200_OK)
 
-        api_log( msg=f"************--------------------------************")
-               
-        api_log(
-                msg=f"-----------------webhook-rcvscd: {account_token} - Status Code:----------------"
-            )
-        api_log( msg=f"**********************************--------------------------")
-
-        api_log( msg=f"starttmodel Name Zeroooo***********--------------------------************rrrrrrrrrr")
-        if 'sync_status' in account_token:
-            sync_status_data = account_token.get('sync_status')
-            if sync_status_data is not None:
-                err = sync_status_data 
-                model_name = sync_status_data.get('model_name')
-                status = sync_status_data.get('status')
             else:
-                err = None 
-                model_name = None
-                status = None
-            api_log(
-                    msg=f"-----------------webhook-rcvscd: {payload} - Status Code:----------------"
-                )
-            api_log( msg=f"indi ----- ---model Name Zeroooo***********--------------------------************rrrrrrrrrr")
-            api_log(
-                    msg=f"-----------------webhook-rcvscd: {model_name, status} - Status Code:----------------"
-                )
-            api_log( msg=f"endddd**********************************--------------------------")
-            return JsonResponse(model_name, status=status.HTTP_200_OK)
+                try:
+                    
+                    ErpLinkToken.objects.filter(
+                        end_user_email_address=linked_account_data.get("end_user_email_address")
+                    ).update(
+                        integration_name=linked_account_data.get("integration"),
+                        magic_link_url=linked_account_data.get("webhook_listener_url"),
+                        categories=linked_account_data.get("category"),
+                        platform=linked_account_data.get("account_type"),
+                        account_token=account_token.get("account_token"),
+                        end_user_email_address=linked_account_data.get(
+                            "end_user_email_address"
+                        ),
+                        end_user_organization_name=linked_account_data.get(
+                            "end_user_organization_name"
+                        ),
+                        link_expiry_mins=60,
+                        should_create_magic_link_url=False,
+                        status=linked_account_data.get("status"),
+                    )
 
-        else:
-            try:
-                
-                ErpLinkToken.objects.filter(
-                    end_user_email_address=linked_account_data.get("end_user_email_address")
-                ).update(
-                    integration_name=linked_account_data.get("integration"),
-                    magic_link_url=linked_account_data.get("webhook_listener_url"),
-                    categories=linked_account_data.get("category"),
-                    platform=linked_account_data.get("account_type"),
-                    account_token=account_token.get("account_token"),
-                    end_user_email_address=linked_account_data.get(
-                        "end_user_email_address"
-                    ),
-                    end_user_organization_name=linked_account_data.get(
-                        "end_user_organization_name"
-                    ),
-                    link_expiry_mins=60,
-                    should_create_magic_link_url=False,
-                    status=linked_account_data.get("status"),
-                )
+                    # link_token_record = ErpLinkToken(
+                    #     id=linked_account_data.get('id'),
+                    #     org_id=linked_account_data.get('id'),
+                    #     entity_id=linked_account_data.get('id'),
+                    #     link_token=account_token.get('account_token'),
+                    #     integration_name=linked_account_data.get('integration'),
+                    #     magic_link_url=linked_account_data.get('webhook_listener_url'),
+                    #     categories=linked_account_data.get('category'),
+                    #     platform=linked_account_data.get('account_type'),
+                    #     end_user_email_address=linked_account_data.get('end_user_email_address'),
+                    #     end_user_organization_name=linked_account_data.get('end_user_organization_name'),
+                    #     link_expiry_mins=60,
+                    #     should_create_magic_link_url=False,
+                    #     status=linked_account_data.get('status'),
+                    # )
+                    # link_token_record.save()
 
-                # link_token_record = ErpLinkToken(
-                #     id=linked_account_data.get('id'),
-                #     org_id=linked_account_data.get('id'),
-                #     entity_id=linked_account_data.get('id'),
-                #     link_token=account_token.get('account_token'),
-                #     integration_name=linked_account_data.get('integration'),
-                #     magic_link_url=linked_account_data.get('webhook_listener_url'),
-                #     categories=linked_account_data.get('category'),
-                #     platform=linked_account_data.get('account_type'),
-                #     end_user_email_address=linked_account_data.get('end_user_email_address'),
-                #     end_user_organization_name=linked_account_data.get('end_user_organization_name'),
-                #     link_expiry_mins=60,
-                #     should_create_magic_link_url=False,
-                #     status=linked_account_data.get('status'),
-                # )
-                # link_token_record.save()
+                    # response_data = {"message": "Webhook received and processed successfully"}
+                    
+                    # api_log(
+                    #     msg=f"FORMATTED DATA to get data account token: {account_token}{linked_account_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
+                    # )
+                    return JsonResponse(payload, status=status.HTTP_200_OK)
 
-                # response_data = {"message": "Webhook received and processed successfully"}
-                
-                # api_log(
-                #     msg=f"FORMATTED DATA to get data account token: {account_token}{linked_account_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
-                # )
-                return JsonResponse(payload, status=status.HTTP_200_OK)
-
-            except ObjectDoesNotExist:
-                # Handle the case where the record does not exist
-                return JsonResponse(
-                    {"error": "Record not found"}, status=status.HTTP_404_NOT_FOUND
-                )
+                except ObjectDoesNotExist:
+                    # Handle the case where the record does not exist
+                    return JsonResponse(
+                        {"error": "Record not found"}, status=status.HTTP_404_NOT_FOUND
+                    )
     except Exception as e:
         error_message = "Error processing webhook"
         error_data = {"error": error_message}
