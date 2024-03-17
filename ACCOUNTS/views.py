@@ -87,7 +87,7 @@ class MergeAccounts(APIView):
         return accounts_formatted_data
 
     def get(self, request, *args, **kwargs):
-        api_log(msg="Processing GET request in MergeAccounts...")
+        api_log(msg="........Processing 'Accounts' GET request bloc.......")
 
         acnt_data = self.account_source_data()
         format_data = self.account_payload(acnt_data)

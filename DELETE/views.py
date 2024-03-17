@@ -25,7 +25,7 @@ class DeleteAccount(APIView):
         return None
 
     def post(self, request, *args, **kwargs):
-        api_log(msg="Processing GET request in MergeInvoice...")
+        api_log(msg="..............This is DELETE bloc .............")
         self.org_id = request.data.get("org_id")
         self.erp_link_token_id = request.data.get("erp_link_token_id")
 
