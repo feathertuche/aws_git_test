@@ -139,7 +139,7 @@ def webhook_handler(request):
                             sync_type=sync_type,
                             account_type=linked_account_model_data.get('account_type')
                         )
-                    
+                        merge_sync_log.save()
                     except Exception as e:
                         # Handle the exception
                         print(f"Error occurred while saving MergeSyncLog instance: {e}")
