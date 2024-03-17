@@ -127,7 +127,7 @@ def webhook_handler(request):
                 model_name = None
                 status = None
             api_log(
-                    msg=f"-----------------webhook-rcvscd: {err} - Status Code:----------------"
+                    msg=f"-----------------webhook-rcvscd: {payload} - Status Code:----------------"
                 )
             api_log( msg=f"indi ----- ---model Name Zeroooo***********--------------------------************rrrrrrrrrr")
             api_log(
