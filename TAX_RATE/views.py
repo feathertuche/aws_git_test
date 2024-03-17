@@ -32,7 +32,7 @@ class MergeTaxRatesList(APIView):
         Returns:
             Tax rate data retrieved from the Merge API.
         """
-        api_log(msg="Fetching list of Tax rates")
+        api_log(msg="......... Fetching Tax rates .........")
 
         if self.link_token_details is None:
             # Handle the case where link_token_details is None

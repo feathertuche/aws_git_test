@@ -139,7 +139,7 @@ class MergeContactsList(APIView):
         Returns:
             Response containing formatted contacts data.
         """
-        api_log(msg="Processing GET request in MergeContacts")
+        api_log(msg="Processing GET request in Merge Contacts")
 
         contact_data = self.get_contacts()
         formatted_data = self.response_payload(contact_data)

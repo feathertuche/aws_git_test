@@ -101,7 +101,7 @@ class MergeCompanyInfo(APIView):
         return kloo_format_json
 
     def get(self, request, *args, **kwargs):
-        api_log(msg="Processing GET request in MergeCompany...")
+        api_log(msg=".....Processing Company GET request bloc.....")
 
         organization_data = self.get_company_info()
         formatted_data = self.build_response_payload(organization_data)
@@ -191,11 +191,21 @@ class MergeCompanyDetails(APIView):
 
 
 class MergeKlooCompanyInsert(APIView):
+    """
+    This class is created for parsing company info data
+    """
+
     def __init__(self, link_token_details=None):
         super().__init__()
         self.link_token_details = link_token_details
 
     def post(self, request):
+        """
+        This POST method fetch the company info Merge data
+        and send it to the Kloo DB erp_company table.
+
+        request: to fetch merge data
+        """
         erp_link_token_id = request.data.get("erp_link_token_id")
         authorization_header = request.headers.get("Authorization")
         if authorization_header and authorization_header.startswith("Bearer "):

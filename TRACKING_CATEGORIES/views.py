@@ -93,7 +93,7 @@ class MergeTrackingCategoriesList(APIView):
         return kloo_format_json
 
     def get(self, request, *args, **kwargs):
-        api_log(msg="Processing GET request in MergeTrackingCategories")
+        api_log(msg="...... Processing GET request in Merge Tracking Categories ......")
 
         organization_data = self.get_tc()
         formatted_data = self.response_payload(organization_data)
