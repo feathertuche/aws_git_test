@@ -119,13 +119,23 @@ def webhook_handler(request):
             if 'sync_status' in account_token:
                 sync_status_data = account_token.get('sync_status')
                 if sync_status_data is not None:
-                    err = sync_status_data 
-                    model_name = sync_status_data.get('model_name')
-                    status = sync_status_data.get('status')
+                    err = sync_status_data
+                    api_log( msg=f"00017#####{err}**0000")
                     linked_account_model_data = payload.get('linked_account', {})
+                    model_name = sync_status_data.get('model_name')
+
                     sync_status_model_data = payload.get('data', {}).get('sync_status', {})
                     link_token_id_model = linked_account_model_data.get('end_user_origin_id')
                     module_name_merge = sync_status_model_data.get('model_name')
+                    api_log( msg=f"17#####{err}**")
+                    api_log( msg=f"18#####{linked_account_model_data}**")
+                    api_log( msg=f"00018#####{model_name}**")
+                    api_log( msg=f"yyyyyy17#####{sync_status_model_data}**")
+                    api_log( msg=f"xxxxxyyyyyy17#####{link_token_id_model}**")
+                    api_log( msg=f"bbbxxxxxyyyyyy17#####{module_name_merge}**")
+                   
+                    status = sync_status_data.get('status')
+                    
                     merge_status = sync_status_model_data.get('status')
                     sync_type = 'sync'
                     try:
