@@ -109,7 +109,7 @@ def webhook_handler(request):
         # linked_account_data = data.get('linked_account')
         account_token = payload.get("data")
 
-        api_log( msg=f"***********--------------------------************")
+        api_log( msg=f"************--------------------------************")
                
         api_log(
                 msg=f"-----------------webhook-rcvscd: {account_token} - Status Code:----------------"
