@@ -118,18 +118,20 @@ class LinkToken(APIView):
 
 @csrf_exempt
 def webhook_handler(request):
-
+    api_log(msg=f"webhook  begin")
     try:
         
         payload = json.loads(request.body)
         linked_account_data = payload.get("linked_account", {})
         # data = payload.get('data', {})
         # linked_account_data = data.get('linked_account')
+   
         account_token = payload.get("data")
         payload_account_tokens = payload.get("linked_account", None)
         if payload_account_tokens is not None:
             end_user_org_id = payload_account_tokens.get('end_user_origin_id')
             if 'sync_status' in account_token:
+                api_log(msg=f"sync webhook  begin")
                 sync_status_data = account_token.get('sync_status')
                 if sync_status_data is not None:
                     linked_account_model_data = payload.get('linked_account', {})
@@ -141,6 +143,7 @@ def webhook_handler(request):
                     merge_status = sync_status_model_data.get('status')
                     sync_type = 'sync'
                     try:
+                        api_log(msg=f"mergesync log insert object  start")
                         merge_sync_log, created = MergeSyncLog.objects.get_or_create(
                         link_token_id=link_token_id_model,
                         defaults={
@@ -153,12 +156,12 @@ def webhook_handler(request):
                                 'account_type': linked_account_model_data.get('account_type')
                             }
                         )
-
+                        api_log(msg=f"erplinktoken object  start")
                         erp_data = ErpLinkToken.objects.filter(
                             id=link_token_id_model
                         ).first()
                         modules = []
-                        
+                        api_log(msg=f"1dictionary  start")
                         api_views = {
                             "TrackingCategory": (
                                 MergePostTrackingCategories,
