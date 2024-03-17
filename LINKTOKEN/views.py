@@ -111,59 +111,32 @@ def webhook_handler(request):
         account_token = payload.get("data")
         payload_account_tokens = payload.get("linked_account", None)
         if payload_account_tokens is not None:
-            api_log( msg=f"1#####************--------------------------************")
             end_user_org_id = payload_account_tokens.get('end_user_origin_id')
-            api_log(
-                    msg=f"1-----------------end user id-rcvscd: {end_user_org_id} - Status Code:----------------"
-                )
-            api_log( msg=f"1**********************************--------------------------")
             if 'sync_status' in account_token:
                 sync_status_data = account_token.get('sync_status')
                 if sync_status_data is not None:
-                    err = sync_status_data
-                    api_log( msg=f"00017#####{err}**0000")
                     linked_account_model_data = payload.get('linked_account', {})
                     model_name = sync_status_data.get('model_name')
-
                     sync_status_model_data = payload.get('data', {}).get('sync_status', {})
                     link_token_id_model = linked_account_model_data.get('end_user_origin_id')
                     module_name_merge = sync_status_model_data.get('model_name')
-                    api_log( msg=f"17#####{err}**")
-                    api_log( msg=f"18#####{linked_account_model_data}**")
-                    api_log( msg=f"00018#####{model_name}**")
-                    api_log( msg=f"yyyyyy17#####{sync_status_model_data}**")
-                    api_log( msg=f"xxxxxyyyyyy17#####{link_token_id_model}**")
-                    api_log( msg=f"bbbxxxxxyyyyyy17#####{module_name_merge}**")
-                   
                     status = sync_status_data.get('status')
-                    
                     merge_status = sync_status_model_data.get('status')
                     sync_type = 'sync'
                     try:
-                    # Create a model instance
-                        merge_sync_log = MergeSyncLog.objects.create(
-                            id = uuid.uuid4(),
-                            link_token_id=link_token_id_model,
-                            module_name=module_name_merge,
-                            status=merge_status,
-                            sync_type=sync_type,
-                            account_type=linked_account_model_data.get('account_type')
+                        merge_sync_log, created = MergeSyncLog.objects.get_or_create(
+                        link_token_id=link_token_id_model,
+                        defaults={
+                                'id': uuid.uuid4(),
+                                'module_name': module_name_merge,
+                                'link_token_id': link_token_id_model,
+                                'end_user_origin_id': link_token_id_model,
+                                'status': merge_status,
+                                'sync_type': sync_type,
+                                'account_type': linked_account_model_data.get('account_type')
+                            }
                         )
-                        merge_sync_log.save()
-                        #success_data = {"Success": 'Inserted data successfull on merge sunc log'}
-                        #success_json = json.dumps(success_data)
-
-                        #return JsonResponse(success_json, status=status.HTTP_200_OK)
-                        api_log(
-                        msg=f"2-----------------webhook-rcvscd: {merge_sync_log} - Status Code:----------------"
-                        )
-                        api_log( msg=f"2indi ----- ---model Name Zeroooo***********--------------------------************rrrrrrrrrr")
-                        api_log(
-                        msg=f"2-----------------webhook-rcvscd: {model_name, status} - Status Code:----------------"
-                        )
-                        api_log( msg=f"2endddd**********************************--------------------------")
                     except Exception as e:
-                        # Handle the exception
                         print(f"Error occurred while saving MergeSyncLog instance: {e}")
                 else:
                     err = None 
