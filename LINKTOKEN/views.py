@@ -18,9 +18,20 @@ from rest_framework import status
 import uuid
 from django.http import JsonResponse, HttpRequest
 from threading import Thread
+from ACCOUNTS.views import InsertAccountData
+from COMPANY_INFO.views import MergeKlooCompanyInsert
+from CONTACTS.views import MergePostContacts
+from SYNC.models import ERPLogs
+from SYNC.queries import get_erplogs_by_link_token_id
+from TAX_RATE.views import MergePostTaxRates
+from TRACKING_CATEGORIES.views import MergePostTrackingCategories
+from merge_integration.helper_functions import api_log
+from services.merge_service import MergeSyncService
 from SYNC.helper_function import (
     log_sync_status,
     start_new_sync_process,
+    sync_modules_status
+
 )
 
 
@@ -146,8 +157,27 @@ def webhook_handler(request):
                         erp_data = ErpLinkToken.objects.filter(
                             id=link_token_id_model
                         ).first()
-                       
+                        modules = []
                         
+                        api_views = {
+                            "TrackingCategory": (
+                                MergePostTrackingCategories,
+                                {"link_token_details": account_token},
+                            ),
+                            "CompanyInfo": (
+                                MergeKlooCompanyInsert,
+                                {"link_token_details": account_token},
+                            ),
+                            "Account": (InsertAccountData, {"link_token_details": account_token}),
+                            "Contact": (
+                                MergePostContacts,
+                                {"link_token_details": account_token},
+                            ),
+                            "TaxRate": (
+                                MergePostTaxRates,
+                                {"link_token_details": account_token},
+                            ),
+                        }
 
                         custom_request = HttpRequest()
                         custom_request.method = "POST"
@@ -157,15 +187,17 @@ def webhook_handler(request):
                         custom_request.headers = {
                             "Authorization": erp_data.bearer,
                         }
+                        
 
                         thread = Thread(
-                            target=start_new_sync_process,
+                            target=sync_modules_status,
                             args=(
                                 custom_request,
-                                erp_data.id,
                                 erp_data.org_id,
-                                module_name_merge,
+                                erp_data.id,
                                 erp_data.account_token,
+                                [api_views[module]]
+                               
                             ),
                         )
 
