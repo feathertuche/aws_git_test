@@ -188,9 +188,7 @@ def webhook_handler(request):
                     {"error": "Record not found"}, status=status.HTTP_404_NOT_FOUND
                 )
     except Exception as e:
-        error_message = {"Error processing webhook"}
-        # api_log(
-        #     msg=f"Error retrieving organizations details:- Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}"
-        # )
-        error_data = {"error": error_message}  # Example
-        return JsonResponse(error_data)
+        error_message = "Error processing webhook"
+        error_data = {"error": error_message}
+        error_json = json.dumps(error_data)
+        return JsonResponse(error_json, status=500, safe=False)
