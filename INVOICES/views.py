@@ -65,14 +65,11 @@ class MergeInvoices(APIView):
 class MergeInvoiceCreate(APIView):
     def __init__(self, *args, link_token_details=None, **kwargs):
         super().__init__()
-        self.org_id = None
+        self.erp_link_token_id = None
 
     def get_queryset(self):
-        if self.org_id is None:
-            return ErpLinkToken.objects.none()
-        else:
-            filter_token = ErpLinkToken.objects.filter(org_id=self.org_id)
-            lnk_token = filter_token.values_list("account_token", flat=1)
+        filter_token = ErpLinkToken.objects.filter(id=self.erp_link_token_id)
+        lnk_token = filter_token.values_list("account_token", flat=1)
 
         return lnk_token
 
@@ -85,14 +82,16 @@ class MergeInvoiceCreate(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # Get the org_id from the request data
-        self.org_id = serializer.validated_data.get("org_id")
+        # Get the erp_link_token_id from the request data
+        self.erp_link_token_id = serializer.validated_data.get("erp_link_token_id")
 
         queryset = self.get_queryset()
         if queryset is None or queryset == []:
             # Handle the case where link_token_details is None
-            print("link_token_details is None or empty")
-            return None
+            api_log(msg="link_token_details is None or empty")
+            return Response(
+                "Account token doesn't exist", status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             account_token = queryset[0]
