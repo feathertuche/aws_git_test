@@ -15,13 +15,11 @@ from merge_integration.utils import create_merge_client
 
 
 class MergeAccounts(APIView):
-
     def __init__(self, link_token_details=None):
         super().__init__()
         self.link_token_details = link_token_details
 
     def account_source_data(self):
-
         if self.link_token_details is None:
             # Handle the case where link_token_details is None
             print("link_token_details is None")
@@ -41,6 +39,7 @@ class MergeAccounts(APIView):
                 remote_fields=AccountsListRequestRemoteFields.CLASSIFICATION,
                 show_enum_origins=AccountsListRequestShowEnumOrigins.CLASSIFICATION,
                 page_size=100000,
+                include_remote_data=True,
             )
             return accounts_data
 
@@ -57,6 +56,13 @@ class MergeAccounts(APIView):
 
         accounts_list = []
         for account in accounts_data.results:
+            erp_remote_data = None
+            if account.remote_data is not None:
+                erp_remote_data = [
+                    account_remote_data.data
+                    for account_remote_data in account.remote_data
+                ]
+
             account_dict = {
                 "id": account.id,
                 "remote_id": account.remote_id,
@@ -74,14 +80,14 @@ class MergeAccounts(APIView):
                 "created_at": account.created_at.isoformat() + "Z",
                 "modified_at": account.modified_at.isoformat() + "Z",
                 "field_mappings": field_list,
-                "remote_data": account.remote_data,
+                "remote_data": erp_remote_data,
             }
             accounts_list.append(account_dict)
         accounts_formatted_data = {"accounts": accounts_list}
         return accounts_formatted_data
 
     def get(self, request, *args, **kwargs):
-        api_log(msg="Processing GET request in MergeAccounts...")
+        api_log(msg="........Processing 'Accounts' GET request bloc.......")
 
         acnt_data = self.account_source_data()
         format_data = self.account_payload(acnt_data)
@@ -93,7 +99,6 @@ class MergeAccounts(APIView):
 
 
 class InsertAccountData(APIView):
-
     def __init__(self, link_token_details=None):
         super().__init__()
         self.link_token_details = link_token_details
@@ -124,13 +129,16 @@ class InsertAccountData(APIView):
 
                     if account_response_data.status_code == status.HTTP_201_CREATED:
                         api_log(
-                            msg=f"data inserted successfully in the kloo account system"
+                            msg="data inserted successfully in the kloo account system"
                         )
                         return Response(
                             f"{account_response_data} data inserted successfully in kloo account system"
                         )
 
                     else:
+                        api_log(
+                            msg=f"Failed to send data to Kloo API. Error: {account_response_data}"
+                        )
                         return Response(
                             {"error": "Failed to send data to Kloo API"},
                             status=account_response_data.status_code,
@@ -144,7 +152,7 @@ class InsertAccountData(APIView):
                 )
 
             return Response(
-                f"Failed to insert data to the kloo account system", traceback
+                "Failed to insert data to the kloo account system", traceback
             )
 
         return Response(

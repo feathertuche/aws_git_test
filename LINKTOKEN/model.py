@@ -2,7 +2,6 @@ from django.db import models
 
 
 class ErpLinkTokenManager(models.Manager):
-
     def get_link_token(self, org_id, entity_id):
         """
         Get link token by org_id and entity_id
@@ -32,7 +31,7 @@ class ErpLinkToken(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     bearer = models.TextField()
-    
+
     objects = models.Manager()
     custom_manager = ErpLinkTokenManager()
 

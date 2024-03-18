@@ -2,7 +2,6 @@ from django.db import models
 
 
 class ErpLinkTokenManager(models.Manager):
-
     def get_erp_logs(self, link_token_id):
         """
         Get link token by link_token_id

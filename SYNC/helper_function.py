@@ -129,7 +129,7 @@ def start_failed_sync_process(request, erp_link_token_id, org_id, account_token)
         return
 
 
-def start_new_sync_process(request, erp_link_token_id, org_id, account_token,module_name_merge):
+def start_new_sync_process(request, erp_link_token_id, org_id, account_token):
     """
     Starts the sync process.
     """
@@ -138,7 +138,11 @@ def start_new_sync_process(request, erp_link_token_id, org_id, account_token,mod
 
     try:
         modules = [
-            module_name_merge
+            "TrackingCategory",
+            "CompanyInfo",
+            "Account",
+            "Contact",
+            "TaxRate",
         ]
 
         api_views = {
