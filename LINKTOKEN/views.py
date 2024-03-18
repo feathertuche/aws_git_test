@@ -159,11 +159,9 @@ def webhook_handler(request):
                             }
                         )
                         api_log(msg=f"erplinktoken object  start")
-                        erp_data = ErpLinkToken.objects.filter(
-                            id=link_token_id_model
-                        ).first()
+                        api_log(msg=f"starttttterplinktoken object  start")
                         modules = []
-                        api_log(msg=f"1dictionary  start")
+                        api_log(msg=f"1dictionary start")
                         if module_name_merge == "TaxRate":
                             sync_module_name="TAX RATE"
 
@@ -179,6 +177,10 @@ def webhook_handler(request):
                         if module_name_merge == "Contact":
                             sync_module_name="CONTACTS"
                         api_log(msg=f"1dictionary  end")
+                        erp_data = ErpLinkToken.objects.filter(
+                            id=link_token_id_model
+                        ).first()
+                        api_log(msg=f"1dictionary {erp_data}  end")
                         api_log(msg=f"dictionary  start")
                         custom_request = HttpRequest()
                         custom_request.method = "POST"
