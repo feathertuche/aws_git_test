@@ -46,18 +46,27 @@ class DeleteAccount(APIView):
             return None
 
         account_token = queryset[0]
+
+        api_log(msg=f"DELETE: Account Token: {account_token}")
+
         try:
             comp_client = create_merge_client(account_token)
             account_del_response = comp_client.accounting.delete_account.delete()
+            api_log(msg=f"DELETE: Account Delete Response :  {account_del_response}")
+
             if account_del_response is None:
                 erp_link_token_id = request.data.get("erp_link_token_id")
                 authorization_header = request.headers.get("Authorization")
                 if authorization_header and authorization_header.startswith("Bearer "):
                     token = authorization_header.split(" ")[1]
                     disconnect_url = f"{GETKLOO_BASE_URL}/accounting-integrations/erp-disconnect/{erp_link_token_id}"
+                    api_log(msg=f"DELETE: Disconnect URL: {disconnect_url}")
+
                     disconnect_execute = requests.delete(
                         disconnect_url, headers={"Authorization": f"Bearer {token}"}
                     )
+                    api_log(msg=f"DELETE: Disconnect Execute: {disconnect_execute}")
+
                     if disconnect_execute.status_code == status.HTTP_204_NO_CONTENT:
                         return Response(
                             {"message": "Data deleted successfully"},
