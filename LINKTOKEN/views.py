@@ -86,7 +86,7 @@ class LinkToken(APIView):
             return response
         else:
             try:
-                end_usr_origin_id = uuid.uuid1()
+                end_usr_origin_id = str(uuid.uuid1())
                 api_key = os.environ.get("API_KEY")
                 merge_client = create_merge_client(api_key)
                 current_time = datetime.now(tz=timezone.utc)
