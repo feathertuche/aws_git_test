@@ -2,6 +2,7 @@
 Module docstring: This module provides functions related to traceback.
 """
 
+import json
 import traceback
 
 import requests
@@ -30,7 +31,6 @@ class MergeContactsList(APIView):
         self.link_token_details = link_token_details
 
     def get_contacts(self):
-
         if self.link_token_details is None:
             # Handle the case where link_token_details is None
             print("link_token_details is None")
@@ -42,6 +42,7 @@ class MergeContactsList(APIView):
             return None
 
         account_token = self.link_token_details
+        api_log(msg=f"Account Token: {account_token}")
         contacts_client = create_merge_client(account_token)
 
         try:
@@ -51,7 +52,11 @@ class MergeContactsList(APIView):
                 show_enum_origins="status",
                 page_size=100000,
                 is_supplier=True,
+                include_remote_data=True,
             )
+
+            api_log(msg=f"Contact data: {contact_data}")
+
             return contact_data
         except Exception as e:
             api_log(
@@ -71,7 +76,15 @@ class MergeContactsList(APIView):
             Formatted contacts data.
         """
         formatted_data = []
+
         for contact in contact_data.results:
+            erp_remote_data = None
+            if contact.remote_data is not None:
+                erp_remote_data = [
+                    json.dumps(contact_remote_data.data)
+                    for contact_remote_data in contact.remote_data
+                ]
+
             formatted_entry = {
                 "id": contact.id,
                 "remote_id": contact.remote_id,
@@ -112,10 +125,10 @@ class MergeContactsList(APIView):
                 "created_at": contact.created_at.isoformat() + "Z",
                 "modified_at": contact.modified_at.isoformat() + "Z",
                 "field_mappings": contact.field_mappings,
-                "remote_data": contact.remote_data,
+                "remote_data": erp_remote_data,
             }
             formatted_data.append(formatted_entry)
-            kloo_format_json = {"erp_contacts": formatted_data}
+        kloo_format_json = {"erp_contacts": formatted_data}
 
         return kloo_format_json
 
@@ -126,7 +139,7 @@ class MergeContactsList(APIView):
         Returns:
             Response containing formatted contacts data.
         """
-        api_log(msg="Processing GET request in MergeContacts")
+        api_log(msg="Processing GET request in Merge Contacts")
 
         contact_data = self.get_contacts()
         formatted_data = self.response_payload(contact_data)
@@ -278,10 +291,10 @@ class MergePostContacts(APIView):
 
                     if contact_response_data.status_code == status.HTTP_201_CREATED:
                         api_log(
-                            msg=f"data inserted successfully in the kloo Contacts system"
+                            msg="data inserted successfully in the kloo Contacts system"
                         )
                         return Response(
-                            f"data inserted successfully in the kloo Contacts system"
+                            "data inserted successfully in the kloo Contacts system"
                         )
 
                     else:
@@ -299,7 +312,7 @@ class MergePostContacts(APIView):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
-            return Response(f"Failed to insert data to the kloo Contacts system")
+            return Response("Failed to insert data to the kloo Contacts system")
 
         return Response(
             {"error": "Authorization header is missing"},

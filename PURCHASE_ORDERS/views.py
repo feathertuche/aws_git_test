@@ -1,12 +1,16 @@
 """
 Module docstring: This module provides functions related to traceback.
 """
+
 import traceback
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from merge.client import Merge
-from merge.resources.accounting import PurchaseOrdersListRequestExpand, PurchaseOrdersRetrieveRequestExpand
+from merge.resources.accounting import (
+    PurchaseOrdersListRequestExpand,
+    PurchaseOrdersRetrieveRequestExpand,
+)
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
 
@@ -25,20 +29,24 @@ class MergePOList(APIView):
             The list of purchase orders.
         """
         api_log(msg="Processing GET request Merge purchase orders list")
-        po_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN,
-                          api_key=settings.API_KEY)
+        po_client = Merge(
+            base_url=settings.BASE_URL,
+            account_token=settings.ACCOUNT_TOKEN,
+            api_key=settings.API_KEY,
+        )
         try:
             po_data = po_client.accounting.purchase_orders.list(
                 expand=PurchaseOrdersListRequestExpand.ACCOUNTING_PERIOD,
                 remote_fields="status",
                 show_enum_origins="status",
-                page_size=100000
+                page_size=100000,
             )
             return po_data
         except Exception as e:
             api_log(
                 msg=f"Error retrieving details: {str(e)} \
-                         - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
+                         - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}"
+            )
 
     @staticmethod
     def response_payload(po_data):
@@ -51,9 +59,9 @@ class MergePOList(APIView):
         Returns:
             The formatted data.
         """
-        field_mappings = [{
-            "organization_defined_targets": {},
-            "linked_account_defined_targets": {}}]
+        field_mappings = [
+            {"organization_defined_targets": {}, "linked_account_defined_targets": {}}
+        ]
 
         formatted_data = []
         for po in po_data.results:
@@ -121,8 +129,10 @@ class MergePOList(APIView):
         po_data = self.get_pos()
         formatted_data = self.response_payload(po_data)
 
-        api_log(msg=f"FORMATTED DATA: {formatted_data} \
-         - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
+        api_log(
+            msg=f"FORMATTED DATA: {formatted_data} \
+         - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
+        )
         return Response(formatted_data, status=status.HTTP_200_OK)
 
 
@@ -144,20 +154,26 @@ class MergePODetails(APIView):
             A Response containing the details of the specified purchase order.
         """
         api_log(msg="Processing GET request Merge purchase orders list")
-        po_client = Merge(base_url=settings.BASE_URL, account_token=settings.ACCOUNT_TOKEN,
-                          api_key=settings.API_KEY)
+        po_client = Merge(
+            base_url=settings.BASE_URL,
+            account_token=settings.ACCOUNT_TOKEN,
+            api_key=settings.API_KEY,
+        )
 
         try:
             po_id_data = po_client.accounting.purchase_orders.retrieve(
                 id=id,
                 expand=PurchaseOrdersRetrieveRequestExpand.ACCOUNTING_PERIOD,
                 remote_fields="status",
-                show_enum_origins="status", )
+                show_enum_origins="status",
+            )
 
-            field_mappings = [{
-                "organization_defined_targets": {},
-                "linked_account_defined_targets": {},
-            }]
+            field_mappings = [
+                {
+                    "organization_defined_targets": {},
+                    "linked_account_defined_targets": {},
+                }
+            ]
 
             po_id_total_data = []
             total_id_data = {
@@ -210,10 +226,14 @@ class MergePODetails(APIView):
             po_id_total_data.append(total_id_data)
 
             api_log(
-                msg=f"FORMATTED DATA: {po_id_total_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
+                msg=f"FORMATTED DATA: {po_id_total_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
+            )
             return Response(po_id_total_data, status=status.HTTP_200_OK)
 
         except Exception as e:
             api_log(
-                msg=f"Error retrieving details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                msg=f"Error retrieving details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}"
+            )
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

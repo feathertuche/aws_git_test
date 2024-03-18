@@ -38,7 +38,7 @@ jobs:
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-prod-cluster" >> $GITHUB_ENV
             echo "rds_host=mysql-kloo-prod.internal-service-kloo.com" >> $GITHUB_ENV
-          
+
           elif [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
             echo "env=stage" >> $GITHUB_ENV
             echo "secret_manager=kloo-Stage-Environment-Variables" >> $GITHUB_ENV
@@ -77,7 +77,7 @@ jobs:
           echo "DB_USER=masterkloo" >> .env
           echo "DB_NAME=myrdssql01" >> .env
           DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .${db_password}`
-          echo "DB_PASSWORD=$DB_PASSWORD" >> .env  
+          echo "DB_PASSWORD=$DB_PASSWORD" >> .env
 
       - name: Creating Application variables
         run: |
@@ -86,8 +86,8 @@ jobs:
           while IFS= read -r line; do
             echo "$line" >> .env
           done <<< "$(echo "$secret_json" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"')"
-       
-                      
+
+
       - name: Deploying merge integration erp
         run: |
           #----------------------------------------------------------------------------
@@ -99,4 +99,3 @@ jobs:
       - name: Deploy to lambda
         run: |
           aws ecs update-service --cluster ${cluster_name} --service ${UPDATED_FUNC_NAME} --force-new-deployment
-          
