@@ -147,7 +147,6 @@ class LinkToken(APIView):
 def webhook_handler(request):
     api_log(msg=f"webhook  begin")
     try:
-        
         payload = json.loads(request.body)
         linked_account_data = payload.get("linked_account", {})
         # data = payload.get('data', {})
@@ -189,20 +188,25 @@ def webhook_handler(request):
                         api_log(msg=f"starttttterplinktoken object  start")
                         modules = []
                         api_log(msg=f"1dictionary start")
-                        if module_name_merge == "TaxRate":
-                            sync_module_name="TAX RATE"
-
-                        if module_name_merge == "TrackingCategory":
-                            sync_module_name="TRACKING CATEGORIES"
-
-                        if module_name_merge == "CompanyInfo":
-                            sync_module_name="COMPANY INFO"
-
-                        if module_name_merge == "Account":
-                            sync_module_name="ACCOUNTS"
-
-                        if module_name_merge == "Contact":
-                            sync_module_name="CONTACTS"
+                        api_views = {
+                            "TrackingCategory": (
+                                MergePostTrackingCategories,
+                                {"link_token_details": account_token},
+                            ),
+                            "CompanyInfo": (
+                                MergeKlooCompanyInsert,
+                                {"link_token_details": account_token},
+                            ),
+                            "Account": (InsertAccountData, {"link_token_details": account_token}),
+                            "Contact": (
+                                MergePostContacts,
+                                {"link_token_details": account_token},
+                            ),
+                            "TaxRate": (
+                                MergePostTaxRates,
+                                {"link_token_details": account_token},
+                            ),
+                        }
                         api_log(msg=f"1dictionary  end******")
                         erp_data = ErpLinkToken.objects.filter(
                             id=link_token_id_model
@@ -226,17 +230,25 @@ def webhook_handler(request):
                                 erp_data.org_id,
                                 erp_data.id,
                                 erp_data.account_token,
-                                sync_module_name
+                                [api_views[module_name_merge]]
                                
                             ),
                         )
 
                         thread.start()
+                        success_message = "thread started successfully"
+                        success_data = {"success": success_message}
+                        success_json = json.dumps(success_data)
                         api_log(msg=f"thread  end")
+                        return JsonResponse(success_json, status=status.HTTP_200_OK)
                     except Exception as e:
                         print(f"Error occurred while saving MergeSyncLog instance: {e}")
                 else:
-                    api_log(msg=f"exception log out thread")
+                    api_log(msg=f"exception on thread")
+                    error_message = "exception on thread"
+                    error_data = {"error": error_message}
+                    error_json = json.dumps(error_data)
+                    return JsonResponse(error_json, status=500, safe=False)
                 
 
             else:
