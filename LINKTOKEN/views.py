@@ -295,8 +295,8 @@ def webhook_handler(request):
                             "ACCOUNTS",
                             "CONTACTS",
                         ]
-                    api_log(msg=f"ERPpppppppinsert sync log table for in progress: {account_token} in progress")
-                    erp_link_token_id = account_token.get("end_user_origin_id")
+                    api_log(msg=f"ERPpppppppinsert sync log table for in progress: {payload_account_tokens} in progress")
+                    erp_link_token_id = payload_account_tokens.get('end_user_origin_id')
                     api_log(msg=f"attt in progreess sync log table for in progress: {erp_link_token_id} in progress")
                     erp_data = ErpLinkToken.objects.filter(
                                 id=erp_link_token_id
