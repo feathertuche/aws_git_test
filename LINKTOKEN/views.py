@@ -143,6 +143,8 @@ def webhook_handler(request):
                     merge_status = sync_status_model_data.get('status')
                     sync_type = 'sync'
                     try:
+                        api_log(msg=f"originmergesync log insert object  start")
+                        api_log(msg=f"origin idmergesync log insert {link_token_id_model} object  start")
                         api_log(msg=f"mergesync log insert object  start")
                         merge_sync_log, created = MergeSyncLog.objects.get_or_create(
                         link_token_id=link_token_id_model,
