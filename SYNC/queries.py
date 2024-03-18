@@ -32,15 +32,7 @@ def get_erplog_link_module_name(link_token_id,label):
     """
     Get ERP logs by link token id
     """
-    data = ERPLogs.objects.filter(link_token_id=link_token_id, label = label)
-    if not data.exists():
-        return []
-    return [
-        {
-            "sync_status": log.sync_status,
-            "label": log.label,
-            "org_id": log.org_id,
-        }
-        for log in data
-    ]
+    data = ERPLogs.objects.filter(link_token_id=link_token_id, label = label).first()
+    return data
+   
 
