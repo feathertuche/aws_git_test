@@ -86,7 +86,7 @@ class LinkToken(APIView):
             return response
         else:
             try:
-                end_usr_origin_id = str(uuid.uuid1())
+                end_usr_origin_id = uuid.uuid1
                 api_key = os.environ.get("API_KEY")
                 merge_client = create_merge_client(api_key)
                 current_time = datetime.now(tz=timezone.utc)
@@ -176,7 +176,7 @@ def webhook_handler(request):
                         merge_sync_log, created = MergeSyncLog.objects.get_or_create(
                         link_token_id=link_token_id_model,
                         defaults={
-                                'id': uuid.uuid4(),
+                                'id': uuid.uuid1(),
                                 'module_name': module_name_merge,
                                 'link_token_id': link_token_id_model,
                                 'end_user_origin_id': link_token_id_model,

@@ -1,7 +1,7 @@
 from django.db import models
 
 class MergeSyncLog(models.Model):
-    id = models.UUIDField(primary_key=True, editable=False)
+    id = models.CharField(primary_key=True, editable=False, max_length=255)
     link_token_id = models.CharField(max_length=255)
     end_user_origin_id = models.CharField(max_length=255)
     module_name = models.CharField(max_length=255)
