@@ -95,7 +95,7 @@ class LinkToken(APIView):
                     end_user_organization_name=request.data.get(
                         "end_user_organization_name"
                     ),
-                    end_user_origin_id=current_time,
+                    end_user_origin_id= end_usr_origin_id,
                     categories=[CategoriesEnum.ACCOUNTING],
                     should_create_magic_link_url=request.data.get(
                         "should_create_magic_link_url"
