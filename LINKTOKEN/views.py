@@ -148,6 +148,7 @@ def webhook_handler(request):
     api_log(msg=f"webhook  begin")
     try:
         payload = json.loads(request.body)
+        api_log(msg=f"intial sync webhook details {payload}  begin")
         linked_account_data = payload.get("linked_account", {})
         # data = payload.get('data', {})
         # linked_account_data = data.get('linked_account')
@@ -223,6 +224,11 @@ def webhook_handler(request):
                         }
                         
                         api_log(msg=f"thread  start")
+                        api_log(msg=f"argggg {custom_request}")
+                        api_log(msg=f"argggg2 {erp_data.org_id}")
+                        api_log(msg=f"argggg3 {erp_data.id}")
+                        api_log(msg=f"argggg4 {erp_data.account_token}")
+                        api_log(msg=f"argggg5 {[api_views[module_name_merge]]}")
                         thread = Thread(
                             target=sync_modules_status,
                             args=(
@@ -234,7 +240,7 @@ def webhook_handler(request):
                                
                             ),
                         )
-
+                        
                         thread.start()
                         success_message = "thread started successfully"
                         success_data = {"success": success_message}
