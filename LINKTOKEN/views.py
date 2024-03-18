@@ -189,29 +189,30 @@ def webhook_handler(request):
                         api_log(msg=f"starttttterplinktoken object  start")
                         modules = []
                         api_log(msg=f"1dictionary start")
-                        api_views = {
-                            "TrackingCategory": (
-                                MergePostTrackingCategories,
-                                {"link_token_details": account_token},
-                            ),
-                            "CompanyInfo": (
-                                MergeKlooCompanyInsert,
-                                {"link_token_details": account_token},
-                            ),
-                            "Account": (InsertAccountData, {"link_token_details": account_token}),
-                            "Contact": (
-                                MergePostContacts,
-                                {"link_token_details": account_token},
-                            ),
-                            "TaxRate": (
-                                MergePostTaxRates,
-                                {"link_token_details": account_token},
-                            ),
-                        }
                         api_log(msg=f"1dictionary  end******")
                         erp_data = ErpLinkToken.objects.filter(
                             id=link_token_id_model
                         ).first()
+                        api_views = {
+                            "TrackingCategory": (
+                                MergePostTrackingCategories,
+                                {"link_token_details": erp_data.account_token},
+                            ),
+                            "CompanyInfo": (
+                                MergeKlooCompanyInsert,
+                                {"link_token_details": erp_data.account_token},
+                            ),
+                            "Account": (InsertAccountData, {"link_token_details": erp_data.account_token}),
+                            "Contact": (
+                                MergePostContacts,
+                                {"link_token_details": erp_data.account_token},
+                            ),
+                            "TaxRate": (
+                                MergePostTaxRates,
+                                {"link_token_details": erp_data.account_token},
+                            ),
+                        }
+                        
                         api_log(msg=f"****1dictionary {erp_data}  end")
                         api_log(msg=f"dictionary  start")
                         custom_request = HttpRequest()
