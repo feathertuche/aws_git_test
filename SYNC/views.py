@@ -26,7 +26,7 @@ class ProxySyncAPI(CreateAPIView):
         )
         if link_token_details is None:
             response_data = {"message": "No link token found"}
-            return Response(response_data, status=status.HTTP_202_ACCEPTED)
+            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
         api_log(msg=f"SYNC :link token details{link_token_details}")
 
         # check if any modules is in progress
