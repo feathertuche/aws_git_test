@@ -20,7 +20,7 @@ from merge_integration.helper_functions import api_log
 class MergeInvoices(APIView):
     @staticmethod
     def get(_):
-        api_log(msg="Processing GET request in MergeAccounts...")
+        api_log(msg="Processing GET request in Invoices...")
         merge_client = Merge(
             base_url=settings.BASE_URL,
             account_token=settings.ACCOUNT_TOKEN,
@@ -32,7 +32,7 @@ class MergeInvoices(APIView):
                 remote_fields="type",
                 show_enum_origins="type",
                 type=InvoicesListRequestType.ACCOUNTS_PAYABLE,
-                page_size=100000
+                page_size=100000,
             )
         except Exception as e:
             api_log(
@@ -63,17 +63,13 @@ class MergeInvoices(APIView):
 
 
 class MergeInvoiceCreate(APIView):
-
     def __init__(self, *args, link_token_details=None, **kwargs):
         super().__init__()
-        self.org_id = None
+        self.erp_link_token_id = None
 
     def get_queryset(self):
-        if self.org_id is None:
-            return ErpLinkToken.objects.none()
-        else:
-            filter_token = ErpLinkToken.objects.filter(org_id=self.org_id)
-            lnk_token = filter_token.values_list("account_token", flat=1)
+        filter_token = ErpLinkToken.objects.filter(id=self.erp_link_token_id)
+        lnk_token = filter_token.values_list("account_token", flat=1)
 
         return lnk_token
 
@@ -86,14 +82,16 @@ class MergeInvoiceCreate(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # Get the org_id from the request data
-        self.org_id = serializer.validated_data.get("org_id")
+        # Get the erp_link_token_id from the request data
+        self.erp_link_token_id = serializer.validated_data.get("erp_link_token_id")
 
         queryset = self.get_queryset()
         if queryset is None or queryset == []:
             # Handle the case where link_token_details is None
-            print("link_token_details is None or empty")
-            return None
+            api_log(msg="link_token_details is None or empty")
+            return Response(
+                "Account token doesn't exist", status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             account_token = queryset[0]
@@ -123,7 +121,11 @@ class MergeInvoiceCreate(APIView):
                     "tracking_categories": line_items_payload.get(
                         "tracking_categories"
                     ),
-                    # 'modified_at': line_item_payload.get('modified_at'),
+                    "integration_params": {
+                        "tax_rate_remote_id": line_item_payload.get(
+                            "tax_rate_remote_id"
+                        )
+                    },
                     "account": line_item_payload.get("account"),
                     "remote_data": line_item_payload.get("remote_data"),
                 }
@@ -144,6 +146,11 @@ class MergeInvoiceCreate(APIView):
                 "sub_total": line_items_payload.get("sub_total"),
                 "total_tax_amount": line_items_payload.get("total_tax_amount"),
                 "total_amount": line_items_payload.get("total_amount"),
+                "integration_params": {
+                    "tax_application_type": line_items_payload.get(
+                        "tax_application_type"
+                    )
+                },
                 "line_items": [
                     InvoiceLineItemRequest(**line_item) for line_item in line_items_data
                 ],

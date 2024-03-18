@@ -17,13 +17,11 @@ from merge_integration.utils import create_merge_client
 
 
 class MergeCompanyInfo(APIView):
-
     def __init__(self, link_token_details=None):
         super().__init__()
         self.link_token_details = link_token_details
 
     def get_company_info(self):
-
         if self.link_token_details is None:
             # Handle the case where link_token_details is None
             print("link_token_details is None")
@@ -39,7 +37,9 @@ class MergeCompanyInfo(APIView):
 
         try:
             organization_data = comp_client.accounting.company_info.list(
-                expand=CompanyInfoListRequestExpand.ADDRESSES, page_size=100000
+                expand=CompanyInfoListRequestExpand.ADDRESSES,
+                page_size=100000,
+                include_remote_data=True,
             )
             return organization_data
         except Exception as e:
@@ -93,7 +93,7 @@ class MergeCompanyInfo(APIView):
                 "created_at": organization.created_at.isoformat() + "Z",
                 "modified_at": organization.modified_at.isoformat() + "Z",
                 "field_mappings": organization.field_mappings,
-                "remote_data": organization.remote_data,
+                "remote_data": None,
             }
             formatted_data.append(formatted_entry)
             kloo_format_json = {"companies": formatted_data}
@@ -101,7 +101,7 @@ class MergeCompanyInfo(APIView):
         return kloo_format_json
 
     def get(self, request, *args, **kwargs):
-        api_log(msg="Processing GET request in MergeAccounts...")
+        api_log(msg=".....Processing Company GET request bloc.....")
 
         organization_data = self.get_company_info()
         formatted_data = self.build_response_payload(organization_data)
@@ -116,7 +116,7 @@ class MergeCompanyInfo(APIView):
 class MergeCompanyDetails(APIView):
     @staticmethod
     def get(_, id=None):
-        api_log(msg="Processing GET request in MergeAccounts...")
+        api_log(msg="Processing GET request in MergeCompany...")
         comp_id_client = Merge(
             base_url=settings.BASE_URL,
             account_token=settings.ACCOUNT_TOKEN,
@@ -172,7 +172,7 @@ class MergeCompanyDetails(APIView):
                 "created_at": organization_data.created_at,
                 "modified_at": organization_data.modified_at,
                 "field_mappings": organization_data.field_mappings,
-                "remote_data": organization_data.remote_data,
+                "erp_remote_data": organization_data.remote_data,
             }
             formatted_data.append(formatted_entry)
 
@@ -191,12 +191,21 @@ class MergeCompanyDetails(APIView):
 
 
 class MergeKlooCompanyInsert(APIView):
+    """
+    This class is created for parsing company info data
+    """
 
     def __init__(self, link_token_details=None):
         super().__init__()
         self.link_token_details = link_token_details
 
     def post(self, request):
+        """
+        This POST method fetch the company info Merge data
+        and send it to the Kloo DB erp_company table.
+
+        request: to fetch merge data
+        """
         erp_link_token_id = request.data.get("erp_link_token_id")
         authorization_header = request.headers.get("Authorization")
         if authorization_header and authorization_header.startswith("Bearer "):
@@ -219,7 +228,7 @@ class MergeKlooCompanyInsert(APIView):
 
                     if kloo_data_insert.status_code == status.HTTP_201_CREATED:
                         return Response(
-                            f"successfully inserted the data for COMPANY INFO with "
+                            "successfully inserted the data for COMPANY INFO with "
                         )
                     else:
                         return Response(

@@ -14,5 +14,5 @@ class ModelSerializer(serializers.Serializer):
 
 
 class InvoiceCreateSerializer(serializers.Serializer):
-    org_id = serializers.UUIDField()
+    erp_link_token_id = serializers.CharField()
     model = ModelSerializer()

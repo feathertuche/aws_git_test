@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 
 class DeleteConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'DELETE'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "DELETE"

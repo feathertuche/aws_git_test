@@ -38,7 +38,7 @@ jobs:
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-prod-cluster" >> $GITHUB_ENV
             echo "rds_host=mysql-kloo-prod.internal-service-kloo.com" >> $GITHUB_ENV
-          
+
           elif [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
             echo "env=stage" >> $GITHUB_ENV
             echo "secret_manager=kloo-Stage-Environment-Variables" >> $GITHUB_ENV
@@ -87,8 +87,8 @@ jobs:
             echo "$line" >> .env
           done <<< "$(echo "$secret_json" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"')"
           cp .env ../.env
-       
-                      
+
+
       - name: Deploying merge integration erp
         run: |
           #----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ jobs:
         if: ${{ env.env != 'prod' }}
         run: |
           aws ecs update-service --cluster ${cluster_name} --service ${UPDATED_FUNC_NAME} --force-new-deployment
-          
+
       - name: Deploying to production
         if: ${{ env.env == 'prod' }}
         run: |
@@ -112,6 +112,6 @@ jobs:
           AWS_SECRET_ACCESSKEY=$(aws secretsmanager get-secret-value --secret-id kloo_environment_variable_prod | jq --raw-output '.SecretString' | jq -r .\"KLOO_PROD_AWS_SECRET_ACCESSKEY\")
           echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESSKEY" >> .env
           echo "AWS_DEFAULT_REGION=${{ vars.REGION }}" >> .env
-         
+
           aws codepipeline update-pipeline --cli-input-json file://codepipeline.json
           aws codepipeline start-pipeline-execution --name codepipeline-oauthapi

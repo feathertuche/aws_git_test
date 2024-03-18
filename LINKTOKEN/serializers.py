@@ -5,4 +5,4 @@ from LINKTOKEN.models import ErpLinkToken
 class AccountTokenSerializers(serializers.ModelSerializer):
     class Meta:
         model = ErpLinkToken
-        fields = ['account_token']
+        fields = ["account_token"]
