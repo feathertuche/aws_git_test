@@ -162,25 +162,21 @@ def webhook_handler(request):
                         ).first()
                         modules = []
                         api_log(msg=f"1dictionary  start")
-                        api_views = {
-                            "TrackingCategory": (
-                                MergePostTrackingCategories,
-                                {"link_token_details": account_token},
-                            ),
-                            "CompanyInfo": (
-                                MergeKlooCompanyInsert,
-                                {"link_token_details": account_token},
-                            ),
-                            "Account": (InsertAccountData, {"link_token_details": account_token}),
-                            "Contact": (
-                                MergePostContacts,
-                                {"link_token_details": account_token},
-                            ),
-                            "TaxRate": (
-                                MergePostTaxRates,
-                                {"link_token_details": account_token},
-                            ),
-                        }
+                        if module_name_merge == "TaxRate":
+                            sync_module_name="TAX RATE"
+
+                        if module_name_merge == "TrackingCategory":
+                            sync_module_name="TRACKING CATEGORIES"
+
+                        if module_name_merge == "CompanyInfo":
+                            sync_module_name="COMPANY INFO"
+
+                        if module_name_merge == "Account":
+                            sync_module_name="ACCOUNTS"
+
+                        if module_name_merge == "Contact":
+                            sync_module_name="CONTACTS"
+                        api_log(msg=f"1dictionary  end")
                         api_log(msg=f"dictionary  start")
                         custom_request = HttpRequest()
                         custom_request.method = "POST"
@@ -199,7 +195,7 @@ def webhook_handler(request):
                                 erp_data.org_id,
                                 erp_data.id,
                                 erp_data.account_token,
-                                [api_views[module_name_merge]]
+                                sync_module_name
                                
                             ),
                         )
