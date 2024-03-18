@@ -27,6 +27,7 @@ from TAX_RATE.views import MergePostTaxRates
 from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from merge_integration.helper_functions import api_log
 from services.merge_service import MergeSyncService
+from .helper_function import create_erp_link_token, get_org_entity
 from SYNC.helper_function import (
     log_sync_status,
     start_new_sync_process,
@@ -66,6 +67,7 @@ class LinkToken(APIView):
 
     def post(self, request):
         org_id = request.data.get("organisation_id")
+        authorization_header = request.headers.get("Authorization")
         end_user_email_address = request.data.get("end_user_email_address")
 
         if not org_id or not end_user_email_address:
@@ -84,6 +86,7 @@ class LinkToken(APIView):
             return response
         else:
             try:
+                end_usr_origin_id = uuid.uuid1()
                 api_key = os.environ.get("API_KEY")
                 merge_client = create_merge_client(api_key)
                 current_time = datetime.now(tz=timezone.utc)
@@ -106,6 +109,30 @@ class LinkToken(APIView):
                     "magic_link_url": link_token_response.magic_link_url,
                     "integration_name": link_token_response.integration_name,
                 }
+
+                data = {
+                    "id": end_usr_origin_id,
+                    "categories": request.data.get("categories"),
+                    "entity_id": get_org_entity(request.data.get("organisation_id"))[0],
+                    "integration_name": request.data.get("integration"),
+                    "link_expiry_mins": request.data.get("link_expiry_mins"),
+                    "org_id": request.data.get("organisation_id"),
+                    "should_create_magic_link_url": request.data.get(
+                        "should_create_magic_link_url"
+                    ),
+                    "link_token": link_token_response.link_token,
+                    "end_user_organization_name": request.data.get(
+                        "end_user_organization_name"
+                    ),
+                    "end_user_email_address": request.data.get(
+                        "end_user_email_address"
+                    ),
+                    "magic_link_url": link_token_response.magic_link_url,
+                    "bearer": authorization_header,
+                    "status": "INCOMPLETE",
+                }
+
+                create_erp_link_token(data)
 
                 response = Response(data_to_return, status=status.HTTP_201_CREATED)
                 response.accepted_renderer = JSONRenderer()
@@ -176,11 +203,11 @@ def webhook_handler(request):
 
                         if module_name_merge == "Contact":
                             sync_module_name="CONTACTS"
-                        api_log(msg=f"1dictionary  end")
+                        api_log(msg=f"1dictionary  end******")
                         erp_data = ErpLinkToken.objects.filter(
                             id=link_token_id_model
                         ).first()
-                        api_log(msg=f"1dictionary {erp_data}  end")
+                        api_log(msg=f"****1dictionary {erp_data}  end")
                         api_log(msg=f"dictionary  start")
                         custom_request = HttpRequest()
                         custom_request.method = "POST"
@@ -209,11 +236,8 @@ def webhook_handler(request):
                     except Exception as e:
                         print(f"Error occurred while saving MergeSyncLog instance: {e}")
                 else:
-                    err = None 
-                    model_name = None
-                    status = None
+                    api_log(msg=f"exception log out thread")
                 
-                return JsonResponse(model_name, status=status.HTTP_200_OK)
 
             else:
                 try:
