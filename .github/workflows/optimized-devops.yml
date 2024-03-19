@@ -8,7 +8,7 @@ on:
       - stage
 
 jobs:
-  develop-deployment-job:
+  deployment-job:
     runs-on: ubuntu-latest
 
     steps:
@@ -65,16 +65,14 @@ jobs:
             echo "LOCAL_URL=http://test-internallb-kloodev.internal-service-kloo.com/api/v1" >> $GITHUB_ENV
           fi
 
-      - name: Set up AWS Cli
+      - name: Setting up AWS CLI
         run: |
           AWS_ACCESS_KEYID=$(aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .\"AWS_ACCESS_KEYID\")
           echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEYID" >> .env
           AWS_SECRET_ACCESSKEY=$(aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .\"AWS_SECRET_ACCESSKEY\")
           echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESSKEY" >> .env
           echo "AWS_DEFAULT_REGION=${{ vars.REGION }}" >> .env
-          echo "GETKLOO_LOCAL_URL=$LOCAL_URL" >> .env
-          cat .env
-
+          
       - name: DB Configure
         run: |
           cd ./merge_integration
@@ -86,6 +84,8 @@ jobs:
           DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .${db_password}`
           echo "DB_PASSWORD=$DB_PASSWORD" >> .env
           echo "BULK_IMPORT_QUEUE=${UPDATED_QUEUE}" >> .env
+          echo "GETKLOO_LOCAL_URL1=$LOCAL_URL" >> .env
+          cat .env
           
       - name: Creating Application variables
         run: |
@@ -97,7 +97,7 @@ jobs:
           cp .env ../.env
        
                       
-      - name: Deploying merge integration erp
+      - name: Building & pushing merge integration erp image
         run: |
           #----------------------------------------------------------------------------
           # Building images for merge integration erp
