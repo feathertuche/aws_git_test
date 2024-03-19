@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_BASE_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL
 from merge_integration.utils import create_merge_client
 
 
@@ -203,46 +203,42 @@ class MergePostTaxRates(APIView):
         """
 
         erp_link_token_id = request.data.get("erp_link_token_id")
-        authorization_header = request.headers.get("Authorization")
-        if authorization_header and authorization_header.startswith("Bearer "):
-            token = authorization_header.split(" ")[1]
-            fetch_data = MergeTaxRatesList(link_token_details=self.link_token_details)
-            tax_data = fetch_data.get(request=request)
+        org_id = request.data.get("org_id")
+        fetch_data = MergeTaxRatesList(link_token_details=self.link_token_details)
+        tax_data = fetch_data.get(request=request)
 
-            try:
-                if tax_data.status_code == status.HTTP_200_OK:
-                    tax_payload = tax_data.data
-                    tax_payload["erp_link_token_id"] = erp_link_token_id
-                    tax_url = f"{GETKLOO_BASE_URL}/organizations/insert-erp-tax-rates"
-                    tax_response_data = requests.post(
-                        tax_url,
-                        json=tax_payload,
-                        headers={"Authorization": f"Bearer {token}"},
+        try:
+            if tax_data.status_code == status.HTTP_200_OK:
+                tax_payload = tax_data.data
+                tax_payload["erp_link_token_id"] = erp_link_token_id
+                tax_payload["org_id"] = org_id
+                tax_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-tax-rates"
+                tax_response_data = requests.post(
+                    tax_url,
+                    json=tax_payload,
+                )
+
+                api_log(msg=f"tax_response_data: {tax_response_data}")
+
+                if tax_response_data.status_code == status.HTTP_201_CREATED:
+                    api_log(
+                        msg="data inserted successfully in the kloo Tax Rate system"
+                    )
+                    return Response(
+                        f"{tax_response_data} data inserted successfully in kloo Tax Rate system"
                     )
 
-                    api_log(msg=f"tax_response_data: {tax_response_data}")
+                else:
+                    return Response(
+                        {"error": "Failed to send data to Kloo Tax Rate API"},
+                        status=tax_response_data.status_code,
+                    )
 
-                    if tax_response_data.status_code == status.HTTP_201_CREATED:
-                        api_log(
-                            msg="data inserted successfully in the kloo Tax Rate system"
-                        )
-                        return Response(
-                            f"{tax_response_data} data inserted successfully in kloo Tax Rate system"
-                        )
-
-                    else:
-                        return Response(
-                            {"error": "Failed to send data to Kloo Tax Rate API"},
-                            status=tax_response_data.status_code,
-                        )
-
-            except Exception as e:
-                error_message = (
-                    f"Failed to send data to Kloo Tax Rate API. Error: {str(e)}"
-                )
-                return Response(
-                    {"error": error_message},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
+        except Exception as e:
+            error_message = f"Failed to send data to Kloo Tax Rate API. Error: {str(e)}"
+            return Response(
+                {"error": error_message},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         return Response("Failed to insert data to the kloo Tax Rate system", traceback)
