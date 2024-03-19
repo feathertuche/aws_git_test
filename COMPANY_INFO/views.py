@@ -216,6 +216,8 @@ class MergeKlooCompanyInsert(APIView):
                 merge_payload = response.data
                 merge_payload["erp_link_token_id"] = erp_link_token_id
                 kloo_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-companies"
+
+                api_log(msg=f"merge_payload: {kloo_url}")
                 kloo_data_insert = requests.post(
                     kloo_url,
                     json=merge_payload,
