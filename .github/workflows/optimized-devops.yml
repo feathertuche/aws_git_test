@@ -73,6 +73,7 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESSKEY" >> .env
           echo "AWS_DEFAULT_REGION=${{ vars.REGION }}" >> .env
           echo "GETKLOO_LOCAL_URL=$LOCAL_URL" >> .env
+          cat .env
 
       - name: DB Configure
         run: |
