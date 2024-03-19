@@ -38,7 +38,6 @@ jobs:
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-prod-cluster" >> $GITHUB_ENV
             echo "rds_host=mysql-kloo-prod.internal-service-kloo.com" >> $GITHUB_ENV
-            echo "LOCAL_URL=http://test-internallb-kloo-prod.internal-service-kloo.com/api/v1" >> $GITHUB_ENV
           
           elif [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
             echo "env=stage" >> $GITHUB_ENV
@@ -49,7 +48,6 @@ jobs:
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-stage-cluster" >> $GITHUB_ENV
             echo "rds_host=mysql-kloo-stage.internal-service-kloo.com" >> $GITHUB_ENV
-            echo "LOCAL_URL=http://test-internallb-kloo-stage.internal-service-kloo.com/api/v1" >> $GITHUB_ENV
 
           else
             echo "env=dev" >> $GITHUB_ENV
@@ -62,7 +60,6 @@ jobs:
             echo "rds_host=mysql-kloo-dev.internal-service-kloo.com" >> $GITHUB_ENV
             QUEUE=$(echo "${{ vars.BULK_IMPORT_QUEUE }}" | sed 's/env/dev/')
             echo "UPDATED_QUEUE=$QUEUE" >> $GITHUB_ENV
-            echo "LOCAL_URL=http://test-internallb-kloodev.internal-service-kloo.com/api/v1" >> $GITHUB_ENV
           fi
 
       - name: Setting up AWS CLI
@@ -84,9 +81,7 @@ jobs:
           DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .${db_password}`
           echo "DB_PASSWORD=$DB_PASSWORD" >> .env
           echo "BULK_IMPORT_QUEUE=${UPDATED_QUEUE}" >> .env
-          echo "GETKLOO_LOCAL_URL1=${LOCAL_URL}" >> .env
-          cat .env
-          
+                    
       - name: Creating Application variables
         run: |
           cd ./merge_integration
