@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_BASE_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL
 from merge_integration.utils import create_merge_client
 
 
@@ -56,27 +56,22 @@ class DeleteAccount(APIView):
 
             if account_del_response is None:
                 erp_link_token_id = request.data.get("erp_link_token_id")
-                authorization_header = request.headers.get("Authorization")
-                if authorization_header and authorization_header.startswith("Bearer "):
-                    token = authorization_header.split(" ")[1]
-                    disconnect_url = f"{GETKLOO_BASE_URL}/accounting-integrations/erp-disconnect/{erp_link_token_id}"
-                    api_log(msg=f"DELETE: Disconnect URL: {disconnect_url}")
+                disconnect_url = f"{GETKLOO_LOCAL_URL}/accounting-integrations/erp-disconnect/{erp_link_token_id}"
+                api_log(msg=f"DELETE: Disconnect URL: {disconnect_url}")
 
-                    disconnect_execute = requests.delete(
-                        disconnect_url, headers={"Authorization": f"Bearer {token}"}
+                disconnect_execute = requests.delete(disconnect_url)
+                api_log(msg=f"DELETE: Disconnect Execute: {disconnect_execute}")
+
+                if disconnect_execute.status_code == status.HTTP_204_NO_CONTENT:
+                    return Response(
+                        {"message": "Data deleted successfully"},
+                        status=status.HTTP_200_OK,
                     )
-                    api_log(msg=f"DELETE: Disconnect Execute: {disconnect_execute}")
-
-                    if disconnect_execute.status_code == status.HTTP_204_NO_CONTENT:
-                        return Response(
-                            {"message": "Data deleted successfully"},
-                            status=status.HTTP_200_OK,
-                        )
-                    else:
-                        return Response(
-                            {"error": "Failed to delete data"},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        )
+                else:
+                    return Response(
+                        {"error": "Failed to delete data"},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    )
 
         except Exception as e:
             api_log(msg=f"Failed to send data to Kloo API. Error: {str(e)}")
