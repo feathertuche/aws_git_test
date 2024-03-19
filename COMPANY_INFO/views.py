@@ -207,6 +207,7 @@ class MergeKlooCompanyInsert(APIView):
         request: to fetch merge data
         """
         erp_link_token_id = request.data.get("erp_link_token_id")
+        org_id = request.data.get("org_id")
         merge_company_list = MergeCompanyInfo(
             link_token_details=self.link_token_details
         )
@@ -215,6 +216,7 @@ class MergeKlooCompanyInsert(APIView):
             if response.status_code == status.HTTP_200_OK:
                 merge_payload = response.data
                 merge_payload["erp_link_token_id"] = erp_link_token_id
+                merge_payload["org_id"] = org_id
                 kloo_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-companies"
 
                 api_log(msg=f"merge_payload: {kloo_url}")
