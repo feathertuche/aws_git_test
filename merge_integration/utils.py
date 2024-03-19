@@ -11,7 +11,6 @@ def create_merge_client(erp_link_token_id):
 
     if not all([base_url, account_token, api_key]):
         raise ValueError("Missing required environment variables for Merge client.")
-
     return MergeClient(base_url=base_url, account_token=account_token, api_key=api_key)
 
 

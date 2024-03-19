@@ -1,6 +1,5 @@
 import json
 import os
-import traceback
 import uuid
 from datetime import datetime, timezone
 from threading import Thread
@@ -14,13 +13,20 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from ACCOUNTS.views import InsertAccountData
+from COMPANY_INFO.views import MergeKlooCompanyInsert
+from CONTACTS.views import MergePostContacts
 from SYNC.helper_function import (
     log_sync_status,
-    start_new_sync_process,
 )
+from SYNC.helper_function import sync_modules_status
+from SYNC.queries import get_erplog_link_module_name
+from TAX_RATE.views import MergePostTaxRates
+from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from merge_integration.helper_functions import api_log
 from merge_integration.utils import create_merge_client
 from .helper_function import create_erp_link_token, get_org_entity
+from .merge_sync_log_model import MergeSyncLog
 from .model import ErpLinkToken
 
 
@@ -139,92 +145,230 @@ class LinkToken(APIView):
 @csrf_exempt
 def webhook_handler(request):
     api_log(msg="....... WEB HOOK bloc started .......")
-    try:
-        # data = json.loads(request.body)
-        # print("Webhook Data:", data)
+    api_log(msg="webhook  begin")
 
+    try:
         payload = json.loads(request.body)
+        api_log(msg=f"intial sync webhook details {payload}  begin")
         linked_account_data = payload.get("linked_account", {})
         # data = payload.get('data', {})
         # linked_account_data = data.get('linked_account')
+
         account_token = payload.get("data")
+        payload_account_tokens = payload.get("linked_account", None)
+        if payload_account_tokens is not None:
+            if "sync_status" in account_token:
+                api_log(msg="sync webhook  begin")
+                sync_status_data = account_token.get("sync_status")
+                if sync_status_data is not None:
+                    linked_account_model_data = payload.get("linked_account", {})
+                    sync_status_model_data = payload.get("data", {}).get(
+                        "sync_status", {}
+                    )
+                    link_token_id_model = linked_account_model_data.get(
+                        "end_user_origin_id"
+                    )
+                    module_name_merge = sync_status_model_data.get("model_name")
+                    status = sync_status_data.get("status")
+                    merge_status = sync_status_model_data.get("status")
+                    sync_type = "sync"
+                    get_label_name = webhook_sync_modul_filter(module_name_merge)
+                    response_data = get_erplog_link_module_name(
+                        link_token_id_model, get_label_name
+                    )
+                    api_log(msg=f"<--------response_data object {response_data} start")
+                    if response_data.sync_status == "in progress":
+                        try:
+                            api_log(
+                                msg=f"SYNC: Merge sync insert {link_token_id_model} object  start"
+                            )
+                            MergeSyncLog.objects.get_or_create(
+                                link_token_id=link_token_id_model,
+                                defaults={
+                                    "id": uuid.uuid1(),
+                                    "module_name": module_name_merge,
+                                    "link_token_id": link_token_id_model,
+                                    "end_user_origin_id": link_token_id_model,
+                                    "status": merge_status,
+                                    "sync_type": sync_type,
+                                    "account_type": linked_account_model_data.get(
+                                        "account_type"
+                                    ),
+                                },
+                            )
+                            api_log(msg="erplinktoken object  start")
+                            api_log(msg="starttttterplinktoken object  start")
+                            api_log(msg="1dictionary start")
+                            api_log(msg="1dictionary  end******")
+                            erp_data = ErpLinkToken.objects.filter(
+                                id=link_token_id_model
+                            ).first()
+                            api_views = {
+                                "TrackingCategory": (
+                                    MergePostTrackingCategories,
+                                    {"link_token_details": erp_data.account_token},
+                                ),
+                                "CompanyInfo": (
+                                    MergeKlooCompanyInsert,
+                                    {"link_token_details": erp_data.account_token},
+                                ),
+                                "Account": (
+                                    InsertAccountData,
+                                    {"link_token_details": erp_data.account_token},
+                                ),
+                                "Contact": (
+                                    MergePostContacts,
+                                    {"link_token_details": erp_data.account_token},
+                                ),
+                                "TaxRate": (
+                                    MergePostTaxRates,
+                                    {"link_token_details": erp_data.account_token},
+                                ),
+                            }
 
-        try:
-            ErpLinkToken.objects.filter(
-                id=linked_account_data.get("end_user_origin_id")
-            ).update(
-                integration_name=linked_account_data.get("integration"),
-                magic_link_url=linked_account_data.get("webhook_listener_url"),
-                categories=linked_account_data.get("category"),
-                platform=linked_account_data.get("account_type"),
-                account_token=account_token.get("account_token"),
-                end_user_email_address=linked_account_data.get(
-                    "end_user_email_address"
-                ),
-                end_user_organization_name=linked_account_data.get(
-                    "end_user_organization_name"
-                ),
-                link_expiry_mins=60,
-                should_create_magic_link_url=False,
-                status=linked_account_data.get("status"),
-            )
-            api_log(
-                msg=f"FORMATTED DATA to get data account token: {account_token}{linked_account_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
-            )
+                            api_log(msg=f"****1dictionary {erp_data}  end")
+                            api_log(msg="dictionary  start")
+                            custom_request = HttpRequest()
+                            custom_request.method = "POST"
+                            custom_request.data = {
+                                "erp_link_token_id": erp_data.id,
+                            }
+                            custom_request.headers = {
+                                "Authorization": erp_data.bearer,
+                            }
 
-            erp_data = ErpLinkToken.objects.filter(
-                id=linked_account_data.get("end_user_origin_id")
-            ).first()
+                            api_log(msg="thread  start")
+                            api_log(msg=f"argggg {custom_request}")
+                            api_log(msg=f"argggg2 {erp_data.org_id}")
+                            api_log(msg=f"argggg3 {erp_data.id}")
+                            api_log(msg=f"argggg4 {erp_data.account_token}")
+                            api_log(msg=f"argggg5 {[api_views[module_name_merge]]}")
+                            thread = Thread(
+                                target=sync_modules_status,
+                                args=(
+                                    custom_request,
+                                    erp_data.org_id,
+                                    erp_data.id,
+                                    erp_data.account_token,
+                                    [api_views[module_name_merge]],
+                                ),
+                            )
 
-            modules = [
-                "TAX RATE",
-                "TRACKING CATEGORIES",
-                "COMPANY INFO",
-                "ACCOUNTS",
-                "CONTACTS",
-            ]
+                            thread.start()
+                            success_message = "thread started successfully"
+                            success_data = {"success": success_message}
+                            success_json = json.dumps(success_data)
+                            api_log(msg="thread  end")
+                            return JsonResponse(success_json, status=status.HTTP_200_OK)
+                        except Exception as e:
+                            print(
+                                f"Error occurred while saving MergeSyncLog instance: {e}"
+                            )
+                else:
+                    api_log(msg="exception on thread")
+                    error_message = "exception on thread"
+                    error_data = {"error": error_message}
+                    error_json = json.dumps(error_data)
+                    return JsonResponse(error_json, status=500, safe=False)
 
-            for module in modules:
-                api_log(msg=f"SYNC: {module} in progress")
-                log_sync_status(
-                    sync_status="in progress",
-                    message=f"API {module} executed successfully",
-                    label=module,
-                    org_id=erp_data.org_id,
-                    erp_link_token_id=erp_data.id,
-                    account_token=erp_data.account_token,
-                )
+            else:
+                try:
+                    ErpLinkToken.objects.filter(
+                        end_user_email_address=linked_account_data.get(
+                            "end_user_email_address"
+                        )
+                    ).update(
+                        integration_name=linked_account_data.get("integration"),
+                        magic_link_url=linked_account_data.get("webhook_listener_url"),
+                        categories=linked_account_data.get("category"),
+                        platform=linked_account_data.get("account_type"),
+                        account_token=account_token.get("account_token"),
+                        end_user_email_address=linked_account_data.get(
+                            "end_user_email_address"
+                        ),
+                        end_user_organization_name=linked_account_data.get(
+                            "end_user_organization_name"
+                        ),
+                        link_expiry_mins=60,
+                        should_create_magic_link_url=False,
+                        status=linked_account_data.get("status"),
+                    )
 
-            custom_request = HttpRequest()
-            custom_request.method = "POST"
-            custom_request.data = {
-                "erp_link_token_id": erp_data.id,
-            }
-            custom_request.headers = {
-                "Authorization": erp_data.bearer,
-            }
+                    modules = [
+                        "TAX RATE",
+                        "TRACKING CATEGORIES",
+                        "COMPANY INFO",
+                        "ACCOUNTS",
+                        "CONTACTS",
+                    ]
+                    api_log(
+                        msg=f"ERPpppppppinsert sync log table for in progress: {payload_account_tokens} in progress"
+                    )
+                    erp_link_token_id = payload_account_tokens.get("end_user_origin_id")
+                    api_log(
+                        msg=f"attt in progreess sync log table for in progress: {erp_link_token_id} in progress"
+                    )
+                    erp_data = ErpLinkToken.objects.filter(id=erp_link_token_id).first()
 
-            thread = Thread(
-                target=start_new_sync_process,
-                args=(
-                    custom_request,
-                    erp_data.id,
-                    erp_data.org_id,
-                    erp_data.account_token,
-                ),
-            )
+                    for module in modules:
+                        api_log(
+                            msg=f"insert sync log table for in progress: {module} in progress"
+                        )
+                        log_sync_status(
+                            sync_status="in progress",
+                            message=f"API {module} executed successfully",
+                            label=module,
+                            org_id=erp_data.org_id,
+                            erp_link_token_id=erp_data.id,
+                            account_token=erp_data.account_token,
+                        )
 
-            thread.start()
+                    # link_token_record = ErpLinkToken(
+                    #     id=linked_account_data.get('id'),
+                    #     org_id=linked_account_data.get('id'),
+                    #     entity_id=linked_account_data.get('id'),
+                    #     link_token=account_token.get('account_token'),
+                    #     integration_name=linked_account_data.get('integration'),
+                    #     magic_link_url=linked_account_data.get('webhook_listener_url'),
+                    #     categories=linked_account_data.get('category'),
+                    #     platform=linked_account_data.get('account_type'),
+                    #     end_user_email_address=linked_account_data.get('end_user_email_address'),
+                    #     end_user_organization_name=linked_account_data.get('end_user_organization_name'),
+                    #     link_expiry_mins=60,
+                    #     should_create_magic_link_url=False,
+                    #     status=linked_account_data.get('status'),
+                    # )
+                    # link_token_record.save()
 
-            return JsonResponse(payload, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            # Handle the case where the record does not exist
-            return JsonResponse(
-                {"error": "Record not found"}, status=status.HTTP_404_NOT_FOUND
-            )
+                    # response_data = {"message": "Webhook received and processed successfully"}
+
+                    # api_log(
+                    #     msg=f"FORMATTED DATA to get data account token: {account_token}{linked_account_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
+                    # )
+                    return JsonResponse(payload, status=200)
+
+                except ObjectDoesNotExist:
+                    # Handle the case where the record does not exist
+                    return JsonResponse({"error": "Record not found"}, status=404)
     except Exception as e:
-        error_message = {"Error processing webhook": str(e)}
-        api_log(
-            msg=f"Error retrieving organizations details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}"
-        )
-        return JsonResponse(error_message, status=500)
+        error_message = f"An error occurred while calling API : {str(e)}"
+        api_log(msg=f"exception error  end {error_message}")
+        error_message = "Error processing webhook"
+        error_data = {"error": error_message}
+        error_json = json.dumps(error_data)
+        return JsonResponse(error_json, status=500, safe=False)
+
+
+def webhook_sync_modul_filter(module_name_merge):
+    label_name = None
+    if module_name_merge == "TaxRate":
+        label_name = "TAX RATE"
+    if module_name_merge == "TrackingCategory":
+        label_name = "TRACKING CATEGORIES"
+    if module_name_merge == "CompanyInfo":
+        label_name = "COMPANY INFO"
+    if module_name_merge == "Account":
+        label_name = "ACCOUNTS"
+    if module_name_merge == "Contact":
+        label_name = "CONTACTS"
+    return label_name

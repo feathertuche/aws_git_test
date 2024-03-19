@@ -25,7 +25,7 @@ class ERPLogs(models.Model):
         SUCCESS = "success", "success"
         FAILED = "failed", "failed"
 
-    id = models.UUIDField(primary_key=True, editable=False)
+    id = models.CharField(primary_key=True, editable=False, max_length=255)
     org_id = models.CharField(max_length=255)
     link_token_id = models.CharField(max_length=36)
     link_token = models.CharField(max_length=255)

@@ -28,3 +28,11 @@ def get_erplogs_by_link_token_id(link_token_id):
         }
         for log in data
     ]
+
+
+def get_erplog_link_module_name(link_token_id, label):
+    """
+    Get ERP logs by link token id
+    """
+    data = ERPLogs.objects.filter(link_token_id=link_token_id, label=label).first()
+    return data
