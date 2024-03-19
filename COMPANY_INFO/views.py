@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_BASE_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL
 from merge_integration.utils import create_merge_client
 
 
@@ -207,41 +207,36 @@ class MergeKlooCompanyInsert(APIView):
         request: to fetch merge data
         """
         erp_link_token_id = request.data.get("erp_link_token_id")
-        authorization_header = request.headers.get("Authorization")
-        if authorization_header and authorization_header.startswith("Bearer "):
-            token = authorization_header.split(" ")[1]
+        merge_company_list = MergeCompanyInfo(
+            link_token_details=self.link_token_details
+        )
+        response = merge_company_list.get(request=request)
+        try:
+            if response.status_code == status.HTTP_200_OK:
+                merge_payload = response.data
+                merge_payload["erp_link_token_id"] = erp_link_token_id
+                kloo_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-companies"
+                kloo_data_insert = requests.post(
+                    kloo_url,
+                    json=merge_payload,
+                )
 
-            merge_company_list = MergeCompanyInfo(
-                link_token_details=self.link_token_details
-            )
-            response = merge_company_list.get(request=request)
-            try:
-                if response.status_code == status.HTTP_200_OK:
-                    merge_payload = response.data
-                    merge_payload["erp_link_token_id"] = erp_link_token_id
-                    kloo_url = f"{GETKLOO_BASE_URL}/organizations/insert-erp-companies"
-                    kloo_data_insert = requests.post(
-                        kloo_url,
-                        json=merge_payload,
-                        headers={"Authorization": f"Bearer {token}"},
+                if kloo_data_insert.status_code == status.HTTP_201_CREATED:
+                    return Response(
+                        "successfully inserted the data for COMPANY INFO with "
+                    )
+                else:
+                    return Response(
+                        {"error": "Failed to send data to Kloo API"},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     )
 
-                    if kloo_data_insert.status_code == status.HTTP_201_CREATED:
-                        return Response(
-                            "successfully inserted the data for COMPANY INFO with "
-                        )
-                    else:
-                        return Response(
-                            {"error": "Failed to send data to Kloo API"},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        )
-
-            except Exception as e:
-                error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
-                return Response(
-                    {"error": error_message},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
+        except Exception as e:
+            error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
+            return Response(
+                {"error": error_message},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         return Response(
             {"error": "Authorization header is missing"},
