@@ -203,6 +203,7 @@ class MergePostTaxRates(APIView):
         """
 
         erp_link_token_id = request.data.get("erp_link_token_id")
+        org_id = request.data.get("org_id")
         fetch_data = MergeTaxRatesList(link_token_details=self.link_token_details)
         tax_data = fetch_data.get(request=request)
 
@@ -210,6 +211,7 @@ class MergePostTaxRates(APIView):
             if tax_data.status_code == status.HTTP_200_OK:
                 tax_payload = tax_data.data
                 tax_payload["erp_link_token_id"] = erp_link_token_id
+                tax_payload["org_id"] = org_id
                 tax_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-tax-rates"
                 tax_response_data = requests.post(
                     tax_url,
