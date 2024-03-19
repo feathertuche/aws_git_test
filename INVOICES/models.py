@@ -1,15 +1,14 @@
 from django.db import models
 
 
-
 class TypeEnum(models.TextChoices):
-    invoice = 'invoice'
-    attachment = 'attachment'
+    invoice = "invoice"
+    attachment = "attachment"
 
 
 class StatusEnum(models.TextChoices):
-    success = 'success'
-    failed = 'failed'
+    success = "success"
+    failed = "failed"
 
 
 class InvoiceAttachmentLogs(models.Model):
@@ -24,5 +23,4 @@ class InvoiceAttachmentLogs(models.Model):
     deleted_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        db_table = 'invoice_attachment_logs'
-
+        db_table = "invoice_attachment_logs"
