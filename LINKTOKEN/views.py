@@ -59,7 +59,6 @@ class LinkToken(APIView):
             return {"is_available": 0}
 
     def post(self, request):
-        authorization_header = request.headers.get("Authorization")
         org_id = request.data.get("organisation_id")
         end_user_email_address = request.data.get("end_user_email_address")
 
@@ -80,7 +79,6 @@ class LinkToken(APIView):
                 link_token_record = ErpLinkToken.objects.get(
                     link_token=link_token_data["link_token"]
                 )
-                link_token_record.bearer = authorization_header
                 link_token_record.save()
             response = Response(check_exist_linktoken, status=status.HTTP_201_CREATED)
             response.accepted_renderer = JSONRenderer()
@@ -128,7 +126,6 @@ class LinkToken(APIView):
                         "end_user_email_address"
                     ),
                     "magic_link_url": link_token_response.magic_link_url,
-                    "bearer": authorization_header,
                     "status": "INCOMPLETE",
                 }
 
@@ -233,9 +230,6 @@ def webhook_handler(request):
                             custom_request.data = {
                                 "erp_link_token_id": erp_data.id,
                                 "org_id": erp_data.org_id,
-                            }
-                            custom_request.headers = {
-                                "Authorization": erp_data.bearer,
                             }
 
                             api_log(msg="thread  start")
