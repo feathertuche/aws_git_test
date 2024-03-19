@@ -84,7 +84,7 @@ jobs:
           DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .${db_password}`
           echo "DB_PASSWORD=$DB_PASSWORD" >> .env
           echo "BULK_IMPORT_QUEUE=${UPDATED_QUEUE}" >> .env
-          echo "GETKLOO_LOCAL_URL1=$LOCAL_URL" >> .env
+          echo "GETKLOO_LOCAL_URL1=${LOCAL_URL}" >> .env
           cat .env
           
       - name: Creating Application variables
