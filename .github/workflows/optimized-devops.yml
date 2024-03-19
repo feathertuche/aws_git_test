@@ -8,7 +8,7 @@ on:
       - stage
 
 jobs:
-  develop-deployment-job:
+  deployment-job:
     runs-on: ubuntu-latest
 
     steps:
@@ -38,7 +38,7 @@ jobs:
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-prod-cluster" >> $GITHUB_ENV
             echo "rds_host=mysql-kloo-prod.internal-service-kloo.com" >> $GITHUB_ENV
-
+          
           elif [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
             echo "env=stage" >> $GITHUB_ENV
             echo "secret_manager=kloo-Stage-Environment-Variables" >> $GITHUB_ENV
@@ -58,16 +58,18 @@ jobs:
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-dev-cluster" >> $GITHUB_ENV
             echo "rds_host=mysql-kloo-dev.internal-service-kloo.com" >> $GITHUB_ENV
+            QUEUE=$(echo "${{ vars.BULK_IMPORT_QUEUE }}" | sed 's/env/dev/')
+            echo "UPDATED_QUEUE=$QUEUE" >> $GITHUB_ENV
           fi
 
-      - name: Set up AWS Cli
+      - name: Setting up AWS CLI
         run: |
           AWS_ACCESS_KEYID=$(aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .\"AWS_ACCESS_KEYID\")
           echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEYID" >> .env
           AWS_SECRET_ACCESSKEY=$(aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .\"AWS_SECRET_ACCESSKEY\")
           echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESSKEY" >> .env
           echo "AWS_DEFAULT_REGION=${{ vars.REGION }}" >> .env
-
+          
       - name: DB Configure
         run: |
           cd ./merge_integration
@@ -78,7 +80,8 @@ jobs:
           echo "DB_NAME=myrdssql01" >> .env
           DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .${db_password}`
           echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-
+          echo "BULK_IMPORT_QUEUE=${UPDATED_QUEUE}" >> .env
+                    
       - name: Creating Application variables
         run: |
           cd ./merge_integration
@@ -86,9 +89,10 @@ jobs:
           while IFS= read -r line; do
             echo "$line" >> .env
           done <<< "$(echo "$secret_json" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"')"
-
-
-      - name: Deploying merge integration erp
+          cp .env ../.env
+       
+                      
+      - name: Building & pushing merge integration erp image
         run: |
           #----------------------------------------------------------------------------
           # Building images for merge integration erp
@@ -96,6 +100,21 @@ jobs:
           docker build -t ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest -f MERGE_INT_ERP_DOCKERFILE .
           docker push ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest
 
-      - name: Deploy to lambda
+      - name: Deploying to non-prod environment
+        if: ${{ env.env != 'prod' }}
         run: |
           aws ecs update-service --cluster ${cluster_name} --service ${UPDATED_FUNC_NAME} --force-new-deployment
+          
+      - name: Deploying to production
+        if: ${{ env.env == 'prod' }}
+        run: |
+
+          aws configure set region ${{ vars.REGION }}
+          AWS_ACCESS_KEYID=$(aws secretsmanager get-secret-value --secret-id kloo_environment_variable_prod | jq --raw-output '.SecretString' | jq -r .\"KLOO_PROD_AWS_ACCESS_KEYID\")
+          echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEYID" >> .env
+          AWS_SECRET_ACCESSKEY=$(aws secretsmanager get-secret-value --secret-id kloo_environment_variable_prod | jq --raw-output '.SecretString' | jq -r .\"KLOO_PROD_AWS_SECRET_ACCESSKEY\")
+          echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESSKEY" >> .env
+          echo "AWS_DEFAULT_REGION=${{ vars.REGION }}" >> .env
+         
+          aws codepipeline update-pipeline --cli-input-json file://codepipeline.json
+          aws codepipeline start-pipeline-execution --name codepipeline-oauthapi

@@ -17,7 +17,7 @@ from rest_framework.views import APIView
 
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_BASE_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL
 from merge_integration.utils import create_merge_client
 
 
@@ -268,53 +268,43 @@ class MergePostContacts(APIView):
         """
 
         erp_link_token_id = request.data.get("erp_link_token_id")
-        authorization_header = request.headers.get("Authorization")
-        if authorization_header and authorization_header.startswith("Bearer "):
-            token = authorization_header.split(" ")[1]
+        org_id = request.data.get("org_id")
+        fetch_data = MergeContactsList(link_token_details=self.link_token_details)
+        contact_data = fetch_data.get(request=request)
 
-            fetch_data = MergeContactsList(link_token_details=self.link_token_details)
-            contact_data = fetch_data.get(request=request)
-
-            try:
-                if contact_data.status_code == status.HTTP_200_OK:
-                    contact_payload = contact_data.data
-                    contact_payload["erp_link_token_id"] = erp_link_token_id
-                    contact_url = (
-                        f"{GETKLOO_BASE_URL}/ap/erp-integration/insert-erp-contacts"
-                    )
-
-                    contact_response_data = requests.post(
-                        contact_url,
-                        json=contact_payload,
-                        headers={"Authorization": f"Bearer {token}"},
-                    )
-
-                    if contact_response_data.status_code == status.HTTP_201_CREATED:
-                        api_log(
-                            msg="data inserted successfully in the kloo Contacts system"
-                        )
-                        return Response(
-                            "data inserted successfully in the kloo Contacts system"
-                        )
-
-                    else:
-                        return Response(
-                            {"error": "Failed to send data to Kloo Contacts API"},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        )
-
-            except Exception as e:
-                error_message = (
-                    f"Failed to send data to Kloo Contacts API. Error: {str(e)}"
-                )
-                return Response(
-                    {"error": error_message},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        try:
+            if contact_data.status_code == status.HTTP_200_OK:
+                contact_payload = contact_data.data
+                contact_payload["erp_link_token_id"] = erp_link_token_id
+                contact_payload["org_id"] = org_id
+                contact_url = (
+                    f"{GETKLOO_LOCAL_URL}/ap/erp-integration/insert-erp-contacts"
                 )
 
-            return Response("Failed to insert data to the kloo Contacts system")
+                contact_response_data = requests.post(
+                    contact_url,
+                    json=contact_payload,
+                )
 
-        return Response(
-            {"error": "Authorization header is missing"},
-            status=status.HTTP_401_UNAUTHORIZED,
-        )
+                if contact_response_data.status_code == status.HTTP_201_CREATED:
+                    api_log(
+                        msg="data inserted successfully in the kloo Contacts system"
+                    )
+                    return Response(
+                        "data inserted successfully in the kloo Contacts system"
+                    )
+
+                else:
+                    return Response(
+                        {"error": "Failed to send data to Kloo Contacts API"},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    )
+
+        except Exception as e:
+            error_message = f"Failed to send data to Kloo Contacts API. Error: {str(e)}"
+            return Response(
+                {"error": error_message},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response("Failed to insert data to the kloo Contacts system")

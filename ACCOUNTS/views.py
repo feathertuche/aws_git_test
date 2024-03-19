@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_BASE_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL
 from merge_integration.utils import create_merge_client
 
 
@@ -105,57 +105,42 @@ class InsertAccountData(APIView):
 
     def post(self, request):
         erp_link_token_id = request.data.get("erp_link_token_id")
-        authorization_header = request.headers.get("Authorization")
-        if authorization_header and authorization_header.startswith("Bearer "):
-            token = authorization_header.split(" ")[1]
+        org_id = request.data.get("org_id")
 
-            fetch_account_data = MergeAccounts(
-                link_token_details=self.link_token_details
-            )
-            request_account_data = fetch_account_data.get(request=request)
+        fetch_account_data = MergeAccounts(link_token_details=self.link_token_details)
+        request_account_data = fetch_account_data.get(request=request)
 
-            try:
-                if request_account_data.status_code == status.HTTP_200_OK:
-                    account_payload = request_account_data.data
-                    account_payload["erp_link_token_id"] = erp_link_token_id
-                    account_url = (
-                        f"{GETKLOO_BASE_URL}/organizations/insert-erp-accounts"
-                    )
-                    account_response_data = requests.post(
-                        account_url,
-                        json=account_payload,
-                        headers={"Authorization": f"Bearer {token}"},
-                    )
-
-                    if account_response_data.status_code == status.HTTP_201_CREATED:
-                        api_log(
-                            msg="data inserted successfully in the kloo account system"
-                        )
-                        return Response(
-                            f"{account_response_data} data inserted successfully in kloo account system"
-                        )
-
-                    else:
-                        api_log(
-                            msg=f"Failed to send data to Kloo API. Error: {account_response_data}"
-                        )
-                        return Response(
-                            {"error": "Failed to send data to Kloo API"},
-                            status=account_response_data.status_code,
-                        )
-
-            except Exception as e:
-                error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
-                return Response(
-                    {"error": error_message},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        try:
+            if request_account_data.status_code == status.HTTP_200_OK:
+                account_payload = request_account_data.data
+                account_payload["erp_link_token_id"] = erp_link_token_id
+                account_payload["org_id"] = org_id
+                account_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-accounts"
+                account_response_data = requests.post(
+                    account_url,
+                    json=account_payload,
                 )
 
+                if account_response_data.status_code == status.HTTP_201_CREATED:
+                    api_log(msg="data inserted successfully in the kloo account system")
+                    return Response(
+                        f"{account_response_data} data inserted successfully in kloo account system"
+                    )
+
+                else:
+                    api_log(
+                        msg=f"Failed to send data to Kloo API. Error: {account_response_data}"
+                    )
+                    return Response(
+                        {"error": "Failed to send data to Kloo API"},
+                        status=account_response_data.status_code,
+                    )
+
+        except Exception as e:
+            error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
             return Response(
-                "Failed to insert data to the kloo account system", traceback
+                {"error": error_message},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-        return Response(
-            {"error": "Authorization header is missing"},
-            status=status.HTTP_401_UNAUTHORIZED,
-        )
+        return Response("Failed to insert data to the kloo account system", traceback)
