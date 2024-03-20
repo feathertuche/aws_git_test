@@ -148,9 +148,6 @@ def webhook_handler(request):
         payload = json.loads(request.body)
         api_log(msg=f"intial sync webhook details {payload}  begin")
         linked_account_data = payload.get("linked_account", {})
-        # data = payload.get('data', {})
-        # linked_account_data = data.get('linked_account')
-
         account_token = payload.get("data")
         payload_account_tokens = payload.get("linked_account", None)
         if payload_account_tokens is not None:
@@ -194,9 +191,7 @@ def webhook_handler(request):
                                 },
                             )
                             api_log(msg="erplinktoken object  start")
-                            api_log(msg="starttttterplinktoken object  start")
-                            api_log(msg="1dictionary start")
-                            api_log(msg="1dictionary  end******")
+
                             erp_data = ErpLinkToken.objects.filter(
                                 id=link_token_id_model
                             ).first()
@@ -223,8 +218,8 @@ def webhook_handler(request):
                                 ),
                             }
 
-                            api_log(msg=f"****1dictionary {erp_data}  end")
                             api_log(msg="dictionary  start")
+
                             custom_request = HttpRequest()
                             custom_request.method = "POST"
                             custom_request.data = {
@@ -233,11 +228,7 @@ def webhook_handler(request):
                             }
 
                             api_log(msg="thread  start")
-                            api_log(msg=f"argggg {custom_request}")
-                            api_log(msg=f"argggg2 {erp_data.org_id}")
-                            api_log(msg=f"argggg3 {erp_data.id}")
-                            api_log(msg=f"argggg4 {erp_data.account_token}")
-                            api_log(msg=f"argggg5 {[api_views[module_name_merge]]}")
+
                             thread = Thread(
                                 target=sync_modules_status,
                                 args=(
@@ -269,9 +260,7 @@ def webhook_handler(request):
             else:
                 try:
                     ErpLinkToken.objects.filter(
-                        end_user_email_address=linked_account_data.get(
-                            "end_user_email_address"
-                        )
+                        id=linked_account_data.get("end_user_origin_id")
                     ).update(
                         integration_name=linked_account_data.get("integration"),
                         magic_link_url=linked_account_data.get("webhook_listener_url"),
@@ -318,28 +307,6 @@ def webhook_handler(request):
                             account_token=erp_data.account_token,
                         )
 
-                    # link_token_record = ErpLinkToken(
-                    #     id=linked_account_data.get('id'),
-                    #     org_id=linked_account_data.get('id'),
-                    #     entity_id=linked_account_data.get('id'),
-                    #     link_token=account_token.get('account_token'),
-                    #     integration_name=linked_account_data.get('integration'),
-                    #     magic_link_url=linked_account_data.get('webhook_listener_url'),
-                    #     categories=linked_account_data.get('category'),
-                    #     platform=linked_account_data.get('account_type'),
-                    #     end_user_email_address=linked_account_data.get('end_user_email_address'),
-                    #     end_user_organization_name=linked_account_data.get('end_user_organization_name'),
-                    #     link_expiry_mins=60,
-                    #     should_create_magic_link_url=False,
-                    #     status=linked_account_data.get('status'),
-                    # )
-                    # link_token_record.save()
-
-                    # response_data = {"message": "Webhook received and processed successfully"}
-
-                    # api_log(
-                    #     msg=f"FORMATTED DATA to get data account token: {account_token}{linked_account_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
-                    # )
                     return JsonResponse(payload, status=200)
 
                 except ObjectDoesNotExist:
