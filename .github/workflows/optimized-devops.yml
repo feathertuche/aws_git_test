@@ -124,6 +124,5 @@ jobs:
           AWS_SECRET_ACCESSKEY=$(aws secretsmanager get-secret-value --secret-id kloo_environment_variable_prod | jq --raw-output '.SecretString' | jq -r .\"KLOO_PROD_AWS_SECRET_ACCESSKEY\")
           echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESSKEY" >> .env
           echo "AWS_DEFAULT_REGION=${{ vars.REGION }}" >> .env
-
           aws codepipeline update-pipeline --cli-input-json file://codepipeline.json
           aws codepipeline start-pipeline-execution --name codepipeline-oauthapi
