@@ -136,6 +136,7 @@ class MergeInvoiceCreate(APIView):
                 "id": line_items_payload.get("id"),
                 "type": line_items_payload.get("type"),
                 "due_date": line_items_payload.get("due_date"),
+                "issue_date": line_items_payload.get("issue_date"),
                 "contact": line_items_payload.get("contact"),
                 "number": line_items_payload.get("number"),
                 "memo": line_items_payload.get("memo"),
