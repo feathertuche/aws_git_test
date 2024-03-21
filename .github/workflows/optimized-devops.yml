@@ -6,6 +6,7 @@ on:
       - main
       - dev
       - stage
+      - demo
 
 jobs:
   deployment-job:
@@ -49,6 +50,16 @@ jobs:
             echo "cluster_name=kloo-stage-cluster" >> $GITHUB_ENV
             echo "rds_host=mysql-kloo-stage.internal-service-kloo.com" >> $GITHUB_ENV
 
+          elif [[ "${{ github.ref }}" == "refs/heads/demo" ]]; then
+            echo "env=demo" >> $GITHUB_ENV
+            echo "secret_manager=kloo_environment_variables_demo" >> $GITHUB_ENV
+            echo "db_password=Demo_DB_Password" >> $GITHUB_ENV
+            echo "app_secret_manager=demo_merge_integration" >> $GITHUB_ENV
+            UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/demo/')
+            echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
+            echo "cluster_name=kloo-demo-cluster" >> $GITHUB_ENV
+            echo "rds_host=mysql-kloo-demo.internal-service-kloo.com" >> $GITHUB_ENV
+
           else
             echo "env=dev" >> $GITHUB_ENV
             echo "secret_manager=kloo-dev-environment-variables" >> $GITHUB_ENV
@@ -91,7 +102,6 @@ jobs:
           done <<< "$(echo "$secret_json" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"')"
           cp .env ../.env
 
-
       - name: Building & pushing merge integration erp image
         run: |
           #----------------------------------------------------------------------------
@@ -108,7 +118,6 @@ jobs:
       - name: Deploying to production
         if: ${{ env.env == 'prod' }}
         run: |
-
           aws configure set region ${{ vars.REGION }}
           AWS_ACCESS_KEYID=$(aws secretsmanager get-secret-value --secret-id kloo_environment_variable_prod | jq --raw-output '.SecretString' | jq -r .\"KLOO_PROD_AWS_ACCESS_KEYID\")
           echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEYID" >> .env
