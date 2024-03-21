@@ -57,7 +57,7 @@ jobs:
             echo "app_secret_manager=demo_merge_integration" >> $GITHUB_ENV
             UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/demo/')
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
-            echo "cluster_name=kloo-demo-cluster" >> $GITHUB_ENV
+            echo "cluster_name=kloo-Demo-cluster" >> $GITHUB_ENV
             echo "rds_host=mysql-kloo-demo.internal-service-kloo.com" >> $GITHUB_ENV
 
           else
