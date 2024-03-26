@@ -31,7 +31,7 @@ class MergeAccounts(APIView):
             return None
 
         account_token = self.link_token_details
-        api_log(f"ACCOUNTS GET:: The account token is : {account_token}")
+        api_log(msg=f"ACCOUNTS GET:: The account token is : {account_token}")
         merge_client = create_merge_client(account_token)
 
         try:
@@ -42,7 +42,7 @@ class MergeAccounts(APIView):
                 page_size=100000,
                 include_remote_data=True,
             )
-            api_log(f"Data coming from MERGE API is : {accounts_data}")
+            api_log(msg=f"Data coming from MERGE API is : {accounts_data}")
             return accounts_data
 
         except Exception as e:
