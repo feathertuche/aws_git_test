@@ -1,7 +1,10 @@
 from django.urls import path
-from .views import MergeInvoices, MergeInvoiceCreate
+
+from .views import InvoiceCreate, MergeInvoiceCreate
 
 urlpatterns = [
-    path("invoicesList/", MergeInvoices.as_view(), name="invoicesList"),
-    path("invoicesCreate/", MergeInvoiceCreate.as_view(), name="invoicesCreate"),
+    path("invoicesCreate/", InvoiceCreate.as_view(), name="invoicesCreate"),
+    path(
+        "invoicesMergeCreate/", MergeInvoiceCreate.as_view(), name="invoicesMergeCreate"
+    ),
 ]

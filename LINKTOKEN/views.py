@@ -16,6 +16,7 @@ from rest_framework.views import APIView
 from ACCOUNTS.views import InsertAccountData
 from COMPANY_INFO.views import MergeKlooCompanyInsert
 from CONTACTS.views import MergePostContacts
+from INVOICES.views import MergeInvoiceCreate
 from SYNC.helper_function import (
     log_sync_status,
 )
@@ -49,8 +50,6 @@ class LinkToken(APIView):
                 "link_token": first_token.link_token,
                 "magic_link_url": first_token.magic_link_url,
                 "integration_name": first_token.integration_name,
-                # "time_difference": difference_in_minutes,
-                # "current_time": current_time,
                 "timestamp": timestamp,
                 "is_available": 1,
             }
@@ -86,7 +85,6 @@ class LinkToken(APIView):
         else:
             try:
                 end_usr_origin_id = uuid.uuid1()
-                # new_insert = post_data(request)
                 api_key = os.environ.get("API_KEY")
                 merge_client = create_merge_client(api_key)
                 link_token_response = merge_client.ats.link_token.create(
@@ -141,18 +139,19 @@ class LinkToken(APIView):
 
 @csrf_exempt
 def webhook_handler(request):
-    api_log(msg="....... WEB HOOK bloc started .......")
-    api_log(msg="webhook  begin")
-
+    api_log(msg="WEBHOOK: webhook_handler begin")
     try:
         payload = json.loads(request.body)
-        api_log(msg=f"intial sync webhook details {payload}  begin")
+        api_log(msg=f"WEBHOOK: Payload {payload}")
         linked_account_data = payload.get("linked_account", {})
         account_token = payload.get("data")
         payload_account_tokens = payload.get("linked_account", None)
         if payload_account_tokens is not None:
             if "sync_status" in account_token:
-                api_log(msg="sync webhook  begin")
+                api_log(
+                    msg=f"WEBHOOK: Sync Status for {account_token.get('account_token')}"
+                    f" for module {account_token.get('data').get('sync_status').get('model_name')}"
+                )
                 sync_status_data = account_token.get("sync_status")
                 if sync_status_data is not None:
                     linked_account_model_data = payload.get("linked_account", {})
@@ -170,7 +169,7 @@ def webhook_handler(request):
                     response_data = get_erplog_link_module_name(
                         link_token_id_model, get_label_name
                     )
-                    api_log(msg=f"<--------response_data object {response_data} start")
+                    api_log(msg=f"WEBHOOK : response_data object {response_data} start")
                     if response_data.sync_status == "in progress":
                         try:
                             api_log(
@@ -210,6 +209,10 @@ def webhook_handler(request):
                                 ),
                                 "Contact": (
                                     MergePostContacts,
+                                    {"link_token_details": erp_data.account_token},
+                                ),
+                                "Invoice": (
+                                    MergeInvoiceCreate,
                                     {"link_token_details": erp_data.account_token},
                                 ),
                                 "TaxRate": (
@@ -258,6 +261,9 @@ def webhook_handler(request):
                     return JsonResponse(error_json, status=500, safe=False)
 
             else:
+                api_log(
+                    msg=f"WEBHOOK: Initial Sync for {account_token.get('account_token')}"
+                )
                 try:
                     ErpLinkToken.objects.filter(
                         id=linked_account_data.get("end_user_origin_id")
@@ -284,19 +290,14 @@ def webhook_handler(request):
                         "COMPANY INFO",
                         "ACCOUNTS",
                         "CONTACTS",
+                        "INVOICES",
                     ]
-                    api_log(
-                        msg=f"ERPpppppppinsert sync log table for in progress: {payload_account_tokens} in progress"
-                    )
                     erp_link_token_id = payload_account_tokens.get("end_user_origin_id")
-                    api_log(
-                        msg=f"attt in progreess sync log table for in progress: {erp_link_token_id} in progress"
-                    )
                     erp_data = ErpLinkToken.objects.filter(id=erp_link_token_id).first()
 
                     for module in modules:
                         api_log(
-                            msg=f"insert sync log table for in progress: {module} in progress"
+                            msg=f"WEBHOOK: Insert sync log table for in progress: {module} in progress"
                         )
                         log_sync_status(
                             sync_status="in progress",
@@ -307,6 +308,8 @@ def webhook_handler(request):
                             account_token=erp_data.account_token,
                         )
 
+                    api_log(msg="WEBHOOK: Initial Sync completed successfully")
+
                     return JsonResponse(payload, status=200)
 
                 except ObjectDoesNotExist:
@@ -314,7 +317,7 @@ def webhook_handler(request):
                     return JsonResponse({"error": "Record not found"}, status=404)
     except Exception as e:
         error_message = f"An error occurred while calling API : {str(e)}"
-        api_log(msg=f"exception error  end {error_message}")
+        api_log(msg=f"WEBHOOK: exception error  end {error_message}")
         error_message = "Error processing webhook"
         error_data = {"error": error_message}
         error_json = json.dumps(error_data)
@@ -333,4 +336,6 @@ def webhook_sync_modul_filter(module_name_merge):
         label_name = "ACCOUNTS"
     if module_name_merge == "Contact":
         label_name = "CONTACTS"
+    if module_name_merge == "Invoice":
+        label_name = "INVOICES"
     return label_name
