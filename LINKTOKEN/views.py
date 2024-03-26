@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from threading import Thread
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import JsonResponse, HttpRequest
+from django.http import HttpRequest
 from django.views.decorators.csrf import csrf_exempt
 from merge.resources.accounting import CategoriesEnum
 from rest_framework import status
@@ -141,18 +141,19 @@ class LinkToken(APIView):
 
 @csrf_exempt
 def webhook_handler(request):
-    api_log(msg="....... WEB HOOK bloc started .......")
-    api_log(msg="webhook  begin")
-
+    api_log(msg="WEBHOOK: Webhook received")
     try:
         payload = json.loads(request.body)
-        api_log(msg=f"intial sync webhook details {payload}  begin")
+        api_log(msg=f"WEBHOOK: Payload {payload}")
         linked_account_data = payload.get("linked_account", {})
         account_token = payload.get("data")
         payload_account_tokens = payload.get("linked_account", None)
         if payload_account_tokens is not None:
             if "sync_status" in account_token:
-                api_log(msg="sync webhook  begin")
+                api_log(
+                    msg=f"WEBHOOK: Sync data received for account token {account_token.get('account_token')} "
+                    f"for module {payload.get('data').get('sync_status').get('model_name')}"
+                )
                 sync_status_data = account_token.get("sync_status")
                 if sync_status_data is not None:
                     linked_account_model_data = payload.get("linked_account", {})
@@ -163,18 +164,17 @@ def webhook_handler(request):
                         "end_user_origin_id"
                     )
                     module_name_merge = sync_status_model_data.get("model_name")
-                    status = sync_status_data.get("status")
                     merge_status = sync_status_model_data.get("status")
                     sync_type = "sync"
                     get_label_name = webhook_sync_modul_filter(module_name_merge)
                     response_data = get_erplog_link_module_name(
                         link_token_id_model, get_label_name
                     )
-                    api_log(msg=f"<--------response_data object {response_data} start")
+                    api_log(msg=f"WEBHOOK: response_data object {response_data} start")
                     if response_data.sync_status == "in progress":
                         try:
                             api_log(
-                                msg=f"SYNC: Merge sync insert {link_token_id_model} object  start"
+                                msg=f"WEBHOOK: Merge sync insert {link_token_id_model} object  start"
                             )
                             MergeSyncLog.objects.get_or_create(
                                 link_token_id=link_token_id_model,
@@ -190,7 +190,6 @@ def webhook_handler(request):
                                     ),
                                 },
                             )
-                            api_log(msg="erplinktoken object  start")
 
                             erp_data = ErpLinkToken.objects.filter(
                                 id=link_token_id_model
@@ -217,9 +216,6 @@ def webhook_handler(request):
                                     {"link_token_details": erp_data.account_token},
                                 ),
                             }
-
-                            api_log(msg="dictionary  start")
-
                             custom_request = HttpRequest()
                             custom_request.method = "POST"
                             custom_request.data = {
@@ -227,7 +223,7 @@ def webhook_handler(request):
                                 "org_id": erp_data.org_id,
                             }
 
-                            api_log(msg="thread  start")
+                            api_log(msg="WEBHOOK: Thread started")
 
                             thread = Thread(
                                 target=sync_modules_status,
@@ -241,23 +237,20 @@ def webhook_handler(request):
                             )
 
                             thread.start()
-                            success_message = "thread started successfully"
-                            success_data = {"success": success_message}
-                            success_json = json.dumps(success_data)
-                            api_log(msg="thread  end")
-                            return JsonResponse(success_json, status=status.HTTP_200_OK)
+                            api_log(msg="WEBHOOK: Thread started successfully")
                         except Exception as e:
                             print(
                                 f"Error occurred while saving MergeSyncLog instance: {e}"
                             )
                 else:
-                    api_log(msg="exception on thread")
-                    error_message = "exception on thread"
-                    error_data = {"error": error_message}
-                    error_json = json.dumps(error_data)
-                    return JsonResponse(error_json, status=500, safe=False)
+                    api_log(
+                        msg=f"WEBHOOK: No Sync data received for account token {account_token.get('account_token')}"
+                    )
 
             else:
+                api_log(
+                    msg=f"WEBHOOK: Initial data received for account token {account_token.get('account_token')}"
+                )
                 try:
                     ErpLinkToken.objects.filter(
                         id=linked_account_data.get("end_user_origin_id")
@@ -285,18 +278,15 @@ def webhook_handler(request):
                         "ACCOUNTS",
                         "CONTACTS",
                     ]
-                    api_log(
-                        msg=f"ERPpppppppinsert sync log table for in progress: {payload_account_tokens} in progress"
-                    )
                     erp_link_token_id = payload_account_tokens.get("end_user_origin_id")
-                    api_log(
-                        msg=f"attt in progreess sync log table for in progress: {erp_link_token_id} in progress"
-                    )
                     erp_data = ErpLinkToken.objects.filter(id=erp_link_token_id).first()
 
+                    api_log(
+                        msg=f"WEBHOOK: Inserting sync log table for in progress for erp_data {erp_data}"
+                    )
                     for module in modules:
                         api_log(
-                            msg=f"insert sync log table for in progress: {module} in progress"
+                            msg=f"WEBHOOK: insert sync log table for in progress: {module} in progress"
                         )
                         log_sync_status(
                             sync_status="in progress",
@@ -307,18 +297,13 @@ def webhook_handler(request):
                             account_token=erp_data.account_token,
                         )
 
-                    return JsonResponse(payload, status=200)
+                    api_log(msg="WEBHOOK: Sync log table inserted successfully")
 
                 except ObjectDoesNotExist:
                     # Handle the case where the record does not exist
-                    return JsonResponse({"error": "Record not found"}, status=404)
+                    api_log(msg="WEBHOOK: Object does not exist")
     except Exception as e:
-        error_message = f"An error occurred while calling API : {str(e)}"
-        api_log(msg=f"exception error  end {error_message}")
-        error_message = "Error processing webhook"
-        error_data = {"error": error_message}
-        error_json = json.dumps(error_data)
-        return JsonResponse(error_json, status=500, safe=False)
+        api_log(msg=f"WEBHOOK: Exception occurred: {str(e)}")
 
 
 def webhook_sync_modul_filter(module_name_merge):
