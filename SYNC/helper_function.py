@@ -98,7 +98,7 @@ def start_failed_sync_process(request, erp_link_token_id, org_id, account_token)
         }
 
         link_token_details = api_views["ACCOUNTS"][1]["link_token_details"]
-        api_log(f"SYNC HELPER4: LINK OTKN DETAILS OF ACCOUNTS: {link_token_details}")
+        api_log(msg=f"SYNC HELPER4: LINK OTKN DETAILS OF ACCOUNTS: {link_token_details}")
         # if logs are present check if any module is failed
         post_api_views = []
         if response_data:
@@ -168,7 +168,7 @@ def start_new_sync_process(request, erp_link_token_id, org_id, account_token):
             ),
         }
         link_token_details = api_views["ACCOUNTS"][1]["link_token_details"]
-        api_log(f"SYNC HELPER(start_new_sync_process): LINK TOKEN DETAILS OF ACCOUNTS: {link_token_details}")
+        api_log(msg=f"SYNC HELPER(start_new_sync_process): LINK TOKEN DETAILS OF ACCOUNTS: {link_token_details}")
 
         modules_copy = modules.copy()
 
