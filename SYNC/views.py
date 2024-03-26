@@ -24,6 +24,7 @@ class ProxySyncAPI(CreateAPIView):
         link_token_details = get_link_token(
             serializer.validated_data["erp_link_token_id"]
         )
+        api_log(msg=f"SYNC VIEW: The account token is {link_token_details}")
         if link_token_details is None:
             response_data = {"message": "No link token found"}
             return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
@@ -42,7 +43,7 @@ class ProxySyncAPI(CreateAPIView):
 
         # check the status of the modules in merge
         account_token = link_token_details
-
+        api_log(msg=f"SYNC view2: this is again account_token{account_token}")
         if response_data:
             for log in response_data:
                 if log["sync_status"] == "failed":

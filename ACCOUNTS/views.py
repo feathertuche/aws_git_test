@@ -31,6 +31,7 @@ class MergeAccounts(APIView):
             return None
 
         account_token = self.link_token_details
+        api_log(f"ACCOUNTS GET:: The account token is : {account_token}")
         merge_client = create_merge_client(account_token)
 
         try:
@@ -41,6 +42,7 @@ class MergeAccounts(APIView):
                 page_size=100000,
                 include_remote_data=True,
             )
+            api_log(f"Data coming from MERGE API is : {accounts_data}")
             return accounts_data
 
         except Exception as e:
@@ -108,6 +110,7 @@ class InsertAccountData(APIView):
         org_id = request.data.get("org_id")
 
         fetch_account_data = MergeAccounts(link_token_details=self.link_token_details)
+        api_log(msg=f"ACCOUNTS POST: TOKEN is : {fetch_account_data}")
         request_account_data = fetch_account_data.get(request=request)
 
         try:
