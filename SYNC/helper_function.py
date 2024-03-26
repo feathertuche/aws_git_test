@@ -21,7 +21,7 @@ def start_failed_sync_process(request, erp_link_token_id, org_id, account_token)
     Starts the sync process.
     """
 
-    api_log(msg=f"SYNC : Starting the sync process account_token {account_token}")
+    api_log(msg=f"SYNC helper1 : Starting the sync process account_token {account_token}")
 
     try:
         while True:
@@ -40,6 +40,7 @@ def start_failed_sync_process(request, erp_link_token_id, org_id, account_token)
 
             # Check if all modules are done syncing
             sync_status_result = sync_status_response["data"].results
+            api_log(msg=f"SYNC HELPER 2: This is sync status result: {sync_status_result}")
             modules = [
                 "TrackingCategory",
                 "CompanyInfo",
@@ -48,7 +49,7 @@ def start_failed_sync_process(request, erp_link_token_id, org_id, account_token)
                 "TaxRate",
             ]
             sync_module_status = []
-            api_log(msg=f"SYNC :sync_module_status {sync_module_status}")
+            api_log(msg=f"SYNC HELPER 2: These are the modules: {modules}")
             for module in modules:
                 for sync_filter_array in sync_status_result:
                     if sync_filter_array.model_name == module:
@@ -96,6 +97,8 @@ def start_failed_sync_process(request, erp_link_token_id, org_id, account_token)
             ),
         }
 
+        link_token_details = api_views["ACCOUNTS"][1]["link_token_details"]
+        api_log(f"SYNC HELPER4: LINK OTKN DETAILS OF ACCOUNTS: {link_token_details}")
         # if logs are present check if any module is failed
         post_api_views = []
         if response_data:
@@ -123,7 +126,7 @@ def start_failed_sync_process(request, erp_link_token_id, org_id, account_token)
         )
 
         # Return the combined response and response_data dictionary
-        api_log(msg="SYNC : All modules are successfull")
+        api_log(msg=f"SYNC : All modules are successful AND following sync module status: {sync_modules_status}")
     except Exception:
         api_log(msg="SYNC : Exception for model")
         return
@@ -164,6 +167,8 @@ def start_new_sync_process(request, erp_link_token_id, org_id, account_token):
                 {"link_token_details": account_token},
             ),
         }
+        link_token_details = api_views["ACCOUNTS"][1]["link_token_details"]
+        api_log(f"SYNC HELPER(start_new_sync_process): LINK TOKEN DETAILS OF ACCOUNTS: {link_token_details}")
 
         modules_copy = modules.copy()
 
