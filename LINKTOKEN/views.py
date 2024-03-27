@@ -227,17 +227,15 @@ def webhook_handler(request):
 
                             api_log(msg="WEBHOOK: Thread started")
                             integration_name = account_token["data"]["integration_name"]
-                            sync_status_model_name = account_token["data"]["sync_status"]["model_name"]
-                            if integration_name == "Sage Intacct" and sync_status_model_name == "Invoice":
-                                api_views["Contact"] = (
-                                    MergePostContacts,
-                                    {"link_token_details": erp_data.account_token},
-                                )
-                                api_views["TrackingCategory"] = (
-                                    MergePostTrackingCategories,
-                                    {"link_token_details": erp_data.account_token},
-                                )
+                            api_log(msg=f"WEBHOOK:: {integration_name}")
 
+                            sync_module_list = []
+
+                            if integration_name == "Sage Intacct" and module_name_merge == "Invoice":
+                                sync_module_list.append(api_views["Contact"])
+                                sync_module_list.append(api_views["TrackingCategory"])
+                            sync_module_list.append(api_views[module_name_merge])
+                            api_log(msg=f"WEBHOOK:: Total module syncing: {sync_module_list}")
                             thread = Thread(
                                 target=sync_modules_status,
                                 args=(
@@ -245,7 +243,7 @@ def webhook_handler(request):
                                     erp_data.org_id,
                                     erp_data.id,
                                     erp_data.account_token,
-                                    [api_views[module_name_merge]],
+                                    sync_module_list,
                                 ),
                             )
 
