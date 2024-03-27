@@ -305,6 +305,8 @@ def webhook_handler(request):
     except Exception as e:
         api_log(msg=f"WEBHOOK: Exception occurred: {str(e)}")
 
+    return Response({"status": "WEBHOOK: success"}, status=status.HTTP_200_OK)
+
 
 def webhook_sync_modul_filter(module_name_merge):
     label_name = None
