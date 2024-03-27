@@ -14,9 +14,13 @@ from services.merge_service import MergeInvoiceApiService
 
 
 class InvoiceCreate(APIView):
-    def __init__(self, *args, link_token_details=None, **kwargs):
+    """
+    API to create invoices in the Merge system.
+    """
+
+    def __init__(self, link_token_details=None):
         super().__init__()
-        self.erp_link_token_id = None
+        self.erp_link_token_id = link_token_details
 
     def get_queryset(self):
         filter_token = ErpLinkToken.objects.filter(id=self.erp_link_token_id)
@@ -24,7 +28,7 @@ class InvoiceCreate(APIView):
 
         return lnk_token
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         api_log(msg="Processing GET request in MergeInvoice...")
         data = request.data
 
@@ -150,11 +154,11 @@ class MergeInvoiceCreate(APIView):
     API to create invoices in the kloo Invoices system.
     """
 
-    def __init__(self, *args, link_token_details=None, **kwargs):
+    def __init__(self, link_token_details=None):
         super().__init__()
         self.link_token_details = link_token_details
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         """
         Handles POST requests to insert data to the kloo Invoices system.
 
@@ -180,15 +184,13 @@ class MergeInvoiceCreate(APIView):
                 )
 
                 # save the data to the database
-                api_log(msg="CRON-INVOICE : Invoices saving to database")
+                api_log(msg="Invoices saving to database")
 
                 kloo_service = KlooService(
                     auth_token=None,
                     erp_link_token_id=erp_link_token_id,
                 )
                 invoice_kloo_response = kloo_service.post_invoice_data(invoices_json)
-
-                api_log(msg="CRON-INVOICE : Invoices posted to Kloo")
 
                 if invoice_kloo_response["status_code"] == status.HTTP_201_CREATED:
                     api_log(msg="data inserted successfully in the kloo Invoice system")

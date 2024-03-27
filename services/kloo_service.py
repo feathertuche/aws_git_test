@@ -5,7 +5,7 @@ Kloo Service class to connect with kloo API
 import requests
 
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_BASE_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL
 
 
 class KlooException(Exception):
@@ -24,7 +24,7 @@ class KlooService:
     def __init__(self, auth_token: str = None, erp_link_token_id: str = None):
         self.auth_token = auth_token
         self.erp_link_token_id = str(erp_link_token_id)
-        self.KLOO_URL = GETKLOO_BASE_URL
+        self.KLOO_URL = GETKLOO_LOCAL_URL
 
     def handle_kloo_api_error(
         self, function: str, exception: KlooException | Exception
