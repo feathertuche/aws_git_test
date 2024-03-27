@@ -17,7 +17,7 @@ from merge_integration.utils import create_merge_client
 class MergeAccounts(APIView):
     def __init__(self, link_token_details=None):
         super().__init__()
-        self.link_token_details = "paFUbgin4iuuKgntndUDsvXmohXLtbV3bdYrDRXjDCZ1vPz4Zn4dug"
+        self.link_token_details = link_token_details
 
     def account_source_data(self):
         if self.link_token_details is None:
