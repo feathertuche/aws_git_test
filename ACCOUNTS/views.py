@@ -17,7 +17,7 @@ from merge_integration.utils import create_merge_client
 class MergeAccounts(APIView):
     def __init__(self, link_token_details=None):
         super().__init__()
-        self.link_token_details = link_token_details
+        self.link_token_details = "paFUbgin4iuuKgntndUDsvXmohXLtbV3bdYrDRXjDCZ1vPz4Zn4dug"
 
     def account_source_data(self):
         if self.link_token_details is None:
@@ -78,8 +78,8 @@ class MergeAccounts(APIView):
                 "parent_account": account.parent_account,
                 "company": account.company,
                 "remote_was_deleted": account.remote_was_deleted,
-                "created_at": account.created_at.isoformat() + "Z",
-                "modified_at": account.modified_at.isoformat() + "Z",
+                "created_at": account.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                "modified_at": account.modified_at.strftime('%Y-%m-%d %H:%M:%S'),
                 "field_mappings": field_list,
                 "remote_data": erp_remote_data,
             }
