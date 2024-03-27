@@ -36,7 +36,6 @@ class MergeAccounts(APIView):
 
         try:
             accounts_data = merge_client.accounting.accounts.list(
-                expand="company",
                 remote_fields=AccountsListRequestRemoteFields.CLASSIFICATION,
                 show_enum_origins=AccountsListRequestShowEnumOrigins.CLASSIFICATION,
                 page_size=100000,
