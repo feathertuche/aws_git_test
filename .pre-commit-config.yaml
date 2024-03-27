@@ -1,4 +1,4 @@
-exclude: .*migrations\/.*, requirements.txt
+exclude: .*migrations\/.* | requirements.txt
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
