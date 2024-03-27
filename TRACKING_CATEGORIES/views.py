@@ -40,7 +40,6 @@ class MergeTrackingCategoriesList(APIView):
 
         try:
             organization_data = tc_client.accounting.tracking_categories.list(
-                expand="company",
                 remote_fields="status",
                 show_enum_origins="status",
                 page_size=100000,
