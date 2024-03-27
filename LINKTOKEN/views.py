@@ -16,6 +16,7 @@ from rest_framework.views import APIView
 from ACCOUNTS.views import InsertAccountData
 from COMPANY_INFO.views import MergeKlooCompanyInsert
 from CONTACTS.views import MergePostContacts
+from INVOICES.views import MergeInvoiceCreate
 from SYNC.helper_function import (
     log_sync_status,
 )
@@ -49,8 +50,6 @@ class LinkToken(APIView):
                 "link_token": first_token.link_token,
                 "magic_link_url": first_token.magic_link_url,
                 "integration_name": first_token.integration_name,
-                # "time_difference": difference_in_minutes,
-                # "current_time": current_time,
                 "timestamp": timestamp,
                 "is_available": 1,
             }
@@ -86,7 +85,6 @@ class LinkToken(APIView):
         else:
             try:
                 end_usr_origin_id = uuid.uuid1()
-                # new_insert = post_data(request)
                 api_key = os.environ.get("API_KEY")
                 merge_client = create_merge_client(api_key)
                 link_token_response = merge_client.ats.link_token.create(
@@ -211,6 +209,10 @@ def webhook_handler(request):
                                     MergePostContacts,
                                     {"link_token_details": erp_data.account_token},
                                 ),
+                                "Invoice": (
+                                    MergeInvoiceCreate,
+                                    {"link_token_details": erp_data.account_token},
+                                ),
                                 "TaxRate": (
                                     MergePostTaxRates,
                                     {"link_token_details": erp_data.account_token},
@@ -277,6 +279,7 @@ def webhook_handler(request):
                         "COMPANY INFO",
                         "ACCOUNTS",
                         "CONTACTS",
+                        "INVOICES",
                     ]
                     erp_link_token_id = payload_account_tokens.get("end_user_origin_id")
                     erp_data = ErpLinkToken.objects.filter(id=erp_link_token_id).first()
@@ -305,7 +308,7 @@ def webhook_handler(request):
     except Exception as e:
         api_log(msg=f"WEBHOOK: Exception occurred: {str(e)}")
 
-    return Response({"status": "WEBHOOK: success"}, status=status.HTTP_200_OK)
+    return Response({"status": "WEBHOOK: ended"}, status=status.HTTP_200_OK)
 
 
 def webhook_sync_modul_filter(module_name_merge):
@@ -320,4 +323,6 @@ def webhook_sync_modul_filter(module_name_merge):
         label_name = "ACCOUNTS"
     if module_name_merge == "Contact":
         label_name = "CONTACTS"
+    if module_name_merge == "Invoice":
+        label_name = "INVOICES"
     return label_name

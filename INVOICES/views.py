@@ -1,71 +1,26 @@
-import traceback
-
-from merge.client import Merge
 from merge.resources.accounting import (
-    InvoicesListRequestExpand,
-    InvoicesListRequestType,
     InvoiceLineItemRequest,
 )
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from INVOICES.helper_functions import format_merge_invoice_data
 from INVOICES.serializers import InvoiceCreateSerializer
-from INVOICES.services import MergeInvoiceApiService
 from LINKTOKEN.model import ErpLinkToken
-from merge_integration import settings
 from merge_integration.helper_functions import api_log
+from services.kloo_service import KlooService
+from services.merge_service import MergeInvoiceApiService
 
 
-class MergeInvoices(APIView):
-    @staticmethod
-    def get(_):
-        api_log(msg="Processing GET request in Invoices...")
-        merge_client = Merge(
-            base_url=settings.BASE_URL,
-            account_token=settings.ACCOUNT_TOKEN,
-            api_key=settings.API_KEY,
-        )
-        try:
-            invoice_data = merge_client.accounting.invoices.list(
-                expand=InvoicesListRequestExpand.ACCOUNTING_PERIOD,
-                remote_fields="type",
-                show_enum_origins="type",
-                type=InvoicesListRequestType.ACCOUNTS_PAYABLE,
-                page_size=100000,
-            )
-        except Exception as e:
-            api_log(
-                msg=f"Error retrieving invoices details: {str(e)} - Status Code: {status.HTTP_500_INTERNAL_SERVER_ERROR}: {traceback.format_exc()}"
-            )
-            return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+class InvoiceCreate(APIView):
+    """
+    API to create invoices in the Merge system.
+    """
 
-        formatted_data = []
-        for account in invoice_data.results:
-            formatted_entry = {
-                "id": account.id,
-                "remote_id": account.remote_id,
-                "name": account.name,
-                "description": account.description,
-                "classification": account.classification,
-                "type": account.type,
-                "status": account.status,
-                "account_number": account.account_number,
-            }
-            formatted_data.append(formatted_entry)
-
-        api_log(
-            msg=f"FORMATTED DATA: {formatted_data} - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
-        )
-        return Response(formatted_data, status=status.HTTP_200_OK)
-
-
-class MergeInvoiceCreate(APIView):
-    def __init__(self, *args, link_token_details=None, **kwargs):
+    def __init__(self, link_token_details=None):
         super().__init__()
-        self.erp_link_token_id = None
+        self.erp_link_token_id = link_token_details
 
     def get_queryset(self):
         filter_token = ErpLinkToken.objects.filter(id=self.erp_link_token_id)
@@ -73,7 +28,7 @@ class MergeInvoiceCreate(APIView):
 
         return lnk_token
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         api_log(msg="Processing GET request in MergeInvoice...")
         data = request.data
 
@@ -192,3 +147,68 @@ class MergeInvoiceCreate(APIView):
             return Response(
                 {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class MergeInvoiceCreate(APIView):
+    """
+    API to create invoices in the kloo Invoices system.
+    """
+
+    def __init__(self, link_token_details=None):
+        super().__init__()
+        self.link_token_details = link_token_details
+
+    def post(self, request):
+        """
+        Handles POST requests to insert data to the kloo Invoices system.
+
+        Returns:
+            Response indicating success or failure of data insertion.
+        """
+
+        erp_link_token_id = request.data.get("erp_link_token_id")
+        org_id = request.data.get("org_id")
+
+        merge_invoice_api_service = MergeInvoiceApiService(self.link_token_details)
+        invoice_response = merge_invoice_api_service.get_invoices()
+
+        try:
+            if invoice_response["status"]:
+                api_log(
+                    msg=f"INVOICE : Processing {len(invoice_response['data'].results)} invoices"
+                )
+
+                # format the data to be posted to kloo
+                invoices_json = format_merge_invoice_data(
+                    invoice_response, erp_link_token_id, org_id
+                )
+
+                # save the data to the database
+                api_log(msg="Invoices saving to database")
+
+                kloo_service = KlooService(
+                    auth_token=None,
+                    erp_link_token_id=erp_link_token_id,
+                )
+                invoice_kloo_response = kloo_service.post_invoice_data(invoices_json)
+
+                if invoice_kloo_response["status_code"] == status.HTTP_201_CREATED:
+                    api_log(msg="data inserted successfully in the kloo Invoice system")
+                    return Response(
+                        "data inserted successfully in the kloo Invoice system"
+                    )
+
+                else:
+                    return Response(
+                        {"error": "Failed to send data to Kloo Contacts API"},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    )
+
+        except Exception as e:
+            error_message = f"Failed to send data to Kloo Invoice API. Error: {str(e)}"
+            return Response(
+                {"error": error_message},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response("Failed to insert data to the kloo Invoice system")
