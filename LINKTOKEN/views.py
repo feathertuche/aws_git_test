@@ -128,7 +128,7 @@ class WebHook(APIView):
                         msg=f"WEBHOOK: Sync data received for account token {account_token_data.get('account_token')} "
                         f"for module {payload.get('data').get('sync_status').get('model_name')}"
                     )
-                    handle_webhook_sync_modules(payload, account_token_data)
+                    handle_webhook_sync_modules(linked_account_data, account_token_data)
                 else:
                     api_log(
                         msg=f"WEBHOOK: Initial data received for account token"

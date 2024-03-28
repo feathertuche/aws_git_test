@@ -125,109 +125,6 @@ def handle_webhook_link_account(linked_account_data: dict, account_token_data: d
         api_log(msg=f"WEBHOOK: Exception occurred: in handle_webhook_link_account {e}")
 
 
-def handle_webhook_sync_modules(payload: dict, account_token_data: dict):
-    """
-    Function to handle the webhook data for the sync modules
-    """
-    try:
-        sync_status_data = account_token_data.get("sync_status")
-        if sync_status_data is not None:
-            linked_account_model_data = payload.get("linked_account", {})
-            sync_status_model_data = payload.get("data", {}).get("sync_status", {})
-            link_token_id_model = linked_account_model_data.get("end_user_origin_id")
-            module_name_merge = sync_status_model_data.get("model_name")
-            merge_status = sync_status_model_data.get("status")
-            sync_type = "sync"
-            get_label_name = webhook_sync_modul_filter(module_name_merge)
-            response_data = get_erplog_link_module_name(
-                link_token_id_model, get_label_name
-            )
-            api_log(msg=f"WEBHOOK: response_data object {response_data} start")
-            if response_data.sync_status == "in progress":
-                api_log(
-                    msg=f"WEBHOOK: Merge sync insert {link_token_id_model} object  start"
-                )
-                MergeSyncLog.objects.get_or_create(
-                    link_token_id=link_token_id_model,
-                    defaults={
-                        "id": uuid.uuid1(),
-                        "module_name": module_name_merge,
-                        "link_token_id": link_token_id_model,
-                        "end_user_origin_id": link_token_id_model,
-                        "status": merge_status,
-                        "sync_type": sync_type,
-                        "account_type": linked_account_model_data.get("account_type"),
-                    },
-                )
-
-                erp_data = ErpLinkToken.objects.filter(id=link_token_id_model).first()
-                api_views = {
-                    "TrackingCategory": (
-                        MergePostTrackingCategories,
-                        {"link_token_details": erp_data.account_token},
-                    ),
-                    "CompanyInfo": (
-                        MergeKlooCompanyInsert,
-                        {"link_token_details": erp_data.account_token},
-                    ),
-                    "Account": (
-                        InsertAccountData,
-                        {"link_token_details": erp_data.account_token},
-                    ),
-                    "Contact": (
-                        MergePostContacts,
-                        {"link_token_details": erp_data.account_token},
-                    ),
-                    "Invoice": (
-                        MergeInvoiceCreate,
-                        {"link_token_details": erp_data.account_token},
-                    ),
-                    "TaxRate": (
-                        MergePostTaxRates,
-                        {"link_token_details": erp_data.account_token},
-                    ),
-                }
-                custom_request = HttpRequest()
-                custom_request.method = "POST"
-                custom_request.data = {
-                    "erp_link_token_id": erp_data.id,
-                    "org_id": erp_data.org_id,
-                }
-
-                api_log(msg="WEBHOOK: Thread started")
-                integration_name = account_token_data["integration_name"]
-
-                sync_module_list = []
-                if (
-                    integration_name == "Sage Intacct"
-                    and module_name_merge == "Invoice"
-                ):
-                    sync_module_list.append(api_views["Contact"])
-                    sync_module_list.append(api_views["TrackingCategory"])
-                sync_module_list.append(api_views[module_name_merge])
-                api_log(msg=f"WEBHOOK:: Total module syncing: {sync_module_list}")
-                thread = Thread(
-                    target=sync_modules_status,
-                    args=(
-                        custom_request,
-                        erp_data.org_id,
-                        erp_data.id,
-                        erp_data.account_token,
-                        sync_module_list,
-                    ),
-                )
-
-                thread.start()
-                api_log(msg="WEBHOOK: Thread started successfully")
-        else:
-            api_log(
-                msg=f"WEBHOOK: No Sync data received for account token {account_token_data.get('account_token')}"
-            )
-
-    except Exception as e:
-        api_log(msg=f"WEBHOOK: Exception occurred: in handle_webhook_sync_modules {e}")
-
-
 def webhook_sync_modul_filter(module_name_merge):
     label_name = None
     if module_name_merge == "TaxRate":
@@ -243,3 +140,114 @@ def webhook_sync_modul_filter(module_name_merge):
     if module_name_merge == "Invoice":
         label_name = "INVOICES"
     return label_name
+
+
+def handle_webhook_sync_modules(linked_account_data: dict, account_token_data: dict):
+    """
+    Function to handle the webhook data for the sync modules
+    """
+    try:
+        sync_status_data = account_token_data.get("sync_status")
+        if sync_status_data is not None:
+            get_label_name = webhook_sync_modul_filter(
+                sync_status_data.get("model_name")
+            )
+            response_data = get_erplog_link_module_name(
+                linked_account_data.get("end_user_origin_id"), get_label_name
+            )
+            api_log(msg=f"WEBHOOK: response_data object {response_data} start")
+
+            # store the initial sync data
+            if response_data.sync_status == "in progress":
+                store_initial_sync(linked_account_data, account_token_data)
+
+        else:
+            api_log(
+                msg=f"WEBHOOK: No Sync data received for account token {account_token_data.get('account_token')}"
+            )
+
+    except Exception as e:
+        api_log(msg=f"WEBHOOK: Exception occurred: in handle_webhook_sync_modules {e}")
+
+
+def store_initial_sync(linked_account_data: dict, account_token_data: dict):
+    """
+    Function to store the initial sync data
+    """
+    try:
+        erp_link_token_id = linked_account_data.get("end_user_origin_id")
+        sync_status_data = account_token_data.get("sync_status")
+        merge_module_name = sync_status_data.get("model_name")
+
+        api_log(msg=f"WEBHOOK: Merge sync insert {erp_link_token_id} object  start")
+        MergeSyncLog.objects.get_or_create(
+            link_token_id=erp_link_token_id,
+            defaults={
+                "id": uuid.uuid1(),
+                "module_name": merge_module_name,
+                "link_token_id": erp_link_token_id,
+                "end_user_origin_id": erp_link_token_id,
+                "status": sync_status_data.get("status"),
+                "sync_type": "sync",
+                "account_type": linked_account_data.get("account_type"),
+            },
+        )
+
+        erp_data = ErpLinkToken.objects.filter(id=erp_link_token_id).first()
+        api_views = {
+            "TrackingCategory": (
+                MergePostTrackingCategories,
+                {"link_token_details": erp_data.account_token},
+            ),
+            "CompanyInfo": (
+                MergeKlooCompanyInsert,
+                {"link_token_details": erp_data.account_token},
+            ),
+            "Account": (
+                InsertAccountData,
+                {"link_token_details": erp_data.account_token},
+            ),
+            "Contact": (
+                MergePostContacts,
+                {"link_token_details": erp_data.account_token},
+            ),
+            "Invoice": (
+                MergeInvoiceCreate,
+                {"link_token_details": erp_data.account_token},
+            ),
+            "TaxRate": (
+                MergePostTaxRates,
+                {"link_token_details": erp_data.account_token},
+            ),
+        }
+        custom_request = HttpRequest()
+        custom_request.method = "POST"
+        custom_request.data = {
+            "erp_link_token_id": erp_data.id,
+            "org_id": erp_data.org_id,
+        }
+
+        api_log(msg="WEBHOOK: Thread started")
+        integration_name = account_token_data["integration_name"]
+
+        sync_module_list = []
+        if integration_name == "Sage Intacct" and merge_module_name == "Invoice":
+            sync_module_list.append(api_views["Contact"])
+            sync_module_list.append(api_views["TrackingCategory"])
+        sync_module_list.append(api_views[merge_module_name])
+        api_log(msg=f"WEBHOOK:: Total module syncing: {sync_module_list}")
+        thread = Thread(
+            target=sync_modules_status,
+            args=(
+                custom_request,
+                erp_data.org_id,
+                erp_data.id,
+                erp_data.account_token,
+                sync_module_list,
+            ),
+        )
+
+        thread.start()
+        api_log(msg="WEBHOOK: Thread started successfully")
+    except Exception as e:
+        api_log(msg=f"WEBHOOK: Exception occurred: in store_initial_sync {e}")
