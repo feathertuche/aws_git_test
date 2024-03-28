@@ -36,6 +36,20 @@ def get_org_entity(organization_id):
         return row
 
 
+def sage_module_sync(integration_slug):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT module_name 
+            FROM erp_modules_setting 
+            WHERE integration_name = %s
+        """,   [integration_slug]
+        )
+        module_row = cursor.fetchall()
+        module_list = [row[0] for row in module_row]
+        return module_list
+
+
 def create_erp_link_token(request):
     link_token_record = ErpLinkToken(**request)
 
@@ -91,14 +105,9 @@ def handle_webhook_link_account(linked_account_data: dict, account_token_data: d
             status=linked_account_data.get("status"),
         )
 
-        modules = [
-            "TAX RATE",
-            "TRACKING CATEGORIES",
-            "COMPANY INFO",
-            "ACCOUNTS",
-            "CONTACTS",
-            "INVOICES",
-        ]
+        integration_slug = linked_account_data.get("integration_slug")
+        modules = sage_module_sync(integration_slug)
+
         erp_link_token_id = linked_account_data.get("end_user_origin_id")
         erp_data = ErpLinkToken.objects.filter(id=erp_link_token_id).first()
 
