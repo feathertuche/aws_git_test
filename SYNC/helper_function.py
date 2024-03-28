@@ -1,6 +1,6 @@
 import time
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from rest_framework import status
 from rest_framework.exceptions import APIException
@@ -214,7 +214,7 @@ def log_sync_status(
 
     if log_entry:
         log_entry.sync_status = sync_status
-        log_entry.sync_end_time = datetime.now()
+        log_entry.sync_end_time = datetime.now(tz=timezone.utc)
         log_entry.error_message = message
         log_entry.save()
         api_log(msg=f"SYNC : STATUS UPDATED {log_entry}")
@@ -226,11 +226,10 @@ def log_sync_status(
         link_token_id=erp_link_token_id,
         link_token=account_token,
         label=label,
-        sync_start_time=datetime.now(),
-        sync_end_time=datetime.now(),
+        sync_start_time=datetime.now(tz=timezone.utc),
+        sync_end_time=datetime.now(tz=timezone.utc),
         sync_status=sync_status,
         error_message=message,
     )
     log_entry_create.save()
     api_log(msg=f"SYNC : STATUS {log_entry}")
-    return
