@@ -21,9 +21,10 @@ class MergeTaxRatesList(APIView):
     API view for retrieving Merge Tax Rate list.
     """
 
-    def __init__(self, link_token_details=None):
+    def __init__(self, link_token_details=None, last_modified_at=None):
         super().__init__()
         self.link_token_details = link_token_details
+        self.last_modified_at = last_modified_at
 
     def get_tax_rate(self):
         """
@@ -50,7 +51,8 @@ class MergeTaxRatesList(APIView):
         try:
             tax_data = merge_client.accounting.tax_rates.list(
                 page_size=100000,
-                include_remote_data=True
+                include_remote_data=True,
+                modified_after=self.last_modified_at,
             )
             return tax_data
 
@@ -112,6 +114,9 @@ class MergeTaxRatesList(APIView):
         api_log(msg="Processing GET request in MergeTaxRate")
 
         tax_data = self.get_tax_rate()
+        if tax_data.results is None or tax_data.results == []:
+            return Response({"taxRates": []}, status=status.HTTP_404_NOT_FOUND)
+
         formatted_data = self.response_payload(tax_data)
 
         api_log(
@@ -191,9 +196,10 @@ class MergePostTaxRates(APIView):
     API view for inserting Merge Tax Rate data into the Kloo Tax Rate system.
     """
 
-    def __init__(self, link_token_details=None):
+    def __init__(self, link_token_details=None, last_modified_at=None):
         super().__init__()
         self.link_token_details = link_token_details
+        self.last_modified_at = last_modified_at
 
     def post(self, request):
         """
@@ -205,7 +211,10 @@ class MergePostTaxRates(APIView):
 
         erp_link_token_id = request.data.get("erp_link_token_id")
         org_id = request.data.get("org_id")
-        fetch_data = MergeTaxRatesList(link_token_details=self.link_token_details)
+        fetch_data = MergeTaxRatesList(
+            link_token_details=self.link_token_details,
+            last_modified_at=self.last_modified_at,
+        )
         tax_data = fetch_data.get(request=request)
 
         try:
@@ -226,7 +235,7 @@ class MergePostTaxRates(APIView):
                         msg="data inserted successfully in the kloo Tax Rate system"
                     )
                     return Response(
-                        f"{tax_response_data} data inserted successfully in kloo Tax Rate system"
+                        {"message": "API Tax rate Info completed successfully"}
                     )
 
                 else:
@@ -234,6 +243,11 @@ class MergePostTaxRates(APIView):
                         {"error": "Failed to send data to Kloo Tax Rate API"},
                         status=tax_response_data.status_code,
                     )
+
+            if tax_data.status_code == status.HTTP_404_NOT_FOUND:
+                return Response(
+                    {"message": "No new data found to insert in the kloo tax system"}
+                )
 
         except Exception as e:
             error_message = f"Failed to send data to Kloo Tax Rate API. Error: {str(e)}"

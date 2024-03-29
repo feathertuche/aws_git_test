@@ -9,6 +9,12 @@ from ACCOUNTS.views import InsertAccountData
 from COMPANY_INFO.views import MergeKlooCompanyInsert
 from CONTACTS.views import MergePostContacts
 from INVOICES.views import MergeInvoiceCreate
+from LINKTOKEN.queries import (
+    daily_or_force_sync_log,
+    update_erp_daily_sync_logs,
+    erp_daily_sync_logs,
+    update_daily_or_force_sync_log,
+)
 from SYNC.models import ERPLogs
 from SYNC.queries import get_erplogs_by_link_token_id
 from TAX_RATE.views import MergePostTaxRates
@@ -138,6 +144,7 @@ def sync_modules_status(
     erp_link_token_id,
     account_token,
     post_api_views,
+    initial_sync=True,
 ):
     """
     Syncs the status of the different modules with the ERP system.
@@ -153,6 +160,7 @@ def sync_modules_status(
                 org_id,
                 erp_link_token_id,
                 account_token,
+                initial_sync,
             )
         except Exception:
             api_log(msg=f"SYNC : Exception for model {api_view_class}")
@@ -161,10 +169,20 @@ def sync_modules_status(
     api_log(msg="SYNC COMPLETED")
 
 
-def api_call(request, api_view_class, kwargs, org_id, erp_link_token_id, account_token):
+def api_call(
+    request,
+    api_view_class,
+    kwargs,
+    org_id,
+    erp_link_token_id,
+    account_token,
+    initial_sync,
+):
     module_name = api_view_class.__module__
     if module_name.endswith(".views"):
         module_name = module_name[:-6]
+
+    model_name = module_name.replace("_", " ")
 
     api_log(msg=f"SYNC : model name is: {module_name} has started")
     try:
@@ -172,14 +190,25 @@ def api_call(request, api_view_class, kwargs, org_id, erp_link_token_id, account
         response = api_instance.post(request)
         api_log(msg=f"SYNC : model name is: {module_name}, {response}")
         if response.status_code == status.HTTP_200_OK:
-            api_log(msg="SYNC : model name is succsssfull")
-            log_sync_status(
-                sync_status="Success",
-                message=f"API {module_name} completed successfully",
-                label=f"{module_name.replace('_', ' ')}",
-                org_id=org_id,
-                erp_link_token_id=erp_link_token_id,
-                account_token=account_token,
+            api_log(
+                msg=f"SYNC : model name {module_name} is success with status {response.data.get('message')}"
+            )
+
+            if initial_sync:
+                log_sync_status(
+                    sync_status="Success",
+                    message=response.data.get("message"),
+                    label=f"{model_name}",
+                    org_id=org_id,
+                    erp_link_token_id=erp_link_token_id,
+                    account_token=account_token,
+                )
+
+            update_logs_for_daily_sync(
+                erp_link_token_id,
+                "success",
+                f"{model_name}",
+                response.data.get("message"),
             )
         else:
             api_log(msg=f"SYNC : model name {module_name} is failure")
@@ -189,15 +218,19 @@ def api_call(request, api_view_class, kwargs, org_id, erp_link_token_id, account
             api_exception = APIException(error_message)
             raise api_exception
     except Exception as e:
-        api_log(msg=f"SYNC : Exception for model {module_name}")
+        api_log(msg=f"SYNC : Exception for model {module_name} : {str(e)}")
         error_message = f"An error occurred while calling API : {str(e)}"
-        log_sync_status(
-            sync_status="Failed",
-            message=error_message,
-            label=f"{module_name.replace('_', ' ')}",
-            org_id=org_id,
-            erp_link_token_id=erp_link_token_id,
-            account_token=account_token,
+        if initial_sync:
+            log_sync_status(
+                sync_status="Failed",
+                message=error_message,
+                label=f"{model_name}",
+                org_id=org_id,
+                erp_link_token_id=erp_link_token_id,
+                account_token=account_token,
+            )
+        update_logs_for_daily_sync(
+            erp_link_token_id, "failed", f"{model_name}", error_message
         )
 
 
@@ -233,3 +266,71 @@ def log_sync_status(
     )
     log_entry_create.save()
     api_log(msg=f"SYNC : STATUS {log_entry}")
+
+
+def update_logs_for_daily_sync(
+    erp_link_token_id: str, status: str, model: str, error_message: str = None
+):
+    try:
+        api_log(msg="SYNC : Update logs for daily Sync")
+
+        # get the latest log record from daily or force sync log
+        daily_sync_log = daily_or_force_sync_log(
+            {
+                "link_token_id": erp_link_token_id,
+            }
+        )
+
+        if not daily_sync_log:
+            api_log(
+                msg=f"SYNC : Daily or force sync log not found for link token {erp_link_token_id}"
+            )
+            return
+
+        api_log(msg=f"SYNC : Daily or force sync log found {daily_sync_log.id}")
+
+        # now update the erp daily sync logs model
+        update_erp_daily_sync_logs(
+            {
+                "link_token_id": daily_sync_log.link_token_id,
+                "daily_or_force_sync_log_id": daily_sync_log.id,
+                "label": model,
+            },
+            {
+                "sync_status": status,
+                "label": model,
+                "sync_end_time": datetime.now(tz=timezone.utc),
+                "error_message": error_message,
+            },
+        )
+
+        api_log(msg=f"SYNC : Updated erp daily sync logs for {model}")
+
+        # now check if all modules are completed ( success or failed )
+        daily_sync_logs = erp_daily_sync_logs(
+            {
+                "link_token_id": daily_sync_log.link_token_id,
+                "daily_or_force_sync_log_id": daily_sync_log.id,
+                "sync_status": "in_progress",
+            }
+        )
+
+        api_log(msg=f"SYNC : Daily sync logs {daily_sync_logs}")
+
+        if not daily_sync_logs:
+            api_log(
+                msg=f"SYNC : All modules are completed for link token {erp_link_token_id}"
+            )
+            # update the daily or force sync log
+            update_daily_or_force_sync_log(
+                {
+                    "id": daily_sync_log.id,
+                },
+                {"status": "success", "end_date": datetime.now(tz=timezone.utc)},
+            )
+
+        api_log(msg=f"SYNC : Updated daily or force sync log for {erp_link_token_id}")
+
+    except Exception as e:
+        api_log(msg=f"WEBHOOK: Exception occurred: in update_logs_for_daily_sync {e}")
+        return

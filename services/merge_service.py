@@ -9,7 +9,6 @@ from merge.resources.accounting import (
     InvoiceRequest,
     AccountingAttachmentRequest,
     InvoicesListRequestExpand,
-    InvoicesListRequestType,
 )
 
 from INVOICES.exceptions import MergeApiException
@@ -111,6 +110,7 @@ class MergeCompanyInfoService(MergeService):
             organization_data = self.merge_client.accounting.company_info.list(
                 expand=CompanyInfoListRequestExpand.ADDRESSES,
                 page_size=100000,
+                include_remote_data=True,
                 modified_after=modified_date,
             )
             return {"status": True, "data": organization_data}
@@ -173,16 +173,16 @@ class MergeInvoiceApiService(MergeService):
     MergeApiService class
     """
 
-    def get_invoices(self):
+    def get_invoices(self, modified_after: str = None):
         """
         get_invoices method
         """
         try:
             invoice_data = self.merge_client.accounting.invoices.list(
                 expand=InvoicesListRequestExpand.ACCOUNTING_PERIOD,
-                type=InvoicesListRequestType.ACCOUNTS_PAYABLE,
                 page_size=100000,
                 include_remote_data=True,
+                modified_after=modified_after,
             )
 
             return {

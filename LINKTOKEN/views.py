@@ -19,6 +19,7 @@ from .helper_function import (
     handle_webhook_sync_modules,
 )
 from .model import ErpLinkToken
+from .queries import get_erp_link_token
 
 
 class LinkToken(APIView):
@@ -122,6 +123,21 @@ class WebHook(APIView):
             api_log(msg=f"WEBHOOK: Payload {payload}")
             linked_account_data = payload.get("linked_account", None)
             account_token_data = payload.get("data")
+
+            # check if the linked account exists , since webhook hits all env
+            erp_link_token_exists = get_erp_link_token(
+                erp_link_token_id=linked_account_data.get("end_user_origin_id")
+            )
+            if erp_link_token_exists is None:
+                api_log(
+                    msg=f"WEBHOOK: Erp link token does not exist for {linked_account_data.get('end_user_origin_id')}"
+                    f" in this environment"
+                )
+                return Response(
+                    {"status": "WEBHOOK: Erp link token does not exist"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
             if linked_account_data is not None:
                 if "sync_status" in account_token_data:
                     api_log(
