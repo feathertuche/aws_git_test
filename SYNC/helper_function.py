@@ -190,12 +190,14 @@ def api_call(
         response = api_instance.post(request)
         api_log(msg=f"SYNC : model name is: {module_name}, {response}")
         if response.status_code == status.HTTP_200_OK:
-            api_log(msg="SYNC : model name is succsssfull")
+            api_log(
+                msg=f"SYNC : model name {module_name} is success with status {response.data.get('message')}"
+            )
 
             if initial_sync:
                 log_sync_status(
                     sync_status="Success",
-                    message=f"API {module_name} completed successfully",
+                    message=response.data.get("message"),
                     label=f"{model_name}",
                     org_id=org_id,
                     erp_link_token_id=erp_link_token_id,
@@ -203,7 +205,10 @@ def api_call(
                 )
 
             update_logs_for_daily_sync(
-                erp_link_token_id, "success", f"{model_name}", None
+                erp_link_token_id,
+                "success",
+                f"{model_name}",
+                response.data.get("message"),
             )
         else:
             api_log(msg=f"SYNC : model name {module_name} is failure")
@@ -213,7 +218,7 @@ def api_call(
             api_exception = APIException(error_message)
             raise api_exception
     except Exception as e:
-        api_log(msg=f"SYNC : Exception for model {module_name}")
+        api_log(msg=f"SYNC : Exception for model {module_name} : {str(e)}")
         error_message = f"An error occurred while calling API : {str(e)}"
         if initial_sync:
             log_sync_status(
@@ -273,8 +278,6 @@ def update_logs_for_daily_sync(
         daily_sync_log = daily_or_force_sync_log(
             {
                 "link_token_id": erp_link_token_id,
-                "status": "in_progress",
-                "end_date": None,
             }
         )
 

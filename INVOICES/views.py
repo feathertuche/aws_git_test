@@ -18,9 +18,10 @@ class InvoiceCreate(APIView):
     API to create invoices in the Merge system.
     """
 
-    def __init__(self, link_token_details=None):
+    def __init__(self, link_token_details=None, last_modified_at=None):
         super().__init__()
-        self.erp_link_token_id = link_token_details
+        self.link_token_details = link_token_details
+        self.last_modified_at = last_modified_at
 
     def get_queryset(self):
         filter_token = ErpLinkToken.objects.filter(id=self.erp_link_token_id)
@@ -154,9 +155,10 @@ class MergeInvoiceCreate(APIView):
     API to create invoices in the kloo Invoices system.
     """
 
-    def __init__(self, link_token_details=None):
+    def __init__(self, link_token_details=None, last_modified_at=None):
         super().__init__()
         self.link_token_details = link_token_details
+        self.last_modified_at = last_modified_at
 
     def post(self, request):
         """
@@ -170,13 +172,20 @@ class MergeInvoiceCreate(APIView):
         org_id = request.data.get("org_id")
 
         merge_invoice_api_service = MergeInvoiceApiService(self.link_token_details)
-        invoice_response = merge_invoice_api_service.get_invoices()
+        invoice_response = merge_invoice_api_service.get_invoices(self.last_modified_at)
 
         try:
             if invoice_response["status"]:
                 api_log(
                     msg=f"INVOICE : Processing {len(invoice_response['data'].results)} invoices"
                 )
+
+                if len(invoice_response["data"].results) == 0:
+                    return Response(
+                        {
+                            "message": "No new data found to insert in the kloo Invoice system"
+                        }
+                    )
 
                 # format the data to be posted to kloo
                 invoices_json = format_merge_invoice_data(
@@ -195,7 +204,7 @@ class MergeInvoiceCreate(APIView):
                 if invoice_kloo_response["status_code"] == status.HTTP_201_CREATED:
                     api_log(msg="data inserted successfully in the kloo Invoice system")
                     return Response(
-                        "data inserted successfully in the kloo Invoice system"
+                        {"message": "API Invoice Info completed successfully"}
                     )
 
                 else:

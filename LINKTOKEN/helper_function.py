@@ -45,10 +45,11 @@ def sage_module_sync(integration_slug):
     with connection.cursor() as cursor:
         cursor.execute(
             """
-            SELECT module_name 
-            FROM erp_modules_setting 
+            SELECT module_name
+            FROM erp_modules_setting
             WHERE integration_name = %s
-        """,   [integration_slug]
+        """,
+            [integration_slug],
         )
         module_row = cursor.fetchall()
         module_list = [row[0] for row in module_row]
@@ -329,14 +330,8 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
                 }
             )
 
-            modules = [
-                "TAX RATE",
-                "TRACKING CATEGORIES",
-                "COMPANY INFO",
-                "ACCOUNTS",
-                "CONTACTS",
-                "INVOICES",
-            ]
+            integration_slug = linked_account_data.get("integration_slug")
+            modules = sage_module_sync(integration_slug)
 
             for module in modules:
                 api_log(
@@ -357,31 +352,61 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
                     }
                 )
 
+        # get the latest daily sync for last modiefed date
+        last_sync_data = daily_or_force_sync_log(
+            {
+                "link_token_id": erp_link_token_id,
+                "status": "success",
+            }
+        )
+
+        # convert to utc
+        last_modified_date = last_sync_data.end_date.astimezone(timezone.utc)
+        api_log(msg=f"WEBHOOK: Last modified date: {last_modified_date}")
+
         # start thread
         api_views = {
             "TrackingCategory": (
                 MergePostTrackingCategories,
-                {"link_token_details": erp_data.account_token},
+                {
+                    "link_token_details": erp_data.account_token,
+                    "last_modified_at": last_modified_date,
+                },
             ),
             "CompanyInfo": (
                 MergeKlooCompanyInsert,
-                {"link_token_details": erp_data.account_token},
+                {
+                    "link_token_details": erp_data.account_token,
+                    "last_modified_at": last_modified_date,
+                },
             ),
             "Account": (
                 InsertAccountData,
-                {"link_token_details": erp_data.account_token},
+                {
+                    "link_token_details": erp_data.account_token,
+                    "last_modified_at": last_modified_date,
+                },
             ),
             "Contact": (
                 MergePostContacts,
-                {"link_token_details": erp_data.account_token},
+                {
+                    "link_token_details": erp_data.account_token,
+                    "last_modified_at": last_modified_date,
+                },
             ),
             "Invoice": (
                 MergeInvoiceCreate,
-                {"link_token_details": erp_data.account_token},
+                {
+                    "link_token_details": erp_data.account_token,
+                    "last_modified_at": last_modified_date,
+                },
             ),
             "TaxRate": (
                 MergePostTaxRates,
-                {"link_token_details": erp_data.account_token},
+                {
+                    "link_token_details": erp_data.account_token,
+                    "last_modified_at": last_modified_date,
+                },
             ),
         }
         custom_request = HttpRequest()

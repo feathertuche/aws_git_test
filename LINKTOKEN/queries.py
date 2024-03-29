@@ -68,7 +68,9 @@ def daily_or_force_sync_log(filters: dict):
     """
     Get daily or force sync log
     """
-    daily_or_force_sync = DailyOrForceSyncLog.objects.filter(**filters).first()
+    daily_or_force_sync = (
+        DailyOrForceSyncLog.objects.filter(**filters).order_by("-sync_date").first()
+    )
     return daily_or_force_sync
 
 

@@ -26,9 +26,10 @@ class MergeContactsList(APIView):
     API view for retrieving Merge Contacts list.
     """
 
-    def __init__(self, link_token_details=None):
+    def __init__(self, link_token_details=None, last_modified_at=None):
         super().__init__()
         self.link_token_details = link_token_details
+        self.last_modified_at = last_modified_at
 
     def get_contacts(self):
         if self.link_token_details is None:
@@ -53,6 +54,7 @@ class MergeContactsList(APIView):
                 page_size=100000,
                 is_supplier=True,
                 include_remote_data=True,
+                modified_after=self.last_modified_at,
             )
 
             api_log(msg=f"Contact data: {contact_data}")
@@ -142,6 +144,9 @@ class MergeContactsList(APIView):
         api_log(msg="Processing GET request in Merge Contacts")
 
         contact_data = self.get_contacts()
+        if contact_data.results is None or contact_data.results == []:
+            return Response({"erp_contacts": []}, status=status.HTTP_404_NOT_FOUND)
+
         formatted_data = self.response_payload(contact_data)
 
         api_log(
@@ -255,9 +260,10 @@ class MergePostContacts(APIView):
     API view for inserting Merge Contact data into the Kloo Contacts system.
     """
 
-    def __init__(self, link_token_details=None):
+    def __init__(self, link_token_details=None, last_modified_at=None):
         super().__init__()
         self.link_token_details = link_token_details
+        self.last_modified_at = last_modified_at
 
     def post(self, request):
         """
@@ -269,7 +275,10 @@ class MergePostContacts(APIView):
 
         erp_link_token_id = request.data.get("erp_link_token_id")
         org_id = request.data.get("org_id")
-        fetch_data = MergeContactsList(link_token_details=self.link_token_details)
+        fetch_data = MergeContactsList(
+            link_token_details=self.link_token_details,
+            last_modified_at=self.last_modified_at,
+        )
         contact_data = fetch_data.get(request=request)
 
         try:
@@ -291,7 +300,7 @@ class MergePostContacts(APIView):
                         msg="data inserted successfully in the kloo Contacts system"
                     )
                     return Response(
-                        "data inserted successfully in the kloo Contacts system"
+                        {"message": "API Contact Info completed successfully"}
                     )
 
                 else:
@@ -299,6 +308,13 @@ class MergePostContacts(APIView):
                         {"error": "Failed to send data to Kloo Contacts API"},
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     )
+
+            if contact_data.status_code == status.HTTP_404_NOT_FOUND:
+                return Response(
+                    {
+                        "message": "No new data found to insert in the kloo contact system"
+                    }
+                )
 
         except Exception as e:
             error_message = f"Failed to send data to Kloo Contacts API. Error: {str(e)}"

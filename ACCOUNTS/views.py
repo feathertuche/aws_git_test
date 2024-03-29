@@ -15,9 +15,10 @@ from merge_integration.utils import create_merge_client
 
 
 class MergeAccounts(APIView):
-    def __init__(self, link_token_details=None):
+    def __init__(self, link_token_details=None, last_modified_at=None):
         super().__init__()
         self.link_token_details = link_token_details
+        self.last_modified_at = last_modified_at
 
     def account_source_data(self):
         if self.link_token_details is None:
@@ -40,6 +41,7 @@ class MergeAccounts(APIView):
                 show_enum_origins=AccountsListRequestShowEnumOrigins.CLASSIFICATION,
                 page_size=100000,
                 include_remote_data=True,
+                modified_after=self.last_modified_at,
             )
             api_log(msg=f"Data coming from MERGE API is : {accounts_data}")
             return accounts_data
@@ -78,8 +80,8 @@ class MergeAccounts(APIView):
                 "parent_account": account.parent_account,
                 "company": account.company,
                 "remote_was_deleted": account.remote_was_deleted,
-                "created_at": account.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-                "modified_at": account.modified_at.strftime('%Y-%m-%d %H:%M:%S'),
+                "created_at": account.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "modified_at": account.modified_at.strftime("%Y-%m-%d %H:%M:%S"),
                 "field_mappings": field_list,
                 "remote_data": erp_remote_data,
             }
@@ -91,6 +93,9 @@ class MergeAccounts(APIView):
         api_log(msg="........Processing 'Accounts' GET request bloc.......")
 
         acnt_data = self.account_source_data()
+        if acnt_data.results is None or acnt_data.results == []:
+            return Response({"accounts": []}, status=status.HTTP_404_NOT_FOUND)
+
         format_data = self.account_payload(acnt_data)
         api_log(
             msg=f"FORMATTED DATA: {format_data} \
@@ -100,15 +105,19 @@ class MergeAccounts(APIView):
 
 
 class InsertAccountData(APIView):
-    def __init__(self, link_token_details=None):
+    def __init__(self, link_token_details=None, last_modified_at=None):
         super().__init__()
         self.link_token_details = link_token_details
+        self.last_modified_at = last_modified_at
 
     def post(self, request):
         erp_link_token_id = request.data.get("erp_link_token_id")
         org_id = request.data.get("org_id")
 
-        fetch_account_data = MergeAccounts(link_token_details=self.link_token_details)
+        fetch_account_data = MergeAccounts(
+            link_token_details=self.link_token_details,
+            last_modified_at=self.last_modified_at,
+        )
         api_log(msg=f"ACCOUNTS POST: TOKEN is : {fetch_account_data}")
         request_account_data = fetch_account_data.get(request=request)
 
@@ -126,7 +135,7 @@ class InsertAccountData(APIView):
                 if account_response_data.status_code == status.HTTP_201_CREATED:
                     api_log(msg="data inserted successfully in the kloo account system")
                     return Response(
-                        f"{account_response_data} data inserted successfully in kloo account system"
+                        {"message": "API Account Info completed successfully"}
                     )
 
                 else:
@@ -137,6 +146,13 @@ class InsertAccountData(APIView):
                         {"error": "Failed to send data to Kloo API"},
                         status=account_response_data.status_code,
                     )
+
+            if request_account_data.status_code == status.HTTP_404_NOT_FOUND:
+                return Response(
+                    {
+                        "message": "No new data found to insert in the kloo account system"
+                    }
+                )
 
         except Exception as e:
             error_message = f"Failed to send data to Kloo API. Error: {str(e)}"
