@@ -47,6 +47,10 @@ class MergeTrackingCategoriesList(APIView):
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
             )
+            api_log(
+                msg=f"Data coming for Tracking caetgory MERGE API is : {organization_data}"
+            )
+
             return organization_data
         except Exception as e:
             api_log(
@@ -98,7 +102,7 @@ class MergeTrackingCategoriesList(APIView):
 
         organization_data = self.get_tc()
         if organization_data.results is None or organization_data.results == []:
-            return Response({"tracking_category": []}, status=status.HTTP_200_OK)
+            return Response({"tracking_category": []}, status=status.HTTP_404_NOT_FOUND)
         formatted_data = self.response_payload(organization_data)
 
         api_log(

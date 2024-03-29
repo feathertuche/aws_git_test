@@ -40,6 +40,7 @@ class MergeCompanyInfo(APIView):
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
             )
+            api_log(msg=f"Data coming for Company MERGE API is : {organization_data}")
             return organization_data
         except Exception as e:
             api_log(
