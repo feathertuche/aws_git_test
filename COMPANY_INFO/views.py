@@ -60,8 +60,8 @@ class MergeCompanyInfo(APIView):
                 "country_subdivision": addr.country_subdivision,
                 "country": addr.country,
                 "zip_code": addr.zip_code,
-                "created_at": addr.created_at.isoformat() + "Z",
-                "modified_at": addr.modified_at.isoformat() + "Z",
+                "created_at": addr.created_at.isoformat(),
+                "modified_at": addr.modified_at.isoformat(),
             }
             for addr in organization_data.results[0].addresses
         ]
@@ -77,21 +77,21 @@ class MergeCompanyInfo(APIView):
                 "fiscal_year_end_month": organization.fiscal_year_end_month,
                 "fiscal_year_end_day": organization.fiscal_year_end_day,
                 "currency": organization.currency,
-                "remote_created_at": organization.remote_created_at.isoformat() + "Z",
+                "remote_created_at": organization.remote_created_at.isoformat(),
                 "urls": organization.urls,
                 "addresses": formatted_addresses,
                 "phone_numbers": [
                     {
                         "number": phone.number,
                         "type": phone.type,
-                        "created_at": organization.created_at.isoformat() + "Z",
-                        "modified_at": organization.modified_at.isoformat() + "Z",
+                        "created_at": organization.created_at.isoformat(),
+                        "modified_at": organization.modified_at.isoformat(),
                     }
                     for phone in organization.phone_numbers
                 ],
                 "remote_was_deleted": organization.remote_was_deleted,
-                "created_at": organization.created_at.isoformat() + "Z",
-                "modified_at": organization.modified_at.isoformat() + "Z",
+                "created_at": organization.created_at.isoformat(),
+                "modified_at": organization.modified_at.isoformat(),
                 "field_mappings": organization.field_mappings,
                 "remote_data": None,
             }

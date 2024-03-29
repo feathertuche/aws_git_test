@@ -95,7 +95,7 @@ class MergeContactsList(APIView):
                 "tax_number": contact.tax_number,
                 "status": contact.status,
                 "currency": contact.currency,
-                "remote_updated_at": contact.remote_updated_at.isoformat() + "Z",
+                "remote_updated_at": contact.remote_updated_at.isoformat(),
                 "company": contact.company,
                 "addresses": [
                     {
@@ -107,8 +107,8 @@ class MergeContactsList(APIView):
                         "country_subdivision": addr.country_subdivision,
                         "country": addr.country,
                         "zip_code": addr.zip_code,
-                        "created_at": addr.created_at.isoformat() + "Z",
-                        "modified_at": addr.modified_at.isoformat() + "Z",
+                        "created_at": addr.created_at.isoformat(),
+                        "modified_at": addr.modified_at.isoformat(),
                     }
                     for addr in contact.addresses
                 ],
@@ -116,14 +116,14 @@ class MergeContactsList(APIView):
                     {
                         "number": phone.number,
                         "type": phone.type,
-                        "created_at": phone.created_at.isoformat() + "Z",
-                        "modified_at": phone.modified_at.isoformat() + "Z",
+                        "created_at": phone.created_at.isoformat(),
+                        "modified_at": phone.modified_at.isoformat(),
                     }
                     for phone in contact.phone_numbers
                 ],
                 "remote_was_deleted": contact.remote_was_deleted,
-                "created_at": contact.created_at.isoformat() + "Z",
-                "modified_at": contact.modified_at.isoformat() + "Z",
+                "created_at": contact.created_at.isoformat(),
+                "modified_at": contact.modified_at.isoformat(),
                 "field_mappings": contact.field_mappings,
                 "remote_data": erp_remote_data,
             }
