@@ -1,3 +1,5 @@
+import random
+import time
 import uuid
 from datetime import timezone, datetime
 from threading import Thread
@@ -198,7 +200,9 @@ def handle_webhook_sync_modules(linked_account_data: dict, account_token_data: d
                 }
             )
 
-            api_log(msg=f"WEBHOOK: response_data object {response_data} start")
+            api_log(
+                msg=f"WEBHOOK: Initial Sync Object {response_data.id} is in status {response_data.status}"
+            )
 
             if response_data.status == "in_progress":
                 # store the initial sync data
@@ -220,6 +224,11 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
     """
     Function to store the initial sync data
     """
+
+    api_log(
+        msg=f"WEBHOOK: Start initial sync {linked_account_data.get('end_user_origin_id')}"
+    )
+
     try:
         erp_link_token_id = linked_account_data.get("end_user_origin_id")
         sync_status_data = account_token_data.get("sync_status")
@@ -303,10 +312,19 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
     """
     Function to store the daily sync data
     """
+    api_log(
+        msg=f"WEBHOOK: Start Daily sync {linked_account_data.get('end_user_origin_id')}"
+    )
+
     try:
         erp_link_token_id = linked_account_data.get("end_user_origin_id")
         erp_data = get_erp_link_token(erp_link_token_id)
         merge_module_name = account_token_data.get("sync_status").get("model_name")
+
+        # add a random number from 1 to 5
+        random_number = random.randint(3, 5)
+        api_log(msg=f"WEBHOOK: Sleep for Random time: {random_number}")
+        time.sleep(random_number)
 
         # check if record exists for daily sync
         daily_sync_data = daily_or_force_sync_log(

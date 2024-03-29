@@ -141,14 +141,14 @@ class WebHook(APIView):
             if linked_account_data is not None:
                 if "sync_status" in account_token_data:
                     api_log(
-                        msg=f"WEBHOOK: Sync data received for account token {account_token_data.get('account_token')} "
+                        msg=f"WEBHOOK: Sync data received for End User id {linked_account_data.get('end_user_origin_id')} "
                         f"for module {payload.get('data').get('sync_status').get('model_name')}"
                     )
                     handle_webhook_sync_modules(linked_account_data, account_token_data)
                 else:
                     api_log(
-                        msg=f"WEBHOOK: Initial data received for account token"
-                        f" {account_token_data.get('account_token')}"
+                        msg=f"WEBHOOK: Initial data received for End User id"
+                        f" {linked_account_data.get('end_user_origin_id')}"
                     )
                     handle_webhook_link_account(
                         account_token_data=account_token_data,
