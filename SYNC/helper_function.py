@@ -184,7 +184,9 @@ def api_call(
 
     model_name = module_name.replace("_", " ")
 
-    api_log(msg=f"SYNC : model name is: {module_name} has started")
+    api_log(
+        msg=f"SYNC : model name is: {module_name} has started with initial_sync set to {initial_sync}"
+    )
     try:
         api_instance = api_view_class(**kwargs)
         response = api_instance.post(request)
