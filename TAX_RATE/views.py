@@ -93,8 +93,8 @@ class MergeTaxRatesList(APIView):
                 "remote_was_deleted": taxdata.remote_was_deleted,
                 "id": taxdata.id,
                 "remote_id": taxdata.remote_id,
-                "created_at": taxdata.created_at.isoformat() + "Z",
-                "modified_at": taxdata.modified_at.isoformat() + "Z",
+                "created_at": taxdata.created_at.isoformat(),
+                "modified_at": taxdata.modified_at.isoformat(),
                 "field_mappings": field_map,
                 "remote_data": erp_remote_data,
             }
@@ -169,8 +169,8 @@ class mergeTaxRatesInfo(APIView):
                 "remote_was_deleted": tax_client.remote_was_deleted,
                 "id": tax_client.id,
                 "remote_id": tax_client.remote_id,
-                "created_at": tax_client.created_at,
-                "modified_at": tax_client.modified_at,
+                "created_at": tax_client.created_at.isoformat(),
+                "modified_at": tax_client.modified_at.isoformat(),
                 "field_mappings": field_map,
                 "remote_data": tax_client.remote_data,
             }

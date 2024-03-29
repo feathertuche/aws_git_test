@@ -80,8 +80,8 @@ class MergeTrackingCategoriesList(APIView):
                 "company": category.company,
                 "remote_was_deleted": category.remote_was_deleted,
                 "remote_id": category.remote_id,
-                "created_at": category.created_at.isoformat() + "Z",
-                "updated_at": category.modified_at.isoformat() + "Z",
+                "created_at": category.created_at.isoformat(),
+                "updated_at": category.modified_at.isoformat(),
                 "field_mappings": field_mappings,
                 "remote_data": [
                     json.dumps(category_remote_data.data)

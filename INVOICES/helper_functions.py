@@ -19,7 +19,6 @@ def format_merge_invoice_data(invoice_response, erp_link_token_id, org_id):
             "erp_id": invoice.id,
             "organization_id": org_id,
             "erp_link_token_id": str(erp_link_token_id),
-            "type": invoice.type,
             "contact": invoice.contact,
             "number": invoice.number,
             "issue_date": (

@@ -80,8 +80,8 @@ class MergeAccounts(APIView):
                 "parent_account": account.parent_account,
                 "company": account.company,
                 "remote_was_deleted": account.remote_was_deleted,
-                "created_at": account.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-                "modified_at": account.modified_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "created_at": account.created_at.isoformat(),
+                "modified_at": account.modified_at.isoformat(),
                 "field_mappings": field_list,
                 "remote_data": erp_remote_data,
             }
