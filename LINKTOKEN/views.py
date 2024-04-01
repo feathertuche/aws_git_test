@@ -3,8 +3,6 @@ import os
 import uuid
 from threading import Lock
 
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from merge.resources.accounting import CategoriesEnum
 from rest_framework import status
@@ -118,7 +116,6 @@ class WebHook(APIView):
     Webhook api
     """
 
-    @method_decorator(never_cache)
     @csrf_exempt
     def post(self, request):
         """
