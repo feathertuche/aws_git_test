@@ -1,7 +1,10 @@
 import json
 import os
 import uuid
+from threading import Lock
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from merge.resources.accounting import CategoriesEnum
 from rest_framework import status
@@ -20,6 +23,9 @@ from .helper_function import (
 )
 from .model import ErpLinkToken
 from .queries import get_erp_link_token
+
+# Define a global lock
+webhook_lock = Lock()
 
 
 class LinkToken(APIView):
@@ -112,6 +118,7 @@ class WebHook(APIView):
     Webhook api
     """
 
+    @method_decorator(never_cache)
     @csrf_exempt
     def post(self, request):
         """
@@ -119,41 +126,44 @@ class WebHook(APIView):
         """
         api_log(msg="WEBHOOK: Webhook received")
         try:
-            payload = json.loads(request.body)
-            api_log(msg=f"WEBHOOK: Payload {payload}")
-            linked_account_data = payload.get("linked_account", None)
-            account_token_data = payload.get("data")
-
-            # check if the linked account exists , since webhook hits all env
-            erp_link_token_exists = get_erp_link_token(
-                erp_link_token_id=linked_account_data.get("end_user_origin_id")
-            )
-            if erp_link_token_exists is None:
-                api_log(
-                    msg=f"WEBHOOK: Erp link token does not exist for {linked_account_data.get('end_user_origin_id')}"
-                    f" in this environment"
+            with webhook_lock:
+                payload = json.loads(request.body)
+                api_log(msg=f"WEBHOOK: Payload {payload}")
+                linked_account_data = payload.get("linked_account", None)
+                account_token_data = payload.get("data")
+                end_user_origin_id = linked_account_data.get("end_user_origin_id")
+                # check if the linked account exists , since webhook hits all env
+                erp_link_token_exists = get_erp_link_token(
+                    erp_link_token_id=end_user_origin_id
                 )
-                return Response(
-                    {"status": "WEBHOOK: Erp link token does not exist"},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
+                if erp_link_token_exists is None:
+                    api_log(
+                        msg=f"WEBHOOK: Erp link token does not exist for {end_user_origin_id}"
+                        f" in this environment"
+                    )
+                    return Response(
+                        {"status": "WEBHOOK: Erp link token does not exist"},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
 
-            if linked_account_data is not None:
-                if "sync_status" in account_token_data:
-                    api_log(
-                        msg=f"WEBHOOK: Sync data received for End User id {linked_account_data.get('end_user_origin_id')} "
-                        f"for module {payload.get('data').get('sync_status').get('model_name')}"
-                    )
-                    handle_webhook_sync_modules(linked_account_data, account_token_data)
-                else:
-                    api_log(
-                        msg=f"WEBHOOK: Initial data received for End User id"
-                        f" {linked_account_data.get('end_user_origin_id')}"
-                    )
-                    handle_webhook_link_account(
-                        account_token_data=account_token_data,
-                        linked_account_data=linked_account_data,
-                    )
+                if linked_account_data is not None:
+                    if "sync_status" in account_token_data:
+                        api_log(
+                            msg=f"WEBHOOK: Sync data received for End User id {end_user_origin_id} "
+                            f"for module {payload.get('data').get('sync_status').get('model_name')}"
+                        )
+                        handle_webhook_sync_modules(
+                            linked_account_data, account_token_data
+                        )
+                    else:
+                        api_log(
+                            msg=f"WEBHOOK: Initial data received for End User id"
+                            f" {end_user_origin_id}"
+                        )
+                        handle_webhook_link_account(
+                            account_token_data=account_token_data,
+                            linked_account_data=linked_account_data,
+                        )
 
         except Exception as e:
             api_log(msg=f"WEBHOOK: Exception occurred: {str(e)}")
