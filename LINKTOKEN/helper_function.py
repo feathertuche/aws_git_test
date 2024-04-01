@@ -1,9 +1,9 @@
-import random
 import time
 import uuid
 from datetime import timezone, datetime
 from threading import Thread
 
+from django.core.cache import cache
 from django.db import connection
 from django.http import HttpRequest
 
@@ -321,10 +321,17 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
         erp_data = get_erp_link_token(erp_link_token_id)
         merge_module_name = account_token_data.get("sync_status").get("model_name")
 
+        # check if cache has the key for webhook sync
+        if cache.get(f"webhook_sync_{erp_link_token_id}"):
+            api_log(msg="WEBHOOK: Webhook sync already in progress")
+            time.sleep(5)
+
+        cache.set(f"webhook_sync_{erp_link_token_id}", True)
+
         # add a random number from 1 to 5
-        random_number = random.randint(3, 5)
-        api_log(msg=f"WEBHOOK: Sleep for Random time: {random_number}")
-        time.sleep(random_number)
+        # random_number = random.randint(3, 5)
+        # api_log(msg=f"WEBHOOK: Sleep for Random time: {random_number}")
+        # time.sleep(random_number)
 
         # check if record exists for daily sync
         daily_sync_data = daily_or_force_sync_log(
@@ -369,6 +376,9 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
                         "error_message": None,
                     }
                 )
+
+        # delete the cache key
+        cache.delete(f"webhook_sync_{erp_link_token_id}")
 
         # get the latest daily sync for last modiefed date
         last_sync_data = daily_or_force_sync_log(
