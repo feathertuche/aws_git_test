@@ -1,3 +1,4 @@
+import datetime
 import traceback
 
 import requests
@@ -76,6 +77,10 @@ class MergeCompanyInfo(APIView):
 
         formatted_data = []
         for organization in organization_data.results:
+            if organization.remote_created_at is None:
+                remote_org_date = None
+            else:
+                remote_org_date = organization.remote_created_at.isoformat()
             formatted_entry = {
                 "id": organization.id,
                 "remote_id": organization.remote_id,
@@ -85,7 +90,7 @@ class MergeCompanyInfo(APIView):
                 "fiscal_year_end_month": organization.fiscal_year_end_month,
                 "fiscal_year_end_day": organization.fiscal_year_end_day,
                 "currency": organization.currency,
-                "remote_created_at": organization.remote_created_at.isoformat(),
+                "remote_created_at": remote_org_date,
                 "urls": organization.urls,
                 "addresses": formatted_addresses,
                 "phone_numbers": [
