@@ -57,6 +57,17 @@ class MergeContactsList(APIView):
                 modified_after=self.last_modified_at,
             )
 
+            while contact_data.next is not None:
+                contact_data = contacts_client.accounting.contacts.list(
+                    expand=ContactsListRequestExpand.ADDRESSES,
+                    remote_fields="status",
+                    show_enum_origins="status",
+                    page_size=100000,
+                    is_supplier=True,
+                    include_remote_data=True,
+                    modified_after=self.last_modified_at,
+                    cursor=contact_data.next,
+                )
             api_log(msg=f"Contact data: {contact_data}")
 
             return contact_data

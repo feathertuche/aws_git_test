@@ -40,6 +40,14 @@ class MergeCompanyInfo(APIView):
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
             )
+            while organization_data.next is not None:
+                organization_data = comp_client.accounting.company_info.list(
+                    expand=CompanyInfoListRequestExpand.ADDRESSES,
+                    page_size=100000,
+                    include_remote_data=True,
+                    modified_after=self.last_modified_at,
+                    cursor=organization_data.next,
+                )
             api_log(msg=f"Data coming for Company MERGE API is : {organization_data}")
             return organization_data
         except Exception as e:

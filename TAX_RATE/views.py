@@ -55,6 +55,13 @@ class MergeTaxRatesList(APIView):
                 modified_after=self.last_modified_at,
             )
 
+            while tax_data.next is not None:
+                tax_data = merge_client.accounting.tax_rates.list(
+                    page_size=100000,
+                    include_remote_data=True,
+                    modified_after=self.last_modified_at,
+                    cursor=tax_data.next,
+                )
             api_log(msg=f"Data coming for Tax Rate MERGE API is : {tax_data}")
 
             return tax_data

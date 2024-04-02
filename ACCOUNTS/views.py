@@ -43,6 +43,17 @@ class MergeAccounts(APIView):
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
             )
+
+            while accounts_data.next is not None:
+                accounts_data = merge_client.accounting.accounts.list(
+                    remote_fields=AccountsListRequestRemoteFields.CLASSIFICATION,
+                    show_enum_origins=AccountsListRequestShowEnumOrigins.CLASSIFICATION,
+                    page_size=100000,
+                    include_remote_data=True,
+                    modified_after=self.last_modified_at,
+                    cursor=accounts_data.next,
+                )
+
             api_log(msg=f"Data coming for Accounts MERGE API is : {accounts_data}")
             return accounts_data
 
