@@ -1,3 +1,7 @@
+"""
+This module contains the helper functions for the sync process.
+"""
+
 import time
 import uuid
 from datetime import datetime, timezone
@@ -9,6 +13,7 @@ from ACCOUNTS.views import InsertAccountData
 from COMPANY_INFO.views import MergeKlooCompanyInsert
 from CONTACTS.views import MergePostContacts
 from INVOICES.views import MergeInvoiceCreate
+from LINKTOKEN.helper_function import webhook_sync_modul_filter
 from LINKTOKEN.queries import (
     daily_or_force_sync_log,
     update_erp_daily_sync_logs,
@@ -192,23 +197,24 @@ def start_sync_process(
                             )
                             modules.remove(module)
 
-                        if sync_filter_array.status in ["PARTIALLY_SYNCED"]:
-                            api_log(
-                                msg=f"SYNC :Syncing module {module} is partially synced from merge, "
-                                f"so will continue to check"
-                            )
-                            continue
+                        # if sync_filter_array.status in ["PARTIALLY_SYNCED"]:
+                        #     api_log(
+                        #         msg=f"SYNC :Syncing module {module} is partially synced from merge, "
+                        #         f"so will continue to check"
+                        #     )
+                        #     continue
 
-                        if sync_filter_array.status in ["FAILED"]:
-                            api_log(
-                                msg=f"SYNC :Syncing module {module} is failed from merge, "
-                                f"removing from the list"
+                        if sync_filter_array.status in ["FAILED", "PARTIALLY_SYNCED"]:
+                            module_name = webhook_sync_modul_filter(module)
+
+                            error_message = (
+                                f"API {module} failed from merge side with"
+                                f" status {sync_filter_array.status}"
                             )
-                            error_message = f"API {module} failed from merge side"
                             log_sync_status(
                                 sync_status="Failed",
-                                message=f"API {module} failed from merge side",
-                                label=module,
+                                message=error_message,
+                                label=module_name,
                                 org_id=org_id,
                                 erp_link_token_id=erp_link_token_id,
                                 account_token=account_token,
@@ -216,8 +222,12 @@ def start_sync_process(
                             update_logs_for_daily_sync(
                                 erp_link_token_id,
                                 "failed",
-                                f"API {module} failed from merge side",
+                                module_name,
                                 error_message,
+                            )
+                            api_log(
+                                msg=f"SYNC :Syncing module {module_name} is failed from merge, "
+                                f"removing from the list"
                             )
                             modules.remove(module)
 
@@ -280,6 +290,7 @@ def api_call(
     initial_sync,
 ):
     module_name = api_view_class.__module__
+    api_log(msg=f"SYNC : model name is: {module_name}")
     if module_name.endswith(".views"):
         module_name = module_name[:-6]
 
@@ -375,7 +386,7 @@ def update_logs_for_daily_sync(
     erp_link_token_id: str, status: str, model: str, error_message: str = None
 ):
     try:
-        api_log(msg="SYNC : Update logs for daily Sync")
+        api_log(msg=f"SYNC : Update logs for daily Sync model {model}")
 
         # get the latest log record from daily or force sync log
         daily_sync_log = daily_or_force_sync_log(

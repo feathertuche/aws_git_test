@@ -1,3 +1,7 @@
+"""
+This module contains the helper functions for the sync process.
+"""
+
 import time
 import uuid
 from datetime import timezone, datetime
@@ -18,6 +22,7 @@ from LINKTOKEN.queries import (
     store_daily_or_force_sync_log,
     store_erp_daily_sync_logs,
     daily_or_force_sync_log,
+    erp_daily_sync_logs,
 )
 from SYNC.helper_function import (
     log_sync_status,
@@ -122,8 +127,8 @@ def handle_webhook_link_account(linked_account_data: dict, account_token_data: d
         erp_link_token_id = linked_account_data.get("end_user_origin_id")
         erp_data = get_erp_link_token(erp_link_token_id)
 
-        # add a entry for initial sync
-        daily_or_force_sync = store_daily_or_force_sync_log(
+        # add entry for initial sync
+        store_daily_or_force_sync_log(
             {
                 "link_token_id": erp_link_token_id,
                 "sync_type": "daily_sync",
@@ -135,9 +140,6 @@ def handle_webhook_link_account(linked_account_data: dict, account_token_data: d
             }
         )
 
-        api_log(
-            msg=f"WEBHOOK: Inserting sync log table for in progress for erp_data {erp_data}"
-        )
         for module in modules:
             api_log(
                 msg=f"WEBHOOK: insert sync log table for in progress: {module} in progress"
@@ -151,25 +153,11 @@ def handle_webhook_link_account(linked_account_data: dict, account_token_data: d
                 account_token=erp_data.account_token,
             )
 
-            store_erp_daily_sync_logs(
-                {
-                    "org_id": erp_data.org_id,
-                    "link_token_id": erp_data.id,
-                    "daily_or_force_sync_log_id": daily_or_force_sync.id,
-                    "link_token": erp_data.account_token,
-                    "label": module,
-                    "sync_start_time": datetime.now(tz=timezone.utc),
-                    "sync_end_time": None,
-                    "sync_status": "in_progress",
-                    "error_message": None,
-                }
-            )
-
         api_log(msg="WEBHOOK: Sync log table inserted successfully")
 
     except Exception as e:
         # Handle the case where the record does not exist
-        api_log(msg=f"WEBHOOK: Exception occurred: in handle_webhook_link_account {e}")
+        api_log(msg=f"WEBHOOK: Exception occurred: in handle_webhook_link_accounts {e}")
 
 
 def webhook_sync_modul_filter(module_name_merge):
@@ -236,6 +224,14 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         erp_link_token_id = linked_account_data.get("end_user_origin_id")
         sync_status_data = account_token_data.get("sync_status")
         merge_module_name = sync_status_data.get("model_name")
+        integration_name = account_token_data["integration_name"]
+
+        modules = []
+        if integration_name == "Sage Intacct" and merge_module_name == "Invoice":
+            modules.append("Contact")
+            modules.append("TrackingCategory")
+
+        modules.append(merge_module_name)
 
         api_log(msg=f"WEBHOOK: Merge sync insert {erp_link_token_id} object  start")
         MergeSyncLog.objects.get_or_create(
@@ -252,6 +248,37 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         )
 
         erp_data = ErpLinkToken.objects.filter(id=erp_link_token_id).first()
+
+        # check if record exists for daily sync
+        daily_or_force_sync = daily_or_force_sync_log(
+            {
+                "link_token_id": erp_link_token_id,
+                "is_initial_sync": True,
+                "status": "in_progress",
+            }
+        )
+        api_log(
+            msg=f"WEBHOOK: Inserting sync log table for in progress for erp_data {erp_data}"
+        )
+        for module in modules:
+            api_log(
+                msg=f"WEBHOOK: insert sync log table for in progress: {module} in progress"
+            )
+
+            store_erp_daily_sync_logs(
+                {
+                    "org_id": erp_data.org_id,
+                    "link_token_id": erp_data.id,
+                    "daily_or_force_sync_log_id": daily_or_force_sync.id,
+                    "link_token": erp_data.account_token,
+                    "label": module,
+                    "sync_start_time": datetime.now(tz=timezone.utc),
+                    "sync_end_time": None,
+                    "sync_status": "in_progress",
+                    "error_message": None,
+                }
+            )
+
         api_views = {
             "TrackingCategory": (
                 MergePostTrackingCategories,
@@ -286,15 +313,8 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         }
 
         api_log(msg="WEBHOOK: Thread started")
-        integration_name = account_token_data["integration_name"]
 
-        sync_module_list = []
-        if integration_name == "Sage Intacct" and merge_module_name == "Invoice":
-            sync_module_list.append("Contact")
-            sync_module_list.append("TrackingCategory")
-
-        sync_module_list.append(merge_module_name)
-        api_log(msg=f"WEBHOOK:: Total module syncing: {sync_module_list}")
+        api_log(msg=f"WEBHOOK:: Total module syncing: {modules}")
         thread = Thread(
             target=start_sync_process,
             args=(
@@ -302,7 +322,7 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
                 erp_data.org_id,
                 erp_data.id,
                 erp_data.account_token,
-                sync_module_list,
+                modules,
                 api_views,
             ),
         )
@@ -325,6 +345,7 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
         erp_link_token_id = linked_account_data.get("end_user_origin_id")
         erp_data = get_erp_link_token(erp_link_token_id)
         merge_module_name = account_token_data.get("sync_status").get("model_name")
+        integration_name = account_token_data.get("integration_name")
 
         # check if cache has the key for webhook sync
         if cache.get(f"webhook_sync_{erp_link_token_id}"):
@@ -339,14 +360,14 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
         # time.sleep(random_number)
 
         # check if record exists for daily sync
-        daily_sync_data = daily_or_force_sync_log(
+        daily_or_force_sync = daily_or_force_sync_log(
             {
                 "link_token_id": erp_link_token_id,
                 "is_initial_sync": False,
                 "status": "in_progress",
             }
         )
-        if not daily_sync_data:
+        if not daily_or_force_sync:
             # create a new entry for daily or force sync log
             daily_or_force_sync = store_daily_or_force_sync_log(
                 {
@@ -360,42 +381,58 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
                 }
             )
 
-            integration_slug = linked_account_data.get("integration_slug")
-            modules = sage_module_sync(integration_slug)
-
-            for module in modules:
-                api_log(
-                    msg=f"WEBHOOK: insert sync log table for in progress: {module} in progress"
-                )
-
-                store_erp_daily_sync_logs(
-                    {
-                        "org_id": erp_data.org_id,
-                        "link_token_id": erp_data.id,
-                        "daily_or_force_sync_log_id": daily_or_force_sync.id,
-                        "link_token": erp_data.account_token,
-                        "label": module,
-                        "sync_start_time": datetime.now(tz=timezone.utc),
-                        "sync_end_time": None,
-                        "sync_status": "in_progress",
-                        "error_message": None,
-                    }
-                )
-
         # delete the cache key
         cache.delete(f"webhook_sync_{erp_link_token_id}")
 
-        # get the latest daily sync for last modiefed date
-        last_sync_data = daily_or_force_sync_log(
-            {
-                "link_token_id": erp_link_token_id,
-                "status": "success",
-            }
-        )
+        modules = []
+        if integration_name == "Sage Intacct" and merge_module_name == "Invoice":
+            modules.append("Contact")
+            modules.append("TrackingCategory")
 
-        # convert to utc
-        last_modified_date = last_sync_data.end_date.astimezone(timezone.utc)
-        api_log(msg=f"WEBHOOK: Last modified date: {last_modified_date}")
+        modules.append(merge_module_name)
+
+        last_modified_dates = {}
+        for module in modules:
+            module_name = webhook_sync_modul_filter(module)
+            api_log(
+                msg=f"WEBHOOK: insert sync log table for in progress: {module_name} in progress"
+            )
+
+            store_erp_daily_sync_logs(
+                {
+                    "org_id": erp_data.org_id,
+                    "link_token_id": erp_data.id,
+                    "daily_or_force_sync_log_id": daily_or_force_sync.id,
+                    "link_token": erp_data.account_token,
+                    "label": module_name,
+                    "sync_start_time": datetime.now(tz=timezone.utc),
+                    "sync_end_time": None,
+                    "sync_status": "in_progress",
+                    "error_message": None,
+                }
+            )
+
+            # now get all the modules with daily sync id
+            erp_sync_logs = erp_daily_sync_logs(
+                {
+                    "link_token_id": erp_link_token_id,
+                    "sync_status": "success",
+                    "label": module_name,
+                }
+            )
+
+            api_log(
+                msg=f"WEBHOOK: Inserting sync log table for in progress for erp_data {erp_data}"
+            )
+
+            erp_sync_log = erp_sync_logs.first()
+            last_modified_dates[erp_sync_log.label] = (
+                erp_sync_log.sync_end_time.astimezone(timezone.utc)
+            )
+            api_log(
+                msg=f"WEBHOOK: Last modified date for {erp_sync_log.label} "
+                f"is {last_modified_dates[erp_sync_log.label]}"
+            )
 
         # start thread
         api_views = {
@@ -403,42 +440,54 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
                 MergePostTrackingCategories,
                 {
                     "link_token_details": erp_data.account_token,
-                    "last_modified_at": last_modified_date,
+                    "last_modified_at": last_modified_dates.get(
+                        webhook_sync_modul_filter("TrackingCategory")
+                    ),
                 },
             ),
             "CompanyInfo": (
                 MergeKlooCompanyInsert,
                 {
                     "link_token_details": erp_data.account_token,
-                    "last_modified_at": last_modified_date,
+                    "last_modified_at": last_modified_dates.get(
+                        webhook_sync_modul_filter("CompanyInfo")
+                    ),
                 },
             ),
             "Account": (
                 InsertAccountData,
                 {
                     "link_token_details": erp_data.account_token,
-                    "last_modified_at": last_modified_date,
+                    "last_modified_at": last_modified_dates.get(
+                        webhook_sync_modul_filter("Account")
+                    ),
                 },
             ),
             "Contact": (
                 MergePostContacts,
                 {
                     "link_token_details": erp_data.account_token,
-                    "last_modified_at": last_modified_date,
+                    "last_modified_at": last_modified_dates.get(
+                        webhook_sync_modul_filter("Contact")
+                    ),
                 },
             ),
             "Invoice": (
                 MergeInvoiceCreate,
                 {
                     "link_token_details": erp_data.account_token,
-                    "last_modified_at": last_modified_date,
+                    "last_modified_at": last_modified_dates.get(
+                        webhook_sync_modul_filter("Invoice")
+                    ),
                 },
             ),
             "TaxRate": (
                 MergePostTaxRates,
                 {
                     "link_token_details": erp_data.account_token,
-                    "last_modified_at": last_modified_date,
+                    "last_modified_at": last_modified_dates.get(
+                        webhook_sync_modul_filter("TaxRate")
+                    ),
                 },
             ),
         }
@@ -450,14 +499,8 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
         }
 
         api_log(msg="WEBHOOK: Thread started")
-        integration_name = account_token_data["integration_name"]
 
-        sync_module_list = []
-        if integration_name == "Sage Intacct" and merge_module_name == "Invoice":
-            sync_module_list.append("Contact")
-            sync_module_list.append("TrackingCategory")
-        sync_module_list.append(merge_module_name)
-        api_log(msg=f"WEBHOOK:: Total module syncing: {sync_module_list}")
+        api_log(msg=f"WEBHOOK:: Total module syncing: {modules}")
         thread = Thread(
             target=start_sync_process,
             args=(
@@ -465,7 +508,7 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
                 erp_data.org_id,
                 erp_data.id,
                 erp_data.account_token,
-                sync_module_list,
+                modules,
                 api_views,
                 False,
             ),

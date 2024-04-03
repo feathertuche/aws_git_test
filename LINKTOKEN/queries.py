@@ -1,5 +1,5 @@
 """
-Database queries for LINKTOKEN
+Database queries for link token
 """
 
 import uuid
@@ -23,7 +23,7 @@ def store_daily_or_force_sync_log(payload_data: dict):
     Store daily or force sync log
     """
     try:
-        daily_or_force_sync_log = DailyOrForceSyncLog(
+        daily_or_force_sync_log_data = DailyOrForceSyncLog(
             id=uuid.uuid4(),
             link_token_id=payload_data.get("link_token_id"),
             sync_type=payload_data.get("sync_type"),
@@ -33,8 +33,8 @@ def store_daily_or_force_sync_log(payload_data: dict):
             end_date=payload_data.get("end_date"),
             is_initial_sync=payload_data.get("is_initial_sync"),
         )
-        daily_or_force_sync_log.save()
-        return daily_or_force_sync_log
+        daily_or_force_sync_log_data.save()
+        return daily_or_force_sync_log_data
     except DatabaseError as e:
         api_log(msg=f"Error storing daily or force sync log: {str(e)}")
         raise e
@@ -78,8 +78,19 @@ def erp_daily_sync_logs(filters: dict):
     """
     Get daily sync logs
     """
-    erp_daily_sync_log = ErpDailySyncLogs.objects.filter(**filters).first()
-    return erp_daily_sync_log
+    try:
+        erp_daily_sync_log_records = ErpDailySyncLogs.objects.filter(**filters)
+
+        if erp_daily_sync_log_records.exists():
+            if erp_daily_sync_log_records.count() == 1:
+                return erp_daily_sync_log_records
+
+            return erp_daily_sync_log_records.order_by("-sync_start_time")
+
+        return None
+    except DatabaseError as e:
+        api_log(msg=f"Error fetching erp daily sync log: {str(e)}")
+        raise e
 
 
 def update_erp_daily_sync_logs(filters: dict, update_payload: dict):
@@ -106,5 +117,5 @@ def update_daily_or_force_sync_log(filters: dict, update_payload: dict):
         )
         return daily_or_force_sync
     except DatabaseError as e:
-        api_log(msg=f"Error updating daily or force sync log: {str(e)}")
+        api_log(msg=f"Error updating daily or force sync logs: {str(e)}")
         raise e

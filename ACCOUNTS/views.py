@@ -16,11 +16,11 @@ from merge_integration.utils import create_merge_client
 
 class MergeAccounts(APIView):
     def __init__(
-            self,
-            previous=None,
-            results=None,
-            link_token_details=None,
-            last_modified_at=None,
+        self,
+        previous=None,
+        results=None,
+        link_token_details=None,
+        last_modified_at=None,
     ):
         super().__init__()
         self.link_token_details = link_token_details
