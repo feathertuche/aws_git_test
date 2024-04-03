@@ -138,6 +138,106 @@ def start_failed_sync_process(request, erp_link_token_id, org_id, account_token)
         return
 
 
+def start_sync_process(
+    request,
+    org_id: str,
+    erp_link_token_id: str,
+    account_token: str,
+    modules_to_sync: list,
+    api_views: dict,
+    initial_sync: bool,
+):
+    """
+    Starts the sync process.
+    """
+
+    api_log(msg=f"SYNC : Starting the sync process account_token {account_token}")
+
+    try:
+        modules = modules_to_sync
+        modules_copy = modules.copy()
+
+        while True:
+            api_log(msg="SYNC : Checking the status of the modules")
+            # sleep for 30 seconds
+            api_log(msg="SYNC : Sleeping for 30 seconds")
+            time.sleep(30)
+            api_log(msg="SYNC : Waking up")
+
+            get_erplogs_by_link_token_id(erp_link_token_id)
+
+            merge_client = MergeSyncService(account_token)
+            sync_status_response = merge_client.sync_status()
+
+            if not sync_status_response["status"]:
+                api_log(msg="SYNC : Sync Status is not available")
+                break
+
+            # Check if all modules are done syncing
+            sync_status_result = sync_status_response["data"].results
+            for module in modules_copy:
+                for sync_filter_array in sync_status_result:
+                    if sync_filter_array.model_name == module:
+                        if sync_filter_array.status == "DONE":
+                            api_log(
+                                msg=f"SYNC :Syncing module {module} is done, removing from the list"
+                            )
+                            sync_modules_status(
+                                request,
+                                org_id,
+                                erp_link_token_id,
+                                account_token,
+                                [api_views[module]],
+                                initial_sync,
+                            )
+                            modules.remove(module)
+
+                        if sync_filter_array.status in ["PARTIALLY_SYNCED"]:
+                            api_log(
+                                msg=f"SYNC :Syncing module {module} is partially synced from merge, "
+                                f"so will continue to check"
+                            )
+                            continue
+
+                        if sync_filter_array.status in ["FAILED"]:
+                            api_log(
+                                msg=f"SYNC :Syncing module {module} is failed from merge, "
+                                f"removing from the list"
+                            )
+                            error_message = f"API {module} failed from merge side"
+                            log_sync_status(
+                                sync_status="Failed",
+                                message=f"API {module} failed from merge side",
+                                label=module,
+                                org_id=org_id,
+                                erp_link_token_id=erp_link_token_id,
+                                account_token=account_token,
+                            )
+                            update_logs_for_daily_sync(
+                                erp_link_token_id,
+                                "failed",
+                                f"API {module} failed from merge side",
+                                error_message,
+                            )
+                            modules.remove(module)
+
+                # assign the latest modules to module copy
+                modules_copy = modules.copy()
+
+            # if all modules are synced then break the loop
+            if not modules:
+                api_log(
+                    msg="SYNC : All modules are synced, starting the fetching process"
+                )
+                break
+
+        # Return the combined response and response_data dictionary
+        api_log(msg="SYNC : All modules are succesfull")
+    except Exception:
+        api_log(msg="SYNC : Exception for model")
+        return
+
+
 def sync_modules_status(
     request,
     org_id,
@@ -150,6 +250,7 @@ def sync_modules_status(
     Syncs the status of the different modules with the ERP system.
     """
 
+    api_log(msg="SYNC : Waiting for 15 seconds before starting the get API calls")
     time.sleep(15)
     for index, (api_view_class, kwargs) in enumerate(post_api_views, start=1):
         try:

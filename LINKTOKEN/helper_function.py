@@ -19,7 +19,10 @@ from LINKTOKEN.queries import (
     store_erp_daily_sync_logs,
     daily_or_force_sync_log,
 )
-from SYNC.helper_function import log_sync_status, sync_modules_status
+from SYNC.helper_function import (
+    log_sync_status,
+    start_sync_process,
+)
 from TAX_RATE.views import MergePostTaxRates
 from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from merge_integration.helper_functions import api_log
@@ -287,18 +290,20 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
 
         sync_module_list = []
         if integration_name == "Sage Intacct" and merge_module_name == "Invoice":
-            sync_module_list.append(api_views["Contact"])
-            sync_module_list.append(api_views["TrackingCategory"])
-        sync_module_list.append(api_views[merge_module_name])
+            sync_module_list.append("Contact")
+            sync_module_list.append("TrackingCategory")
+
+        sync_module_list.append(merge_module_name)
         api_log(msg=f"WEBHOOK:: Total module syncing: {sync_module_list}")
         thread = Thread(
-            target=sync_modules_status,
+            target=start_sync_process,
             args=(
                 custom_request,
                 erp_data.org_id,
                 erp_data.id,
                 erp_data.account_token,
                 sync_module_list,
+                api_views,
             ),
         )
 
@@ -449,18 +454,19 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
 
         sync_module_list = []
         if integration_name == "Sage Intacct" and merge_module_name == "Invoice":
-            sync_module_list.append(api_views["Contact"])
-            sync_module_list.append(api_views["TrackingCategory"])
-        sync_module_list.append(api_views[merge_module_name])
+            sync_module_list.append("Contact")
+            sync_module_list.append("TrackingCategory")
+        sync_module_list.append(merge_module_name)
         api_log(msg=f"WEBHOOK:: Total module syncing: {sync_module_list}")
         thread = Thread(
-            target=sync_modules_status,
+            target=start_sync_process,
             args=(
                 custom_request,
                 erp_data.org_id,
                 erp_data.id,
                 erp_data.account_token,
                 sync_module_list,
+                api_views,
                 False,
             ),
         )
