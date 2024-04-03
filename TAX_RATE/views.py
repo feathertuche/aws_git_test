@@ -21,10 +21,19 @@ class MergeTaxRatesList(APIView):
     API view for retrieving Merge Tax Rate list.
     """
 
-    def __init__(self, link_token_details=None, last_modified_at=None):
+    def __init__(
+            self,
+            previous=None,
+            results=None,
+            link_token_details=None,
+            last_modified_at=None,
+    ):
         super().__init__()
         self.link_token_details = link_token_details
         self.last_modified_at = last_modified_at
+        self.next = next
+        self.previous = previous
+        self.results = results
 
     def get_tax_rate(self):
         """
@@ -55,16 +64,33 @@ class MergeTaxRatesList(APIView):
                 modified_after=self.last_modified_at,
             )
 
-            while tax_data.next is not None:
-                tax_data = merge_client.accounting.tax_rates.list(
+            all_accounts = []
+            while True:
+                api_log(
+                    msg=f"Adding {len(tax_data.results)} accounts to the list."
+                )
+
+                all_accounts.extend(tax_data.results)
+                if tax_data.next is None:
+                    break
+
+                tax_data = merge_client.accounting.accounts.list(
                     page_size=100000,
                     include_remote_data=True,
                     modified_after=self.last_modified_at,
                     cursor=tax_data.next,
                 )
-            api_log(msg=f"Data coming for Tax Rate MERGE API is : {tax_data}")
 
-            return tax_data
+                api_log(
+                    msg=f"Tax Rates GET:: The length of the next page account data is : {len(tax_data.results)}"
+                )
+                api_log(msg=f"Length of all_accounts: {len(tax_data.results)}")
+
+            api_log(
+                msg=f"Tax Rates GET:: The length of all account data is : {len(all_accounts)}"
+            )
+
+            return all_accounts
 
         except Exception as e:
             api_log(
@@ -88,7 +114,7 @@ class MergeTaxRatesList(APIView):
         ]
 
         formatted_list = []
-        for taxdata in tax_data.results:
+        for taxdata in tax_data:
             erp_remote_data = None
             if taxdata.remote_data is not None:
                 erp_remote_data = [
@@ -124,7 +150,7 @@ class MergeTaxRatesList(APIView):
         api_log(msg="Processing GET request in MergeTaxRate")
 
         tax_data = self.get_tax_rate()
-        if tax_data.results is None or tax_data.results == []:
+        if tax_data is None or len(tax_data) == 0:
             return Response({"taxRates": []}, status=status.HTTP_404_NOT_FOUND)
 
         formatted_data = self.response_payload(tax_data)
