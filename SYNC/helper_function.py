@@ -192,22 +192,21 @@ def start_sync_process(
                             )
                             modules.remove(module)
 
-                        if sync_filter_array.status in ["PARTIALLY_SYNCED"]:
-                            api_log(
-                                msg=f"SYNC :Syncing module {module} is partially synced from merge, "
-                                f"so will continue to check"
-                            )
-                            continue
+                        # if sync_filter_array.status in ["PARTIALLY_SYNCED"]:
+                        #     api_log(
+                        #         msg=f"SYNC :Syncing module {module} is partially synced from merge, "
+                        #         f"so will continue to check"
+                        #     )
+                        #     continue
 
-                        if sync_filter_array.status in ["FAILED"]:
-                            api_log(
-                                msg=f"SYNC :Syncing module {module} is failed from merge, "
-                                f"removing from the list"
+                        if sync_filter_array.status in ["FAILED", "PARTIALLY_SYNCED"]:
+                            error_message = (
+                                f"API {module} failed from merge side with"
+                                f" status {sync_filter_array.status}"
                             )
-                            error_message = f"API {module} failed from merge side"
                             log_sync_status(
                                 sync_status="Failed",
-                                message=f"API {module} failed from merge side",
+                                message=error_message,
                                 label=module,
                                 org_id=org_id,
                                 erp_link_token_id=erp_link_token_id,
@@ -216,8 +215,12 @@ def start_sync_process(
                             update_logs_for_daily_sync(
                                 erp_link_token_id,
                                 "failed",
-                                f"API {module} failed from merge side",
+                                module,
                                 error_message,
+                            )
+                            api_log(
+                                msg=f"SYNC :Syncing module {module} is failed from merge, "
+                                f"removing from the list"
                             )
                             modules.remove(module)
 
