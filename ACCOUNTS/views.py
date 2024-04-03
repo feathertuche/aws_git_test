@@ -15,10 +15,19 @@ from merge_integration.utils import create_merge_client
 
 
 class MergeAccounts(APIView):
-    def __init__(self, link_token_details=None, last_modified_at=None):
+    def __init__(
+            self,
+            previous=None,
+            results=None,
+            link_token_details=None,
+            last_modified_at=None,
+    ):
         super().__init__()
         self.link_token_details = link_token_details
         self.last_modified_at = last_modified_at
+        self.next = next
+        self.previous = previous
+        self.results = results
 
     def account_source_data(self):
         if self.link_token_details is None:
@@ -44,7 +53,16 @@ class MergeAccounts(APIView):
                 modified_after=self.last_modified_at,
             )
 
-            while accounts_data.next is not None:
+            all_accounts = []
+            while True:
+                api_log(
+                    msg=f"Adding {len(accounts_data.results)} accounts to the list."
+                )
+
+                all_accounts.extend(accounts_data.results)
+                if accounts_data.next is None:
+                    break
+
                 accounts_data = merge_client.accounting.accounts.list(
                     remote_fields=AccountsListRequestRemoteFields.CLASSIFICATION,
                     show_enum_origins=AccountsListRequestShowEnumOrigins.CLASSIFICATION,
@@ -54,10 +72,19 @@ class MergeAccounts(APIView):
                     cursor=accounts_data.next,
                 )
 
-            api_log(msg=f"Data coming for Accounts MERGE API is : {accounts_data}")
-            return accounts_data
+                api_log(
+                    msg=f"ACCOUNTS GET:: The length of the next page account data is : {len(accounts_data.results)}"
+                )
+                api_log(msg=f"Length of all_accounts: {len(accounts_data.results)}")
+
+            api_log(
+                msg=f"ACCOUNTS GET:: The length of all account data is : {len(all_accounts)}"
+            )
+
+            return all_accounts
 
         except Exception as e:
+            api_log(msg=f"ACCOUNTS GET:: Error: {str(e)}")
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
@@ -69,7 +96,7 @@ class MergeAccounts(APIView):
         ]
 
         accounts_list = []
-        for account in accounts_data.results:
+        for account in accounts_data:
             erp_remote_data = None
             if account.remote_data is not None:
                 erp_remote_data = [
@@ -104,7 +131,7 @@ class MergeAccounts(APIView):
         api_log(msg="........Processing 'Accounts' GET request bloc.......")
 
         acnt_data = self.account_source_data()
-        if acnt_data.results is None or acnt_data.results == []:
+        if acnt_data is None or len(acnt_data) == 0:
             return Response({"accounts": []}, status=status.HTTP_404_NOT_FOUND)
 
         format_data = self.account_payload(acnt_data)
