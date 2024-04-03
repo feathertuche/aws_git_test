@@ -22,10 +22,19 @@ class MergeTrackingCategoriesList(APIView):
     API view for retrieving Merge Tracking_Category list.
     """
 
-    def __init__(self, link_token_details=None, last_modified_at=None):
+    def __init__(
+            self,
+            previous=None,
+            results=None,
+            link_token_details=None,
+            last_modified_at=None,
+    ):
         super().__init__()
         self.link_token_details = link_token_details
         self.last_modified_at = last_modified_at
+        self.next = next
+        self.previous = previous
+        self.results = results
 
     def get_tc(self):
         if self.link_token_details is None:
@@ -47,9 +56,17 @@ class MergeTrackingCategoriesList(APIView):
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
             )
+            all_accounts = []
+            while True:
+                api_log(
+                    msg=f"Adding {len(organization_data.results)} accounts to the list."
+                )
 
-            while organization_data.next is not None:
-                organization_data = tc_client.accounting.tracking_categories.list(
+                all_accounts.extend(organization_data.results)
+                if organization_data.next is None:
+                    break
+
+                organization_data = tc_client.accounting.accounts.list(
                     remote_fields="status",
                     show_enum_origins="status",
                     page_size=100000,
@@ -58,11 +75,16 @@ class MergeTrackingCategoriesList(APIView):
                     cursor=organization_data.next,
                 )
 
+                api_log(
+                    msg=f"ACCOUNTS GET:: The length of the next page account data is : {len(organization_data.results)}"
+                )
+                api_log(msg=f"Length of all_accounts: {len(organization_data.results)}")
+
             api_log(
-                msg=f"Data coming for Tracking caetgory MERGE API is : {organization_data}"
+                msg=f"ACCOUNTS GET:: The length of all account data is : {len(all_accounts)}"
             )
 
-            return organization_data
+            return all_accounts
         except Exception as e:
             api_log(
                 msg=f"Error retrieving details: {str(e)} \
@@ -85,7 +107,7 @@ class MergeTrackingCategoriesList(APIView):
         ]
 
         formatted_data = []
-        for category in organization_data.results:
+        for category in organization_data:
             formatted_entry = {
                 "id": category.id,
                 "name": category.name,
@@ -112,7 +134,7 @@ class MergeTrackingCategoriesList(APIView):
         api_log(msg="...... Processing GET request in Merge Tracking Categories ......")
 
         organization_data = self.get_tc()
-        if organization_data.results is None or organization_data.results == []:
+        if organization_data is None or len(organization_data) == 0:
             return Response({"tracking_category": []}, status=status.HTTP_404_NOT_FOUND)
         formatted_data = self.response_payload(organization_data)
 
