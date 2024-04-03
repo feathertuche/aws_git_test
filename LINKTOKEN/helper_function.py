@@ -23,6 +23,7 @@ from LINKTOKEN.queries import (
     store_erp_daily_sync_logs,
     daily_or_force_sync_log,
     erp_daily_sync_logs,
+    sage_module_sync,
 )
 from LINKTOKEN.utils import webhook_sync_modul_filter
 from SYNC.helper_function import (
@@ -50,21 +51,6 @@ def get_org_entity(organization_id):
         )
         row = cursor.fetchone()
         return row
-
-
-def sage_module_sync(integration_slug):
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT module_name
-            FROM erp_modules_setting
-            WHERE integration_name = %s
-        """,
-            [integration_slug],
-        )
-        module_row = cursor.fetchall()
-        module_list = [row[0] for row in module_row]
-        return module_list
 
 
 def create_erp_link_token(request):

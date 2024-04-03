@@ -19,6 +19,7 @@ from LINKTOKEN.queries import (
     update_erp_daily_sync_logs,
     erp_daily_sync_logs,
     update_daily_or_force_sync_log,
+    get_erp_link_token,
 )
 from SYNC.models import ERPLogs
 from SYNC.queries import get_erplogs_by_link_token_id
@@ -390,6 +391,12 @@ def update_logs_for_daily_sync(
                 "link_token_id": erp_link_token_id,
             }
         )
+        erp_data = get_erp_link_token(erp_link_token_id)
+
+        if erp_data.integration_name == "Xero":
+            modules_count = 6
+        else:
+            modules_count = 5
 
         if not daily_sync_log:
             api_log(
@@ -421,13 +428,13 @@ def update_logs_for_daily_sync(
             {
                 "link_token_id": daily_sync_log.link_token_id,
                 "daily_or_force_sync_log_id": daily_sync_log.id,
-                "sync_status": "in_progress",
+                "sync_status": "success",
             }
         )
 
         api_log(msg=f"SYNC : Daily sync logs {daily_sync_logs}")
 
-        if not daily_sync_logs:
+        if modules_count == daily_sync_logs.count():
             api_log(
                 msg=f"SYNC : All modules are completed for link token {erp_link_token_id}"
             )

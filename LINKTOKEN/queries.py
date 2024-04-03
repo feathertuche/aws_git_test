@@ -4,7 +4,7 @@ Database queries for link token
 
 import uuid
 
-from django.db import DatabaseError
+from django.db import DatabaseError, connection
 
 from LINKTOKEN.model import ErpLinkToken, DailyOrForceSyncLog, ErpDailySyncLogs
 from merge_integration.helper_functions import api_log
@@ -119,3 +119,18 @@ def update_daily_or_force_sync_log(filters: dict, update_payload: dict):
     except DatabaseError as e:
         api_log(msg=f"Error updating daily or force sync logs: {str(e)}")
         raise e
+
+
+def sage_module_sync(integration_slug):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT module_name
+            FROM erp_modules_setting
+            WHERE integration_name = %s
+        """,
+            [integration_slug],
+        )
+        module_row = cursor.fetchall()
+        module_list = [row[0] for row in module_row]
+        return module_list
