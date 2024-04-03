@@ -117,5 +117,5 @@ def update_daily_or_force_sync_log(filters: dict, update_payload: dict):
         )
         return daily_or_force_sync
     except DatabaseError as e:
-        api_log(msg=f"Error updating daily or force sync log: {str(e)}")
+        api_log(msg=f"Error updating daily or force sync logs: {str(e)}")
         raise e
