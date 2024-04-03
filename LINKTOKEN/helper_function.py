@@ -24,6 +24,7 @@ from LINKTOKEN.queries import (
     daily_or_force_sync_log,
     erp_daily_sync_logs,
 )
+from LINKTOKEN.utils import webhook_sync_modul_filter
 from SYNC.helper_function import (
     log_sync_status,
     start_sync_process,
@@ -158,23 +159,6 @@ def handle_webhook_link_account(linked_account_data: dict, account_token_data: d
     except Exception as e:
         # Handle the case where the record does not exist
         api_log(msg=f"WEBHOOK: Exception occurred: in handle_webhook_link_accounts {e}")
-
-
-def webhook_sync_modul_filter(module_name_merge):
-    label_name = None
-    if module_name_merge == "TaxRate":
-        label_name = "TAX RATE"
-    if module_name_merge == "TrackingCategory":
-        label_name = "TRACKING CATEGORIES"
-    if module_name_merge == "CompanyInfo":
-        label_name = "COMPANY INFO"
-    if module_name_merge == "Account":
-        label_name = "ACCOUNTS"
-    if module_name_merge == "Contact":
-        label_name = "CONTACTS"
-    if module_name_merge == "Invoice":
-        label_name = "INVOICES"
-    return label_name
 
 
 def handle_webhook_sync_modules(linked_account_data: dict, account_token_data: dict):

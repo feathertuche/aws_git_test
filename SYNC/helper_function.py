@@ -127,11 +127,7 @@ def start_failed_sync_process(request, erp_link_token_id, org_id, account_token)
 
         api_log(msg=f"SYNC :post_api_views {post_api_views}")
         sync_modules_status(
-            request,
-            org_id,
-            erp_link_token_id,
-            account_token,
-            post_api_views,
+            request, org_id, erp_link_token_id, account_token, post_api_views, True
         )
 
         # Return the combined response and response_data dictionary
