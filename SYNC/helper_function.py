@@ -159,7 +159,7 @@ def start_sync_process(
         modules_copy = modules.copy()
 
         while True:
-            api_log(msg="SYNC : Checking the status of the modules")
+            api_log(msg="SYNC : Checking the status of the module")
             # sleep for 30 seconds
             api_log(msg="SYNC : Sleeping for 30 seconds")
             time.sleep(30)
