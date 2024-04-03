@@ -89,7 +89,7 @@ def erp_daily_sync_logs(filters: dict):
 
         return None
     except DatabaseError as e:
-        api_log(msg=f"Error fetching erp daily sync log: {str(e)}")
+        api_log(msg=f"Error fetching erp daily sync logs: {str(e)}")
         raise e
 
 
