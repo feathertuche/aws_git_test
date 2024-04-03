@@ -145,7 +145,7 @@ def start_sync_process(
     account_token: str,
     modules_to_sync: list,
     api_views: dict,
-    initial_sync: bool,
+    initial_sync: bool = True,
 ):
     """
     Starts the sync process.
@@ -244,7 +244,7 @@ def sync_modules_status(
     erp_link_token_id,
     account_token,
     post_api_views,
-    initial_sync=True,
+    initial_sync,
 ):
     """
     Syncs the status of the different modules with the ERP system.
