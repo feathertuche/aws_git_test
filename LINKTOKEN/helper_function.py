@@ -248,14 +248,14 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
             api_log(
                 msg=f"WEBHOOK: insert sync log table for in progress: {module} in progress"
             )
-
+            module_name = webhook_sync_modul_filter(module)
             store_erp_daily_sync_logs(
                 {
                     "org_id": erp_data.org_id,
                     "link_token_id": erp_data.id,
                     "daily_or_force_sync_log_id": daily_or_force_sync.id,
                     "link_token": erp_data.account_token,
-                    "label": module,
+                    "label": module_name,
                     "sync_start_time": datetime.now(tz=timezone.utc),
                     "sync_end_time": None,
                     "sync_status": "in_progress",
