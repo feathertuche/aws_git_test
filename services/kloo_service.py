@@ -344,3 +344,29 @@ class KlooService:
 
         except (KlooException, Exception) as e:
             return self.handle_kloo_api_error("post_invoice_data", e)
+
+    def post_sync_complete_mail(self, sync_complete_payload: dict):
+        """
+        Post sync complete mail to kloo API
+        """
+        try:
+            daily_sync_id = sync_complete_payload["daily_sync_id"]
+
+            sync_url = f"{self.KLOO_URL}/ap/erp-integration/erp-sync-email"
+            sync_response_data = requests.get(
+                sync_url, params={"daily_sync_id": daily_sync_id}
+            )
+
+            if sync_response_data.status_code != 201:
+                raise KlooException(
+                    f"Error in posting sync complete mail: {sync_response_data.json()}"
+                )
+
+            return {
+                "status": True,
+                "data": sync_response_data.json(),
+                "status_code": sync_response_data.status_code,
+            }
+
+        except (KlooException, Exception) as e:
+            return self.handle_kloo_api_error("post_sync_complete_mail", e)

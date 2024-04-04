@@ -433,6 +433,12 @@ def update_logs_for_daily_sync(
 
         api_log(msg=f"SYNC : Daily sync logs {daily_sync_logs}")
 
+        if daily_sync_logs is None:
+            api_log(
+                msg=f"SYNC : No daily sync logs found for link token {erp_link_token_id}"
+            )
+            return
+
         if modules_count == daily_sync_logs.count():
             api_log(
                 msg=f"SYNC : All modules are completed for link token {erp_link_token_id}"
