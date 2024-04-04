@@ -4,35 +4,36 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='ErpLinkToken',
+            name="ErpLinkToken",
             fields=[
-                ('id', models.UUIDField(editable=False, primary_key=True, serialize=False)),
-                ('org_id', models.CharField(max_length=255)),
-                ('entity_id', models.CharField(max_length=255)),
-                ('link_token', models.CharField(max_length=255)),
-                ('account_token', models.CharField(max_length=255)),
-                ('integration_name', models.CharField(max_length=255)),
-                ('magic_link_url', models.CharField(max_length=255)),
-                ('categories', models.JSONField()),
-                ('platform', models.CharField(max_length=255)),
-                ('end_user_email_address', models.EmailField(max_length=254)),
-                ('end_user_organization_name', models.CharField(max_length=255)),
-                ('link_expiry_mins', models.IntegerField()),
-                ('should_create_magic_link_url', models.BooleanField()),
-                ('status', models.CharField(max_length=255)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.UUIDField(editable=False, primary_key=True, serialize=False),
+                ),
+                ("org_id", models.CharField(max_length=255)),
+                ("entity_id", models.CharField(max_length=255)),
+                ("link_token", models.CharField(max_length=255)),
+                ("account_token", models.CharField(max_length=255)),
+                ("integration_name", models.CharField(max_length=255)),
+                ("magic_link_url", models.CharField(max_length=255)),
+                ("categories", models.JSONField()),
+                ("platform", models.CharField(max_length=255)),
+                ("end_user_email_address", models.EmailField(max_length=254)),
+                ("end_user_organization_name", models.CharField(max_length=255)),
+                ("link_expiry_mins", models.IntegerField()),
+                ("should_create_magic_link_url", models.BooleanField()),
+                ("status", models.CharField(max_length=255)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'db_table': 'erp_link_token',
+                "db_table": "erp_link_token",
             },
         ),
     ]
