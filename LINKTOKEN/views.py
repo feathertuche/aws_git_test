@@ -143,26 +143,30 @@ class WebHook(APIView):
                         status=status.HTTP_404_NOT_FOUND,
                     )
 
-                if linked_account_data is not None:
-                    if "sync_status" in account_token_data:
-                        api_log(
-                            msg=f"WEBHOOK: Sync data received for End User id {end_user_origin_id} "
-                            f"for module {payload.get('data').get('sync_status').get('model_name')}"
-                        )
-                        handle_webhook_sync_modules(
-                            linked_account_data, account_token_data
-                        )
-                    else:
-                        api_log(
-                            msg=f"WEBHOOK: Initial data received for End User id"
-                            f" {end_user_origin_id}"
-                        )
-                        handle_webhook_link_account(
-                            account_token_data=account_token_data,
-                            linked_account_data=linked_account_data,
-                        )
+                # check type of webhook it is
+                event = payload.get("hook").get("event")
+                if "synced" in event.split("."):
+                    api_log(
+                        msg=f"WEBHOOK: Sync data received for End User id {end_user_origin_id} "
+                        f"for module {payload.get('data').get('sync_status').get('model_name')}"
+                    )
+                    handle_webhook_sync_modules(linked_account_data, account_token_data)
+                elif "linked" in event.split("."):
+                    api_log(
+                        msg=f"WEBHOOK: Initial data received for End User id"
+                        f" {end_user_origin_id}"
+                    )
+                    handle_webhook_link_account(
+                        account_token_data=account_token_data,
+                        linked_account_data=linked_account_data,
+                    )
+                else:
+                    api_log(msg="WEBHOOK: No proper event found")
+                    return Response(
+                        {"status": "No proper event found"},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
 
+            return Response({"status": "WEBHOOK: ended"}, status=status.HTTP_200_OK)
         except Exception as e:
             api_log(msg=f"WEBHOOK: Exception occurred: {str(e)}")
-
-        return Response({"status": "WEBHOOK: ended"}, status=status.HTTP_200_OK)

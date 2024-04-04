@@ -22,11 +22,11 @@ class MergeTaxRatesList(APIView):
     """
 
     def __init__(
-            self,
-            previous=None,
-            results=None,
-            link_token_details=None,
-            last_modified_at=None,
+        self,
+        previous=None,
+        results=None,
+        link_token_details=None,
+        last_modified_at=None,
     ):
         super().__init__()
         self.link_token_details = link_token_details
@@ -66,9 +66,7 @@ class MergeTaxRatesList(APIView):
 
             all_accounts = []
             while True:
-                api_log(
-                    msg=f"Adding {len(tax_data.results)} accounts to the list."
-                )
+                api_log(msg=f"Adding {len(tax_data.results)} accounts to the list.")
 
                 all_accounts.extend(tax_data.results)
                 if tax_data.next is None:

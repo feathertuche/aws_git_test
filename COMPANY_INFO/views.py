@@ -1,4 +1,3 @@
-import datetime
 import traceback
 
 import requests
@@ -16,11 +15,11 @@ from merge_integration.utils import create_merge_client
 
 class MergeCompanyInfo(APIView):
     def __init__(
-            self,
-            previous=None,
-            results=None,
-            link_token_details=None,
-            last_modified_at=None,
+        self,
+        previous=None,
+        results=None,
+        link_token_details=None,
+        last_modified_at=None,
     ):
         super().__init__()
         self.link_token_details = link_token_details
@@ -66,11 +65,15 @@ class MergeCompanyInfo(APIView):
                     cursor=organization_data.next,
                 )
 
-                api_log(msg=f"Data coming for Company MERGE API is : {organization_data}")
+                api_log(
+                    msg=f"Data coming for Company MERGE API is : {organization_data}"
+                )
                 api_log(
                     msg=f"COMPANY INFO GET:: The length of the next page account data is : {len(organization_data.results)}"
                 )
-                api_log(msg=f"Length of all COMPANY INFO: {len(organization_data.results)}")
+                api_log(
+                    msg=f"Length of all COMPANY INFO: {len(organization_data.results)}"
+                )
 
             api_log(
                 msg=f"COMPANY INFO GET:: The length of all company info data is : {len(all_company_info)}"

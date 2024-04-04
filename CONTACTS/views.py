@@ -27,11 +27,11 @@ class MergeContactsList(APIView):
     """
 
     def __init__(
-            self,
-            previous=None,
-            results=None,
-            link_token_details=None,
-            last_modified_at=None,
+        self,
+        previous=None,
+        results=None,
+        link_token_details=None,
+        last_modified_at=None,
     ):
         super().__init__()
         self.link_token_details = link_token_details
@@ -85,7 +85,9 @@ class MergeContactsList(APIView):
                     cursor=contact_data.next,
                 )
 
-                api_log(msg=f"CONTACTS GET:: The length of the next page contacts data is : {len(contact_data.results)}")
+                api_log(
+                    msg=f"CONTACTS GET:: The length of the next page contacts data is : {len(contact_data.results)}"
+                )
                 api_log(msg=f"Length of all_contact_data: {len(contact_data.results)}")
 
             api_log(
@@ -319,7 +321,9 @@ class MergePostContacts(APIView):
                 contact_payload = contact_data.data
                 contact_payload["erp_link_token_id"] = erp_link_token_id
                 contact_payload["org_id"] = org_id
-                contact_url = f"{GETKLOO_LOCAL_URL}/ap/erp-integration/insert-erp-contacts"
+                contact_url = (
+                    f"{GETKLOO_LOCAL_URL}/ap/erp-integration/insert-erp-contacts"
+                )
 
                 contact_response_data = requests.post(
                     contact_url,

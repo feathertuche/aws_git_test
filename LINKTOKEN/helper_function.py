@@ -324,11 +324,6 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
 
         cache.set(f"webhook_sync_{erp_link_token_id}", True)
 
-        # add a random number from 1 to 5
-        # random_number = random.randint(3, 5)
-        # api_log(msg=f"WEBHOOK: Sleep for Random time: {random_number}")
-        # time.sleep(random_number)
-
         # check if record exists for daily sync
         daily_or_force_sync = daily_or_force_sync_log(
             {
@@ -375,8 +370,12 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
                     "daily_or_force_sync_log_id": daily_or_force_sync.id,
                     "link_token": erp_data.account_token,
                     "label": module_name,
-                    "sync_start_time": datetime.now(tz=timezone.utc),
-                    "sync_end_time": None,
+                    "sync_start_time": account_token_data.get("sync_status").get(
+                        "last_sync_start"
+                    ),
+                    "sync_end_time": account_token_data.get("sync_status").get(
+                        "last_sync_finished"
+                    ),
                     "sync_status": "in_progress",
                     "error_message": None,
                 }
