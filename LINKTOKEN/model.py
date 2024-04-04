@@ -76,7 +76,7 @@ class ErpDailySyncLogs(models.Model):
     daily_or_force_sync_log_id = models.CharField(max_length=36)
     link_token = models.CharField(max_length=36)
     label = models.CharField(max_length=255)
-    sync_start_time = models.DateTimeField(auto_now_add=True)
+    sync_start_time = models.DateTimeField()
     sync_end_time = models.DateTimeField(null=True)
     SYNC_STATUS_CHOICES = (
         ("in_progress", "In Progress"),

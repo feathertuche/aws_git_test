@@ -416,7 +416,6 @@ def update_logs_for_daily_sync(
             {
                 "sync_status": status,
                 "label": model,
-                "sync_end_time": datetime.now(tz=timezone.utc),
                 "error_message": error_message,
             },
         )
