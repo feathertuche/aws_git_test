@@ -3,7 +3,6 @@ Helper functions for the INVOICES app
 """
 
 import uuid
-from datetime import datetime, timezone
 
 from INVOICES.queries import get_currency_id
 
@@ -67,8 +66,6 @@ def format_merge_invoice_data(invoice_response, erp_link_token_id, org_id):
                 if invoice.remote_data is not None
                 else None
             ),
-            "created_at": datetime.now(tz=timezone.utc).isoformat(),
-            "updated_at": datetime.now(tz=timezone.utc).isoformat(),
         }
         invoices_json.append(invoices_data)
 
