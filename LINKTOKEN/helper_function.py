@@ -242,8 +242,12 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
                     "daily_or_force_sync_log_id": daily_or_force_sync.id,
                     "link_token": erp_data.account_token,
                     "label": module_name,
-                    "sync_start_time": datetime.now(tz=timezone.utc),
-                    "sync_end_time": None,
+                    "sync_start_time": account_token_data.get("sync_status").get(
+                        "last_sync_start"
+                    ),
+                    "sync_end_time": account_token_data.get("sync_status").get(
+                        "last_sync_finished"
+                    ),
                     "sync_status": "in_progress",
                     "error_message": None,
                 }
