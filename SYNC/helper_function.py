@@ -26,6 +26,7 @@ from SYNC.queries import get_erplogs_by_link_token_id
 from TAX_RATE.views import MergePostTaxRates
 from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from merge_integration.helper_functions import api_log
+from services.kloo_service import KlooService
 from services.merge_service import MergeSyncService
 
 
@@ -432,6 +433,12 @@ def update_logs_for_daily_sync(
 
         api_log(msg=f"SYNC : Daily sync logs {daily_sync_logs}")
 
+        if daily_sync_logs is None:
+            api_log(
+                msg=f"SYNC : No daily sync logs found for link token {erp_link_token_id}"
+            )
+            return
+
         if modules_count == daily_sync_logs.count():
             api_log(
                 msg=f"SYNC : All modules are completed for link token {erp_link_token_id}"
@@ -442,6 +449,14 @@ def update_logs_for_daily_sync(
                     "id": daily_sync_log.id,
                 },
                 {"status": "success", "end_date": datetime.now(tz=timezone.utc)},
+            )
+
+            # send the sync complete mail
+            kloo_service = KlooService()
+            kloo_service.sync_complete_mail(
+                sync_complete_payload={
+                    "daily_sync_id": daily_sync_log.id,
+                }
             )
 
         api_log(msg=f"SYNC : Updated daily or force sync log for {erp_link_token_id}")
