@@ -439,7 +439,7 @@ def update_logs_for_daily_sync(
             )
             return
 
-        if modules_count != daily_sync_logs.count():
+        if modules_count == daily_sync_logs.count():
             api_log(
                 msg=f"SYNC : All modules are completed for link token {erp_link_token_id}"
             )

@@ -350,6 +350,7 @@ class KlooService:
         Post sync complete mail to kloo API
         """
         try:
+            api_log(msg=f"MAIL: Sync Complete Payload: {sync_complete_payload}")
             daily_sync_id = sync_complete_payload["daily_sync_id"]
 
             sync_url = f"{self.KLOO_URL}/ap/erp-integration/erp-sync-email"
