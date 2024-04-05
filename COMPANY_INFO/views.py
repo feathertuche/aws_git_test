@@ -105,6 +105,13 @@ class MergeCompanyInfo(APIView):
 
         formatted_data = []
         for organization in organization_data:
+            erp_remote_data = None
+            if organization.remote_data is not None:
+                erp_remote_data = [
+                    organization_remote_data.data
+                    for organization_remote_data in organization.remote_data
+                ]
+
             if organization.remote_created_at is None:
                 remote_org_date = None
             else:
@@ -134,10 +141,11 @@ class MergeCompanyInfo(APIView):
                 "created_at": organization.created_at.isoformat(),
                 "modified_at": organization.modified_at.isoformat(),
                 "field_mappings": organization.field_mappings,
-                "remote_data": None,
+                "remote_data": erp_remote_data,
             }
             formatted_data.append(formatted_entry)
-            kloo_format_json = {"companies": formatted_data}
+
+        kloo_format_json = {"companies": formatted_data}
 
         return kloo_format_json
 
