@@ -428,7 +428,6 @@ def update_logs_for_daily_sync(
             {
                 "link_token_id": daily_sync_log.link_token_id,
                 "daily_or_force_sync_log_id": daily_sync_log.id,
-                "sync_status": "success",
             }
         )
 
