@@ -2,7 +2,6 @@
 Module docstring: This module provides functions related to traceback.
 """
 
-import json
 import traceback
 
 import requests
@@ -118,7 +117,7 @@ class MergeContactsList(APIView):
             erp_remote_data = None
             if contact.remote_data is not None:
                 erp_remote_data = [
-                    json.dumps(contact_remote_data.data)
+                    contact_remote_data.data
                     for contact_remote_data in contact.remote_data
                 ]
 
