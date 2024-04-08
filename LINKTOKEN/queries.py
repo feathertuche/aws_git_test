@@ -142,7 +142,9 @@ def get_or_create_daily_force_log(payload_data: dict):
     """
     try:
         with transaction.atomic(), connection.cursor() as cursor:
-            cursor.execute("LOCK TABLE erp_daily_sync_logs IN ACCESS EXCLUSIVE MODE;")
+            cursor.execute(
+                "LOCK TABLE daily_or_force_sync_log IN ACCESS EXCLUSIVE MODE;"
+            )
             daily_or_force_sync = daily_or_force_sync_log(
                 {
                     "link_token_id": payload_data.get("link_token_id"),
