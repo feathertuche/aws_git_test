@@ -4,7 +4,7 @@ Database queries for link token
 
 import uuid
 
-from django.db import DatabaseError, connection
+from django.db import DatabaseError, connection, transaction
 
 from LINKTOKEN.model import ErpLinkToken, DailyOrForceSyncLog, ErpDailySyncLogs
 from merge_integration.helper_functions import api_log
@@ -134,3 +134,27 @@ def sage_module_sync(integration_slug):
         module_row = cursor.fetchall()
         module_list = [row[0] for row in module_row]
         return module_list
+
+
+def get_or_create_daily_force_log(payload_data: dict):
+    """
+    Get or create daily or force sync log
+    """
+    try:
+        with transaction.atomic(), connection.cursor() as cursor:
+            cursor.execute("LOCK TABLE erp_daily_sync_logs IN ACCESS EXCLUSIVE MODE;")
+            daily_or_force_sync = daily_or_force_sync_log(
+                {
+                    "link_token_id": payload_data.get("link_token_id"),
+                    "is_initial_sync": False,
+                    "status": "in_progress",
+                }
+            )
+
+            if not daily_or_force_sync:
+                daily_or_force_sync = store_daily_or_force_sync_log(payload_data)
+
+            return daily_or_force_sync
+    except DatabaseError as e:
+        api_log(msg=f"Error getting or creating daily or force sync log: {str(e)}")
+        raise e
