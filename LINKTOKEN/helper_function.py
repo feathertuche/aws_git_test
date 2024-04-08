@@ -4,7 +4,7 @@ This module contains the helper functions for the sync process.
 
 import time
 import uuid
-from datetime import timezone, datetime
+from datetime import timezone, datetime, timedelta
 from threading import Thread
 
 from django.core.cache import cache
@@ -235,6 +235,15 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
                 msg=f"WEBHOOK: insert sync log table for in progress: {module} in progress"
             )
             module_name = webhook_sync_modul_filter(module)
+
+            # add one second to the sync end time to avoid duplicate records
+            sync_end_time = (
+                datetime.strptime(
+                    account_token_data.get("sync_status").get("last_sync_finished"),
+                    "%Y-%m-%dT%H:%M:%SZ",
+                )
+                + timedelta(seconds=1)
+            ).astimezone(timezone.utc)
             store_erp_daily_sync_logs(
                 {
                     "org_id": erp_data.org_id,
@@ -245,9 +254,7 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
                     "sync_start_time": account_token_data.get("sync_status").get(
                         "last_sync_start"
                     ),
-                    "sync_end_time": account_token_data.get("sync_status").get(
-                        "last_sync_finished"
-                    ),
+                    "sync_end_time": sync_end_time,
                     "sync_status": "in_progress",
                     "error_message": None,
                 }
@@ -367,6 +374,15 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
                 msg=f"WEBHOOK: insert sync log table for in progress: {module_name} in progress"
             )
 
+            # add one second to the sync end time to avoid duplicate records
+            sync_end_time = (
+                datetime.strptime(
+                    account_token_data.get("sync_status").get("last_sync_finished"),
+                    "%Y-%m-%dT%H:%M:%SZ",
+                )
+                + timedelta(seconds=1)
+            ).astimezone(timezone.utc)
+
             store_erp_daily_sync_logs(
                 {
                     "org_id": erp_data.org_id,
@@ -377,9 +393,7 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
                     "sync_start_time": account_token_data.get("sync_status").get(
                         "last_sync_start"
                     ),
-                    "sync_end_time": account_token_data.get("sync_status").get(
-                        "last_sync_finished"
-                    ),
+                    "sync_end_time": sync_end_time,
                     "sync_status": "in_progress",
                     "error_message": None,
                 }
