@@ -138,7 +138,9 @@ class MergeTrackingCategoriesList(APIView):
 
         organization_data = self.get_tc()
         if organization_data is None or len(organization_data) == 0:
-            return Response({"tracking_category": []}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"tracking_category": []}, status=status.HTTP_204_NO_CONTENT
+            )
         formatted_data = self.response_payload(organization_data)
 
         api_log(
@@ -270,11 +272,12 @@ class MergePostTrackingCategories(APIView):
                         status=tc_response_data.status_code,
                     )
 
-            if tc_data.status_code == status.HTTP_404_NOT_FOUND:
+            if tc_data.status_code == status.HTTP_204_NO_CONTENT:
                 return Response(
                     {
                         "message": "No new data found to insert in the kloo tracking category system"
-                    }
+                    },
+                    status=status.HTTP_204_NO_CONTENT,
                 )
 
         except Exception as e:

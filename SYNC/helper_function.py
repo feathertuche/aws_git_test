@@ -301,14 +301,19 @@ def api_call(
         api_instance = api_view_class(**kwargs)
         response = api_instance.post(request)
         api_log(msg=f"SYNC : model name is: {module_name}, {response}")
-        if response.status_code == status.HTTP_200_OK:
+        if response.status_code in [status.HTTP_200_OK, status.HTTP_204_NO_CONTENT]:
             api_log(
                 msg=f"SYNC : model name {module_name} is success with status {response.data.get('message')}"
             )
 
+            sync_status_map = {
+                status.HTTP_200_OK: "Success",
+                status.HTTP_204_NO_CONTENT: "no_content",
+            }
+
             if initial_sync:
                 log_sync_status(
-                    sync_status="Success",
+                    sync_status=sync_status_map[response.status_code],
                     message=response.data.get("message"),
                     label=f"{model_name}",
                     org_id=org_id,
@@ -318,7 +323,7 @@ def api_call(
 
             update_logs_for_daily_sync(
                 erp_link_token_id,
-                "success",
+                sync_status_map[response.status_code],
                 f"{model_name}",
                 response.data.get("message"),
             )

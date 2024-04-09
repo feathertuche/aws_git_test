@@ -184,7 +184,8 @@ class MergeInvoiceCreate(APIView):
                     return Response(
                         {
                             "message": "No new data found to insert in the kloo Invoice system"
-                        }
+                        },
+                        status=status.HTTP_204_NO_CONTENT,
                     )
 
                 # format the data to be posted to kloo

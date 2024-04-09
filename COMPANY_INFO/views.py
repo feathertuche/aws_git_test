@@ -154,7 +154,7 @@ class MergeCompanyInfo(APIView):
 
         organization_data = self.get_company_info()
         if organization_data is None or len(organization_data) == 0:
-            return Response({"companies": []}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"companies": []}, status=status.HTTP_204_NO_CONTENT)
 
         formatted_data = self.build_response_payload(organization_data)
 
@@ -212,11 +212,12 @@ class MergeKlooCompanyInsert(APIView):
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     )
 
-            if response.status_code == status.HTTP_404_NOT_FOUND:
+            if response.status_code == status.HTTP_204_NO_CONTENT:
                 return Response(
                     {
                         "message": "No new data found to insert in the kloo company system"
-                    }
+                    },
+                    status=status.HTTP_204_NO_CONTENT,
                 )
 
         except Exception as e:
