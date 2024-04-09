@@ -179,7 +179,7 @@ class MergeContactsList(APIView):
 
         contact_data = self.get_contacts()
         if contact_data is None or len(contact_data) == 0:
-            return Response({"erp_contacts": []}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"erp_contacts": []}, status=status.HTTP_204_NO_CONTENT)
 
         formatted_data = self.response_payload(contact_data)
 
@@ -343,11 +343,12 @@ class MergePostContacts(APIView):
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     )
 
-            if contact_data.status_code == status.HTTP_404_NOT_FOUND:
+            if contact_data.status_code == status.HTTP_204_NO_CONTENT:
                 return Response(
                     {
                         "message": "No new data found to insert in the kloo contact system"
-                    }
+                    },
+                    status=status.HTTP_204_NO_CONTENT,
                 )
 
         except Exception as e:

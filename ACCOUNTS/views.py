@@ -132,7 +132,7 @@ class MergeAccounts(APIView):
 
         acnt_data = self.account_source_data()
         if acnt_data is None or len(acnt_data) == 0:
-            return Response({"accounts": []}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"accounts": []}, status=status.HTTP_204_NO_CONTENT)
 
         format_data = self.account_payload(acnt_data)
         api_log(
@@ -185,11 +185,12 @@ class InsertAccountData(APIView):
                         status=account_response_data.status_code,
                     )
 
-            if request_account_data.status_code == status.HTTP_404_NOT_FOUND:
+            if request_account_data.status_code == status.HTTP_204_NO_CONTENT:
                 return Response(
                     {
                         "message": "No new data found to insert in the kloo account system"
-                    }
+                    },
+                    status=status.HTTP_204_NO_CONTENT,
                 )
 
         except Exception as e:
