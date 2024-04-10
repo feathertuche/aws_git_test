@@ -320,7 +320,7 @@ class MergePostContacts(APIView):
                 contact_payload["org_id"] = org_id
 
                 api_log(
-                    msg=f"Posting contacts data to Kloo: {json.dumps(contact_payload , indent=4)}"
+                    msg=f"Posting contacts data to Kloo: {json.dumps(contact_payload)}"
                 )
 
                 contact_url = (

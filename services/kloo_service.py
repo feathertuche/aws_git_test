@@ -322,7 +322,7 @@ class KlooService:
             post_invoice_payload["erp_link_token_id"] = str(self.erp_link_token_id)
 
             api_log(
-                msg=f"Posting invoice data to Kloo: {json.dumps(post_invoice_payload , indent=4)}"
+                msg=f"Posting invoice data to Kloo: {json.dumps(post_invoice_payload)}"
             )
 
             invoice_url = f"{self.KLOO_URL}/ap/erp-integration/insert-erp-invoices"

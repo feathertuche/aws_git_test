@@ -258,7 +258,7 @@ class MergePostTaxRates(APIView):
                 tax_payload["erp_link_token_id"] = erp_link_token_id
                 tax_payload["org_id"] = org_id
                 api_log(
-                    msg=f"Posting tax_rates data to Kloo: {json.dumps(tax_payload , indent=4)}"
+                    msg=f"Posting tax_rates data to Kloo: {json.dumps(tax_payload)}"
                 )
                 tax_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-tax-rates"
                 tax_response_data = requests.post(
