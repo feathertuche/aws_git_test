@@ -2,6 +2,7 @@
 Module docstring: This module provides functions related to traceback.
 """
 
+import json
 import traceback
 
 import requests
@@ -138,13 +139,12 @@ class MergeTrackingCategoriesList(APIView):
 
         organization_data = self.get_tc()
         if organization_data is None or len(organization_data) == 0:
-            return Response({"tracking_category": []}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"tracking_category": []}, status=status.HTTP_204_NO_CONTENT
+            )
         formatted_data = self.response_payload(organization_data)
 
-        api_log(
-            msg=f"FORMATTED DATA: {formatted_data} \
-         - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
-        )
+        api_log(msg=f" Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
         return Response(formatted_data, status=status.HTTP_200_OK)
 
 
@@ -245,7 +245,9 @@ class MergePostTrackingCategories(APIView):
                 tc_payload = tc_data.data
                 tc_payload["erp_link_token_id"] = erp_link_token_id
                 tc_payload["org_id"] = org_id
-
+                api_log(
+                    msg=f"Posting tracking_categories data to Kloo: {json.dumps(tc_payload , indent=4)}"
+                )
                 tc_url = f"{GETKLOO_LOCAL_URL}/organizations/erp-tracking-categories"
                 tc_response_data = requests.post(
                     tc_url,
@@ -270,11 +272,12 @@ class MergePostTrackingCategories(APIView):
                         status=tc_response_data.status_code,
                     )
 
-            if tc_data.status_code == status.HTTP_404_NOT_FOUND:
+            if tc_data.status_code == status.HTTP_204_NO_CONTENT:
                 return Response(
                     {
                         "message": "No new data found to insert in the kloo tracking category system"
-                    }
+                    },
+                    status=status.HTTP_204_NO_CONTENT,
                 )
 
         except Exception as e:

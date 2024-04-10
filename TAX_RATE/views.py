@@ -2,6 +2,7 @@
 Module docstring: This module provides functions related to traceback.
 """
 
+import json
 import traceback
 
 import requests
@@ -149,7 +150,7 @@ class MergeTaxRatesList(APIView):
 
         tax_data = self.get_tax_rate()
         if tax_data is None or len(tax_data) == 0:
-            return Response({"taxRates": []}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"taxRates": []}, status=status.HTTP_204_NO_CONTENT)
 
         formatted_data = self.response_payload(tax_data)
 
@@ -256,6 +257,9 @@ class MergePostTaxRates(APIView):
                 tax_payload = tax_data.data
                 tax_payload["erp_link_token_id"] = erp_link_token_id
                 tax_payload["org_id"] = org_id
+                api_log(
+                    msg=f"Posting tax_rates data to Kloo: {json.dumps(tax_payload , indent=4)}"
+                )
                 tax_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-tax-rates"
                 tax_response_data = requests.post(
                     tax_url,
@@ -278,9 +282,10 @@ class MergePostTaxRates(APIView):
                         status=tax_response_data.status_code,
                     )
 
-            if tax_data.status_code == status.HTTP_404_NOT_FOUND:
+            if tax_data.status_code == status.HTTP_204_NO_CONTENT:
                 return Response(
-                    {"message": "No new data found to insert in the kloo tax system"}
+                    {"message": "No new data found to insert in the kloo tax system"},
+                    status=status.HTTP_204_NO_CONTENT,
                 )
 
         except Exception as e:

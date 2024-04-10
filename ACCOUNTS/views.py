@@ -1,3 +1,4 @@
+import json
 import traceback
 
 import requests
@@ -41,7 +42,6 @@ class MergeAccounts(APIView):
             return None
 
         account_token = self.link_token_details
-        api_log(msg=f"ACCOUNTS GET:: The account token is : {account_token}")
         merge_client = create_merge_client(account_token)
 
         try:
@@ -132,13 +132,10 @@ class MergeAccounts(APIView):
 
         acnt_data = self.account_source_data()
         if acnt_data is None or len(acnt_data) == 0:
-            return Response({"accounts": []}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"accounts": []}, status=status.HTTP_204_NO_CONTENT)
 
         format_data = self.account_payload(acnt_data)
-        api_log(
-            msg=f"FORMATTED DATA: {format_data} \
-                     - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
-        )
+        api_log(msg=f"Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
         return Response(format_data, status=status.HTTP_200_OK)
 
 
@@ -164,6 +161,11 @@ class InsertAccountData(APIView):
                 account_payload = request_account_data.data
                 account_payload["erp_link_token_id"] = erp_link_token_id
                 account_payload["org_id"] = org_id
+
+                api_log(
+                    msg=f"Posting accounts data to Kloo: {json.dumps(account_payload , indent=4)}"
+                )
+
                 account_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-accounts"
                 account_response_data = requests.post(
                     account_url,
@@ -185,11 +187,12 @@ class InsertAccountData(APIView):
                         status=account_response_data.status_code,
                     )
 
-            if request_account_data.status_code == status.HTTP_404_NOT_FOUND:
+            if request_account_data.status_code == status.HTTP_204_NO_CONTENT:
                 return Response(
                     {
                         "message": "No new data found to insert in the kloo account system"
-                    }
+                    },
+                    status=status.HTTP_204_NO_CONTENT,
                 )
 
         except Exception as e:
