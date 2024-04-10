@@ -246,7 +246,7 @@ class MergePostTrackingCategories(APIView):
                 tc_payload["erp_link_token_id"] = erp_link_token_id
                 tc_payload["org_id"] = org_id
                 api_log(
-                    msg=f"Posting tracking_categories data to Kloo: {json.dumps(tc_payload , indent=4)}"
+                    msg=f"Posting tracking_categories data to Kloo: {json.dumps(tc_payload)}"
                 )
                 tc_url = f"{GETKLOO_LOCAL_URL}/organizations/erp-tracking-categories"
                 tc_response_data = requests.post(
