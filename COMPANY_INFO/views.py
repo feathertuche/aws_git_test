@@ -187,7 +187,7 @@ class MergeKlooCompanyInsert(APIView):
                 merge_payload["org_id"] = org_id
 
                 api_log(
-                    msg=f"Posting company data to Kloo: {json.dumps(merge_payload , indent=4)}"
+                    msg=f"Posting company data to Kloo: {json.dumps(merge_payload)}"
                 )
 
                 kloo_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-companies"
