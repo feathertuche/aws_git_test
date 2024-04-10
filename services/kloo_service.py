@@ -2,6 +2,8 @@
 Kloo Service class to connect with kloo API
 """
 
+import json
+
 import requests
 
 from merge_integration.helper_functions import api_log
@@ -319,9 +321,9 @@ class KlooService:
             post_invoice_payload = kloo_format_json
             post_invoice_payload["erp_link_token_id"] = str(self.erp_link_token_id)
 
-            # api_log(
-            #     msg=f"Posting invoice data to Kloo: {json.dumps(post_invoice_payload , indent=4)}"
-            # )
+            api_log(
+                msg=f"Posting invoice data to Kloo: {json.dumps(post_invoice_payload , indent=4)}"
+            )
 
             invoice_url = f"{self.KLOO_URL}/ap/erp-integration/insert-erp-invoices"
             invoice_response_data = requests.post(
