@@ -1,3 +1,4 @@
+import json
 import traceback
 
 import requests
@@ -64,15 +65,8 @@ class MergeCompanyInfo(APIView):
                     modified_after=self.last_modified_at,
                     cursor=organization_data.next,
                 )
-
-                api_log(
-                    msg=f"Data coming for Company MERGE API is : {organization_data}"
-                )
                 api_log(
                     msg=f"COMPANY INFO GET:: The length of the next page account data is : {len(organization_data.results)}"
-                )
-                api_log(
-                    msg=f"Length of all COMPANY INFO: {len(organization_data.results)}"
                 )
 
             api_log(
@@ -158,10 +152,7 @@ class MergeCompanyInfo(APIView):
 
         formatted_data = self.build_response_payload(organization_data)
 
-        api_log(
-            msg=f"FORMATTED DATA: {formatted_data} \
-             - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
-        )
+        api_log(msg=f"Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
         return Response(formatted_data, status=status.HTTP_200_OK)
 
 
@@ -194,6 +185,11 @@ class MergeKlooCompanyInsert(APIView):
                 merge_payload = response.data
                 merge_payload["erp_link_token_id"] = erp_link_token_id
                 merge_payload["org_id"] = org_id
+
+                api_log(
+                    msg=f"Posting company data to Kloo: {json.dumps(merge_payload , indent=4)}"
+                )
+
                 kloo_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-companies"
 
                 api_log(msg=f"merge_payload: {kloo_url}")
