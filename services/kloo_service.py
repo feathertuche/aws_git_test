@@ -35,7 +35,7 @@ class KlooService:
         Handle kloo api error
         """
         api_log(msg=f"API KLOO Error in {function} : {str(exception)}")
-        return {"status": False, "error": str(exception)}
+        return {"status": False, "error": str(exception), "status_code": 500}
 
     def post_account_data(self, account_payload: dict):
         """
