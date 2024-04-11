@@ -42,7 +42,7 @@ class DailyOrForceSyncLog(models.Model):
     id = models.CharField(max_length=36, primary_key=True)
     link_token_id = models.CharField(max_length=36)
     sync_date = models.DateTimeField(null=True)
-    start_date = models.DateTimeField(auto_now_add=True)
+    start_date = models.DateTimeField(null=True)
     end_date = models.DateTimeField(null=True)
     STATUS_CHOICES = (
         ("in_progress", "In Progress"),
@@ -50,14 +50,14 @@ class DailyOrForceSyncLog(models.Model):
         ("failed", "Failed"),
     )
     status = models.CharField(
-        max_length=10, choices=STATUS_CHOICES, default="in_progress"
+        max_length=20, choices=STATUS_CHOICES, default="in_progress"
     )
     SYNC_TYPE_CHOICES = (
         ("daily_sync", "Daily Sync"),
         ("force_resync", "Force Resync"),
     )
     sync_type = models.CharField(
-        max_length=12, choices=SYNC_TYPE_CHOICES, default="daily sync"
+        max_length=20, choices=SYNC_TYPE_CHOICES, default="daily sync"
     )
     is_initial_sync = models.BooleanField(default=False)
     # created_at = models.DateTimeField(auto_now_add=True)
@@ -82,8 +82,9 @@ class ErpDailySyncLogs(models.Model):
         ("in_progress", "In Progress"),
         ("success", "Success"),
         ("failed", "Failed"),
+        ("no_content", "No Content"),
     )
-    sync_status = models.CharField(max_length=10, choices=SYNC_STATUS_CHOICES)
+    sync_status = models.CharField(max_length=20, choices=SYNC_STATUS_CHOICES)
     error_message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

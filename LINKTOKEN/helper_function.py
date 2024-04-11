@@ -403,10 +403,20 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
             erp_sync_logs = erp_daily_sync_logs(
                 {
                     "link_token_id": erp_link_token_id,
-                    "sync_status": "success",
+                    "sync_status": "no_content",
                     "label": module_name,
                 }
             )
+
+            # if no content found then get the last modified date
+            if not erp_sync_logs:
+                erp_sync_logs = erp_daily_sync_logs(
+                    {
+                        "link_token_id": erp_link_token_id,
+                        "sync_status": "success",
+                        "label": module_name,
+                    }
+                )
 
             api_log(
                 msg=f"WEBHOOK: Inserting sync log table for in progress for erp_data {erp_data}"
