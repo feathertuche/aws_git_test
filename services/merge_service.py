@@ -173,17 +173,8 @@ class MergeInvoiceApiService(MergeService):
     MergeApiService class
     """
 
-    def __init__(
-            self,
-            previous=None,
-            results=None,
-            link_token_details=None,
-    ):
-        super().__init__()
-        self.link_token_details = link_token_details
-        self.next = next
-        self.previous = previous
-        self.results = results
+    def __init__(self, account_token: str):
+        super().__init__(account_token)
 
     def get_invoices(self, modified_after: str = None):
         """
