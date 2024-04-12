@@ -1,0 +1,73 @@
+{
+    "pipeline": {
+     "roleArn": "arn:aws:iam::710768145931:role/generic-codebuilddeploy-role",
+     "stages": [
+               {
+                   "name": "Source",
+                   "actions": [
+                       {
+                           "name": "Source",
+                           "actionTypeId": {
+                               "category": "Source",
+                               "owner": "AWS",
+                               "provider": "CodeCommit",
+                               "version": "1"
+                           },
+                           "runOrder": 1,
+                           "configuration": {
+                               "BranchName": "main",
+                               "OutputArtifactFormat": "CODE_ZIP",
+                               "PollForSourceChanges": "false",
+                               "RepositoryName": "kloo-merge-integration-erp"
+                           },
+                           "outputArtifacts": [
+                               {
+                                   "name": "SourceArtifact"
+                               }
+                           ],
+                           "inputArtifacts": [],
+                           "region": "eu-west-2",
+                           "namespace": "SourceVariables"
+                       }
+                   ]
+               },
+               {
+                   "name": "Deploy",
+                   "actions": [
+                       {
+                           "name": "Deploy",
+                           "actionTypeId": {
+                               "category": "Deploy",
+                               "owner": "AWS",
+                               "provider": "CodeDeployToECS",
+                               "version": "1"
+                           },
+                           "runOrder": 1,
+                           "configuration": {
+                               "AppSpecTemplateArtifact": "SourceArtifact",
+                               "AppSpecTemplatePath": "appspec.yml",
+                               "ApplicationName": "AppECS-kloo-prod-cluster-kloo-merge-integration-erp",
+                               "DeploymentGroupName": "DgpECS-kloo-prod-cluster-kloo-merge-integration-erp",
+                               "TaskDefinitionTemplateArtifact": "SourceArtifact",
+                               "TaskDefinitionTemplatePath": "taskdef.json"
+                           },
+                           "outputArtifacts": [],
+                           "inputArtifacts": [
+                               {
+                                   "name": "SourceArtifact"
+                               }
+                           ],
+                           "region": "eu-west-2",
+                           "namespace": "DeployVariables"
+                       }
+                   ]
+               }
+           ],
+     "artifactStore": {
+       "type": "S3",
+       "location": "codepipeline-eu-west-2-425403480136"
+     },
+     "name": "codepipeline-oauthapi",
+     "version": 5
+    }
+}

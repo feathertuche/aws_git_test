@@ -21,7 +21,6 @@ RUN python -m venv venv && \
 FROM python:3.10-alpine
 
 WORKDIR /app
-
 # Copy virtual environment from the builder stage
 COPY --from=builder /app/venv /app/venv
 COPY . .
