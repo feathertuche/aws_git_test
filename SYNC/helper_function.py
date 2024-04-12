@@ -457,12 +457,12 @@ def update_logs_for_daily_sync(
             )
 
             # send the sync complete mail
-            # kloo_service = KlooService()
-            # kloo_service.sync_complete_mail(
-            #     sync_complete_payload={
-            #         "daily_sync_id": daily_sync_log.id,
-            #     }
-            # )
+            kloo_service = KlooService()
+            kloo_service.sync_complete_mail(
+                sync_complete_payload={
+                    "daily_sync_id": daily_sync_log.id,
+                }
+            )
 
         api_log(msg=f"SYNC : Updated daily or force sync log for {erp_link_token_id}")
 
