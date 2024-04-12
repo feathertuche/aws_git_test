@@ -1,6 +1,8 @@
 import uuid
-
+import requests
 from merge.core import ApiError
+from rest_framework import status
+from rest_framework.response import Response
 from merge.resources.accounting import (
     AccountsListRequestRemoteFields,
     AccountsListRequestShowEnumOrigins,
@@ -10,10 +12,10 @@ from merge.resources.accounting import (
     AccountingAttachmentRequest,
     InvoicesListRequestExpand,
 )
-
 from INVOICES.exceptions import MergeApiException
 from INVOICES.models import InvoiceAttachmentLogs
 from merge_integration.helper_functions import api_log
+from merge_integration.settings import BASE_URL
 from merge_integration.utils import create_merge_client
 
 
@@ -23,6 +25,7 @@ class MergeService:
     """
 
     def __init__(self, account_token: str):
+        self.account_token = account_token
         self.merge_client = create_merge_client(account_token)
 
     def handle_merge_api_error(self, function: str, e: ApiError):
@@ -176,7 +179,7 @@ class MergeInvoiceApiService(MergeService):
     def __init__(self, account_token: str):
         super().__init__(account_token)
 
-    def get_invoices(self, modified_after: str = None):
+    def get_invoices(self, modified_after: str = None, batch_size: int = 100):
         """
         get_invoices method
         """
@@ -262,6 +265,53 @@ class MergeInvoiceApiService(MergeService):
                     "message": str(e),
                 }
             )
+            api_log(msg=f"MERGE EXCEPTION: Error creating invoice: {str(e)}")
+            raise e
+
+    def update_invoice(self, invoice_id: str, invoice_data: dict):
+        print(" ")
+        print("This is a payload in merge service py file ::", invoice_data)
+        print(" ")
+        try:
+            headers = {"Authorization": f"Bearer {self.account_token}"}
+            print("[ACCOUNT TOKEN BLOC merge service file :", headers)
+            invoice_update_url = f"https://api-eu.merge.dev/api/accounting/v1/invoices/{invoice_id}"
+
+            invoice_update_request = requests.patch(invoice_update_url, json=invoice_data, headers=headers)
+            print("@@@@@@@@", invoice_update_request)
+
+            if invoice_update_request.status_code == status.HTTP_404_NOT_FOUND:
+                error_msg = f"[MERGE SERVICE PY INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} is Incorrect and the " \
+                            f"status code is : {status.HTTP_404_NOT_FOUND}"
+                api_log(msg=error_msg)
+                raise MergeApiException(error_msg)
+
+            elif invoice_update_request.status_code == status.HTTP_200_OK:
+                print("Invoice updated successfully......")
+                api_log(msg=f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in "
+                            f"Xero")
+                return Response(
+                    {"message": f"[INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in Xero "
+                                f"with status code: {status.HTTP_200_OK}"}
+                )
+
+            else:
+                error_msg = f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} failed to update in Xero with " \
+                            f"status code: {invoice_update_request.status_code} "
+                api_log(msg=error_msg)
+                raise MergeApiException(error_msg)
+
+        except Exception as e:
+            print("This is a exception bloc in merge_service py file ::", e)
+            # self.create_or_update_log(
+            #     {
+            #         "id": uuid.uuid4(),
+            #         "invoice_id": invoice_data.get("id"),
+            #         "type": "invoice",
+            #         "status": "failed",
+            #         "message": str(e),
+            #     }
+            # )
             api_log(msg=f"MERGE EXCEPTION: Error creating invoice: {str(e)}")
             raise e
 
