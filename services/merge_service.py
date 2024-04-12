@@ -173,6 +173,9 @@ class MergeInvoiceApiService(MergeService):
     MergeApiService class
     """
 
+    def __init__(self, account_token: str):
+        super().__init__(account_token)
+
     def get_invoices(self, modified_after: str = None):
         """
         get_invoices method
@@ -185,10 +188,40 @@ class MergeInvoiceApiService(MergeService):
                 modified_after=modified_after,
             )
 
+            all_company_info = []
+            while True:
+                api_log(msg=f"Adding {len(invoice_data.results)} Company Info to the list.")
+
+                all_company_info.extend(invoice_data.results)
+
+                if invoice_data.next is None:
+                    break
+                invoice_data = self.merge_client.accounting.invoices.list(
+                    expand=InvoicesListRequestExpand.ACCOUNTING_PERIOD,
+                    page_size=100000,
+                    include_remote_data=True,
+                    modified_after=modified_after,
+                    cursor=invoice_data.next,
+                )
+
+                api_log(
+                    msg=f"Data coming for Company MERGE API is : {invoice_data}"
+                )
+                api_log(
+                    msg=f"COMPANY INFO GET:: The length of the next page account data is : {len(invoice_data.results)}"
+                )
+                api_log(
+                    msg=f"Length of all COMPANY INFO: {len(invoice_data.results)}"
+                )
+
+            api_log(
+                msg=f"COMPANY INFO GET:: The length of all company info data is : {len(all_company_info)}"
+            )
             return {
-                "data": invoice_data,
+                "data": all_company_info,
                 "status": True,
             }
+
         except ApiError as e:
             return self.handle_merge_api_error("get_invoices", e)
 
