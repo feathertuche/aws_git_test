@@ -5,71 +5,92 @@ Helper functions for the INVOICES app
 import uuid
 
 from INVOICES.queries import get_currency_id
+from merge_integration.helper_functions import api_log
 
 
 def format_merge_invoice_data(invoice_response, erp_link_token_id, org_id):
     """
     Format the merge invoice data
     """
-    invoices_json = []
-    for invoice in invoice_response["data"]:
-        invoices_data = {
-            "id": str(uuid.uuid4()),
-            "erp_id": invoice.id,
-            "organization_id": org_id,
-            "erp_link_token_id": str(erp_link_token_id),
-            "contact": invoice.contact,
-            "number": invoice.number,
-            "issue_date": (
-                invoice.issue_date.isoformat() if invoice.issue_date else None
-            ),
-            "due_date": (invoice.due_date.isoformat() if invoice.due_date else None),
-            "paid_on_date": (
-                invoice.paid_on_date.isoformat() if invoice.paid_on_date else None
-            ),
-            "memo": invoice.memo,
-            "company": invoice.company,
-            "currency": get_currency_id(invoice.currency)[0],
-            "exchange_rate": invoice.exchange_rate,
-            "total_discount": invoice.total_discount,
-            "sub_total": invoice.sub_total,
-            "erp_status": invoice.status,
-            "total_tax_amount": invoice.total_tax_amount,
-            "total_amount": invoice.total_amount,
-            "balance": invoice.balance,
-            "tracking_categories": [
-                category for category in invoice.tracking_categories
-            ],
-            "payments": [payment for payment in invoice.payments],
-            "applied_payments": [
-                applied_payment for applied_payment in invoice.applied_payments
-            ],
-            "line_items": [
-                format_line_item(line_item) for line_item in invoice.line_items
-            ],
-            "accounting_period": invoice.accounting_period,
-            "purchase_orders": [
-                purchase_order for purchase_order in invoice.purchase_orders
-            ],
-            "erp_created_at": (
-                invoice.created_at.isoformat() if invoice.created_at else None
-            ),
-            "erp_modified_at": (
-                invoice.modified_at.isoformat() if invoice.modified_at else None
-            ),
-            "erp_field_mappings": invoice.field_mappings,
-            "erp_remote_data": (
-                [
-                    invoice_remote_data.data
-                    for invoice_remote_data in invoice.remote_data
-                ]
-                if invoice.remote_data is not None
-                else None
-            ),
-        }
-        invoices_json.append(invoices_data)
+    try:
+        invoices_json = []
+        for invoice in invoice_response["data"]:
+            invoices_data = {
+                "id": str(uuid.uuid4()),
+                "erp_id": invoice.id,
+                "organization_id": org_id,
+                "erp_link_token_id": str(erp_link_token_id),
+                "contact": invoice.contact,
+                "number": invoice.number,
+                "issue_date": (
+                    invoice.issue_date.isoformat() if invoice.issue_date else None
+                ),
+                "due_date": (
+                    invoice.due_date.isoformat() if invoice.due_date else None
+                ),
+                "paid_on_date": (
+                    invoice.paid_on_date.isoformat() if invoice.paid_on_date else None
+                ),
+                "memo": invoice.memo,
+                "company": invoice.company,
+                "currency": (
+                    get_currency_id(invoice.currency)[0] if invoice.currency else None
+                ),
+                "exchange_rate": invoice.exchange_rate,
+                "total_discount": invoice.total_discount,
+                "sub_total": invoice.sub_total,
+                "erp_status": invoice.status,
+                "total_tax_amount": invoice.total_tax_amount,
+                "total_amount": invoice.total_amount,
+                "balance": invoice.balance,
+                "tracking_categories": (
+                    [category for category in invoice.tracking_categories]
+                    if invoice.tracking_categories is not None
+                    else None
+                ),
+                "payments": (
+                    [payment for payment in invoice.payments]
+                    if invoice.payments is not None
+                    else None
+                ),
+                "applied_payments": (
+                    [applied_payment for applied_payment in invoice.applied_payments]
+                    if invoice.applied_payments is not None
+                    else None
+                ),
+                "line_items": (
+                    [format_line_item(line_item) for line_item in invoice.line_items]
+                    if invoice.line_items is not None
+                    else None
+                ),
+                "accounting_period": invoice.accounting_period,
+                "purchase_orders": (
+                    [purchase_order for purchase_order in invoice.purchase_orders]
+                    if invoice.purchase_orders is not None
+                    else None
+                ),
+                "erp_created_at": (
+                    invoice.created_at.isoformat() if invoice.created_at else None
+                ),
+                "erp_modified_at": (
+                    invoice.modified_at.isoformat() if invoice.modified_at else None
+                ),
+                "erp_field_mappings": invoice.field_mappings,
+                "erp_remote_data": (
+                    [
+                        invoice_remote_data.data
+                        for invoice_remote_data in invoice.remote_data
+                    ]
+                    if invoice.remote_data is not None
+                    else None
+                ),
+            }
+            invoices_json.append(invoices_data)
 
-    return invoices_json
+        api_log(msg=f"Formatted merge invoice data: {invoices_json}")
+        return invoices_json
+    except Exception as e:
+        api_log(msg=f"Error formatting merge invoice data: {e}")
 
 
 def format_line_item(line_item):

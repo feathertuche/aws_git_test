@@ -2,6 +2,7 @@
 Module docstring: This module provides functions related to traceback.
 """
 
+import json
 import traceback
 
 import requests
@@ -143,10 +144,7 @@ class MergeTrackingCategoriesList(APIView):
             )
         formatted_data = self.response_payload(organization_data)
 
-        api_log(
-            msg=f"FORMATTED DATA: {formatted_data} \
-         - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
-        )
+        api_log(msg=f" Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
         return Response(formatted_data, status=status.HTTP_200_OK)
 
 
@@ -247,7 +245,9 @@ class MergePostTrackingCategories(APIView):
                 tc_payload = tc_data.data
                 tc_payload["erp_link_token_id"] = erp_link_token_id
                 tc_payload["org_id"] = org_id
-
+                api_log(
+                    msg=f"Posting tracking_categories data to Kloo: {json.dumps(tc_payload)}"
+                )
                 tc_url = f"{GETKLOO_LOCAL_URL}/organizations/erp-tracking-categories"
                 tc_response_data = requests.post(
                     tc_url,
