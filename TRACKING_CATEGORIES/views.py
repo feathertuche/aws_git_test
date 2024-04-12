@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL, p_size, b_size
 from merge_integration.utils import create_merge_client
 
 
@@ -52,7 +52,7 @@ class MergeTrackingCategoriesList(APIView):
             organization_data = tc_client.accounting.tracking_categories.list(
                 remote_fields="status",
                 show_enum_origins="status",
-                page_size=100000,
+                page_size=p_size,
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
             )
@@ -69,7 +69,7 @@ class MergeTrackingCategoriesList(APIView):
                 organization_data = tc_client.accounting.accounts.list(
                     remote_fields="status",
                     show_enum_origins="status",
-                    page_size=100000,
+                    page_size=p_size,
                     include_remote_data=True,
                     modified_after=self.last_modified_at,
                     cursor=organization_data.next,
@@ -249,10 +249,16 @@ class MergePostTrackingCategories(APIView):
                     msg=f"Posting tracking_categories data to Kloo: {json.dumps(tc_payload)}"
                 )
                 tc_url = f"{GETKLOO_LOCAL_URL}/organizations/erp-tracking-categories"
-                tc_response_data = requests.post(
-                    tc_url,
-                    json=tc_payload,
-                )
+
+                # adding batch size of 100
+                batch_size = b_size
+                for batch in range(0, len(tc_payload), batch_size):
+                    batch_data = tc_payload[batch:batch + batch_size]
+
+                    tc_response_data = requests.post(
+                        tc_url,
+                        json=batch_data,
+                    )
 
                 if tc_response_data.status_code == status.HTTP_201_CREATED:
                     api_log(
