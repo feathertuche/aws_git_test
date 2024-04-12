@@ -77,7 +77,7 @@ CORS_ALLOW_HEADERS = [
 
 # Application definition
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -85,6 +85,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+]
+
+PROJECT_APPS = [
     "ACCOUNTS",
     "LINKTOKEN",
     "corsheaders",
@@ -96,6 +99,8 @@ INSTALLED_APPS = [
     "SYNC",
     "INVOICES",
 ]
+
+INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -185,3 +190,9 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Cron jobs
+CRONJOBS = [
+    ("*/1 * * * *", "INVOICES.scheduled_tasks.daily_get_merge_invoice.main"),
+]

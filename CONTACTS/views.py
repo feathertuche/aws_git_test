@@ -26,9 +26,19 @@ class MergeContactsList(APIView):
     API view for retrieving Merge Contacts list.
     """
 
-    def __init__(self, link_token_details=None):
+    def __init__(
+        self,
+        previous=None,
+        results=None,
+        link_token_details=None,
+        last_modified_at=None,
+    ):
         super().__init__()
         self.link_token_details = link_token_details
+        self.last_modified_at = last_modified_at
+        self.next = next
+        self.previous = previous
+        self.results = results
 
     def get_contacts(self):
         if self.link_token_details is None:
@@ -53,11 +63,38 @@ class MergeContactsList(APIView):
                 page_size=100000,
                 is_supplier=True,
                 include_remote_data=True,
+                modified_after=self.last_modified_at,
             )
 
-            api_log(msg=f"Contact data: {contact_data}")
+            all_contact_data = []
+            while True:
+                api_log(msg=f"Adding {len(contact_data.results)} accounts to the list.")
 
-            return contact_data
+                all_contact_data.extend(contact_data.results)
+                if contact_data.next is None:
+                    break
+
+                contact_data = contacts_client.accounting.accounts.list(
+                    expand=ContactsListRequestExpand.ADDRESSES,
+                    remote_fields="status",
+                    show_enum_origins="status",
+                    page_size=100000,
+                    is_supplier=True,
+                    include_remote_data=True,
+                    modified_after=self.last_modified_at,
+                    cursor=contact_data.next,
+                )
+
+                api_log(
+                    msg=f"CONTACTS GET:: The length of the next page contacts data is : {len(contact_data.results)}"
+                )
+                api_log(msg=f"Length of all_contact_data: {len(contact_data.results)}")
+
+            api_log(
+                msg=f"CONTACTS GET:: The length of all account data is : {len(all_contact_data)}"
+            )
+
+            return all_contact_data
         except Exception as e:
             api_log(
                 msg=f"Error retrieving details: {str(e)} \
@@ -77,11 +114,11 @@ class MergeContactsList(APIView):
         """
         formatted_data = []
 
-        for contact in contact_data.results:
+        for contact in contact_data:
             erp_remote_data = None
             if contact.remote_data is not None:
                 erp_remote_data = [
-                    json.dumps(contact_remote_data.data)
+                    contact_remote_data.data
                     for contact_remote_data in contact.remote_data
                 ]
 
@@ -95,7 +132,7 @@ class MergeContactsList(APIView):
                 "tax_number": contact.tax_number,
                 "status": contact.status,
                 "currency": contact.currency,
-                "remote_updated_at": contact.remote_updated_at.isoformat() + "Z",
+                "remote_updated_at": contact.remote_updated_at.isoformat(),
                 "company": contact.company,
                 "addresses": [
                     {
@@ -107,8 +144,8 @@ class MergeContactsList(APIView):
                         "country_subdivision": addr.country_subdivision,
                         "country": addr.country,
                         "zip_code": addr.zip_code,
-                        "created_at": addr.created_at.isoformat() + "Z",
-                        "modified_at": addr.modified_at.isoformat() + "Z",
+                        "created_at": addr.created_at.isoformat(),
+                        "modified_at": addr.modified_at.isoformat(),
                     }
                     for addr in contact.addresses
                 ],
@@ -116,14 +153,14 @@ class MergeContactsList(APIView):
                     {
                         "number": phone.number,
                         "type": phone.type,
-                        "created_at": phone.created_at.isoformat() + "Z",
-                        "modified_at": phone.modified_at.isoformat() + "Z",
+                        "created_at": phone.created_at.isoformat(),
+                        "modified_at": phone.modified_at.isoformat(),
                     }
                     for phone in contact.phone_numbers
                 ],
                 "remote_was_deleted": contact.remote_was_deleted,
-                "created_at": contact.created_at.isoformat() + "Z",
-                "modified_at": contact.modified_at.isoformat() + "Z",
+                "created_at": contact.created_at.isoformat(),
+                "modified_at": contact.modified_at.isoformat(),
                 "field_mappings": contact.field_mappings,
                 "remote_data": erp_remote_data,
             }
@@ -142,12 +179,12 @@ class MergeContactsList(APIView):
         api_log(msg="Processing GET request in Merge Contacts")
 
         contact_data = self.get_contacts()
+        if contact_data is None or len(contact_data) == 0:
+            return Response({"erp_contacts": []}, status=status.HTTP_204_NO_CONTENT)
+
         formatted_data = self.response_payload(contact_data)
 
-        api_log(
-            msg=f"FORMATTED DATA: {formatted_data} \
-         - Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}"
-        )
+        api_log(msg=f"Status Code: {status.HTTP_200_OK}: {traceback.format_exc()}")
         return Response(formatted_data, status=status.HTTP_200_OK)
 
 
@@ -255,9 +292,10 @@ class MergePostContacts(APIView):
     API view for inserting Merge Contact data into the Kloo Contacts system.
     """
 
-    def __init__(self, link_token_details=None):
+    def __init__(self, link_token_details=None, last_modified_at=None):
         super().__init__()
         self.link_token_details = link_token_details
+        self.last_modified_at = last_modified_at
 
     def post(self, request):
         """
@@ -269,7 +307,10 @@ class MergePostContacts(APIView):
 
         erp_link_token_id = request.data.get("erp_link_token_id")
         org_id = request.data.get("org_id")
-        fetch_data = MergeContactsList(link_token_details=self.link_token_details)
+        fetch_data = MergeContactsList(
+            link_token_details=self.link_token_details,
+            last_modified_at=self.last_modified_at,
+        )
         contact_data = fetch_data.get(request=request)
 
         try:
@@ -277,6 +318,11 @@ class MergePostContacts(APIView):
                 contact_payload = contact_data.data
                 contact_payload["erp_link_token_id"] = erp_link_token_id
                 contact_payload["org_id"] = org_id
+
+                api_log(
+                    msg=f"Posting contacts data to Kloo: {json.dumps(contact_payload)}"
+                )
+
                 contact_url = (
                     f"{GETKLOO_LOCAL_URL}/ap/erp-integration/insert-erp-contacts"
                 )
@@ -291,7 +337,7 @@ class MergePostContacts(APIView):
                         msg="data inserted successfully in the kloo Contacts system"
                     )
                     return Response(
-                        "data inserted successfully in the kloo Contacts system"
+                        {"message": "API Contact Info completed successfully"}
                     )
 
                 else:
@@ -299,6 +345,14 @@ class MergePostContacts(APIView):
                         {"error": "Failed to send data to Kloo Contacts API"},
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     )
+
+            if contact_data.status_code == status.HTTP_204_NO_CONTENT:
+                return Response(
+                    {
+                        "message": "No new data found to insert in the kloo contact system"
+                    },
+                    status=status.HTTP_204_NO_CONTENT,
+                )
 
         except Exception as e:
             error_message = f"Failed to send data to Kloo Contacts API. Error: {str(e)}"

@@ -36,3 +36,61 @@ class ErpLinkToken(models.Model):
 
     class Meta:
         db_table = "erp_link_token"  # Set the actual table name here
+
+
+class DailyOrForceSyncLog(models.Model):
+    id = models.CharField(max_length=36, primary_key=True)
+    link_token_id = models.CharField(max_length=36)
+    sync_date = models.DateTimeField(null=True)
+    start_date = models.DateTimeField(null=True)
+    end_date = models.DateTimeField(null=True)
+    STATUS_CHOICES = (
+        ("in_progress", "In Progress"),
+        ("success", "Success"),
+        ("failed", "Failed"),
+    )
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="in_progress"
+    )
+    SYNC_TYPE_CHOICES = (
+        ("daily_sync", "Daily Sync"),
+        ("force_resync", "Force Resync"),
+    )
+    sync_type = models.CharField(
+        max_length=20, choices=SYNC_TYPE_CHOICES, default="daily sync"
+    )
+    is_initial_sync = models.BooleanField(default=False)
+    # created_at = models.DateTimeField(auto_now_add=True)
+    # updated_at = models.DateTimeField(auto_now=True)
+
+    objects = models.Manager()
+
+    class Meta:
+        db_table = "daily_or_force_sync_log"
+
+
+class ErpDailySyncLogs(models.Model):
+    id = models.CharField(max_length=36, primary_key=True)
+    org_id = models.CharField(max_length=36)
+    link_token_id = models.CharField(max_length=36)
+    daily_or_force_sync_log_id = models.CharField(max_length=36)
+    link_token = models.CharField(max_length=36)
+    label = models.CharField(max_length=255)
+    sync_start_time = models.DateTimeField()
+    sync_end_time = models.DateTimeField(null=True)
+    SYNC_STATUS_CHOICES = (
+        ("in_progress", "In Progress"),
+        ("success", "Success"),
+        ("failed", "Failed"),
+        ("no_content", "No Content"),
+    )
+    sync_status = models.CharField(max_length=20, choices=SYNC_STATUS_CHOICES)
+    error_message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True)
+
+    objects = models.Manager()
+
+    class Meta:
+        db_table = "erp_daily_sync_logs"
