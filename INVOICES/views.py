@@ -177,10 +177,10 @@ class MergeInvoiceCreate(APIView):
         try:
             if invoice_response["status"]:
                 api_log(
-                    msg=f"INVOICE : Processing {len(invoice_response['data'].results)} invoices"
+                    msg=f"INVOICE : Processing {len(invoice_response['data'])} invoices"
                 )
 
-                if len(invoice_response["data"].results) == 0:
+                if len(invoice_response["data"]) == 0:
                     return Response(
                         {
                             "message": "No new data found to insert in the kloo Invoice system"

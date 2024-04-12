@@ -12,7 +12,7 @@ def format_merge_invoice_data(invoice_response, erp_link_token_id, org_id):
     Format the merge invoice data
     """
     invoices_json = []
-    for invoice in invoice_response["data"].results:
+    for invoice in invoice_response["data"]:
         invoices_data = {
             "id": str(uuid.uuid4()),
             "erp_id": invoice.id,
