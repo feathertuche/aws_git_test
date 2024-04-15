@@ -1,4 +1,5 @@
 import uuid
+import urllib.parse
 import requests
 from merge.core import ApiError
 from rest_framework import status
@@ -269,24 +270,27 @@ class MergeInvoiceApiService(MergeService):
             raise e
 
     def update_invoice(self, invoice_id: str, invoice_data: dict):
+        encoded_token = urllib.parse.quote(self.account_token)
+        print("THIS IS NEW account token :", self.account_token)
         print(" ")
         print("This is a payload in merge service py file ::", invoice_data)
         print(" ")
+
         try:
-            headers = {"Authorization": f"Bearer {self.account_token}"}
-            print("[ACCOUNT TOKEN BLOC merge service file :", headers)
+            headers = {
+                "Authorization": "Bearer vDQmwYYKwwP88Kdijnmm1jvEYKKyDwebs2oMbXHBwUfg85WUMHLTlQ",
+                "X-Account-Token": encoded_token,
+                "Accept": "application/json"
+            }
+            print("[BEARER TOKEN BLOC merge service file] :", headers)
             invoice_update_url = f"https://api-eu.merge.dev/api/accounting/v1/invoices/{invoice_id}"
+            print("URL response ;", invoice_update_url)
+            print("This is a testssssss")
 
             invoice_update_request = requests.patch(invoice_update_url, json=invoice_data, headers=headers)
             print("@@@@@@@@", invoice_update_request)
 
-            if invoice_update_request.status_code == status.HTTP_404_NOT_FOUND:
-                error_msg = f"[MERGE SERVICE PY INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} is Incorrect and the " \
-                            f"status code is : {status.HTTP_404_NOT_FOUND}"
-                api_log(msg=error_msg)
-                raise MergeApiException(error_msg)
-
-            elif invoice_update_request.status_code == status.HTTP_200_OK:
+            if invoice_update_request.status_code == status.HTTP_200_OK:
                 print("Invoice updated successfully......")
                 api_log(msg=f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in "
                             f"Xero")
@@ -295,10 +299,17 @@ class MergeInvoiceApiService(MergeService):
                                 f"with status code: {status.HTTP_200_OK}"}
                 )
 
+            elif invoice_update_request.status_code == status.HTTP_404_NOT_FOUND:
+                print("THIS IS A ELIF bloc....")
+                error_msg = f"[MERGE SERVICE PY INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} is Incorrect and the " \
+                            f"status code is : {status.HTTP_404_NOT_FOUND}"
+                # api_log(msg=error_msg)
+                raise MergeApiException(error_msg)
+
             else:
                 error_msg = f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} failed to update in Xero with " \
                             f"status code: {invoice_update_request.status_code} "
-                api_log(msg=error_msg)
+                # api_log(msg=error_msg)
                 raise MergeApiException(error_msg)
 
         except Exception as e:
