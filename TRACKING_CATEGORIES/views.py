@@ -66,7 +66,7 @@ class MergeTrackingCategoriesList(APIView):
                 if organization_data.next is None:
                     break
 
-                organization_data = tc_client.accounting.accounts.list(
+                organization_data = tc_client.accounting.tracking_categories.list(
                     remote_fields="status",
                     show_enum_origins="status",
                     page_size=100000,
