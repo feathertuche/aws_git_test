@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL, p_size, b_size
+from merge_integration.settings import GETKLOO_LOCAL_URL, tax_rate_page_size, tax_rate_batch_size
 from merge_integration.utils import create_merge_client
 
 
@@ -60,7 +60,7 @@ class MergeTaxRatesList(APIView):
 
         try:
             tax_data = merge_client.accounting.tax_rates.list(
-                page_size=p_size,
+                page_size=tax_rate_page_size,
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
             )
@@ -74,7 +74,7 @@ class MergeTaxRatesList(APIView):
                     break
 
                 tax_data = merge_client.accounting.accounts.list(
-                    page_size=p_size,
+                    page_size=tax_rate_page_size,
                     include_remote_data=True,
                     modified_after=self.last_modified_at,
                     cursor=tax_data.next,
@@ -263,7 +263,7 @@ class MergePostTaxRates(APIView):
                 tax_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-tax-rates"
 
                 # adding batch size of 100
-                batch_size = b_size
+                batch_size = tax_rate_batch_size
                 for batch in range(0, len(tax_payload), batch_size):
                     batch_data = tax_payload[batch:batch + batch_size]
 

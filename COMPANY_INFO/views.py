@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL, p_size, b_size
+from merge_integration.settings import GETKLOO_LOCAL_URL, company_info_batch_size, company_info_page_size
 from merge_integration.utils import create_merge_client
 
 
@@ -44,7 +44,7 @@ class MergeCompanyInfo(APIView):
         try:
             organization_data = comp_client.accounting.company_info.list(
                 expand=CompanyInfoListRequestExpand.ADDRESSES,
-                page_size=p_size,
+                page_size=company_info_page_size,
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
             )
@@ -58,7 +58,7 @@ class MergeCompanyInfo(APIView):
                     break
                 organization_data = comp_client.accounting.company_info.list(
                     expand=CompanyInfoListRequestExpand.ADDRESSES,
-                    page_size=p_size,
+                    page_size=company_info_page_size,
                     include_remote_data=True,
                     modified_after=self.last_modified_at,
                     cursor=organization_data.next,
@@ -191,7 +191,7 @@ class MergeKlooCompanyInsert(APIView):
                 kloo_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-companies"
 
                 # Sending data in the batch of 100
-                batch_size = b_size
+                batch_size = company_info_batch_size
                 for batch in range(0, len(merge_payload), batch_size):
                     batch_data = merge_payload[batch:batch + batch_size]
 

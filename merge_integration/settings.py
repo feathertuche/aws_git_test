@@ -197,5 +197,20 @@ CRONJOBS = [
     ("*/1 * * * *", "INVOICES.scheduled_tasks.daily_get_merge_invoice.main"),
 ]
 
-p_size = 10
-b_size = 10
+tracking_categories_page_size = 10
+tracking_categories_batch_size = 10
+
+accounts_page_size = 50
+accounts_batch_size = 50
+
+company_info_page_size = 50
+company_info_batch_size = 50
+
+contacts_page_size = 50
+contacts_batch_size = 50
+
+invoices_page_size = 50
+invoices_batch_size = 50
+
+tax_rate_page_size = 50
+tax_rate_batch_size = 50
