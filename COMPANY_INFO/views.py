@@ -1,17 +1,17 @@
 import json
 import traceback
-
 import requests
 from merge.resources.accounting import (
     CompanyInfoListRequestExpand,
 )
+from concurrent.futures import ThreadPoolExecutor
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL, company_info_batch_size, company_info_page_size
 from merge_integration.utils import create_merge_client
+from services.kloo_service import KlooService
 
 
 class MergeCompanyInfo(APIView):
@@ -46,7 +46,7 @@ class MergeCompanyInfo(APIView):
         try:
             organization_data = comp_client.accounting.company_info.list(
                 expand=CompanyInfoListRequestExpand.ADDRESSES,
-                page_size=100000,
+                page_size=company_info_page_size,
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
             )
@@ -60,11 +60,12 @@ class MergeCompanyInfo(APIView):
                     break
                 organization_data = comp_client.accounting.company_info.list(
                     expand=CompanyInfoListRequestExpand.ADDRESSES,
-                    page_size=100000,
+                    page_size=company_info_page_size,
                     include_remote_data=True,
                     modified_after=self.last_modified_at,
                     cursor=organization_data.next,
                 )
+
                 api_log(
                     msg=f"COMPANY INFO GET:: The length of the next page account data is : {len(organization_data.results)}"
                 )
@@ -192,11 +193,17 @@ class MergeKlooCompanyInsert(APIView):
 
                 kloo_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-companies"
 
-                api_log(msg=f"merge_payload: {kloo_url}")
-                kloo_data_insert = requests.post(
-                    kloo_url,
-                    json=merge_payload,
-                )
+                # Sending data in the batch of 100
+                batch_size = company_info_batch_size
+                for batch in range(0, len(merge_payload), batch_size):
+                    batch_data = merge_payload[batch:batch + batch_size]
+
+                    api_log(msg=f"merge_payload: {kloo_url}")
+                    kloo_data_insert = requests.post(
+                        kloo_url,
+                        json=batch_data,
+                        stream=True,
+                    )
 
                 if kloo_data_insert.status_code == status.HTTP_201_CREATED:
                     return Response(

@@ -17,7 +17,7 @@ from rest_framework.views import APIView
 
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL, contacts_batch_size, contacts_page_size
 from merge_integration.utils import create_merge_client
 
 
@@ -60,7 +60,7 @@ class MergeContactsList(APIView):
                 expand=ContactsListRequestExpand.ADDRESSES,
                 remote_fields="status",
                 show_enum_origins="status",
-                page_size=100000,
+                page_size=contacts_page_size,
                 is_supplier=True,
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
@@ -78,7 +78,7 @@ class MergeContactsList(APIView):
                     expand=ContactsListRequestExpand.ADDRESSES,
                     remote_fields="status",
                     show_enum_origins="status",
-                    page_size=100000,
+                    page_size=contacts_page_size,
                     is_supplier=True,
                     include_remote_data=True,
                     modified_after=self.last_modified_at,
@@ -327,10 +327,16 @@ class MergePostContacts(APIView):
                     f"{GETKLOO_LOCAL_URL}/ap/erp-integration/insert-erp-contacts"
                 )
 
-                contact_response_data = requests.post(
-                    contact_url,
-                    json=contact_payload,
-                )
+                # adding batch size of 100
+                batch_size = contacts_batch_size
+                for batch in range(0, len(contact_payload), batch_size):
+                    batch_data = contact_payload[batch:batch + batch_size]
+
+                    contact_response_data = requests.post(
+                        contact_url,
+                        json=batch_data,
+                        stream=True,
+                    )
 
                 if contact_response_data.status_code == status.HTTP_201_CREATED:
                     api_log(

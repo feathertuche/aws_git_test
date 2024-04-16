@@ -9,6 +9,7 @@ from INVOICES.helper_functions import format_merge_invoice_data
 from INVOICES.serializers import InvoiceCreateSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
+from merge_integration.settings import invoices_batch_size
 from services.kloo_service import KlooService
 from services.merge_service import MergeInvoiceApiService
 
@@ -188,19 +189,24 @@ class MergeInvoiceCreate(APIView):
                         status=status.HTTP_204_NO_CONTENT,
                     )
 
-                # format the data to be posted to kloo
-                invoices_json = format_merge_invoice_data(
-                    invoice_response, erp_link_token_id, org_id
-                )
+                # adding batch size
+                batch_size = invoices_batch_size
+                for batch in range(0, len(invoice_response["data"]), batch_size):
+                    batch_data = invoice_response["data"][batch:batch + batch_size]
 
-                # save the data to the database
-                api_log(msg="Invoices saving to database")
+                    # format the data to be posted to kloo
+                    invoices_json = format_merge_invoice_data(
+                        batch_data, erp_link_token_id, org_id
+                    )
 
-                kloo_service = KlooService(
-                    auth_token=None,
-                    erp_link_token_id=erp_link_token_id,
-                )
-                invoice_kloo_response = kloo_service.post_invoice_data(invoices_json)
+                    # save the data to the database
+                    api_log(msg="Invoices saving to database")
+
+                    kloo_service = KlooService(
+                        auth_token=None,
+                        erp_link_token_id=erp_link_token_id,
+                    )
+                    invoice_kloo_response = kloo_service.post_invoice_data(invoices_json)
 
                 if invoice_kloo_response["status_code"] == status.HTTP_201_CREATED:
                     api_log(msg="data inserted successfully in the kloo Invoice system")
