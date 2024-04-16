@@ -176,6 +176,7 @@ class InsertAccountData(APIView):
                     account_response_data = requests.post(
                         account_url,
                         json=batch_data,
+                        stream=True,
                     )
 
                 if account_response_data.status_code == status.HTTP_201_CREATED:

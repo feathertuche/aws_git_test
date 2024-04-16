@@ -258,6 +258,7 @@ class MergePostTrackingCategories(APIView):
                     tc_response_data = requests.post(
                         tc_url,
                         json=batch_data,
+                        stream=True,
                     )
 
                 if tc_response_data.status_code == status.HTTP_201_CREATED:

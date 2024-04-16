@@ -335,6 +335,7 @@ class MergePostContacts(APIView):
                     contact_response_data = requests.post(
                         contact_url,
                         json=batch_data,
+                        stream=True,
                     )
 
                 if contact_response_data.status_code == status.HTTP_201_CREATED:

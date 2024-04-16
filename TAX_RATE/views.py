@@ -270,6 +270,7 @@ class MergePostTaxRates(APIView):
                     tax_response_data = requests.post(
                         tax_url,
                         json=batch_data,
+                        stream=True,
                     )
 
                     api_log(msg=f"tax_response_data: {tax_response_data}")

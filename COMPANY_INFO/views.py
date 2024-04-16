@@ -4,12 +4,14 @@ import requests
 from merge.resources.accounting import (
     CompanyInfoListRequestExpand,
 )
+from concurrent.futures import ThreadPoolExecutor
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import GETKLOO_LOCAL_URL, company_info_batch_size, company_info_page_size
 from merge_integration.utils import create_merge_client
+from services.kloo_service import KlooService
 
 
 class MergeCompanyInfo(APIView):
@@ -63,6 +65,7 @@ class MergeCompanyInfo(APIView):
                     modified_after=self.last_modified_at,
                     cursor=organization_data.next,
                 )
+
                 api_log(
                     msg=f"COMPANY INFO GET:: The length of the next page account data is : {len(organization_data.results)}"
                 )
@@ -199,6 +202,7 @@ class MergeKlooCompanyInsert(APIView):
                     kloo_data_insert = requests.post(
                         kloo_url,
                         json=batch_data,
+                        stream=True,
                     )
 
                 if kloo_data_insert.status_code == status.HTTP_201_CREATED:
