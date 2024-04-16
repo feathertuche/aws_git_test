@@ -200,8 +200,8 @@ CRONJOBS = [
 tracking_categories_page_size = 2
 tracking_categories_batch_size = 2
 
-accounts_page_size = 2
-accounts_batch_size = 2
+accounts_page_size = 20
+accounts_batch_size = 20
 
 company_info_page_size = 2
 company_info_batch_size = 2
