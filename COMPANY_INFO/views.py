@@ -206,7 +206,7 @@ class MergeKlooCompanyInsert(APIView):
                     kloo_data_insert = requests.post(
                         kloo_url,
                         json=batch_data,
-                        stream=True,
+                        # stream=True,
                     )
 
                 if kloo_data_insert.status_code == status.HTTP_201_CREATED:
