@@ -194,20 +194,20 @@ class MergeKlooCompanyInsert(APIView):
                 kloo_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-companies"
 
                 # Sending data in the batch of 100
-                batch_size = company_info_batch_size
-                api_log(msg=f"[BATCH SIZE]:: {batch_size}")
-                for batch in range(0, len(merge_payload), batch_size):
-                    api_log(msg=f"[BATCH SIZE]:: {batch_size}")
-                    api_log(msg=f"[BATCH]:: {batch}")
-                    batch_data = merge_payload[batch:batch + batch_size]
-                    api_log(msg=f"[BATCH DATA]:: {batch_data}")
-
-                    api_log(msg=f"merge_payload: {kloo_url}")
-                    kloo_data_insert = requests.post(
-                        kloo_url,
-                        json=batch_data,
-                        # stream=True,
-                    )
+                # batch_size = company_info_batch_size
+                # api_log(msg=f"[BATCH SIZE]:: {batch_size}")
+                # for batch in range(0, len(merge_payload), batch_size):
+                #     api_log(msg=f"[BATCH SIZE]:: {batch_size}")
+                #     api_log(msg=f"[BATCH]:: {batch}")
+                #     batch_data = merge_payload[batch:batch + batch_size]
+                #     api_log(msg=f"[BATCH DATA]:: {batch_data}")
+                #
+                #     api_log(msg=f"merge_payload: {kloo_url}")
+                kloo_data_insert = requests.post(
+                    kloo_url,
+                    json=merge_payload,
+                    # stream=True,
+                )
 
                 if kloo_data_insert.status_code == status.HTTP_201_CREATED:
                     return Response(

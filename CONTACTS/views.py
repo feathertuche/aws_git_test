@@ -328,15 +328,15 @@ class MergePostContacts(APIView):
                 )
 
                 # adding batch size of 100
-                batch_size = contacts_batch_size
-                for batch in range(0, len(contact_payload), batch_size):
-                    batch_data = contact_payload[batch:batch + batch_size]
+                # batch_size = contacts_batch_size
+                # for batch in range(0, len(contact_payload), batch_size):
+                #     batch_data = contact_payload[batch:batch + batch_size]
 
-                    contact_response_data = requests.post(
-                        contact_url,
-                        json=batch_data,
-                        stream=True,
-                    )
+                contact_response_data = requests.post(
+                    contact_url,
+                    json=contact_payload,
+                    # stream=True,
+                )
 
                 if contact_response_data.status_code == status.HTTP_201_CREATED:
                     api_log(

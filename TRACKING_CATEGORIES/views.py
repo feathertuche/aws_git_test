@@ -251,15 +251,15 @@ class MergePostTrackingCategories(APIView):
                 tc_url = f"{GETKLOO_LOCAL_URL}/organizations/erp-tracking-categories"
 
                 # adding batch size of 100
-                batch_size = tax_rate_batch_size
-                for batch in range(0, len(tc_payload), batch_size):
-                    batch_data = tc_payload[batch:batch + batch_size]
+                # batch_size = tax_rate_batch_size
+                # for batch in range(0, len(tc_payload), batch_size):
+                #     batch_data = tc_payload[batch:batch + batch_size]
 
-                    tc_response_data = requests.post(
-                        tc_url,
-                        json=batch_data,
-                        stream=True,
-                    )
+                tc_response_data = requests.post(
+                    tc_url,
+                    json=tc_payload,
+                    # stream=True,
+                )
 
                 if tc_response_data.status_code == status.HTTP_201_CREATED:
                     api_log(
