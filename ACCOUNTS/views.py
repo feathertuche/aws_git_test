@@ -179,23 +179,23 @@ class InsertAccountData(APIView):
                     account_response_data = requests.post(
                         account_url,
                         json=batch_data,
-                        stream=True,
+                        # stream=True,
                     )
 
-                if account_response_data.status_code == status.HTTP_201_CREATED:
-                    api_log(msg="data inserted successfully in the kloo account system")
-                    return Response(
-                        {"message": "API Account Info completed successfully"}
-                    )
+                    if account_response_data.status_code == status.HTTP_201_CREATED:
+                        api_log(msg="data inserted successfully in the kloo account system")
+                        return Response(
+                            {"message": "API Account Info completed successfully"}
+                        )
 
-                else:
-                    api_log(
-                        msg=f"Failed to send data to Kloo API. Error: {account_response_data}"
-                    )
-                    return Response(
-                        {"error": "Failed to send data to Kloo API"},
-                        status=account_response_data.status_code,
-                    )
+                    else:
+                        api_log(
+                            msg=f"Failed to send data to Kloo API. Error: {account_response_data}"
+                        )
+                        return Response(
+                            {"error": "Failed to send data to Kloo API"},
+                            status=account_response_data.status_code,
+                        )
 
             if request_account_data.status_code == status.HTTP_204_NO_CONTENT:
                 return Response(
