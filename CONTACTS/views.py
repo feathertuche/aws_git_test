@@ -68,13 +68,13 @@ class MergeContactsList(APIView):
 
             all_contact_data = []
             while True:
-                api_log(msg=f"Adding {len(contact_data.results)} accounts to the list.")
+                api_log(msg=f"Adding {len(contact_data.results)} contacts to the list.")
 
                 all_contact_data.extend(contact_data.results)
                 if contact_data.next is None:
                     break
 
-                contact_data = contacts_client.accounting.accounts.list(
+                contact_data = contacts_client.accounting.contacts.list(
                     expand=ContactsListRequestExpand.ADDRESSES,
                     remote_fields="status",
                     show_enum_origins="status",
@@ -88,10 +88,10 @@ class MergeContactsList(APIView):
                 api_log(
                     msg=f"CONTACTS GET:: The length of the next page contacts data is : {len(contact_data.results)}"
                 )
-                api_log(msg=f"Length of all_contact_data: {len(contact_data.results)}")
+                api_log(msg=f"Length of all contact data: {len(contact_data.results)}")
 
             api_log(
-                msg=f"CONTACTS GET:: The length of all account data is : {len(all_contact_data)}"
+                msg=f"CONTACTS GET:: The length of all contact data is : {len(all_contact_data)}"
             )
 
             return all_contact_data
