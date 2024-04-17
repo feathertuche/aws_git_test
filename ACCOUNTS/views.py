@@ -161,7 +161,8 @@ class InsertAccountData(APIView):
                 account_payload = request_account_data.data
                 account_payload["erp_link_token_id"] = erp_link_token_id
                 account_payload["org_id"] = org_id
-                account_payload = json.dumps(account_payload)
+
+               # account_payload = json.dumps(account_payload)
 
                 api_log(
                     msg=f"Posting accounts data to Kloo: {json.dumps(account_payload)}"
@@ -173,6 +174,10 @@ class InsertAccountData(APIView):
 
                 api_log(
                     msg=f"Total accounts data to Kloo: {len(account_payload)}"
+                )
+
+                api_log(
+                    msg=f"Total accounts data to Kloo: {account_payload}"
                 )
                 account_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-accounts"
 
