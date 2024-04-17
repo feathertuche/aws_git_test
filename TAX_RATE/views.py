@@ -65,15 +65,15 @@ class MergeTaxRatesList(APIView):
                 modified_after=self.last_modified_at,
             )
 
-            all_accounts = []
+            all_tax_rates = []
             while True:
-                api_log(msg=f"Adding {len(tax_data.results)} accounts to the list.")
+                api_log(msg=f"Adding {len(tax_data.results)} tax rates to the list.")
 
-                all_accounts.extend(tax_data.results)
+                all_tax_rates.extend(tax_data.results)
                 if tax_data.next is None:
                     break
 
-                tax_data = merge_client.accounting.accounts.list(
+                tax_data = merge_client.accounting.tax_rates.list(
                     page_size=tax_rate_page_size,
                     include_remote_data=True,
                     modified_after=self.last_modified_at,
@@ -86,10 +86,10 @@ class MergeTaxRatesList(APIView):
                 api_log(msg=f"Length of all_accounts: {len(tax_data.results)}")
 
             api_log(
-                msg=f"Tax Rates GET:: The length of all account data is : {len(all_accounts)}"
+                msg=f"Tax Rates GET:: The length of all account data is : {len(all_tax_rates)}"
             )
 
-            return all_accounts
+            return all_tax_rates
 
         except Exception as e:
             api_log(
