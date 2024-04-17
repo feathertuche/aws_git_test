@@ -166,12 +166,18 @@ class InsertAccountData(APIView):
                     msg=f"Posting accounts data to Kloo: {json.dumps(account_payload)}"
                 )
 
+                api_log(
+                    msg=f"Total accounts data to Kloo: {len(account_payload)}"
+                )
+
                 account_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-accounts"
 
                 # Sending data in the batch of 100
+                # account_response_data = None
                 batch_size = accounts_batch_size
                 api_log(msg=f"[BATCH SIZE]:: {batch_size}")
                 for batch in range(0, len(account_payload), batch_size):
+                    print(batch)
                     api_log(msg=f"[BATCH SIZE]:: {batch_size}")
                     api_log(msg=f"[BATCH]:: {batch}")
                     batch_data = account_payload[batch:batch + batch_size]
