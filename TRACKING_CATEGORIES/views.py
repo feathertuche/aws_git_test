@@ -59,14 +59,14 @@ class MergeTrackingCategoriesList(APIView):
             all_accounts = []
             while True:
                 api_log(
-                    msg=f"Adding {len(organization_data.results)} accounts to the list."
+                    msg=f"Adding {len(organization_data.results)} tracking categories to the list."
                 )
 
                 all_accounts.extend(organization_data.results)
                 if organization_data.next is None:
                     break
 
-                organization_data = tc_client.accounting.accounts.list(
+                organization_data = tc_client.accounting.tracking_categories.list(
                     remote_fields="status",
                     show_enum_origins="status",
                     page_size=tax_rate_page_size,
