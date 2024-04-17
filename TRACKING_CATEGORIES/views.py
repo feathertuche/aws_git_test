@@ -56,13 +56,13 @@ class MergeTrackingCategoriesList(APIView):
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
             )
-            all_accounts = []
+            all_tracking_categories = []
             while True:
                 api_log(
                     msg=f"Adding {len(organization_data.results)} tracking categories to the list."
                 )
 
-                all_accounts.extend(organization_data.results)
+                all_tracking_categories.extend(organization_data.results)
                 if organization_data.next is None:
                     break
 
@@ -81,10 +81,10 @@ class MergeTrackingCategoriesList(APIView):
                 api_log(msg=f"Length of all_accounts: {len(organization_data.results)}")
 
             api_log(
-                msg=f"ACCOUNTS GET:: The length of all account data is : {len(all_accounts)}"
+                msg=f"ACCOUNTS GET:: The length of all account data is : {len(all_tracking_categories)}"
             )
 
-            return all_accounts
+            return all_tracking_categories
         except Exception as e:
             api_log(
                 msg=f"Error retrieving details: {str(e)} \
