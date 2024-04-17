@@ -167,7 +167,7 @@ class InsertAccountData(APIView):
                 )
 
                 api_log(
-                    msg=f"Total accounts data to Kloo: {len(account_payload)}"
+                    msg=f"Total accounts data to Kloo: {len(json.dumps(account_payload))}"
                 )
 
                 account_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-accounts"
