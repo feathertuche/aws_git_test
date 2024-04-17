@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL, tax_rate_page_size, tax_rate_batch_size
 from merge_integration.utils import create_merge_client
 
 
@@ -60,21 +60,21 @@ class MergeTaxRatesList(APIView):
 
         try:
             tax_data = merge_client.accounting.tax_rates.list(
-                page_size=100000,
+                page_size=tax_rate_page_size,
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
             )
 
-            all_accounts = []
+            all_tax_rates = []
             while True:
-                api_log(msg=f"Adding {len(tax_data.results)} accounts to the list.")
+                api_log(msg=f"Adding {len(tax_data.results)} tax rates to the list.")
 
-                all_accounts.extend(tax_data.results)
+                all_tax_rates.extend(tax_data.results)
                 if tax_data.next is None:
                     break
 
-                tax_data = merge_client.accounting.accounts.list(
-                    page_size=100000,
+                tax_data = merge_client.accounting.tax_rates.list(
+                    page_size=tax_rate_page_size,
                     include_remote_data=True,
                     modified_after=self.last_modified_at,
                     cursor=tax_data.next,
@@ -86,10 +86,10 @@ class MergeTaxRatesList(APIView):
                 api_log(msg=f"Length of all_accounts: {len(tax_data.results)}")
 
             api_log(
-                msg=f"Tax Rates GET:: The length of all account data is : {len(all_accounts)}"
+                msg=f"Tax Rates GET:: The length of all account data is : {len(all_tax_rates)}"
             )
 
-            return all_accounts
+            return all_tax_rates
 
         except Exception as e:
             api_log(
@@ -261,9 +261,16 @@ class MergePostTaxRates(APIView):
                     msg=f"Posting tax_rates data to Kloo: {json.dumps(tax_payload)}"
                 )
                 tax_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-tax-rates"
+
+                # adding batch size of 100
+                # batch_size = tax_rate_batch_size
+                # for batch in range(0, len(tax_payload), batch_size):
+                #     batch_data = tax_payload[batch:batch + batch_size]
+
                 tax_response_data = requests.post(
                     tax_url,
                     json=tax_payload,
+                    # stream=True,
                 )
 
                 api_log(msg=f"tax_response_data: {tax_response_data}")

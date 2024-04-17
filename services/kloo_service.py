@@ -329,6 +329,7 @@ class KlooService:
             invoice_response_data = requests.post(
                 invoice_url,
                 json=post_invoice_payload,
+                stream=True,
                 # headers={"Authorization": f"Bearer {self.auth_token}"},
             )
 

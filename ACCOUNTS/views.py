@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL, accounts_batch_size, accounts_page_size
 from merge_integration.utils import create_merge_client
 
 
@@ -48,7 +48,7 @@ class MergeAccounts(APIView):
             accounts_data = merge_client.accounting.accounts.list(
                 remote_fields=AccountsListRequestRemoteFields.CLASSIFICATION,
                 show_enum_origins=AccountsListRequestShowEnumOrigins.CLASSIFICATION,
-                page_size=100000,
+                page_size=accounts_page_size,
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
             )
@@ -66,7 +66,7 @@ class MergeAccounts(APIView):
                 accounts_data = merge_client.accounting.accounts.list(
                     remote_fields=AccountsListRequestRemoteFields.CLASSIFICATION,
                     show_enum_origins=AccountsListRequestShowEnumOrigins.CLASSIFICATION,
-                    page_size=100000,
+                    page_size=accounts_page_size,
                     include_remote_data=True,
                     modified_after=self.last_modified_at,
                     cursor=accounts_data.next,
@@ -167,10 +167,20 @@ class InsertAccountData(APIView):
                 )
 
                 account_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-accounts"
-                account_response_data = requests.post(
-                    account_url,
-                    json=account_payload,
-                )
+
+                # Sending data in the batch of 100
+                batch_size = accounts_batch_size
+                api_log(msg=f"[BATCH SIZE]:: {batch_size}")
+                for batch in range(0, len(account_payload), batch_size):
+                    api_log(msg=f"[BATCH SIZE]:: {batch_size}")
+                    api_log(msg=f"[BATCH]:: {batch}")
+                    batch_data = account_payload[batch:batch + batch_size]
+                    api_log(msg=f"[BATCH DATA]:: {batch_data}")
+                    account_response_data = requests.post(
+                        account_url,
+                        json=batch_data,
+                        # stream=True,
+                    )
 
                 if account_response_data.status_code == status.HTTP_201_CREATED:
                     api_log(msg="data inserted successfully in the kloo account system")

@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL, tax_rate_batch_size, tax_rate_page_size
 from merge_integration.utils import create_merge_client
 
 
@@ -52,24 +52,24 @@ class MergeTrackingCategoriesList(APIView):
             organization_data = tc_client.accounting.tracking_categories.list(
                 remote_fields="status",
                 show_enum_origins="status",
-                page_size=100000,
+                page_size=tax_rate_page_size,
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
             )
-            all_accounts = []
+            all_tracking_categories = []
             while True:
                 api_log(
-                    msg=f"Adding {len(organization_data.results)} accounts to the list."
+                    msg=f"Adding {len(organization_data.results)} tracking categories to the list."
                 )
 
-                all_accounts.extend(organization_data.results)
+                all_tracking_categories.extend(organization_data.results)
                 if organization_data.next is None:
                     break
 
-                organization_data = tc_client.accounting.accounts.list(
+                organization_data = tc_client.accounting.tracking_categories.list(
                     remote_fields="status",
                     show_enum_origins="status",
-                    page_size=100000,
+                    page_size=tax_rate_page_size,
                     include_remote_data=True,
                     modified_after=self.last_modified_at,
                     cursor=organization_data.next,
@@ -81,10 +81,10 @@ class MergeTrackingCategoriesList(APIView):
                 api_log(msg=f"Length of all_accounts: {len(organization_data.results)}")
 
             api_log(
-                msg=f"ACCOUNTS GET:: The length of all account data is : {len(all_accounts)}"
+                msg=f"ACCOUNTS GET:: The length of all account data is : {len(all_tracking_categories)}"
             )
 
-            return all_accounts
+            return all_tracking_categories
         except Exception as e:
             api_log(
                 msg=f"Error retrieving details: {str(e)} \
@@ -249,9 +249,16 @@ class MergePostTrackingCategories(APIView):
                     msg=f"Posting tracking_categories data to Kloo: {json.dumps(tc_payload)}"
                 )
                 tc_url = f"{GETKLOO_LOCAL_URL}/organizations/erp-tracking-categories"
+
+                # adding batch size of 100
+                # batch_size = tax_rate_batch_size
+                # for batch in range(0, len(tc_payload), batch_size):
+                #     batch_data = tc_payload[batch:batch + batch_size]
+
                 tc_response_data = requests.post(
                     tc_url,
                     json=tc_payload,
+                    # stream=True,
                 )
 
                 if tc_response_data.status_code == status.HTTP_201_CREATED:
