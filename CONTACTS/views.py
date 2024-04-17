@@ -88,7 +88,7 @@ class MergeContactsList(APIView):
                 api_log(
                     msg=f"CONTACTS GET:: The length of the next page contacts data is : {len(contact_data.results)}"
                 )
-                api_log(msg=f"Length of all contact data: {len(contact_data.results)}")
+                api_log(msg=f"Length of contact data array : {len(contact_data.results)}")
 
             api_log(
                 msg=f"CONTACTS GET:: The length of all contact data is : {len(all_contact_data)}"

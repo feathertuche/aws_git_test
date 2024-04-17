@@ -19,7 +19,7 @@ from merge_integration.utils import create_merge_client
 
 class MergeTrackingCategoriesList(APIView):
     """
-    API view for retrieving Merge Tracking_Category list.
+    API view for retrieving Merge Tracking Category list.
     """
 
     def __init__(
@@ -76,12 +76,12 @@ class MergeTrackingCategoriesList(APIView):
                 )
 
                 api_log(
-                    msg=f"ACCOUNTS GET:: The length of the next page account data is : {len(organization_data.results)}"
+                    msg=f"tracking categories GET:: The length of the next page tracking categories data is : {len(organization_data.results)}"
                 )
-                api_log(msg=f"Length of all_accounts: {len(organization_data.results)}")
+                api_log(msg=f"Length of tracking categories array : {len(organization_data.results)}")
 
             api_log(
-                msg=f"ACCOUNTS GET:: The length of all account data is : {len(all_tracking_categories)}"
+                msg=f"tracking categories GET:: The length of all tracking categories data is : {len(all_tracking_categories)}"
             )
 
             return all_tracking_categories
