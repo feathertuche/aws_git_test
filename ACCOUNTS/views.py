@@ -162,6 +162,9 @@ class InsertAccountData(APIView):
                 account_payload["erp_link_token_id"] = erp_link_token_id
                 account_payload["org_id"] = org_id
 
+                payload = dict()
+                payload["erp_link_token_id"] = erp_link_token_id
+                payload["org_id"] = org_id
                 data = account_payload["accounts"]
 
                 api_log(
@@ -197,9 +200,10 @@ class InsertAccountData(APIView):
                     api_log(msg=f"[BATCH]:: {batch}")
                     batch_data = data[batch:batch + batch_size]
                     api_log(msg=f"[BATCH DATA]:: {batch_data}")
+                    payload["accounts"] = batch_data
                     account_response_data = requests.post(
                         account_url,
-                        json=batch_data,
+                        json=payload,
                     )
 
                 if account_response_data.status_code == status.HTTP_201_CREATED:
