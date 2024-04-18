@@ -201,6 +201,8 @@ class InsertAccountData(APIView):
                     batch_data = data[batch:batch + batch_size]
                     api_log(msg=f"[BATCH DATA]:: {batch_data}")
                     payload["accounts"] = batch_data
+                    api_log(msg=f"[PAYLOAD]:: {batch_data}")
+
                     account_response_data = requests.post(
                         account_url,
                         json=payload,
