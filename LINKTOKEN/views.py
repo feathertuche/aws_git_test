@@ -32,6 +32,7 @@ class LinkToken(APIView):
     """
 
     def post(self, request):
+        api_log(msg=f"LINKTOKEN: LinkToken API called with data {request.data}")
         org_id = request.data.get("organisation_id")
         end_user_email_address = request.data.get("end_user_email_address")
 
