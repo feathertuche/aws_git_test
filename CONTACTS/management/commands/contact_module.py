@@ -20,7 +20,7 @@ class Command(BaseCommand):
         # get all linked account whose status are complete and daily force sync log is null
         print("Adding Invoice Module for all completed linked accounts")
 
-        account_token = "0S4-SlQInQOJhaVQDZpwIxuUbqyyPnPgGHeXXQksafGTZrbRNo9w4A"
+        account_token = ""
 
         try:
             contacts_client = create_merge_client(account_token)
