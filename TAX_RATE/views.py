@@ -262,18 +262,27 @@ class MergePostTaxRates(APIView):
                 )
                 tax_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-tax-rates"
 
-                # adding batch size of 100
-                # batch_size = tax_rate_batch_size
-                # for batch in range(0, len(tax_payload), batch_size):
-                #     batch_data = tax_payload[batch:batch + batch_size]
+                # Payload and logic for batch size
+                data = tax_payload["taxRates"]
+                payload = dict()
+                payload["erp_link_token_id"] = erp_link_token_id
+                payload["org_id"] = org_id
 
-                tax_response_data = requests.post(
-                    tax_url,
-                    json=tax_payload,
-                    # stream=True,
-                )
+                batch_size = tax_rate_batch_size
+                api_log(msg=f"[BATCH SIZE]:: {batch_size}")
+                for batch in range(0, len(data), batch_size):
+                    api_log(msg=f"[BATCH SIZE]:: {batch_size}")
+                    api_log(msg=f"[BATCH]:: {batch}")
+                    batch_data = data[batch:batch + batch_size]
+                    payload["taxRates"] = batch_data
+                    api_log(msg=f"[PAYLOAD]:: {batch_data}")
 
-                api_log(msg=f"tax_response_data: {tax_response_data}")
+                    tax_response_data = requests.post(
+                        tax_url,
+                        json=payload,
+                    )
+
+                    api_log(msg=f"tax_response_data: {tax_response_data}")
 
                 if tax_response_data.status_code == status.HTTP_201_CREATED:
                     api_log(
