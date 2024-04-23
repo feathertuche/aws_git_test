@@ -79,9 +79,9 @@ class LinkToken(APIView):
                         link_expiry_mins=30,
                         integration=request.data.get("integration"),
                     )
+                    api_log(msg=f"LINKTOKEN: Link token response {link_token_response}")
                 except ApiError as e:
-                    api_log(msg=f"LINKTOKEN: Exception occurred: {str(e)}")
-                api_log(msg=f"LINKTOKEN: Link token response {link_token_response}")
+                    api_log(msg=f"LINKTOKEN: Exception occurred: {e}")
 
                 data_to_return = {
                     "link_token": link_token_response.link_token,
