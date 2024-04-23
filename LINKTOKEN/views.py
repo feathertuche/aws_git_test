@@ -6,7 +6,6 @@ from threading import Lock
 from django.views.decorators.csrf import csrf_exempt
 from merge.resources.accounting import CategoriesEnum
 from rest_framework import status
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -47,6 +46,7 @@ class LinkToken(APIView):
         )
         is_available = check_exist_linktoken.get("is_available")
         if is_available == 1:
+            api_log(msg="LINKTOKEN: Link token already exists")
             link_token_data = check_exist_linktoken
             if link_token_data["is_available"]:
                 # Update the bearer field with the new token
@@ -54,10 +54,9 @@ class LinkToken(APIView):
                     link_token=link_token_data["link_token"]
                 )
                 link_token_record.save()
-            response = Response(check_exist_linktoken, status=status.HTTP_201_CREATED)
-            response.accepted_renderer = JSONRenderer()
-            return response
+            return Response(check_exist_linktoken, status=status.HTTP_201_CREATED)
         else:
+            api_log(msg="LINKTOKEN: Creating new link token")
             try:
                 end_usr_origin_id = uuid.uuid1()
                 api_key = os.environ.get("API_KEY")
@@ -81,6 +80,9 @@ class LinkToken(APIView):
                     "magic_link_url": link_token_response.magic_link_url,
                     "integration_name": link_token_response.integration_name,
                 }
+
+                api_log(msg=f"LINKTOKEN: Link token created with data {data_to_return}")
+
                 data = {
                     "id": end_usr_origin_id,
                     "categories": request.data.get("categories"),
@@ -102,11 +104,14 @@ class LinkToken(APIView):
                     "status": "INCOMPLETE",
                 }
 
+                api_log(msg=f"LINKTOKEN: Creating ERP link token with data {data}")
+
                 create_erp_link_token(data)
-                response = Response(data_to_return, status=status.HTTP_201_CREATED)
-                response.accepted_renderer = JSONRenderer()
-                return response
+
+                api_log(msg="LINKTOKEN: ERP link token created successfully")
+                return Response(data_to_return, status=status.HTTP_201_CREATED)
             except Exception as e:
+                api_log(msg=f"LINKTOKEN: Exception occurred: {str(e)}")
                 return Response(
                     {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
