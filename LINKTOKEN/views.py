@@ -4,6 +4,7 @@ import uuid
 from threading import Lock
 
 from django.views.decorators.csrf import csrf_exempt
+from merge.core import ApiError
 from merge.resources.accounting import CategoriesEnum
 from rest_framework import status
 from rest_framework.response import Response
@@ -60,20 +61,27 @@ class LinkToken(APIView):
             try:
                 end_usr_origin_id = uuid.uuid1()
                 api_key = os.environ.get("API_KEY")
+                api_log(msg=f"LINKTOKEN: API key {api_key}")
                 merge_client = create_merge_client(api_key)
-                link_token_response = merge_client.ats.link_token.create(
-                    end_user_email_address=end_user_email_address,
-                    end_user_organization_name=request.data.get(
-                        "end_user_organization_name"
-                    ),
-                    end_user_origin_id=end_usr_origin_id,
-                    categories=[CategoriesEnum.ACCOUNTING],
-                    should_create_magic_link_url=request.data.get(
-                        "should_create_magic_link_url"
-                    ),
-                    link_expiry_mins=30,
-                    integration=request.data.get("integration"),
-                )
+                api_log(msg=f"LINKTOKEN: Merge client created {merge_client}")
+
+                try:
+                    link_token_response = merge_client.ats.link_token.create(
+                        end_user_email_address=end_user_email_address,
+                        end_user_organization_name=request.data.get(
+                            "end_user_organization_name"
+                        ),
+                        end_user_origin_id=end_usr_origin_id,
+                        categories=[CategoriesEnum.ACCOUNTING],
+                        should_create_magic_link_url=request.data.get(
+                            "should_create_magic_link_url"
+                        ),
+                        link_expiry_mins=30,
+                        integration=request.data.get("integration"),
+                    )
+                except ApiError as e:
+                    api_log(msg=f"LINKTOKEN: Exception occurred: {str(e)}")
+                api_log(msg=f"LINKTOKEN: Link token response {link_token_response}")
 
                 data_to_return = {
                     "link_token": link_token_response.link_token,
