@@ -228,8 +228,6 @@ class InvoiceCreate(APIView):
             print(" ")
             print("[INVOICE PATCH DATA in VIEWS FILE] ::", payload)
             print(" ")
-            # T = request.data.get("erp_link_token_id")
-            # print("THIS IS A ERP LINK TOKEN ID :", T)
             update_response = merge_api_service.update_invoice(invoice_id, payload)
             print("[UPDATE data for update_response in VIEWS FILE ::", update_response)
             # Handle response

@@ -270,6 +270,8 @@ class MergeInvoiceApiService(MergeService):
             raise e
 
     def update_invoice(self, invoice_id: str, invoice_data: dict):
+        # _, api_key = create_merge_client(self.account_token)
+        # print("[API KEY] :", api_key)
         print("THIS IS NEW account token :", self.account_token)
         print(" ")
         print("This is a payload in merge service py file ::", invoice_data)
@@ -277,9 +279,9 @@ class MergeInvoiceApiService(MergeService):
 
         try:
             headers = {
-                "Authorization": "Bearer vDQmwYYKwwP88Kdijnmm1jvEYKKyDwebs2oMbXHBwUfg85WUMHLTlQ",
+                "Authorization": f"Bearer {'vDQmwYYKwwP88Kdijnmm1jvEYKKyDwebs2oMbXHBwUfg85WUMHLTlQ'}",
                 "X-Account-Token": self.account_token,
-                # "Accept": "application/json"
+                "Accept": "application/json"
             }
             print("[BEARER TOKEN BLOC merge service file] :", headers)
             invoice_update_url = f"https://api-eu.merge.dev/api/accounting/v1/invoices/{invoice_id}"
