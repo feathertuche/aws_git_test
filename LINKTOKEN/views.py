@@ -65,6 +65,15 @@ class LinkToken(APIView):
                 api_log(msg=f"API Key: {api_key}")
                 merge_client = create_merge_client(api_key)
                 api_log(msg=f"Merge client created: {merge_client}")
+
+                api_log(
+                    msg=f"End user email address: {end_user_email_address} \n"
+                    f"End user organization name: {request.data.get('end_user_organization_name')} \n"
+                    f"End user origin id: {end_usr_origin_id} \n"
+                    f"Should create magic link url: {request.data.get('should_create_magic_link_url')} \n"
+                    f"Integration: {request.data.get('integration')} \n"
+                )
+
                 link_token_response = merge_client.ats.link_token.create(
                     end_user_email_address=end_user_email_address,
                     end_user_organization_name=request.data.get(
