@@ -1,17 +1,23 @@
-import os
-from merge.client import Merge as MergeClient
-import boto3
 import json
+import os
+
+import boto3
+from merge.client import Merge as MergeClient
 
 
 def create_merge_client(erp_link_token_id):
-    base_url = os.environ.get("BASE_URL")
-    account_token = erp_link_token_id
-    api_key = os.environ.get("API_KEY")
+    try:
+        base_url = os.environ.get("BASE_URL")
+        account_token = erp_link_token_id
+        api_key = os.environ.get("API_KEY")
 
-    if not all([base_url, account_token, api_key]):
-        raise ValueError("Missing required environment variables for Merge client.")
-    return MergeClient(base_url=base_url, account_token=account_token, api_key=api_key)
+        if not all([base_url, account_token, api_key]):
+            raise ValueError("Missing required environment variables for Merge client.")
+        return MergeClient(
+            base_url=base_url, account_token=account_token, api_key=api_key
+        )
+    except Exception as e:
+        raise Exception(f"Failed to create Merge client: {str(e)}")
 
 
 def get_secret_data(secret_id, region_name="eu-west-2"):
