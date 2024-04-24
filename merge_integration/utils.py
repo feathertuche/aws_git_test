@@ -4,12 +4,18 @@ import os
 import boto3
 from merge.client import Merge as MergeClient
 
+from merge_integration.helper_functions import api_log
+
 
 def create_merge_client(erp_link_token_id):
     try:
         base_url = os.environ.get("BASE_URL")
         account_token = erp_link_token_id
         api_key = os.environ.get("API_KEY")
+
+        api_log(
+            msg=f"Base URL: {base_url} Account Token: {account_token} API Key {api_key}"
+        )
 
         if not all([base_url, account_token, api_key]):
             raise ValueError("Missing required environment variables for Merge client.")
