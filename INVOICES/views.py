@@ -155,13 +155,13 @@ class InvoiceCreate(APIView):
 
         # Validate the request data
         serializer = InvoiceUpdateSerializer(data=data)
-        print("[SERIALIZER bloc in views file for UPDATE] ::", serializer)
+        api_log(msg=f"[SERIALIZER bloc in views file for UPDATE] :: {serializer}")
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # Get the erp_link_token_id from the request data
         self.erp_link_token_id = serializer.validated_data.get("erp_link_token_id")
-        print("1")
+        api_log(msg="1")
 
         queryset = self.get_queryset()
         if queryset is None or queryset == []:
@@ -172,10 +172,10 @@ class InvoiceCreate(APIView):
             )
 
         try:
-            print("2")
+            api_log(msg="2")
             account_token = queryset[0]
             print("THIS IS INVOICE UPDATE view ACCOUNT TOKEN:: ", account_token)
-            print("3")
+            api_log(msg="3")
             print("[account token data] ::", account_token)
             merge_api_service = MergeInvoiceApiService(account_token)
 
@@ -183,9 +183,9 @@ class InvoiceCreate(APIView):
 
             # Construct line items dynamically
             line_items = []
-            print("4")
+            api_log(msg="4")
             for line_item_data in payload_data["model"]["line_items"]:
-                print("5")
+                api_log(msg="5")
                 line_item = {
                     "id": line_item_data.get("id"),
                     "remote_id": line_item_data.get("remote_id"),
@@ -224,27 +224,30 @@ class InvoiceCreate(APIView):
                 "warnings": [],
                 "errors": [],
             }
-            print("6")
+            api_log(msg="6")
             print(" ")
-            print("[INVOICE PATCH DATA in VIEWS FILE] ::", payload)
+            api_log(msg=f"[PAYLOAD FOR INVOICE PATCH view file] : {payload}")
             print(" ")
             update_response = merge_api_service.update_invoice(invoice_id, payload)
-            print("[UPDATE data for update_response in VIEWS FILE ::", update_response)
+            api_log(msg=f"{update_response}")
             # Handle response
             if update_response.status_code == 200:
+                api_log(msg=f'"status": "success", "message": f"Invoice with ID {invoice_id} successfully updated '
+                            f'with status code: {status.HTTP_200_OK}')
                 return Response(
                     {"status": "success", "message": f"Invoice with ID {invoice_id} successfully updated"},
                     status=status.HTTP_200_OK
                 )
             else:
                 print("this is a failure bloc -- views")
+                api_log(msg=f"Failed to update invoice with ID {invoice_id} with status {update_response.status_code}")
                 return Response(
                     {"status": "error", "message": f"Failed to update invoice with ID {invoice_id}"},
                     status=update_response.status_code
                 )
         except Exception as e:
-            print("this is a exception bloc in Invoice view :: ", e)
             error_message = f"EXCEPTION : Failed to update invoice in Merge: {str(e)}"
+            api_log(msg=f"{error_message}")
             return Response(
                 {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

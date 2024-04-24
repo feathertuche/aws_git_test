@@ -1,3 +1,4 @@
+import os
 import uuid
 import urllib.parse
 import requests
@@ -270,31 +271,29 @@ class MergeInvoiceApiService(MergeService):
             raise e
 
     def update_invoice(self, invoice_id: str, invoice_data: dict):
-        # _, api_key = create_merge_client(self.account_token)
-        # print("[API KEY] :", api_key)
-        print("THIS IS NEW account token :", self.account_token)
-        print(" ")
-        print("This is a payload in merge service py file ::", invoice_data)
+        api_key = os.getenv("API_KEY")
+        api_log(msg=f"[API KEY FOR INVOICE PATCH] : {api_key}")
+        api_log(msg=f"[ACCOUNT TOKEN FOR INVOICE PATCH] : {self.account_token}")
+        api_log(msg=f"[PAYLOAD FOR INVOICE PATCH] :{invoice_data}")
         print(" ")
 
         try:
             headers = {
-                "Authorization": f"Bearer {'vDQmwYYKwwP88Kdijnmm1jvEYKKyDwebs2oMbXHBwUfg85WUMHLTlQ'}",
+                "Authorization": f"Bearer {api_key}",
                 "X-Account-Token": self.account_token,
                 "Accept": "application/json"
             }
-            print("[BEARER TOKEN BLOC merge service file] :", headers)
+            api_log(msg=f"[BEARER TOKEN BLOC merge service file] : {headers}")
             invoice_update_url = f"https://api-eu.merge.dev/api/accounting/v1/invoices/{invoice_id}"
-            print("URL response ;", invoice_update_url)
-            print("This is a testssssss")
+            api_log(msg=f"[URL response] : {invoice_update_url}")
 
             invoice_update_request = requests.patch(invoice_update_url, json=invoice_data, headers=headers)
-            print("@@@@@@@@", invoice_update_request)
+            api_log(msg=f"[INVOICE REQUESTS.PATCH RESPONSE] : {invoice_update_request}")
 
             if invoice_update_request.status_code == status.HTTP_200_OK:
-                print("Invoice updated successfully......")
-                api_log(msg=f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in "
-                            f"Xero")
+                api_log("Invoice updated successfully......")
+                api_log(msg=f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in Xero "
+                            f"with status code: {status.HTTP_200_OK}")
                 return Response(
                     {"message": f"[INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in Xero "
                                 f"with status code: {status.HTTP_200_OK}"}
@@ -304,13 +303,13 @@ class MergeInvoiceApiService(MergeService):
                 print("THIS IS A ELIF bloc....")
                 error_msg = f"[MERGE SERVICE PY INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} is Incorrect and the " \
                             f"status code is : {status.HTTP_404_NOT_FOUND}"
-                # api_log(msg=error_msg)
+                api_log(msg=error_msg)
                 raise MergeApiException(error_msg)
 
             else:
                 error_msg = f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} failed to update in Xero with " \
                             f"status code: {invoice_update_request.status_code} "
-                # api_log(msg=error_msg)
+                api_log(msg=error_msg)
                 raise MergeApiException(error_msg)
 
         except Exception as e:
