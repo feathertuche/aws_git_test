@@ -239,7 +239,7 @@ class MergeInvoiceApiService(MergeService):
             response = self.merge_client.accounting.invoices.create(
                 model=InvoiceRequest(**invoice_data)
             )
-
+            print("**************************", response)
             if len(response.errors) > 0:
                 api_log(msg="MERGE : Error creating invoice")
                 raise MergeApiException(response.errors)
@@ -332,11 +332,13 @@ class MergeInvoiceApiService(MergeService):
         create_attachment method
         """
         try:
+            print("thjis is a ATTACHMENT BLOCCCCCCCCCC")
             response = self.merge_client.accounting.attachments.create(
                 model=AccountingAttachmentRequest(**attachment_data)
             )
-
+            print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", response)
             if len(response.errors) > 0:
+
                 api_log(msg="MERGE : Error creating attachment")
                 raise MergeApiException(response.errors)
 
