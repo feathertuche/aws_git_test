@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from INVOICES.helper_functions import format_merge_invoice_data
-from INVOICES.serializers import InvoiceCreateSerializer
+from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import invoices_batch_size
@@ -150,6 +150,109 @@ class InvoiceCreate(APIView):
                 {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    def patch(self, request, invoice_id: str):
+        api_log(msg=".....Processing Invoice UPDATE request bloc.....")
+        data = request.data
+
+        # Validate the request data
+        serializer = InvoiceUpdateSerializer(data=data)
+        api_log(msg=f"[SERIALIZER bloc in views file for UPDATE] :: {serializer}")
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Get the erp_link_token_id from the request data
+        self.erp_link_token_id = serializer.validated_data.get("erp_link_token_id")
+        api_log(msg="1")
+
+        queryset = self.get_queryset()
+        if queryset is None or queryset == []:
+            # Handle the case where link_token_details is None
+            api_log(msg="link token details are None or empty")
+            return Response(
+                "Account token doesn't exist", status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            api_log(msg="2")
+            account_token = queryset[0]
+            print("THIS IS INVOICE UPDATE view ACCOUNT TOKEN:: ", account_token)
+            api_log(msg="3")
+            print("[account token data] ::", account_token)
+            merge_api_service = MergeInvoiceApiService(account_token)
+
+            payload_data = request.data
+
+            # Construct line items dynamically
+            line_items = []
+            api_log(msg="4")
+            for line_item_data in payload_data["model"]["line_items"]:
+                api_log(msg="5")
+                line_item = {
+                    "id": line_item_data.get("id"),
+                    "remote_id": line_item_data.get("remote_id"),
+                    "created_at": line_item_data.get("created_at"),
+                    "modified_at": line_item_data.get("modified_at"),
+                    "description": line_item_data.get("description"),
+                    "unit_price": line_item_data.get("unit_price"),
+                    "quantity": line_item_data.get("quantity"),
+                    "total_amount": line_item_data.get("total_amount"),
+                    "currency": line_item_data.get("currency"),
+                    "exchange_rate": line_item_data.get("exchange_rate"),
+                    "item": line_item_data.get("item"),
+                    "account": line_item_data.get("account"),
+                    "tracking_category": line_item_data.get("tracking_category"),
+                    "tracking_categories": line_item_data.get("tracking_categories"),
+                    "company": line_item_data.get("company"),
+                    "remote_was_deleted": line_item_data.get("remote_was_deleted"),
+                    "field_mappings": line_item_data.get("field_mappings"),
+                    "remote_data": line_item_data.get("remote_data")
+                }
+                line_items.append(line_item)
+
+            # Construct the payload dynamically
+            payload = {
+                "model": {
+                    # "id": invoice_id,
+                    "remote_id": payload_data["model"].get("remote_id"),
+                    "created_at": payload_data["model"].get("created_at"),
+                    "modified_at": payload_data["model"].get("modified_at"),
+                    "type": payload_data["model"].get("type"),
+                    "contact": payload_data["model"].get("contact"),
+                    "number": payload_data["model"].get("number"),
+                    "memo": payload_data["model"].get("memo"),
+                    "line_items": line_items,
+                },
+                "warnings": [],
+                "errors": [],
+            }
+            api_log(msg="6")
+            print(" ")
+            api_log(msg=f"[PAYLOAD FOR INVOICE PATCH view file] : {payload}")
+            print(" ")
+            update_response = merge_api_service.update_invoice(invoice_id, payload)
+            api_log(msg=f"{update_response}")
+            # Handle response
+            if update_response.status_code == 200:
+                api_log(msg=f'"status": "success", "message": f"Invoice with ID {invoice_id} successfully updated '
+                            f'with status code: {status.HTTP_200_OK}')
+                return Response(
+                    {"status": "success", "message": f"Invoice with ID {invoice_id} successfully updated"},
+                    status=status.HTTP_200_OK
+                )
+            else:
+                print("this is a failure bloc -- views")
+                api_log(msg=f"Failed to update invoice with ID {invoice_id} with status {update_response.status_code}")
+                return Response(
+                    {"status": "error", "message": f"Failed to update invoice with ID {invoice_id}"},
+                    status=update_response.status_code
+                )
+        except Exception as e:
+            error_message = f"EXCEPTION : Failed to update invoice in Merge: {str(e)}"
+            api_log(msg=f"{error_message}")
+            return Response(
+                {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class MergeInvoiceCreate(APIView):
     """
@@ -188,6 +291,9 @@ class MergeInvoiceCreate(APIView):
                         },
                         status=status.HTTP_204_NO_CONTENT,
                     )
+                batch_size = 100
+                for i in range(0, len(invoice_response["data"]), batch_size):
+                    batch_data = invoice_response["data"][i:i + batch_size]
 
                 # adding batch size
                 # batch_size = invoices_batch_size
@@ -195,18 +301,18 @@ class MergeInvoiceCreate(APIView):
                 #     batch_data = invoice_response["data"][batch:batch + batch_size]
 
                 # format the data to be posted to kloo
-                invoices_json = format_merge_invoice_data(
-                    invoice_response, erp_link_token_id, org_id
-                )
+                    invoices_json = format_merge_invoice_data(
+                        batch_data, erp_link_token_id, org_id
+                    )
 
                 # save the data to the database
-                api_log(msg="Invoices saving to database")
+                    api_log(msg="Invoices saving to database")
 
-                kloo_service = KlooService(
-                    auth_token=None,
-                    erp_link_token_id=erp_link_token_id,
-                )
-                invoice_kloo_response = kloo_service.post_invoice_data(invoices_json)
+                    kloo_service = KlooService(
+                        auth_token=None,
+                        erp_link_token_id=erp_link_token_id,
+                    )
+                    invoice_kloo_response = kloo_service.post_invoice_data(invoices_json)
 
                 if invoice_kloo_response["status_code"] == status.HTTP_201_CREATED:
                     api_log(msg="data inserted successfully in the kloo Invoice system")
@@ -228,3 +334,4 @@ class MergeInvoiceCreate(APIView):
             )
 
         return Response("Failed to insert data to the kloo Invoice system")
+
