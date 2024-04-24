@@ -60,8 +60,11 @@ class LinkToken(APIView):
         else:
             try:
                 end_usr_origin_id = uuid.uuid1()
+                api_log(msg=f"End user origin id: {end_usr_origin_id}")
                 api_key = os.environ.get("API_KEY")
+                api_log(msg=f"API Key: {api_key}")
                 merge_client = create_merge_client(api_key)
+                api_log(msg=f"Merge client created: {merge_client}")
                 link_token_response = merge_client.ats.link_token.create(
                     end_user_email_address=end_user_email_address,
                     end_user_organization_name=request.data.get(
