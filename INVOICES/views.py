@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from INVOICES.helper_functions import format_merge_invoice_data
+from INVOICES.queries import update_invoices_erp_id
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
@@ -115,6 +116,11 @@ class InvoiceCreate(APIView):
             }
 
             invoice_created = merge_api_service.create_invoice(invoice_data)
+
+            model_id = invoice_data["id"]
+            invoice_id = invoice_created.model.id
+            update_invoices_erp_id(model_id, invoice_id)
+
             if invoice_created is None:
                 return Response(
                     {"status": "error", "message": "Failed to create invoice in Merge"},
@@ -127,7 +133,7 @@ class InvoiceCreate(APIView):
                 "file_name": line_items_payload.get("attachment").get("file_name"),
                 "file_url": line_items_payload.get("attachment").get("file_url"),
                 "integration_params": {
-                    "transaction_id": invoice_created.model.id,
+                    "transaction_id": invoice_id,
                     "transaction_name": line_items_payload.get("attachment").get(
                         "transaction_name"
                     ),

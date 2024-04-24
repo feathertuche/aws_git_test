@@ -239,7 +239,6 @@ class MergeInvoiceApiService(MergeService):
             response = self.merge_client.accounting.invoices.create(
                 model=InvoiceRequest(**invoice_data)
             )
-
             if len(response.errors) > 0:
                 api_log(msg="MERGE : Error creating invoice")
                 raise MergeApiException(response.errors)
@@ -335,8 +334,8 @@ class MergeInvoiceApiService(MergeService):
             response = self.merge_client.accounting.attachments.create(
                 model=AccountingAttachmentRequest(**attachment_data)
             )
-
             if len(response.errors) > 0:
+
                 api_log(msg="MERGE : Error creating attachment")
                 raise MergeApiException(response.errors)
 
