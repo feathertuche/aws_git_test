@@ -25,7 +25,6 @@ from .queries import get_erp_link_token
 # Define a global lock
 webhook_lock = Lock()
 
-
 class LinkToken(APIView):
     """
     LinkToken API
