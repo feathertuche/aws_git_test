@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL, accounts_batch_size, accounts_page_size
 from merge_integration.utils import create_merge_client
 
 
@@ -48,7 +48,7 @@ class MergeAccounts(APIView):
             accounts_data = merge_client.accounting.accounts.list(
                 remote_fields=AccountsListRequestRemoteFields.CLASSIFICATION,
                 show_enum_origins=AccountsListRequestShowEnumOrigins.CLASSIFICATION,
-                page_size=100000,
+                page_size=accounts_page_size,
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
             )
@@ -66,7 +66,7 @@ class MergeAccounts(APIView):
                 accounts_data = merge_client.accounting.accounts.list(
                     remote_fields=AccountsListRequestRemoteFields.CLASSIFICATION,
                     show_enum_origins=AccountsListRequestShowEnumOrigins.CLASSIFICATION,
-                    page_size=100000,
+                    page_size=accounts_page_size,
                     include_remote_data=True,
                     modified_after=self.last_modified_at,
                     cursor=accounts_data.next,
@@ -162,15 +162,51 @@ class InsertAccountData(APIView):
                 account_payload["erp_link_token_id"] = erp_link_token_id
                 account_payload["org_id"] = org_id
 
+                payload = dict()
+                payload["erp_link_token_id"] = erp_link_token_id
+                payload["org_id"] = org_id
+                data = account_payload["accounts"]
+
                 api_log(
                     msg=f"Posting accounts data to Kloo: {json.dumps(account_payload)}"
                 )
 
-                account_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-accounts"
-                account_response_data = requests.post(
-                    account_url,
-                    json=account_payload,
+                api_log(
+                    msg=f"Total accounts data to Kloo: {len(json.dumps(account_payload['accounts']))}"
                 )
+
+                api_log(
+                    msg=f"Total accounts data to Kloo: {len(account_payload)}"
+                )
+
+                api_log(
+                    msg=f"Total accounts data to Kloo: {account_payload}"
+                )
+
+                api_log(
+                    msg=f"Total accounts data to Kloo after data formatting : {data}"
+                )
+
+                api_log(
+                    msg=f"Total accounts data lenght to Kloo after data formatting : {len(data)}"
+                )
+                account_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-accounts"
+
+                batch_size = accounts_batch_size
+                api_log(msg=f"[BATCH SIZE]:: {batch_size}")
+                for batch in range(0, len(data), batch_size):
+                    print(batch)
+                    api_log(msg=f"[BATCH SIZE]:: {batch_size}")
+                    api_log(msg=f"[BATCH]:: {batch}")
+                    batch_data = data[batch:batch + batch_size]
+                    api_log(msg=f"[BATCH DATA]:: {batch_data}")
+                    payload["accounts"] = batch_data
+                    api_log(msg=f"[PAYLOAD]:: {batch_data}")
+
+                    account_response_data = requests.post(
+                        account_url,
+                        json=payload,
+                    )
 
                 if account_response_data.status_code == status.HTTP_201_CREATED:
                     api_log(msg="data inserted successfully in the kloo account system")

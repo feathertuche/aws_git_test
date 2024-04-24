@@ -32,6 +32,7 @@ class LinkToken(APIView):
     """
 
     def post(self, request):
+        api_log(msg=f"LinkToken: POST request received with data {request.data}")
         org_id = request.data.get("organisation_id")
         end_user_email_address = request.data.get("end_user_email_address")
 
@@ -74,6 +75,8 @@ class LinkToken(APIView):
                     link_expiry_mins=30,
                     integration=request.data.get("integration"),
                 )
+
+                api_log(msg=f"Link token response: {link_token_response}")
 
                 data_to_return = {
                     "link_token": link_token_response.link_token,

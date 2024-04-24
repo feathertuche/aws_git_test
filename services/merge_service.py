@@ -18,6 +18,7 @@ from INVOICES.exceptions import MergeApiException
 from INVOICES.models import InvoiceAttachmentLogs
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import BASE_URL
+from merge_integration.settings import invoices_page_size
 from merge_integration.utils import create_merge_client
 
 
@@ -188,7 +189,7 @@ class MergeInvoiceApiService(MergeService):
         try:
             invoice_data = self.merge_client.accounting.invoices.list(
                 expand=InvoicesListRequestExpand.ACCOUNTING_PERIOD,
-                page_size=100000,
+                page_size=invoices_page_size,
                 include_remote_data=True,
                 modified_after=modified_after,
             )
@@ -203,7 +204,7 @@ class MergeInvoiceApiService(MergeService):
                     break
                 invoice_data = self.merge_client.accounting.invoices.list(
                     expand=InvoicesListRequestExpand.ACCOUNTING_PERIOD,
-                    page_size=100000,
+                    page_size=invoices_page_size,
                     include_remote_data=True,
                     modified_after=modified_after,
                     cursor=invoice_data.next,

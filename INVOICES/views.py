@@ -9,6 +9,7 @@ from INVOICES.helper_functions import format_merge_invoice_data
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
+from merge_integration.settings import invoices_batch_size
 from services.kloo_service import KlooService
 from services.merge_service import MergeInvoiceApiService
 
@@ -293,6 +294,12 @@ class MergeInvoiceCreate(APIView):
                 batch_size = 100
                 for i in range(0, len(invoice_response["data"]), batch_size):
                     batch_data = invoice_response["data"][i:i + batch_size]
+
+                # adding batch size
+                # batch_size = invoices_batch_size
+                # for batch in range(0, len(invoice_response["data"]), batch_size):
+                #     batch_data = invoice_response["data"][batch:batch + batch_size]
+
                 # format the data to be posted to kloo
                     invoices_json = format_merge_invoice_data(
                         batch_data, erp_link_token_id, org_id

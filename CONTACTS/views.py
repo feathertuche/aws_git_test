@@ -17,7 +17,7 @@ from rest_framework.views import APIView
 
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL, contacts_batch_size, contacts_page_size
 from merge_integration.utils import create_merge_client
 
 
@@ -60,7 +60,7 @@ class MergeContactsList(APIView):
                 expand=ContactsListRequestExpand.ADDRESSES,
                 remote_fields="status",
                 show_enum_origins="status",
-                page_size=100000,
+                page_size=contacts_page_size,
                 is_supplier=True,
                 include_remote_data=True,
                 modified_after=self.last_modified_at,
@@ -68,17 +68,17 @@ class MergeContactsList(APIView):
 
             all_contact_data = []
             while True:
-                api_log(msg=f"Adding {len(contact_data.results)} accounts to the list.")
+                api_log(msg=f"Adding {len(contact_data.results)} contacts to the list.")
 
                 all_contact_data.extend(contact_data.results)
                 if contact_data.next is None:
                     break
 
-                contact_data = contacts_client.accounting.accounts.list(
+                contact_data = contacts_client.accounting.contacts.list(
                     expand=ContactsListRequestExpand.ADDRESSES,
                     remote_fields="status",
                     show_enum_origins="status",
-                    page_size=100000,
+                    page_size=contacts_page_size,
                     is_supplier=True,
                     include_remote_data=True,
                     modified_after=self.last_modified_at,
@@ -88,10 +88,10 @@ class MergeContactsList(APIView):
                 api_log(
                     msg=f"CONTACTS GET:: The length of the next page contacts data is : {len(contact_data.results)}"
                 )
-                api_log(msg=f"Length of all_contact_data: {len(contact_data.results)}")
+                api_log(msg=f"Length of contact data array : {len(contact_data.results)}")
 
             api_log(
-                msg=f"CONTACTS GET:: The length of all account data is : {len(all_contact_data)}"
+                msg=f"CONTACTS GET:: The length of all contact data is : {len(all_contact_data)}"
             )
 
             return all_contact_data
@@ -320,16 +320,38 @@ class MergePostContacts(APIView):
                 contact_payload["org_id"] = org_id
 
                 api_log(
-                    msg=f"Posting contacts data to Kloo: {json.dumps(contact_payload)}"
+                    msg=f"TOtal contact data from Merge : {json.dumps(contact_payload)}"
+                )
+
+                api_log(
+                    msg=f"Size of contact data from Merge : {len(json.dumps(contact_payload))}"
+                )
+
+                api_log(
+                    msg=f"Length of contact data to Kloo: {len(contact_payload)}"
+                )
+
+                api_log(
+                    msg=f"Total contact data to Kloo: {contact_payload}"
                 )
 
                 contact_url = (
                     f"{GETKLOO_LOCAL_URL}/ap/erp-integration/insert-erp-contacts"
                 )
 
+                # adding batch size of 100
+                # batch_size = contacts_batch_size
+                # api_log(msg=f"[BATCH SIZE]:: {batch_size}")
+                # for batch in range(0, len(contact_payload), batch_size):
+                #     api_log(msg=f"[BATCH SIZE]:: {batch_size}")
+                #     api_log(msg=f"[BATCH]:: {batch}")
+                #     batch_data = contact_payload[batch:batch + batch_size]
+                #     api_log(msg=f"[BATCH DATA]:: {batch_data}")
+
                 contact_response_data = requests.post(
                     contact_url,
                     json=contact_payload,
+                    # stream=True,
                 )
 
                 if contact_response_data.status_code == status.HTTP_201_CREATED:
