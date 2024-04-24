@@ -4,9 +4,9 @@ import uuid
 from threading import Lock
 
 from django.views.decorators.csrf import csrf_exempt
-from merge.core import ApiError
 from merge.resources.accounting import CategoriesEnum
 from rest_framework import status
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -25,13 +25,13 @@ from .queries import get_erp_link_token
 # Define a global lock
 webhook_lock = Lock()
 
+
 class LinkToken(APIView):
     """
     LinkToken API
     """
 
     def post(self, request):
-        api_log(msg=f"LINKTOKEN: LinkToken API called with data {request.data}")
         org_id = request.data.get("organisation_id")
         end_user_email_address = request.data.get("end_user_email_address")
 
@@ -46,7 +46,6 @@ class LinkToken(APIView):
         )
         is_available = check_exist_linktoken.get("is_available")
         if is_available == 1:
-            api_log(msg="LINKTOKEN: Link token already exists")
             link_token_data = check_exist_linktoken
             if link_token_data["is_available"]:
                 # Update the bearer field with the new token
@@ -54,42 +53,35 @@ class LinkToken(APIView):
                     link_token=link_token_data["link_token"]
                 )
                 link_token_record.save()
-            return Response(check_exist_linktoken, status=status.HTTP_201_CREATED)
+            response = Response(check_exist_linktoken, status=status.HTTP_201_CREATED)
+            response.accepted_renderer = JSONRenderer()
+            return response
         else:
-            api_log(msg="LINKTOKEN: Creating new link token")
             try:
                 end_usr_origin_id = uuid.uuid1()
                 api_key = os.environ.get("API_KEY")
-                api_log(msg=f"LINKTOKEN: API key {api_key}")
                 merge_client = create_merge_client(api_key)
-                api_log(msg=f"LINKTOKEN: Merge client created {merge_client}")
+                link_token_response = merge_client.ats.link_token.create(
+                    end_user_email_address=end_user_email_address,
+                    end_user_organization_name=request.data.get(
+                        "end_user_organization_name"
+                    ),
+                    end_user_origin_id=end_usr_origin_id,
+                    categories=[CategoriesEnum.ACCOUNTING],
+                    should_create_magic_link_url=request.data.get(
+                        "should_create_magic_link_url"
+                    ),
+                    link_expiry_mins=30,
+                    integration=request.data.get("integration"),
+                )
 
-                try:
-                    link_token_response = merge_client.ats.link_token.create(
-                        end_user_email_address=end_user_email_address,
-                        end_user_organization_name=request.data.get(
-                            "end_user_organization_name"
-                        ),
-                        end_user_origin_id=end_usr_origin_id,
-                        categories=[CategoriesEnum.ACCOUNTING],
-                        should_create_magic_link_url=request.data.get(
-                            "should_create_magic_link_url"
-                        ),
-                        link_expiry_mins=30,
-                        integration=request.data.get("integration"),
-                    )
-                    api_log(msg=f"LINKTOKEN: Link token response {link_token_response}")
-                except ApiError as e:
-                    api_log(msg=f"LINKTOKEN: Exception occurred: {e}")
+                api_log(f"Link token response: {link_token_response}")
 
                 data_to_return = {
                     "link_token": link_token_response.link_token,
                     "magic_link_url": link_token_response.magic_link_url,
                     "integration_name": link_token_response.integration_name,
                 }
-
-                api_log(msg=f"LINKTOKEN: Link token created with data {data_to_return}")
-
                 data = {
                     "id": end_usr_origin_id,
                     "categories": request.data.get("categories"),
@@ -111,14 +103,11 @@ class LinkToken(APIView):
                     "status": "INCOMPLETE",
                 }
 
-                api_log(msg=f"LINKTOKEN: Creating ERP link token with data {data}")
-
                 create_erp_link_token(data)
-
-                api_log(msg="LINKTOKEN: ERP link token created successfully")
-                return Response(data_to_return, status=status.HTTP_201_CREATED)
+                response = Response(data_to_return, status=status.HTTP_201_CREATED)
+                response.accepted_renderer = JSONRenderer()
+                return response
             except Exception as e:
-                api_log(msg=f"LINKTOKEN: Exception occurred: {str(e)}")
                 return Response(
                     {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
