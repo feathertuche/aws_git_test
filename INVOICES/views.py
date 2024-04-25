@@ -63,12 +63,12 @@ class InvoiceCreate(APIView):
                 line_item_data = {
                     "id": line_item_payload.get("id"),
                     "remote_id": line_item_payload.get("id"),
-                    "name": line_item_payload.get("item"),
-                    "status": line_item_payload.get("status"),
+                    # "name": line_item_payload.get("item"),
+                    # "status": line_item_payload.get("status"),
                     "unit_price": line_item_payload.get("unit_price"),
-                    "purchase_price": line_item_payload.get("purchase_price"),
-                    "TaxType": line_item_payload.get("TaxType"),
-                    "purchase_account": line_item_payload.get("purchase_account"),
+                    # "purchase_price": line_item_payload.get("purchase_price"),
+                    # "TaxType": line_item_payload.get("TaxType"),
+                    # "purchase_account": line_item_payload.get("purchase_account"),
                     "currency": line_item_payload.get("currency"),
                     "exchange_rate": line_items_payload.get("exchange_rate"),
                     "remote_updated_at": line_item_payload.get("remote_updated_at"),
@@ -92,6 +92,7 @@ class InvoiceCreate(APIView):
             # prepare invoice data
             invoice_data = {
                 "id": line_items_payload.get("id"),
+                "remote_id": line_items_payload.get("remote_id"),
                 "type": line_items_payload.get("type"),
                 "due_date": line_items_payload.get("due_date"),
                 "issue_date": line_items_payload.get("issue_date"),
@@ -196,20 +197,25 @@ class InvoiceCreate(APIView):
                 line_item = {
                     "id": line_item_data.get("id"),
                     "remote_id": line_item_data.get("remote_id"),
-                    "created_at": line_item_data.get("created_at"),
-                    "modified_at": line_item_data.get("modified_at"),
-                    "description": line_item_data.get("description"),
                     "unit_price": line_item_data.get("unit_price"),
-                    "quantity": line_item_data.get("quantity"),
-                    "total_amount": line_item_data.get("total_amount"),
                     "currency": line_item_data.get("currency"),
                     "exchange_rate": line_item_data.get("exchange_rate"),
-                    "item": line_item_data.get("item"),
-                    "account": line_item_data.get("account"),
-                    "tracking_category": line_item_data.get("tracking_category"),
-                    "tracking_categories": line_item_data.get("tracking_categories"),
-                    "company": line_item_data.get("company"),
                     "remote_was_deleted": line_item_data.get("remote_was_deleted"),
+                    "description": line_item_data.get("item"),
+                    "quantity": line_item_data.get("quantity"),
+                    "created_at": line_item_data.get("created_at"),
+                    "modified_at": line_item_data.get("modified_at"),
+                    "total_amount": line_item_data.get("total_amount"),
+                    # "item": line_item_data.get("item"),
+                    # "tracking_category": line_item_data.get("tracking_category"),
+                    "tracking_categories": line_item_data.get("tracking_categories"),
+                    "integration_params": {
+                        "tax_rate_remote_id": line_item_data.get(
+                            "tax_rate_remote_id"
+                        )
+                    },
+                    "account": line_item_data.get("account"),
+                    "company": line_item_data.get("company"),
                     "field_mappings": line_item_data.get("field_mappings"),
                     "remote_data": line_item_data.get("remote_data")
                 }
@@ -220,12 +226,30 @@ class InvoiceCreate(APIView):
                 "model": {
                     # "id": invoice_id,
                     "remote_id": payload_data["model"].get("remote_id"),
+                    "type": payload_data["model"].get("type"),
                     "created_at": payload_data["model"].get("created_at"),
                     "modified_at": payload_data["model"].get("modified_at"),
-                    "type": payload_data["model"].get("type"),
+                    "due_date": payload_data["model"].get("due_date"),
+                    "issue_date": payload_data["model"].get("issue_date"),
                     "contact": payload_data["model"].get("contact"),
                     "number": payload_data["model"].get("number"),
                     "memo": payload_data["model"].get("memo"),
+                    "status": payload_data["model"].get("status"),
+                    "company": payload_data["model"].get("company"),
+                    "currency": payload_data["model"].get("currency"),
+                    "tracking_categories": payload_data["model"].get("tracking_categories"),
+                    "sub_total": payload_data["model"].get("sub_total"),
+                    "total_tax_amount": payload_data["model"].get("total_tax_amount"),
+                    "total_amount": payload_data["model"].get("total_amount"),
+                    "integration_params": {
+                        "tax_application_type": payload_data["model"].get("tax_application_type")
+                    },
+                    "exchange_rate": payload_data["model"].get("exchange_rate"),
+                    "total_discount": payload_data["model"].get("total_discount"),
+                    "balance": payload_data["model"].get("balance"),
+                    "remote_updated_at": payload_data["model"].get("remote_updated_at"),
+                    "payments": payload_data["model"].get("payments"),
+                    "applied_payments": payload_data["model"].get("applied_payments"),
                     "line_items": line_items,
                 },
                 "warnings": [],
@@ -297,28 +321,14 @@ class MergeInvoiceCreate(APIView):
                         },
                         status=status.HTTP_204_NO_CONTENT,
                     )
-                batch_size = 100
-                for i in range(0, len(invoice_response["data"]), batch_size):
-                    batch_data = invoice_response["data"][i:i + batch_size]
+                invoices_json = format_merge_invoice_data(invoice_response, erp_link_token_id, org_id)
+                api_log(msg="Invoices saving to database")
 
-                # adding batch size
-                # batch_size = invoices_batch_size
-                # for batch in range(0, len(invoice_response["data"]), batch_size):
-                #     batch_data = invoice_response["data"][batch:batch + batch_size]
-
-                # format the data to be posted to kloo
-                    invoices_json = format_merge_invoice_data(
-                        batch_data, erp_link_token_id, org_id
-                    )
-
-                # save the data to the database
-                    api_log(msg="Invoices saving to database")
-
-                    kloo_service = KlooService(
-                        auth_token=None,
-                        erp_link_token_id=erp_link_token_id,
-                    )
-                    invoice_kloo_response = kloo_service.post_invoice_data(invoices_json)
+                kloo_service = KlooService(
+                    auth_token=None,
+                    erp_link_token_id=erp_link_token_id,
+                )
+                invoice_kloo_response = kloo_service.post_invoice_data(invoices_json)
 
                 if invoice_kloo_response["status_code"] == status.HTTP_201_CREATED:
                     api_log(msg="data inserted successfully in the kloo Invoice system")
