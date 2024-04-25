@@ -19,7 +19,7 @@ class Command(BaseCommand):
         print("Adding Invoice Module for all completed linked accounts")
 
         # get all linked account whose status are complete and Invoice Module is not in master sync
-        account_token = "enI1KLR2kch5WTtoL5FhVVSzI2mHLfFwV4Y485ti-KuhnCJZwB5itg"
+        account_token = ""
         tc_client = create_merge_client(account_token)
 
         try:

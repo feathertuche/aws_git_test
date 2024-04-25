@@ -26,6 +26,7 @@ from SYNC.queries import get_erplogs_by_link_token_id
 from TAX_RATE.views import MergePostTaxRates
 from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from merge_integration.helper_functions import api_log
+from merge_integration.settings import SAGE_INTACCT_RETRIES, SAGE_INTACCT_INTERVAL
 from services.merge_service import MergeSyncService
 
 
@@ -150,7 +151,7 @@ def start_sync_process(
     initial_sync: bool = True,
 ):
     """
-    Starts the sync process.
+    Starts the sync process for xero modules
     """
 
     api_log(msg=f"SYNC : Starting the sync process account_token {account_token}")
@@ -231,6 +232,99 @@ def start_sync_process(
                 )
                 break
 
+        # Return the combined response and response_data dictionary
+        api_log(msg="SYNC : All modules are succesfull")
+    except Exception:
+        api_log(msg="SYNC : Exception for model")
+        return
+
+
+def start_sync_process_sage(
+    request,
+    org_id: str,
+    erp_link_token_id: str,
+    account_token: str,
+    modules_to_sync: list,
+    api_views: dict,
+    initial_sync: bool = True,
+):
+    """
+    Starts the sync process for sage modules
+    """
+
+    api_log(msg=f"SYNC SAGE: Starting the sync process account_token {account_token}")
+
+    try:
+        modules = modules_to_sync
+        modules_copy = modules.copy()
+
+        total_retries = 0
+        while modules and total_retries < SAGE_INTACCT_RETRIES:
+            api_log(
+                msg=f"SYNC SAGE : Checking the status of the module for retry {total_retries}"
+            )
+            time.sleep(30)
+
+            get_erplogs_by_link_token_id(erp_link_token_id)
+
+            merge_client = MergeSyncService(account_token)
+            sync_status_response = merge_client.sync_status()
+
+            if not sync_status_response["status"]:
+                api_log(msg="SYNC : Sync Status is not available")
+                break
+
+            # Check if all modules are done syncing
+            sync_status_result = sync_status_response["data"].results
+            for module in modules_copy:
+                for sync_filter_array in sync_status_result:
+                    if sync_filter_array.model_name == module:
+                        if sync_filter_array.status == "DONE":
+                            api_log(
+                                msg=f"SYNC SAGE :Syncing module {module} is done, removing from the list"
+                            )
+                            sync_modules_status(
+                                request,
+                                org_id,
+                                erp_link_token_id,
+                                account_token,
+                                [api_views[module]],
+                                initial_sync,
+                            )
+                            modules.remove(module)
+
+                # assign the latest modules to module copy
+                modules_copy = modules.copy()
+
+            api_log(
+                msg=f"SYNC SAGE : Waiting for {SAGE_INTACCT_INTERVAL} seconds until next retry"
+            )
+            time.sleep(SAGE_INTACCT_INTERVAL)
+            api_log(msg="SYNC SAGE : Waking up")
+            total_retries += 1
+
+        # after retry of 5 times add all remaining modules to failed status
+        api_log(
+            msg=f"SYNC SAGE : Remaining modules which are failed or in partial status {modules}"
+        )
+        for module in modules:
+            module_name = webhook_sync_modul_filter(module)
+
+            error_message = f"API {module} failed from merge side with"
+            log_sync_status(
+                sync_status="Failed",
+                message=error_message,
+                label=module_name,
+                org_id=org_id,
+                erp_link_token_id=erp_link_token_id,
+                account_token=account_token,
+            )
+            update_logs_for_daily_sync(
+                erp_link_token_id,
+                "failed",
+                module_name,
+                error_message,
+            )
         # Return the combined response and response_data dictionary
         api_log(msg="SYNC : All modules are succesfull")
     except Exception:

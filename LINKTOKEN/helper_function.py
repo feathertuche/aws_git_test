@@ -29,6 +29,7 @@ from LINKTOKEN.utils import webhook_sync_modul_filter
 from SYNC.helper_function import (
     log_sync_status,
     start_sync_process,
+    start_sync_process_sage,
 )
 from TAX_RATE.views import MergePostTaxRates
 from TRACKING_CATEGORIES.views import MergePostTrackingCategories
@@ -297,19 +298,36 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         api_log(msg="WEBHOOK: Thread started")
 
         api_log(msg=f"WEBHOOK:: Total module syncing: {modules}")
-        thread = Thread(
-            target=start_sync_process,
-            args=(
-                custom_request,
-                erp_data.org_id,
-                erp_data.id,
-                erp_data.account_token,
-                modules,
-                api_views,
-            ),
-        )
 
-        thread.start()
+        if integration_name == "Sage Intacct":
+            thread = Thread(
+                target=start_sync_process_sage,
+                args=(
+                    custom_request,
+                    erp_data.org_id,
+                    erp_data.id,
+                    erp_data.account_token,
+                    modules,
+                    api_views,
+                ),
+            )
+
+            thread.start()
+
+        if integration_name == "Xero":
+            thread = Thread(
+                target=start_sync_process,
+                args=(
+                    custom_request,
+                    erp_data.org_id,
+                    erp_data.id,
+                    erp_data.account_token,
+                    modules,
+                    api_views,
+                ),
+            )
+
+            thread.start()
         api_log(msg="WEBHOOK: Thread started successfully")
     except Exception as e:
         api_log(msg=f"WEBHOOK: Exception occurred: in store_initial_sync {e}")
