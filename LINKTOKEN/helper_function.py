@@ -197,9 +197,10 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         integration_name = account_token_data["integration_name"]
 
         modules = []
-        if integration_name == "Sage Intacct" and merge_module_name == "Invoice":
+        if integration_name == "Sage Intacct" and merge_module_name == "Account":
             modules.append("Contact")
             modules.append("TrackingCategory")
+            modules.append("Invoice")
 
         modules.append(merge_module_name)
 

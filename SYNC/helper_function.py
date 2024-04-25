@@ -26,7 +26,6 @@ from SYNC.queries import get_erplogs_by_link_token_id
 from TAX_RATE.views import MergePostTaxRates
 from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from merge_integration.helper_functions import api_log
-from services.kloo_service import KlooService
 from services.merge_service import MergeSyncService
 
 
@@ -194,13 +193,6 @@ def start_sync_process(
                                 initial_sync,
                             )
                             modules.remove(module)
-
-                        # if sync_filter_array.status in ["PARTIALLY_SYNCED"]:
-                        #     api_log(
-                        #         msg=f"SYNC :Syncing module {module} is partially synced from merge, "
-                        #         f"so will continue to check"
-                        #     )
-                        #     continue
 
                         if sync_filter_array.status in ["FAILED", "PARTIALLY_SYNCED"]:
                             module_name = webhook_sync_modul_filter(module)
