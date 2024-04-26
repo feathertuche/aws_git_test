@@ -55,5 +55,4 @@ class RequestLogMiddleware:
                        '"{request_body}"').format(**log_data)
 
         request_logger.info(log_message)
-
         return response
