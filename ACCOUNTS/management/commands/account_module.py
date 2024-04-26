@@ -15,6 +15,19 @@ from merge_integration.utils import create_merge_client
 class Command(BaseCommand):
     """
     Sanitization command to add the initial sync log for all completed linked accounts
+
+    1. Add user account token
+    2. Add erp link token id
+    3. Add organization id
+    4. Add auth token from the env where you want to send the data ( since we cant use intranet api from outside)
+    5. Add the url where you want to send the data
+
+    ** For small amount of data use the script directly without any changes
+    But for huge chunks of data above 1000 records, use batching **
+
+    ** You can use the same pattern for other modules also, just change the merge api call
+    and other values according to the module **
+
     """
 
     help = "Add Contacts Module for all completed linked accounts"
@@ -76,7 +89,6 @@ class Command(BaseCommand):
 
             account_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-accounts"
 
-            #
             account_response_data = requests.post(
                 account_url,
                 json=account_payload,
