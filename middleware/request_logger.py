@@ -1,9 +1,15 @@
+"""
+Middleware to log `*/api/*` requests and responses.
+"""
+
 import logging
 import socket
 import time
 
 from merge_integration.helper_functions import request_log
+
 request_logger = logging.getLogger(__name__)
+
 
 class RequestLogMiddleware:
     """Request Logging Middleware."""
@@ -20,39 +26,17 @@ class RequestLogMiddleware:
         upstream_time = response_start_time - request_end_time
 
         log_data = {
-            "time_local": time.strftime('%d/%b/%Y:%H:%M:%S %z'),
-            "remote_addr": request.META.get("REMOTE_ADDR", "-"),
+            "remote_address": request.META["REMOTE_ADDR"],
+            "server_hostname": socket.gethostname(),
             "request_method": request.method,
-            "request": request.get_full_path(),
-            "request_length": len(request.body),
-            "status": response.status_code,
-            "bytes_sent": "-",
-            "body_bytes_sent": "-",
-            "http_referer": request.META.get("HTTP_REFERER", "-"),
-            "http_user_agent": request.META.get("HTTP_USER_AGENT", "-"),
-            "upstream_addr": "-",
-            "upstream_status": "-",
-            "request_time": f"{response_time:.6f}",
-            "upstream_response_time": f"{upstream_time:.6f}",
-            "upstream_connect_time": "-",
-            "upstream_header_time": "-",
-            "request_body": request.body.decode() if request.body else "-",
+            "request_path": request.get_full_path(),
+            "request_headers": dict(request.headers),
+            "response_status": response.status_code,
+            "response_headers": dict(response.items()),
+            "response_time": f"{response_time:.6f} ",
+            "upstream_time": f"{upstream_time:.6f} ",
         }
 
-        log_message = ('"{time_local}" {remote_addr} '
-                       '"{request_method} {request}" '
-                       '{request_length} '
-                       '{status} {bytes_sent} '
-                       '{body_bytes_sent} '
-                       '"{http_referer}" '
-                       '"{http_user_agent}" '
-                       '{upstream_addr} '
-                       '{upstream_status} '
-                       '{request_time} '
-                       '{upstream_response_time} '
-                       '{upstream_connect_time} '
-                       '{upstream_header_time} '
-                       '"{request_body}"').format(**log_data)
+        request_log(msg=log_data)
 
-        request_logger.info(log_message)
         return response
