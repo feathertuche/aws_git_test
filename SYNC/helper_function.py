@@ -243,6 +243,7 @@ def start_sync_process_sage(
     request,
     org_id: str,
     erp_link_token_id: str,
+    daily_or_force_sync_id: str,
     account_token: str,
     modules_to_sync: list,
     api_views: dict,
@@ -285,6 +286,18 @@ def start_sync_process_sage(
                             api_log(
                                 msg=f"SYNC SAGE :Syncing module {module} is done, removing from the list"
                             )
+                            module_name = webhook_sync_modul_filter(module)
+                            update_erp_daily_sync_logs(
+                                {
+                                    "link_token_id": erp_link_token_id,
+                                    "daily_or_force_sync_log_id": daily_or_force_sync_id,
+                                    "label": module_name,
+                                },
+                                {
+                                    "sync_end_time": datetime.now(tz=timezone.utc),
+                                },
+                            )
+
                             sync_modules_status(
                                 request,
                                 org_id,
