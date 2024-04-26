@@ -10,7 +10,6 @@ from INVOICES.queries import update_invoices_erp_id
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import invoices_batch_size
 from services.kloo_service import KlooService
 from services.merge_service import MergeInvoiceApiService
 
@@ -217,7 +216,7 @@ class InvoiceCreate(APIView):
                     "account": line_item_data.get("account"),
                     "company": line_item_data.get("company"),
                     "field_mappings": line_item_data.get("field_mappings"),
-                    "remote_data": line_item_data.get("remote_data")
+                    "remote_data": line_item_data.get("remote_data"),
                 }
                 line_items.append(line_item)
 
@@ -258,23 +257,32 @@ class InvoiceCreate(APIView):
             api_log(msg="6")
             print(" ")
             api_log(msg=f"[PAYLOAD FOR INVOICE PATCH view file] : {payload}")
-            print(" ")
             update_response = merge_api_service.update_invoice(invoice_id, payload)
             api_log(msg=f"{update_response}")
             # Handle response
             if update_response.status_code == 200:
-                api_log(msg=f'"status": "success", "message": f"Invoice with ID {invoice_id} successfully updated '
-                            f'with status code: {status.HTTP_200_OK}')
+                api_log(
+                    msg=f'"status": "success", "message": f"Invoice with ID {invoice_id} successfully updated '
+                    f"with status code: {status.HTTP_200_OK}"
+                )
                 return Response(
-                    {"status": "success", "message": f"Invoice with ID {invoice_id} successfully updated"},
-                    status=status.HTTP_200_OK
+                    {
+                        "status": "success",
+                        "message": f"Invoice with ID {invoice_id} successfully updated",
+                    },
+                    status=status.HTTP_200_OK,
                 )
             else:
                 print("this is a failure bloc -- views")
-                api_log(msg=f"Failed to update invoice with ID {invoice_id} with status {update_response.status_code}")
+                api_log(
+                    msg=f"Failed to update invoice with ID {invoice_id} with status {update_response.status_code}"
+                )
                 return Response(
-                    {"status": "error", "message": f"Failed to update invoice with ID {invoice_id}"},
-                    status=update_response.status_code
+                    {
+                        "status": "error",
+                        "message": f"Failed to update invoice with ID {invoice_id}",
+                    },
+                    status=update_response.status_code,
                 )
         except Exception as e:
             error_message = f"EXCEPTION : Failed to update invoice in Merge: {str(e)}"
@@ -326,7 +334,7 @@ class MergeInvoiceCreate(APIView):
                     invoice_response, erp_link_token_id, org_id
                 )
 
-            # save the data to the database
+                # save the data to the database
                 api_log(msg="Invoices saving to database")
 
                 kloo_service = KlooService(
@@ -355,4 +363,3 @@ class MergeInvoiceCreate(APIView):
             )
 
         return Response("Failed to insert data to the kloo Invoice system")
-
