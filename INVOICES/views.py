@@ -297,28 +297,19 @@ class MergeInvoiceCreate(APIView):
                         },
                         status=status.HTTP_204_NO_CONTENT,
                     )
-                batch_size = 100
-                for i in range(0, len(invoice_response["data"]), batch_size):
-                    batch_data = invoice_response["data"][i:i + batch_size]
 
-                # adding batch size
-                # batch_size = invoices_batch_size
-                # for batch in range(0, len(invoice_response["data"]), batch_size):
-                #     batch_data = invoice_response["data"][batch:batch + batch_size]
+                invoices_json = format_merge_invoice_data(
+                    invoice_response, erp_link_token_id, org_id
+                )
 
-                # format the data to be posted to kloo
-                    invoices_json = format_merge_invoice_data(
-                        batch_data, erp_link_token_id, org_id
-                    )
+            # save the data to the database
+                api_log(msg="Invoices saving to database")
 
-                # save the data to the database
-                    api_log(msg="Invoices saving to database")
-
-                    kloo_service = KlooService(
-                        auth_token=None,
-                        erp_link_token_id=erp_link_token_id,
-                    )
-                    invoice_kloo_response = kloo_service.post_invoice_data(invoices_json)
+                kloo_service = KlooService(
+                    auth_token=None,
+                    erp_link_token_id=erp_link_token_id,
+                )
+                invoice_kloo_response = kloo_service.post_invoice_data(invoices_json)
 
                 if invoice_kloo_response["status_code"] == status.HTTP_201_CREATED:
                     api_log(msg="data inserted successfully in the kloo Invoice system")

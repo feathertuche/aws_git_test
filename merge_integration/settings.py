@@ -210,7 +210,7 @@ company_info_batch_size = 2
 contacts_page_size = 20
 contacts_batch_size = 3
 
-invoices_page_size = 2
+invoices_page_size = 100
 invoices_batch_size = 2
 
 tax_rate_page_size = 2
