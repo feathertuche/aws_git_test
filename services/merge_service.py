@@ -1,10 +1,8 @@
 import os
 import uuid
-import urllib.parse
+
 import requests
 from merge.core import ApiError
-from rest_framework import status
-from rest_framework.response import Response
 from merge.resources.accounting import (
     AccountsListRequestRemoteFields,
     AccountsListRequestShowEnumOrigins,
@@ -14,10 +12,12 @@ from merge.resources.accounting import (
     AccountingAttachmentRequest,
     InvoicesListRequestExpand,
 )
+from rest_framework import status
+from rest_framework.response import Response
+
 from INVOICES.exceptions import MergeApiException
 from INVOICES.models import InvoiceAttachmentLogs
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import BASE_URL
 from merge_integration.settings import invoices_page_size
 from merge_integration.utils import create_merge_client
 
@@ -196,7 +196,9 @@ class MergeInvoiceApiService(MergeService):
 
             all_company_info = []
             while True:
-                api_log(msg=f"Adding {len(invoice_data.results)} Company Info to the list.")
+                api_log(
+                    msg=f"Adding {len(invoice_data.results)} Company Info to the list."
+                )
 
                 all_company_info.extend(invoice_data.results)
 
@@ -209,16 +211,7 @@ class MergeInvoiceApiService(MergeService):
                     modified_after=modified_after,
                     cursor=invoice_data.next,
                 )
-
-                api_log(
-                    msg=f"Data coming for Company MERGE API is : {invoice_data}"
-                )
-                api_log(
-                    msg=f"COMPANY INFO GET:: The length of the next page account data is : {len(invoice_data.results)}"
-                )
-                api_log(
-                    msg=f"Length of all COMPANY INFO: {len(invoice_data.results)}"
-                )
+                api_log(msg=f"Length of all COMPANY INFO: {len(invoice_data.results)}")
 
             api_log(
                 msg=f"COMPANY INFO GET:: The length of all company info data is : {len(all_company_info)}"
@@ -281,34 +274,46 @@ class MergeInvoiceApiService(MergeService):
             headers = {
                 "Authorization": f"Bearer {api_key}",
                 "X-Account-Token": self.account_token,
-                "Accept": "application/json"
+                "Accept": "application/json",
             }
             api_log(msg=f"[BEARER TOKEN BLOC merge service file] : {headers}")
-            invoice_update_url = f"https://api-eu.merge.dev/api/accounting/v1/invoices/{invoice_id}"
+            invoice_update_url = (
+                f"https://api-eu.merge.dev/api/accounting/v1/invoices/{invoice_id}"
+            )
             api_log(msg=f"[URL response] : {invoice_update_url}")
 
-            invoice_update_request = requests.patch(invoice_update_url, json=invoice_data, headers=headers)
+            invoice_update_request = requests.patch(
+                invoice_update_url, json=invoice_data, headers=headers
+            )
             api_log(msg=f"[INVOICE REQUESTS.PATCH RESPONSE] : {invoice_update_request}")
 
             if invoice_update_request.status_code == status.HTTP_200_OK:
                 api_log("Invoice updated successfully......")
-                api_log(msg=f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in Xero "
-                            f"with status code: {status.HTTP_200_OK}")
+                api_log(
+                    msg=f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in Xero "
+                    f"with status code: {status.HTTP_200_OK}"
+                )
                 return Response(
-                    {"message": f"[INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in Xero "
-                                f"with status code: {status.HTTP_200_OK}"}
+                    {
+                        "message": f"[INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in Xero "
+                        f"with status code: {status.HTTP_200_OK}"
+                    }
                 )
 
             elif invoice_update_request.status_code == status.HTTP_404_NOT_FOUND:
                 print("THIS IS A ELIF bloc....")
-                error_msg = f"[MERGE SERVICE PY INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} is Incorrect and the " \
-                            f"status code is : {status.HTTP_404_NOT_FOUND}"
+                error_msg = (
+                    f"[MERGE SERVICE PY INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} is Incorrect and the "
+                    f"status code is : {status.HTTP_404_NOT_FOUND}"
+                )
                 api_log(msg=error_msg)
                 raise MergeApiException(error_msg)
 
             else:
-                error_msg = f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} failed to update in Xero with " \
-                            f"status code: {invoice_update_request.status_code} "
+                error_msg = (
+                    f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} failed to update in Xero with "
+                    f"status code: {invoice_update_request.status_code} "
+                )
                 api_log(msg=error_msg)
                 raise MergeApiException(error_msg)
 
@@ -335,7 +340,6 @@ class MergeInvoiceApiService(MergeService):
                 model=AccountingAttachmentRequest(**attachment_data)
             )
             if len(response.errors) > 0:
-
                 api_log(msg="MERGE : Error creating attachment")
                 raise MergeApiException(response.errors)
 
