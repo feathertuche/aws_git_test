@@ -252,7 +252,9 @@ def start_sync_process_sage(
     Starts the sync process for sage modules
     """
 
-    api_log(msg=f"SYNC SAGE: Starting the sync process account_token {account_token}")
+    api_log(
+        msg=f"SYNC SAGE: Starting the sync process account_token {account_token} for {modules_to_sync}"
+    )
 
     try:
         modules = modules_to_sync
@@ -296,6 +298,13 @@ def start_sync_process_sage(
                 # assign the latest modules to module copy
                 modules_copy = modules.copy()
 
+            # if all modules are synced then break the loop
+            if not modules:
+                api_log(
+                    msg="SYNC SAGE : All modules are synced Breaking the loop for retry"
+                )
+                break
+
             api_log(
                 msg=f"SYNC SAGE : Waiting for {SAGE_INTACCT_INTERVAL} seconds until next retry"
             )
@@ -326,9 +335,9 @@ def start_sync_process_sage(
                 error_message,
             )
         # Return the combined response and response_data dictionary
-        api_log(msg="SYNC : All modules are succesfull")
+        api_log(msg=f"SYNC SAGE : Modules are succesfull {modules}")
     except Exception:
-        api_log(msg="SYNC : Exception for model")
+        api_log(msg="SYNC SAGE : Exception for model")
         return
 
 

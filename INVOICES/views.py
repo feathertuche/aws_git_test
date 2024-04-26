@@ -321,7 +321,12 @@ class MergeInvoiceCreate(APIView):
                         },
                         status=status.HTTP_204_NO_CONTENT,
                     )
-                invoices_json = format_merge_invoice_data(invoice_response, erp_link_token_id, org_id)
+
+                invoices_json = format_merge_invoice_data(
+                    invoice_response, erp_link_token_id, org_id
+                )
+
+            # save the data to the database
                 api_log(msg="Invoices saving to database")
 
                 kloo_service = KlooService(
