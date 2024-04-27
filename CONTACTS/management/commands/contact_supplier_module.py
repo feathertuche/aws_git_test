@@ -1,9 +1,8 @@
 import requests
 from django.core.management.base import BaseCommand
-from django.db import connection
 from merge.resources.accounting import (
-    ContactsRetrieveRequestExpand,
     ContactsListRequestExpand,
+    ContactsRetrieveRequestExpand,
 )
 from rest_framework import status
 
@@ -42,21 +41,10 @@ class Command(BaseCommand):
         auth_token = ""
         org_id = ""
 
-        sql_query = f"""
-            SELECT * FROM erp_link_token
-            WHERE id = '{erp_link_token_id}'
-            """
-
-        with connection.cursor() as cursor:
-            cursor.execute(sql_query)
-            linked_accounts = cursor.fetchall()
-
-        api_log(msg=f"Total Linked Accounts: {linked_accounts}")
-
         try:
             contacts_client = create_merge_client(account_token)
 
-            suppliers_name_list = ["supplier name"]
+            suppliers_name_list = ["Digital Qube", "Lianne Hartley Solutions Limited"]
             contact_ids = []
 
             contact_data = contacts_client.accounting.contacts.list(
@@ -71,9 +59,11 @@ class Command(BaseCommand):
                 api_log(msg=f"Adding {len(contact_data.results)} contacts to the list.")
 
                 for contact in contact_data.results:
-                    for supplier_name in suppliers_name_list:
-                        if supplier_name in contact.name:
-                            contact_ids.append(contact.id)
+                    if contact.name is None:
+                        continue
+                    api_log(msg=f"Contact Name: {contact.name} : {contact.id}")
+                    if contact.name in suppliers_name_list:
+                        contact_ids.append(contact.id)
 
                 if contact_data.next is None:
                     break
@@ -86,6 +76,8 @@ class Command(BaseCommand):
                     include_remote_data=True,
                     cursor=contact_data.next,
                 )
+
+            api_log(msg=f"Total Contacts: {contact_ids}")
 
             contacts = []
             for contact_id in contact_ids:
