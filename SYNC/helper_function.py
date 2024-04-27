@@ -308,6 +308,33 @@ def start_sync_process_sage(
                             )
                             modules.remove(module)
 
+                        if sync_filter_array.status in ["FAILED", "PARTIALLY_SYNCED"]:
+                            module_name = webhook_sync_modul_filter(module)
+
+                            error_message = (
+                                f"API {module} failed from merge side with"
+                                f" status {sync_filter_array.status}"
+                            )
+                            log_sync_status(
+                                sync_status="Failed",
+                                message=error_message,
+                                label=module_name,
+                                org_id=org_id,
+                                erp_link_token_id=erp_link_token_id,
+                                account_token=account_token,
+                            )
+                            update_logs_for_daily_sync(
+                                erp_link_token_id,
+                                "failed",
+                                module_name,
+                                error_message,
+                            )
+                            api_log(
+                                msg=f"SYNC SAGE :Syncing module {module_name} is failed from merge, "
+                                f"removing from the list"
+                            )
+                            modules.remove(module)
+
                 # assign the latest modules to module copy
                 modules_copy = modules.copy()
 
@@ -329,24 +356,24 @@ def start_sync_process_sage(
         api_log(
             msg=f"SYNC SAGE : Remaining modules which are failed or in partial status {modules}"
         )
-        for module in modules:
-            module_name = webhook_sync_modul_filter(module)
-
-            error_message = f"API {module} failed from merge side with"
-            log_sync_status(
-                sync_status="Failed",
-                message=error_message,
-                label=module_name,
-                org_id=org_id,
-                erp_link_token_id=erp_link_token_id,
-                account_token=account_token,
-            )
-            update_logs_for_daily_sync(
-                erp_link_token_id,
-                "failed",
-                module_name,
-                error_message,
-            )
+        # for module in modules:
+        #     module_name = webhook_sync_modul_filter(module)
+        #
+        #     error_message = f"API {module} failed from merge side with"
+        #     log_sync_status(
+        #         sync_status="Failed",
+        #         message=error_message,
+        #         label=module_name,
+        #         org_id=org_id,
+        #         erp_link_token_id=erp_link_token_id,
+        #         account_token=account_token,
+        #     )
+        #     update_logs_for_daily_sync(
+        #         erp_link_token_id,
+        #         "failed",
+        #         module_name,
+        #         error_message,
+        #     )
         # Return the combined response and response_data dictionary
         api_log(msg=f"SYNC SAGE : Modules are succesfull {modules}")
     except Exception:

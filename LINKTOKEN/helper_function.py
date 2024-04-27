@@ -302,20 +302,22 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         api_log(msg=f"WEBHOOK:: Total module syncing: {modules}")
 
         if integration_name == "Sage Intacct":
-            thread = Thread(
-                target=start_sync_process_sage,
-                args=(
-                    custom_request,
-                    erp_data.org_id,
-                    erp_data.id,
-                    daily_or_force_sync.id,
-                    erp_data.account_token,
-                    modules,
-                    api_views,
-                ),
-            )
+            for module in modules:
+                thread = Thread(
+                    target=start_sync_process_sage,
+                    args=(
+                        custom_request,
+                        erp_data.org_id,
+                        erp_data.id,
+                        daily_or_force_sync.id,
+                        erp_data.account_token,
+                        [module],
+                        api_views,
+                        False,
+                    ),
+                )
 
-            thread.start()
+                thread.start()
 
         if integration_name == "Xero":
             thread = Thread(
@@ -515,20 +517,22 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
 
         api_log(msg=f"WEBHOOK:: Total module syncing: {modules}")
         if integration_name == "Sage Intacct":
-            thread = Thread(
-                target=start_sync_process_sage,
-                args=(
-                    custom_request,
-                    erp_data.org_id,
-                    erp_data.id,
-                    daily_or_force_sync.id,
-                    erp_data.account_token,
-                    modules,
-                    api_views,
-                ),
-            )
+            for module in modules:
+                thread = Thread(
+                    target=start_sync_process_sage,
+                    args=(
+                        custom_request,
+                        erp_data.org_id,
+                        erp_data.id,
+                        daily_or_force_sync.id,
+                        erp_data.account_token,
+                        [module],
+                        api_views,
+                        False,
+                    ),
+                )
 
-            thread.start()
+                thread.start()
 
         if integration_name == "Xero":
             thread = Thread(
@@ -541,6 +545,7 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
                     erp_data.account_token,
                     modules,
                     api_views,
+                    False,
                 ),
             )
 
