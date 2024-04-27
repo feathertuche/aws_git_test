@@ -31,10 +31,11 @@ class ERPLogs(models.Model):
     link_token = models.CharField(max_length=255)
     label = models.CharField(max_length=255)
     sync_start_time = models.DateTimeField()
-    sync_end_time = models.DateTimeField()
+    sync_end_time = models.DateTimeField(null=True)
     sync_status = models.CharField(
         max_length=15, choices=SyncStatus.choices, default=SyncStatus.IN_PROGRESS
     )
+    sync_type = models.CharField(max_length=255)
     error_message = models.TextField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
