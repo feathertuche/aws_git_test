@@ -313,7 +313,6 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
                         erp_data.account_token,
                         [module],
                         api_views,
-                        False,
                     ),
                 )
 
