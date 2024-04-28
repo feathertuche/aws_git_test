@@ -111,6 +111,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "middleware.request_logger.RequestLogMiddleware",
 ]
 
 ROOT_URLCONF = "merge_integration.urls"
@@ -196,3 +197,25 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CRONJOBS = [
     ("*/1 * * * *", "INVOICES.scheduled_tasks.daily_get_merge_invoice.main"),
 ]
+
+tracking_categories_page_size = 100
+tracking_categories_batch_size = 100
+
+accounts_page_size = 100
+accounts_batch_size = 100
+
+company_info_page_size = 100
+company_info_batch_size = 100
+
+contacts_page_size = 100
+contacts_batch_size = 100
+
+invoices_page_size = 100
+invoices_batch_size = 100
+
+tax_rate_page_size = 100
+tax_rate_batch_size = 100
+
+
+SAGE_INTACCT_RETRIES = 12
+SAGE_INTACCT_INTERVAL = 300
