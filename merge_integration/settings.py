@@ -198,23 +198,23 @@ CRONJOBS = [
     ("*/1 * * * *", "INVOICES.scheduled_tasks.daily_get_merge_invoice.main"),
 ]
 
-tracking_categories_page_size = 2
-tracking_categories_batch_size = 2
+tracking_categories_page_size = 100
+tracking_categories_batch_size = 100
 
-accounts_page_size = 20
-accounts_batch_size = 4
+accounts_page_size = 100
+accounts_batch_size = 100
 
-company_info_page_size = 2
-company_info_batch_size = 2
+company_info_page_size = 100
+company_info_batch_size = 100
 
-contacts_page_size = 20
-contacts_batch_size = 3
+contacts_page_size = 100
+contacts_batch_size = 100
 
 invoices_page_size = 100
-invoices_batch_size = 2
+invoices_batch_size = 100
 
-tax_rate_page_size = 2
-tax_rate_batch_size = 2
+tax_rate_page_size = 100
+tax_rate_batch_size = 100
 
 
 SAGE_INTACCT_RETRIES = 12

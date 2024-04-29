@@ -17,7 +17,7 @@ from rest_framework.views import APIView
 
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL, contacts_batch_size, contacts_page_size
+from merge_integration.settings import GETKLOO_LOCAL_URL, contacts_page_size
 from merge_integration.utils import create_merge_client
 
 
@@ -88,7 +88,9 @@ class MergeContactsList(APIView):
                 api_log(
                     msg=f"CONTACTS GET:: The length of the next page contacts data is : {len(contact_data.results)}"
                 )
-                api_log(msg=f"Length of contact data array : {len(contact_data.results)}")
+                api_log(
+                    msg=f"Length of contact data array : {len(contact_data.results)}"
+                )
 
             api_log(
                 msg=f"CONTACTS GET:: The length of all contact data is : {len(all_contact_data)}"
@@ -321,18 +323,6 @@ class MergePostContacts(APIView):
 
                 api_log(
                     msg=f"TOtal contact data from Merge : {json.dumps(contact_payload)}"
-                )
-
-                api_log(
-                    msg=f"Size of contact data from Merge : {len(json.dumps(contact_payload))}"
-                )
-
-                api_log(
-                    msg=f"Length of contact data to Kloo: {len(contact_payload)}"
-                )
-
-                api_log(
-                    msg=f"Total contact data to Kloo: {contact_payload}"
                 )
 
                 contact_url = (

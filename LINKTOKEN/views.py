@@ -149,14 +149,27 @@ class WebHook(APIView):
                 # check type of webhook it is
                 event = payload.get("hook").get("event")
                 if "synced" in event.split("."):
+                    # for sage intacct , we will only check for company module alert
+                    if (
+                        account_token_data.get("integration_name") == "Sage Intacct"
+                        and account_token_data.get("sync_status").get("model_name")
+                        != "CompanyInfo"
+                    ):
+                        api_log(msg="WEBHOOK: No proper event for sage intacct")
+                        return Response(
+                            {"status": "No proper event found"},
+                            status=status.HTTP_404_NOT_FOUND,
+                        )
+
+                if "synced" in event.split("."):
                     api_log(
-                        msg=f"WEBHOOK: Sync data received for End User id {end_user_origin_id} "
+                        msg=f"WEBHOOK: Merge module data sync data alert for End User id {end_user_origin_id} "
                         f"for module {payload.get('data').get('sync_status').get('model_name')}"
                     )
                     handle_webhook_sync_modules(linked_account_data, account_token_data)
                 elif "linked" in event.split("."):
                     api_log(
-                        msg=f"WEBHOOK: Initial data received for End User id"
+                        msg=f"WEBHOOK: Merge account linked for End User id {end_user_origin_id}"
                         f" {end_user_origin_id}"
                     )
                     handle_webhook_link_account(
