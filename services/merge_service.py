@@ -300,7 +300,6 @@ class MergeInvoiceApiService(MergeService):
                 )
 
             elif invoice_update_request.status_code == status.HTTP_404_NOT_FOUND:
-                print("THIS IS A ELIF bloc....")
                 error_msg = f"[MERGE SERVICE PY INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} is Incorrect and the " \
                             f"status code is : {status.HTTP_404_NOT_FOUND}"
                 api_log(msg=error_msg)
@@ -323,7 +322,7 @@ class MergeInvoiceApiService(MergeService):
             #         "message": str(e),
             #     }
             # )
-            api_log(msg=f"MERGE EXCEPTION: Error creating invoice: {str(e)}")
+            api_log(msg=f"MERGE EXCEPTION: Error updating invoice: {str(e)}")
             raise e
 
     def create_attachment(self, attachment_data: dict):
