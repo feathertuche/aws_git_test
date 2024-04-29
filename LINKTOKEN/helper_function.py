@@ -540,7 +540,6 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
                     custom_request,
                     erp_data.org_id,
                     erp_data.id,
-                    daily_or_force_sync.id,
                     erp_data.account_token,
                     modules,
                     api_views,
