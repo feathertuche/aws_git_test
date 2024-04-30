@@ -237,19 +237,22 @@ class InvoiceCreate(APIView):
                     "company": payload_data["model"].get("company"),
                     "currency": payload_data["model"].get("currency"),
                     "tracking_categories": payload_data["model"].get("tracking_categories"),
-                    "sub_total": float(payload_data["model"].get("sub_total")),
-                    "total_tax_amount": float(payload_data["model"].get("total_tax_amount")),
-                    "total_amount": float(payload_data["model"].get("total_amount")),
+                    "sub_total": payload_data["model"].get("sub_total"),
+                    "total_tax_amount": payload_data["model"].get("total_tax_amount"),
+                    "total_amount": payload_data["model"].get("total_amount"),
                     # "integration_params": {
                     #     "tax_application_type": payload_data["model"].get("tax_application_type")
                     # },
                     "exchange_rate": payload_data["model"].get("exchange_rate"),
-                    "total_discount": float(payload_data["model"].get("total_discount")),
-                    "balance": float(payload_data["model"].get("balance")),
+                    "total_discount": payload_data["model"].get("total_discount"),
+                    "balance": payload_data["model"].get("balance"),
                     "remote_updated_at": payload_data["model"].get("remote_updated_at"),
                     "payments": payload_data["model"].get("payments"),
                     "applied_payments": payload_data["model"].get("applied_payments"),
                     "line_items": line_items,
+                    # "line_items": [
+                    #     InvoiceLineItemRequest(**line_item) for line_item in line_items
+                    # ],
                 },
                 "warnings": [],
                 "errors": [],
