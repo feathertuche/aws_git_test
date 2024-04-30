@@ -7,7 +7,7 @@ from merge.resources.accounting import (
 from rest_framework import status
 import tenacity
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL, GETKLOO_BASE_URL
 from merge_integration.utils import create_merge_client
 
 
@@ -45,7 +45,7 @@ class Command(BaseCommand):
         try:
             contacts_client = create_merge_client(account_token)
 
-            suppliers_name_list = ["Digital Qube", "Lianne Hartley Solutions Limited"]
+            suppliers_name_list = ["Bigbearpromo LTD"]
             contact_ids = []
 
             contact_data = contacts_client.accounting.contacts.list(
@@ -58,14 +58,14 @@ class Command(BaseCommand):
             while True:
                 api_log(msg=f"Adding {len(contact_data.results)} contacts to the list.")
                 for contact in contact_data.results:
-
                     if contact.name is not None:
                         for supplier_name in suppliers_name_list:
                             api_log(msg=f"[CONTACT name LIST] : {contact.name} and {contact.id}")
                             if supplier_name in contact.name:
-                                api_log(msg=f"[CONTACT ID list] : {contact.id}")
+                                # api_log(msg=f"[CONTACT ID list] : {contact.id}")
                                 contact_ids.append(contact.id)
-                                # break
+                                api_log(msg=f"[CONTACT ID list] : {contact.id}")
+                                break
                     # else:
                     #     api_log(msg="No Name")
 
@@ -94,25 +94,27 @@ class Command(BaseCommand):
                 )
                 contacts.append(contact)
                 api_log(msg=f"[CONTACTS LIST] : {contacts}")
-            api_log(msg=f"[CONTACTS LIST outside for loop] : {contacts}")
+            # api_log(msg=f"[CONTACTS LIST outside for loop] : {contacts}")
 
             formatted_data = format_contact_data(contacts)
             api_log(msg=f"[FORMATTED DATA] : {formatted_data}")
             api_log(msg=f"Formatted Data: {len(formatted_data)}")
 
             contact_payload = formatted_data
-            api_log(msg=f"[contact payload] : {contact_payload}")
+            # api_log(msg=f"[contact payload] : {contact_payload}")
             contact_payload["erp_link_token_id"] = erp_link_token_id
             contact_payload["org_id"] = org_id
 
-            # contact_url = f"{GETKLOO_LOCAL_URL}/ap/erp-integration/insert-erp-contacts"
+            api_log(msg=f"After erp link token {contact_payload}")
+
+            # contact_url = f"{GETKLOO_BASE_URL}/ap/erp-integration/insert-erp-contacts"
             #
             # contact_response_data = requests.post(
             #     contact_url,
             #     json=contact_payload,
             #     headers={"Authorization": f"Bearer {auth_token}"},
             # )
-            #
+
             # if contact_response_data.status_code == status.HTTP_201_CREATED:
             #     api_log(msg="data inserted successfully in the kloo Contacts system")
             # else:
