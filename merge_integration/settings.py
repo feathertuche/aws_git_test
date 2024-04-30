@@ -30,6 +30,11 @@ API_KEY = os.getenv("API_KEY")
 GETKLOO_BASE_URL = os.getenv("GETKLOO_BASE_URL")
 GETKLOO_LOCAL_URL = os.getenv("GETKLOO_LOCAL_URL")
 
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_DEFAULT_REGION = os.environ.get('AWS_DEFAULT_REGION')
+SQS_QUEUE = os.environ.get('SQS_QUEUE')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
