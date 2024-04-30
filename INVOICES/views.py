@@ -200,7 +200,7 @@ class InvoiceCreate(APIView):
                     "currency": line_item_data.get("currency"),
                     "exchange_rate": line_item_data.get("exchange_rate"),
                     "remote_was_deleted": line_item_data.get("remote_was_deleted"),
-                    "description": line_item_data.get("item"),
+                    "description": line_item_data.get("description"),
                     "quantity": line_item_data.get("quantity"),
                     "created_at": line_item_data.get("created_at"),
                     "modified_at": line_item_data.get("modified_at"),
@@ -208,11 +208,11 @@ class InvoiceCreate(APIView):
                     # "item": line_item_data.get("item"),
                     # "tracking_category": line_item_data.get("tracking_category"),
                     "tracking_categories": line_item_data.get("tracking_categories"),
-                    "integration_params": {
-                        "tax_rate_remote_id": line_item_data.get(
-                            "tax_rate_remote_id"
-                        )
-                    },
+                    # "integration_params": {
+                    #     "tax_rate_remote_id": line_item_data.get(
+                    #         "tax_rate_remote_id"
+                    #     )
+                    # },
                     "account": line_item_data.get("account"),
                     "company": line_item_data.get("company"),
                     "field_mappings": line_item_data.get("field_mappings"),
@@ -223,7 +223,7 @@ class InvoiceCreate(APIView):
             # Construct the payload dynamically
             payload = {
                 "model": {
-                    # "id": invoice_id,
+                    "id": invoice_id,
                     "remote_id": payload_data["model"].get("remote_id"),
                     "type": payload_data["model"].get("type"),
                     "created_at": payload_data["model"].get("created_at"),
@@ -240,9 +240,9 @@ class InvoiceCreate(APIView):
                     "sub_total": payload_data["model"].get("sub_total"),
                     "total_tax_amount": payload_data["model"].get("total_tax_amount"),
                     "total_amount": payload_data["model"].get("total_amount"),
-                    "integration_params": {
-                        "tax_application_type": payload_data["model"].get("tax_application_type")
-                    },
+                    # "integration_params": {
+                    #     "tax_application_type": payload_data["model"].get("tax_application_type")
+                    # },
                     "exchange_rate": payload_data["model"].get("exchange_rate"),
                     "total_discount": payload_data["model"].get("total_discount"),
                     "balance": payload_data["model"].get("balance"),
@@ -258,34 +258,16 @@ class InvoiceCreate(APIView):
             print(" ")
             api_log(msg=f"[PAYLOAD FOR INVOICE PATCH view file] : {payload}")
             update_response = merge_api_service.update_invoice(invoice_id, payload)
-            api_log(msg=f"{update_response}")
-            # Handle response
-            if update_response.status_code == 200:
-                api_log(
-                    msg=f'"status": "success", "message": f"Invoice with ID {invoice_id} successfully updated '
-                    f"with status code: {status.HTTP_200_OK}"
-                )
+
+
+            if update_response is None:
                 return Response(
-                    {
-                        "status": "success",
-                        "message": f"Invoice with ID {invoice_id} successfully updated",
-                    },
-                    status=status.HTTP_200_OK,
+                    {"status": "error", "message": "Failed to update invoice in Merge"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,        
                 )
-            else:
-                print("this is a failure bloc -- views")
-                api_log(
-                    msg=f"Failed to update invoice with ID {invoice_id} with status {update_response.status_code}"
-                )
-                return Response(
-                    {
-                        "status": "error",
-                        "message": f"Failed to update invoice with ID {invoice_id}",
-                    },
-                    status=update_response.status_code,
-                )
+
         except Exception as e:
-            error_message = f"EXCEPTION : Failed to update invoice in Merge: {str(e)}"
+            error_message = f"EXCEPTION : Failed to patch invoice in Merge: {str(e)}"
             api_log(msg=f"{error_message}")
             return Response(
                 {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
