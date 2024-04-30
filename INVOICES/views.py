@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 
 from INVOICES.helper_functions import format_merge_invoice_data
 from INVOICES.queries import update_invoices_erp_id
-from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer
+from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer, ErpInvoiceSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
 from services.kloo_service import KlooService
@@ -204,7 +204,7 @@ class InvoiceCreate(APIView):
                     "quantity": line_item_data.get("quantity"),
                     "created_at": line_item_data.get("created_at"),
                     "modified_at": line_item_data.get("modified_at"),
-                    "total_amount": line_item_data.get("total_amount"),
+                    "total_amount": float(line_item_data.get("total_amount")),
                     # "item": line_item_data.get("item"),
                     # "tracking_category": line_item_data.get("tracking_category"),
                     "tracking_categories": line_item_data.get("tracking_categories"),
@@ -237,15 +237,15 @@ class InvoiceCreate(APIView):
                     "company": payload_data["model"].get("company"),
                     "currency": payload_data["model"].get("currency"),
                     "tracking_categories": payload_data["model"].get("tracking_categories"),
-                    "sub_total": payload_data["model"].get("sub_total"),
-                    "total_tax_amount": payload_data["model"].get("total_tax_amount"),
-                    "total_amount": payload_data["model"].get("total_amount"),
+                    "sub_total": float(payload_data["model"].get("sub_total")),
+                    "total_tax_amount": float(payload_data["model"].get("total_tax_amount")),
+                    "total_amount": float(payload_data["model"].get("total_amount")),
                     # "integration_params": {
                     #     "tax_application_type": payload_data["model"].get("tax_application_type")
                     # },
                     "exchange_rate": payload_data["model"].get("exchange_rate"),
-                    "total_discount": payload_data["model"].get("total_discount"),
-                    "balance": payload_data["model"].get("balance"),
+                    "total_discount": float(payload_data["model"].get("total_discount")),
+                    "balance": float(payload_data["model"].get("balance")),
                     "remote_updated_at": payload_data["model"].get("remote_updated_at"),
                     "payments": payload_data["model"].get("payments"),
                     "applied_payments": payload_data["model"].get("applied_payments"),
@@ -259,12 +259,10 @@ class InvoiceCreate(APIView):
             api_log(msg=f"[PAYLOAD FOR INVOICE PATCH view file] : {payload}")
             update_response = merge_api_service.update_invoice(invoice_id, payload)
 
-
             if update_response is None:
                 return Response(
                     {"status": "error", "message": "Failed to update invoice in Merge"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,        
-                )
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,)
 
         except Exception as e:
             error_message = f"EXCEPTION : Failed to patch invoice in Merge: {str(e)}"
