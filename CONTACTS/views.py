@@ -19,6 +19,7 @@ from merge_integration import settings
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import GETKLOO_LOCAL_URL, contacts_page_size
 from merge_integration.utils import create_merge_client
+from sqs_utils.sqs_manager import send_data_to_queue
 
 
 class MergeContactsList(APIView):
@@ -84,7 +85,13 @@ class MergeContactsList(APIView):
                     modified_after=self.last_modified_at,
                     cursor=contact_data.next,
                 )
-
+                api_log(
+                    msg=f"started--- send--- queue"
+                )
+                send_data_to_queue(contact_data)
+                api_log(
+                    msg=f"end--- send--- queue"
+                )
                 api_log(
                     msg=f"CONTACTS GET:: The length of the next page contacts data is : {len(contact_data.results)}"
                 )
