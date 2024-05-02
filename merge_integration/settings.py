@@ -212,8 +212,8 @@ accounts_batch_size = 100
 company_info_page_size = 100
 company_info_batch_size = 100
 
-contacts_page_size = 100
-contacts_batch_size = 100
+contacts_page_size = 4
+contacts_batch_size = 4
 
 invoices_page_size = 100
 invoices_batch_size = 100
