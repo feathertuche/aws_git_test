@@ -69,7 +69,7 @@ class MergeContactsList(APIView):
 
             all_contact_data = []
             while True:
-                api_log(msg=f"Adding {len(contact_data.results)} contacts to the list.")
+                api_log(msg=f"Aaaaaadding {len(contact_data.results)} contacts to the list.")
 
                 all_contact_data.extend(contact_data.results)
                 if contact_data.next is None:
@@ -85,10 +85,13 @@ class MergeContactsList(APIView):
                     modified_after=self.last_modified_at,
                     cursor=contact_data.next,
                 )
+
+                api_log(msg=f"started post data to SQS contacts to the list.")
                 api_log(
                     msg=f"started--- send--- queue"
                 )
                 send_data_to_queue(contact_data)
+                api_log(msg=f"end  post data to SQS contacts to the list.")
                 api_log(
                     msg=f"end--- send--- queue"
                 )

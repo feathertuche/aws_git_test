@@ -9,7 +9,7 @@ from rest_framework import status
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import GETKLOO_LOCAL_URL
 from merge_integration.utils import create_merge_client
-
+from sqs_utils.sqs_manager import send_data_to_queue
 
 class Command(BaseCommand):
     """
@@ -103,6 +103,16 @@ class Command(BaseCommand):
                 contact_url,
                 json=contact_payload,
                 headers={"Authorization": f"Bearer {auth_token}"},
+            )
+
+            api_log(msg=f"2 contact_supplier_ module started post data to SQS contacts to the list.")
+            api_log(
+                msg=f"started--- send--- queue"
+            )
+            send_data_to_queue(contact_payload)
+            api_log(msg=f"end  post data to SQS contacts to the list.")
+            api_log(
+                msg=f"end--- send--- queue"
             )
 
             if contact_response_data.status_code == status.HTTP_201_CREATED:
