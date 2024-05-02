@@ -220,7 +220,10 @@ class InvoiceCreate(APIView):
                 }
                 line_items.append(line_item)
 
-            # Construct the payload dynamically
+                # Construct the payload dynamically
+            total_tax_amount = payload_data["model"].get("total_tax_amount", 0)
+            total_tax_amount_float = float(total_tax_amount)
+            formatted_value = float("{:.2f}".format(total_tax_amount_float))
             payload = {
                 "model": {
                     "id": invoice_id,
@@ -237,15 +240,15 @@ class InvoiceCreate(APIView):
                     "company": payload_data["model"].get("company"),
                     "currency": payload_data["model"].get("currency"),
                     "tracking_categories": payload_data["model"].get("tracking_categories"),
-                    "sub_total": payload_data["model"].get("sub_total"),
-                    "total_tax_amount": payload_data["model"].get("total_tax_amount"),
-                    "total_amount": payload_data["model"].get("total_amount"),
+                    "sub_total": float(payload_data["model"].get("sub_total", 0)),
+                    "total_tax_amount": formatted_value,
+                    "total_amount": float(payload_data["model"].get("total_amount", 0)),
                     # "integration_params": {
                     #     "tax_application_type": payload_data["model"].get("tax_application_type")
                     # },
                     "exchange_rate": payload_data["model"].get("exchange_rate"),
-                    "total_discount": payload_data["model"].get("total_discount"),
-                    "balance": payload_data["model"].get("balance"),
+                    "total_discount": float(payload_data["model"].get("total_discount", 0)),
+                    "balance": float(payload_data["model"].get("balance", 0)),
                     "remote_updated_at": payload_data["model"].get("remote_updated_at"),
                     "payments": payload_data["model"].get("payments"),
                     "applied_payments": payload_data["model"].get("applied_payments"),
@@ -258,18 +261,28 @@ class InvoiceCreate(APIView):
                 "errors": [],
             }
             api_log(msg="6")
-            print(" ")
+
             api_log(msg=f"[PAYLOAD FOR INVOICE PATCH view file] : {payload}")
             update_response = merge_api_service.update_invoice(invoice_id, payload)
+            api_log(msg=f"UPDATE INVOICE method response: {update_response}")
 
-            if update_response is None:
+            if update_response is not None:
+                api_log(msg="7")
                 return Response(
-                    {"status": "error", "message": "Failed to update invoice in Merge"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,)
+                    {"status": "success", "message": "successfully update invoice in Merge"},
+                    status=status.HTTP_200_OK,)
+            else:
+                api_log(msg="8")
+                return Response(
+                    {"status": "error", "message": "Couldn't update invoice in Merge"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR, )
 
         except Exception as e:
+            api_log(msg="9")
             error_message = f"EXCEPTION : Failed to patch invoice in Merge: {str(e)}"
+            api_log(msg="10")
             api_log(msg=f"{error_message}")
+            api_log(msg="11")
             return Response(
                 {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
