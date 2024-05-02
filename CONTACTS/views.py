@@ -335,6 +335,15 @@ class MergePostContacts(APIView):
                     msg=f"TOtal contact data from Merge : {json.dumps(contact_payload)}"
                 )
 
+                api_log(msg=f"2 contact_supplier_ module started post data to SQS contacts to the list.")
+                api_log(
+                    msg=f"started--- send--- queue"
+                )
+                send_data_to_queue(contact_payload)
+                api_log(msg=f"end  post data to SQS contacts to the list.")
+                api_log(
+                    msg=f"end--- send--- queue"
+                )
                 contact_url = (
                     f"{GETKLOO_LOCAL_URL}/ap/erp-integration/insert-erp-contacts"
                 )
