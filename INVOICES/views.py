@@ -196,19 +196,19 @@ class InvoiceCreate(APIView):
                     "description": line_item_data.get("description"),
                     "quantity": float(line_item_data.get("quantity") if line_item_data.get("quantity") is not None else 0),
                     "created_at": line_item_data.get("created_at"),
-                    "modified_at": line_item_data.get("modified_at"),
-                    "total_amount": float(line_item_data.get("total_amount") if line_item_data.get("total_amount") is not None else 0),
+                    # "modified_at": line_item_data.get("modified_at"),
+                    # "total_amount": float(line_item_data.get("total_amount") if line_item_data.get("total_amount") is not None else 0),
                     # "item": line_item_data.get("item"),
                     # "tracking_category": line_item_data.get("tracking_category"),
                     "tracking_categories": line_item_data.get("tracking_categories"),
-                    # "integration_params": {
-                    #     "tax_rate_remote_id": line_item_data.get(
-                    #         "tax_rate_remote_id"
-                    #     )
-                    # },
+                    "integration_params": {
+                        "tax_rate_remote_id": line_item_data.get(
+                            "tax_rate_remote_id"
+                        )
+                    },
                     "account": line_item_data.get("account"),
-                    "company": line_item_data.get("company"),
-                    "field_mappings": line_item_data.get("field_mappings"),
+                    # "company": line_item_data.get("company"),
+                    # "field_mappings": line_item_data.get("field_mappings"),
                     "remote_data": line_item_data.get("remote_data"),
                 }
                 line_items.append(line_item)
@@ -222,8 +222,8 @@ class InvoiceCreate(APIView):
                     "id": invoice_id,
                     "remote_id": payload_data["model"].get("remote_id"),
                     "type": payload_data["model"].get("type"),
-                    "created_at": payload_data["model"].get("created_at"),
-                    "modified_at": payload_data["model"].get("modified_at"),
+                    # "created_at": payload_data["model"].get("created_at"),
+                    # "modified_at": payload_data["model"].get("modified_at"),
                     "due_date": payload_data["model"].get("due_date"),
                     "issue_date": payload_data["model"].get("issue_date"),
                     "contact": payload_data["model"].get("contact"),
@@ -236,15 +236,15 @@ class InvoiceCreate(APIView):
                     "sub_total": float(payload_data["model"].get("sub_total") if payload_data["model"].get("sub_total") is not None else 0),
                     "total_tax_amount": float(payload_data["model"].get("total_tax_amount") if payload_data["model"].get("total_tax_amount") is not None else 0),
                     "total_amount": float(payload_data["model"].get("total_amount") if payload_data["model"].get("total_amount") is not None else 0),
-                    # "integration_params": {
-                    #     "tax_application_type": payload_data["model"].get("tax_application_type")
-                    # },
-                    "exchange_rate": payload_data["model"].get("exchange_rate"),
-                    "total_discount": float(payload_data["model"].get("total_discount") if payload_data["model"].get("total_discount") is not None else 0),
-                    "balance": float(payload_data["model"].get("balance") if payload_data["model"].get("balance") is not None else 0),
-                    "remote_updated_at": payload_data["model"].get("remote_updated_at"),
-                    "payments": payload_data["model"].get("payments"),
-                    "applied_payments": payload_data["model"].get("applied_payments"),
+                    "integration_params": {
+                        "tax_application_type": payload_data["model"].get("tax_application_type")
+                    },
+                    # "exchange_rate": payload_data["model"].get("exchange_rate"),
+                    # "total_discount": float(payload_data["model"].get("total_discount") if payload_data["model"].get("total_discount") is not None else 0),
+                    # "balance": float(payload_data["model"].get("balance") if payload_data["model"].get("balance") is not None else 0),
+                    # "remote_updated_at": payload_data["model"].get("remote_updated_at"),
+                    # "payments": payload_data["model"].get("payments"),
+                    # "applied_payments": payload_data["model"].get("applied_payments"),
                     "line_items": line_items,
                     # "line_items": [
                     #     InvoiceLineItemRequest(**line_item) for line_item in line_items
