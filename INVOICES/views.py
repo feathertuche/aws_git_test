@@ -193,7 +193,7 @@ class InvoiceCreate(APIView):
                     "currency": line_item_data.get("currency"),
                     "exchange_rate": line_item_data.get("exchange_rate"),
                     "remote_was_deleted": line_item_data.get("remote_was_deleted"),
-                    "description": line_item_data.get("description"),
+                    "description": line_item_data.get("item"),
                     "quantity": float(line_item_data.get("quantity") if line_item_data.get("quantity") is not None else 0),
                     "created_at": line_item_data.get("created_at"),
                     # "modified_at": line_item_data.get("modified_at"),
