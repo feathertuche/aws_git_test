@@ -159,20 +159,15 @@ class InvoiceCreate(APIView):
     def patch(self, request, invoice_id: str):
         api_log(msg=".....Processing Invoice UPDATE request bloc.....")
         data = request.data
-
-        # Validate the request data
         serializer = InvoiceUpdateSerializer(data=data)
         api_log(msg=f"[SERIALIZER bloc in views file for UPDATE] :: {serializer}")
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        # Get the erp_link_token_id from the request data
         self.erp_link_token_id = serializer.validated_data.get("erp_link_token_id")
         api_log(msg="1")
 
         queryset = self.get_queryset()
         if queryset is None or queryset == []:
-            # Handle the case where link_token_details is None
             api_log(msg="link token details are None or empty")
             return Response(
                 "Account token doesn't exist", status=status.HTTP_400_BAD_REQUEST
@@ -187,8 +182,6 @@ class InvoiceCreate(APIView):
             merge_api_service = MergeInvoiceApiService(account_token)
 
             payload_data = request.data
-
-            # Construct line items dynamically
             line_items = []
             api_log(msg="4")
             for line_item_data in payload_data["model"]["line_items"]:
@@ -196,15 +189,15 @@ class InvoiceCreate(APIView):
                 line_item = {
                     "id": line_item_data.get("id"),
                     "remote_id": line_item_data.get("remote_id"),
-                    "unit_price": line_item_data.get("unit_price"),
+                    "unit_price": float(line_item_data.get("unit_price") if line_item_data.get("unit_price") is not None else 0),
                     "currency": line_item_data.get("currency"),
                     "exchange_rate": line_item_data.get("exchange_rate"),
                     "remote_was_deleted": line_item_data.get("remote_was_deleted"),
                     "description": line_item_data.get("description"),
-                    "quantity": line_item_data.get("quantity"),
+                    "quantity": float(line_item_data.get("quantity") if line_item_data.get("quantity") is not None else 0),
                     "created_at": line_item_data.get("created_at"),
                     "modified_at": line_item_data.get("modified_at"),
-                    "total_amount": float(line_item_data.get("total_amount") if payload_data["model"].get("total_amount") is not None else 0),
+                    "total_amount": float(line_item_data.get("total_amount") if line_item_data.get("total_amount") is not None else 0),
                     # "item": line_item_data.get("item"),
                     # "tracking_category": line_item_data.get("tracking_category"),
                     "tracking_categories": line_item_data.get("tracking_categories"),
@@ -221,9 +214,9 @@ class InvoiceCreate(APIView):
                 line_items.append(line_item)
 
                 # Construct the payload dynamically
-            total_tax_amount = payload_data["model"].get("total_tax_amount", 0)
-            total_tax_amount_float = float(total_tax_amount)
-            formatted_value = float("{:.2f}".format(total_tax_amount_float))
+            # total_tax_amount = payload_data["model"].get("total_tax_amount", 0)
+            # total_tax_amount_float = float(total_tax_amount)
+            # formatted_value = float("{:.2f}".format(total_tax_amount_float))
             payload = {
                 "model": {
                     "id": invoice_id,
@@ -241,7 +234,7 @@ class InvoiceCreate(APIView):
                     "currency": payload_data["model"].get("currency"),
                     "tracking_categories": payload_data["model"].get("tracking_categories"),
                     "sub_total": float(payload_data["model"].get("sub_total") if payload_data["model"].get("sub_total") is not None else 0),
-                    "total_tax_amount": formatted_value,
+                    "total_tax_amount": float(payload_data["model"].get("total_tax_amount") if payload_data["model"].get("total_tax_amount") is not None else 0),
                     "total_amount": float(payload_data["model"].get("total_amount") if payload_data["model"].get("total_amount") is not None else 0),
                     # "integration_params": {
                     #     "tax_application_type": payload_data["model"].get("tax_application_type")
@@ -278,11 +271,8 @@ class InvoiceCreate(APIView):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR, )
 
         except Exception as e:
-            api_log(msg="9")
             error_message = f"EXCEPTION : Failed to patch invoice in Merge: {str(e)}"
-            api_log(msg="10")
             api_log(msg=f"{error_message}")
-            api_log(msg="11")
             return Response(
                 {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
