@@ -201,11 +201,11 @@ class InvoiceCreate(APIView):
                     # "item": line_item_data.get("item"),
                     # "tracking_category": line_item_data.get("tracking_category"),
                     "tracking_categories": line_item_data.get("tracking_categories"),
-                    "integration_params": {
-                        "tax_rate_remote_id": line_item_data.get(
-                            "tax_rate_remote_id"
-                        )
-                    },
+                    # "integration_params": {
+                    #     "tax_rate_remote_id": line_item_data.get(
+                    #         "tax_rate_remote_id"
+                    #     )
+                    # },
                     "account": line_item_data.get("account"),
                     # "company": line_item_data.get("company"),
                     # "field_mappings": line_item_data.get("field_mappings"),
@@ -236,9 +236,9 @@ class InvoiceCreate(APIView):
                     "sub_total": float(payload_data["model"].get("sub_total") if payload_data["model"].get("sub_total") is not None else 0),
                     "total_tax_amount": float(payload_data["model"].get("total_tax_amount") if payload_data["model"].get("total_tax_amount") is not None else 0),
                     "total_amount": float(payload_data["model"].get("total_amount") if payload_data["model"].get("total_amount") is not None else 0),
-                    "integration_params": {
-                        "tax_application_type": payload_data["model"].get("tax_application_type")
-                    },
+                    # "integration_params": {
+                    #     "tax_application_type": payload_data["model"].get("tax_application_type")
+                    # },
                     # "exchange_rate": payload_data["model"].get("exchange_rate"),
                     # "total_discount": float(payload_data["model"].get("total_discount") if payload_data["model"].get("total_discount") is not None else 0),
                     # "balance": float(payload_data["model"].get("balance") if payload_data["model"].get("balance") is not None else 0),
