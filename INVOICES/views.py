@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from INVOICES.helper_functions import format_merge_invoice_data
-from INVOICES.queries import update_invoices_erp_id
+from INVOICES.queries import update_invoices_erp_id, update_line_item_erp_id
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer, ErpInvoiceSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
@@ -114,12 +114,27 @@ class InvoiceCreate(APIView):
                     InvoiceLineItemRequest(**line_item) for line_item in line_items_data
                 ],
             }
-
             invoice_created = merge_api_service.create_invoice(invoice_data)
-
             model_id = invoice_data["id"]
             invoice_id = invoice_created.model.id
+            print(f"this si a test {model_id}'---'{invoice_id}")
+
+            line_items = invoice_data.get("line_items", [])
+            if line_items:
+                print("line_items", line_items)
+                print(" ")
+                first_line_item = line_items[0]
+                print("[first_line_item]", first_line_item)
+                print(" ")
+                line_item_remote_id = first_line_item.remote_id
+                print("line_item_remote_id", line_item_remote_id)
+                update_line_item_erp_id(model_id, line_item_remote_id, line_items)
+
+            else:
+                print("No line items found")
+
             update_invoices_erp_id(model_id, invoice_id)
+            print("4")
 
             if invoice_created is None:
                 return Response(
@@ -158,11 +173,14 @@ class InvoiceCreate(APIView):
 
     def patch(self, request, invoice_id: str):
         api_log(msg=".....Processing Invoice UPDATE request bloc.....")
+
         data = request.data
         serializer = InvoiceUpdateSerializer(data=data)
         api_log(msg=f"[SERIALIZER bloc in views file for UPDATE] :: {serializer}")
+
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         self.erp_link_token_id = serializer.validated_data.get("erp_link_token_id")
         api_log(msg="1")
 
