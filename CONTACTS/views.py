@@ -15,6 +15,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from CONTACTS.helper_function import format_contacts_payload
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import GETKLOO_LOCAL_URL, contacts_page_size
@@ -69,9 +70,19 @@ class MergeContactsList(APIView):
 
             all_contact_data = []
             while True:
-                api_log(msg=f"Aaaaaadding {len(contact_data.results)} contacts to the list.")
+                api_log(
+                    msg=f"Aaaaaadding {len(contact_data.results)} contacts to the list."
+                )
 
-                all_contact_data.extend(contact_data.results)
+                # format the data and send to the queue
+                formatted_payload = format_contacts_payload(contact_data.results)
+
+                api_log(msg="started post data to SQS contacts to the list.")
+                api_log(msg="started--- send--- queue")
+                send_data_to_queue(formatted_payload)
+                api_log(msg="end  post data to SQS contacts to the list.")
+                api_log(msg="end--- send--- queue")
+
                 if contact_data.next is None:
                     break
 
@@ -86,18 +97,6 @@ class MergeContactsList(APIView):
                     cursor=contact_data.next,
                 )
 
-                api_log(msg=f"started post data to SQS contacts to the list.")
-                api_log(
-                    msg=f"started--- send--- queue"
-                )
-                send_data_to_queue(contact_data)
-                api_log(msg=f"end  post data to SQS contacts to the list.")
-                api_log(
-                    msg=f"end--- send--- queue"
-                )
-                api_log(
-                    msg=f"CONTACTS GET:: The length of the next page contacts data is : {len(contact_data.results)}"
-                )
                 api_log(
                     msg=f"Length of contact data array : {len(contact_data.results)}"
                 )
@@ -335,15 +334,13 @@ class MergePostContacts(APIView):
                     msg=f"TOtal contact data from Merge : {json.dumps(contact_payload)}"
                 )
 
-                api_log(msg=f"2 contact_supplier_ module started post data to SQS contacts to the list.")
                 api_log(
-                    msg=f"started--- send--- queue"
+                    msg="2 contact_supplier_ module started post data to SQS contacts to the list."
                 )
+                api_log(msg="started--- send--- queue")
                 send_data_to_queue(contact_payload)
-                api_log(msg=f"end  post data to SQS contacts to the list.")
-                api_log(
-                    msg=f"end--- send--- queue"
-                )
+                api_log(msg="end  post data to SQS contacts to the list.")
+                api_log(msg="end--- send--- queue")
                 contact_url = (
                     f"{GETKLOO_LOCAL_URL}/ap/erp-integration/insert-erp-contacts"
                 )
