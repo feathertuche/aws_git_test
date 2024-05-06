@@ -15,11 +15,13 @@ from merge.resources.accounting import (
 from rest_framework import status
 from rest_framework.response import Response
 
+from CONTACTS.helper_function import format_contacts_payload
 from INVOICES.exceptions import MergeApiException
 from INVOICES.models import InvoiceAttachmentLogs
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import invoices_page_size
+from merge_integration.settings import invoices_page_size, contacts_page_size
 from merge_integration.utils import create_merge_client
+from sqs_utils.sqs_manager import send_data_to_queue
 
 
 class MergeService:
@@ -149,13 +151,15 @@ class MergeTrackingCategoriesService(MergeService):
             return self.handle_merge_api_error("get_tracking_categories", e)
 
 
-class MergeContactsService(MergeService):
+class MergeContactsApiService(MergeService):
     """
     MergeContactsService class
     """
 
-    def __init__(self, account_token: str):
+    def __init__(self, account_token: str, org_id: str, erp_link_token_id: str):
         super().__init__(account_token)
+        self.org_id = org_id
+        self.erp_link_token_id = erp_link_token_id
 
     def get_contacts(self, modified_date: str = None):
         """
@@ -166,9 +170,49 @@ class MergeContactsService(MergeService):
                 expand=ContactsListRequestExpand.ADDRESSES,
                 remote_fields="status",
                 show_enum_origins="status",
-                page_size=100000,
+                page_size=contacts_page_size,
+                is_supplier=True,
+                include_remote_data=True,
                 modified_after=modified_date,
             )
+
+            if contact_data.results is None or len(contact_data.results) == 0:
+                return {"status": True, "data": []}
+
+            while True:
+                api_log(
+                    msg=f"Aaaaaadding {len(contact_data.results)} contacts to the list."
+                )
+
+                # format the data and send to the queue
+                formatted_payload = format_contacts_payload(contact_data.results)
+
+                formatted_payload["erp_link_token_id"] = self.erp_link_token_id
+                formatted_payload["org_id"] = self.org_id
+
+                api_log(msg="started post data to SQS contacts to the list.")
+                api_log(msg="started--- send--- queue")
+                send_data_to_queue(formatted_payload)
+                api_log(msg="end  post data to SQS contacts to the list.")
+                api_log(msg="end--- send--- queue")
+
+                if contact_data.next is None:
+                    break
+
+                contact_data = self.merge_client.accounting.contacts.list(
+                    expand=ContactsListRequestExpand.ADDRESSES,
+                    remote_fields="status",
+                    show_enum_origins="status",
+                    page_size=contacts_page_size,
+                    is_supplier=True,
+                    include_remote_data=True,
+                    modified_after=modified_date,
+                    cursor=contact_data.next,
+                )
+
+                api_log(
+                    msg=f"Length of contact data array : {len(contact_data.results)}"
+                )
             return {"status": True, "data": contact_data}
         except ApiError as e:
             return self.handle_merge_api_error("get_contacts", e)
