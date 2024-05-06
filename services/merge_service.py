@@ -210,10 +210,7 @@ class MergeContactsApiService(MergeService):
                     cursor=contact_data.next,
                 )
 
-                api_log(
-                    msg=f"Length of contact data array : {len(contact_data.results)}"
-                )
-            return {"status": True, "data": contact_data}
+            return {"status": True, "data": contact_data.results}
         except ApiError as e:
             return self.handle_merge_api_error("get_contacts", e)
 
