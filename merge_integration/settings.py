@@ -12,12 +12,15 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+
 import boto3
-from celery import Celery
+
+# from celery import Celery
 from dotenv import load_dotenv
+
 from merge_integration.utils import get_db_password
-from celery.schedules import crontab
-#from sqs_utils.sqs_manager import start_sqs_message_processing
+
+# from sqs_utils.sqs_manager import start_sqs_message_processing
 
 load_dotenv()
 
@@ -31,20 +34,20 @@ API_KEY = os.getenv("API_KEY")
 GETKLOO_BASE_URL = os.getenv("GETKLOO_BASE_URL")
 GETKLOO_LOCAL_URL = os.getenv("GETKLOO_LOCAL_URL")
 
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-AWS_DEFAULT_REGION = os.environ.get('AWS_DEFAULT_REGION')
-SQS_QUEUE = os.environ.get('SQS_QUEUE')
-app = Celery('merge_integration')
-app.config_from_object('django.conf:settings', namespace='CELERY')
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION")
+SQS_QUEUE = os.environ.get("SQS_QUEUE")
+# app = Celery("merge_integration")
+# app.config_from_object("django.conf:settings", namespace="CELERY")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-#DEBUG = True
+# DEBUG = True
 APPEND_SLASH = False
 ALLOWED_HOSTS = ["*"]
-app.autodiscover_tasks()
+# app.autodiscover_tasks()
 # CORS setting
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -92,8 +95,8 @@ DJANGO_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    'django_celery_results',
-    'django_celery_beat',
+    # 'django_celery_results',
+    # 'django_celery_beat',
 ]
 
 PROJECT_APPS = [
@@ -111,17 +114,17 @@ PROJECT_APPS = [
 ]
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
     },
-    'loggers': {
-        '': {
-            'handlers': ['console'],
-            'level': 'INFO',
+    "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": "INFO",
         },
     },
 }
@@ -249,26 +252,30 @@ SAGE_INTACCT_INTERVAL = 300
 # CELERY_RESULT_BACKEND = 'django-db'
 
 
-sqs_client = boto3.client('sqs', region_name=AWS_DEFAULT_REGION, aws_access_key_id=AWS_ACCESS_KEY_ID,
-                          aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-queue_url = sqs_client.get_queue_url(QueueName=SQS_QUEUE)['QueueUrl']
+sqs_client = boto3.client(
+    "sqs",
+    region_name=AWS_DEFAULT_REGION,
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+)
+queue_url = sqs_client.get_queue_url(QueueName=SQS_QUEUE)["QueueUrl"]
 
-CELERY_BROKER_URL = 'sqs://'
+CELERY_BROKER_URL = "sqs://"
 CELERY_BROKER_TRANSPORT_OPTIONS = {
-    'region': AWS_DEFAULT_REGION,
-    'polling_interval': 10,  # Adjust as needed
-    'queue_name': queue_url,
-    'is_secure': True,  # Set to True to use SigV4 authentication
+    "region": AWS_DEFAULT_REGION,
+    "polling_interval": 10,  # Adjust as needed
+    "queue_name": queue_url,
+    "is_secure": True,  # Set to True to use SigV4 authentication
 }
-broker_transport_options = {'wait_time_seconds': 10}
+broker_transport_options = {"wait_time_seconds": 10}
 
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_TIMEZONE = 'UTC'
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_TIMEZONE = "UTC"
 
 TASK_QUEUE_NAME = "dev-bulk-data-import"
-CELERY_TRACK_STARTED=True
+CELERY_TRACK_STARTED = True
 
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_CONTENT_ENCODING = 'utf-8'
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_CONTENT_ENCODING = "utf-8"
