@@ -153,7 +153,7 @@ class WebHook(APIView):
                     if (
                         account_token_data.get("integration_name") == "Sage Intacct"
                         and account_token_data.get("sync_status").get("model_name")
-                        != "CompanyInfo"
+                        != "Account"
                     ):
                         api_log(msg="WEBHOOK: No proper event for sage intacct")
                         return Response(
