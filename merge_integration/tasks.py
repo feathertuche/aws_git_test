@@ -28,10 +28,22 @@ def process_message(message):
             auth_token=None,
             erp_link_token_id=None,
         )
-        response = kloo_service.post_contacts_data(message_data)
+        kloo_service.post_contacts_data(message_data)
         api_log(
-            msg=f"CONTACTS : Response from Kloo Contacts API: {response}",
+            msg="CONTACTS : Response from Kloo Contacts API",
         )
+
+    elif "invoices" in message_body:
+        # Send invoices data to Kloo Invoices API
+        kloo_service = KlooService(
+            auth_token=None,
+            erp_link_token_id=None,
+        )
+        kloo_service.post_invoice_data(message_data)
+        api_log(
+            msg="INVOICES : Response from Kloo Invoices API",
+        )
+
     else:
         print("empty message. Skipping.")
 
