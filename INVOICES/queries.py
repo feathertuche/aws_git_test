@@ -127,8 +127,9 @@ def get_erp_ids(invoice_id: str, erp_payload):
             [row1[0]],
         )
         rows = cursor.fetchall()
+
         erp_ids = [row[0] for row in rows]
-        api_log(msg=f"[ERP ID from invoice_line_items TABLE] : {rows}")
+        api_log(msg=f"[ERP ID from invoice_line_items TABLE] : {erp_ids}")
         for new_line_items in erp_payload:
             api_log(msg=f"[ERP ID from LINE ITEM's PAYLOAD] : {new_line_items['id']}")
             if new_line_items["id"] not in erp_ids:
@@ -155,3 +156,26 @@ def get_erp_ids(invoice_id: str, erp_payload):
                      erp_id, erp_remote_data, erp_account, erp_tax_rate, erp_tracking_categories, is_ai_generated)
                 )
                 print("Inserted successfully")
+            else:
+                # If the erp_id already exists in invoice_line_items, perform an UPDATE
+                tracking_categories = new_line_items.get('tracking_categories')
+                item = new_line_items.get('description')
+                unit_price = new_line_items.get('unit_price')
+                quantity = new_line_items.get('quantity')
+                total_amount = new_line_items.get('total_amount')
+                erp_remote_data = new_line_items.get('remote_data')
+                erp_account = new_line_items.get('account')
+                erp_tax_rate = new_line_items.get('integration_params', {}).get('tax_rate_remote_id')
+                erp_tracking_categories = ','.join(tracking_categories) if tracking_categories else None
+
+                cursor.execute(
+                    """UPDATE invoice_line_items 
+                       SET item = %s, unit_price = %s, quantity = %s, total_amount = %s,
+                           erp_remote_data = %s, erp_account = %s, erp_tax_rate = %s,
+                           erp_tracking_categories = %s
+                       WHERE erp_id = %s""",
+                    (item, unit_price, quantity, total_amount, erp_remote_data,
+                     erp_account, erp_tax_rate, erp_tracking_categories, erp_id)
+                )
+                api_log(msg=f"Updated line item with erp_id: {erp_id}")
+                print("updated successfully")
