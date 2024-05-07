@@ -256,29 +256,19 @@ class KlooService:
         except (KlooException, Exception) as e:
             return self.handle_kloo_api_error("post_tracking_categories_data", e)
 
-    def post_invoice_data(self, invoice_payload: list):
+    def post_invoice_data(self, invoice_formatted_payload: dict):
         """
         Post invoice data to kloo API
         """
         try:
-            kloo_format_json = {"invoices": invoice_payload}
-
             api_log(
-                msg=f"Total Invoices posting to kloo: {len(kloo_format_json['invoices'])} "
-            )
-
-            post_invoice_payload = kloo_format_json
-            post_invoice_payload["erp_link_token_id"] = str(self.erp_link_token_id)
-
-            api_log(
-                msg=f"Posting invoice data to Kloo: {json.dumps(post_invoice_payload)}"
+                msg=f"Posting invoice data to Kloo: {json.dumps(invoice_formatted_payload)}"
             )
 
             invoice_url = f"{self.KLOO_URL}/ap/erp-integration/insert-erp-invoices"
             invoice_response_data = requests.post(
                 invoice_url,
-                json=post_invoice_payload,
-                stream=True,
+                json=invoice_formatted_payload,
                 # headers={"Authorization": f"Bearer {self.auth_token}"},
             )
 

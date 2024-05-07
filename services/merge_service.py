@@ -17,6 +17,7 @@ from rest_framework.response import Response
 
 from CONTACTS.helper_function import format_contacts_payload
 from INVOICES.exceptions import MergeApiException
+from INVOICES.helper_functions import format_merge_invoice_data
 from INVOICES.models import InvoiceAttachmentLogs
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import invoices_page_size, contacts_page_size
@@ -191,10 +192,8 @@ class MergeContactsApiService(MergeService):
                 formatted_payload["org_id"] = self.org_id
 
                 api_log(msg="started post data to SQS contacts to the list.")
-                api_log(msg="started--- send--- queue")
                 send_data_to_queue(formatted_payload)
                 api_log(msg="end  post data to SQS contacts to the list.")
-                api_log(msg="end--- send--- queue")
 
                 if contact_data.next is None:
                     break
@@ -220,10 +219,12 @@ class MergeInvoiceApiService(MergeService):
     MergeApiService class
     """
 
-    def __init__(self, account_token: str):
+    def __init__(self, account_token: str, org_id: str, erp_link_token_id: str):
         super().__init__(account_token)
+        self.org_id = org_id
+        self.erp_link_token_id = erp_link_token_id
 
-    def get_invoices(self, modified_after: str = None, batch_size: int = 100):
+    def get_invoices(self, modified_after: str = None):
         """
         get_invoices method
         """
@@ -235,13 +236,25 @@ class MergeInvoiceApiService(MergeService):
                 modified_after=modified_after,
             )
 
-            all_company_info = []
+            if invoice_data.results is None or len(invoice_data.results) == 0:
+                return {"status": True, "data": []}
+
             while True:
                 api_log(
                     msg=f"Adding {len(invoice_data.results)} Company Info to the list."
                 )
 
-                all_company_info.extend(invoice_data.results)
+                # format the data and send to the queue
+                formatted_payload = format_merge_invoice_data(
+                    invoice_data.results, self.erp_link_token_id, self.org_id
+                )
+
+                formatted_payload["erp_link_token_id"] = self.erp_link_token_id
+                formatted_payload["org_id"] = self.org_id
+
+                api_log(msg="started post data to SQS invoice to the list.")
+                send_data_to_queue(formatted_payload)
+                api_log(msg="end  post data to SQS invoice to the list.")
 
                 if invoice_data.next is None:
                     break
@@ -252,13 +265,9 @@ class MergeInvoiceApiService(MergeService):
                     modified_after=modified_after,
                     cursor=invoice_data.next,
                 )
-                api_log(msg=f"Length of all COMPANY INFO: {len(invoice_data.results)}")
 
-            api_log(
-                msg=f"COMPANY INFO GET:: The length of all company info data is : {len(all_company_info)}"
-            )
             return {
-                "data": all_company_info,
+                "data": invoice_data.results,
                 "status": True,
             }
 

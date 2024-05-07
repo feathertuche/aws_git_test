@@ -5,12 +5,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from INVOICES.helper_functions import format_merge_invoice_data
 from INVOICES.queries import update_invoices_erp_id
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
-from services.kloo_service import KlooService
 from services.merge_service import MergeInvoiceApiService
 
 
@@ -209,9 +207,7 @@ class InvoiceCreate(APIView):
                     # "tracking_category": line_item_data.get("tracking_category"),
                     "tracking_categories": line_item_data.get("tracking_categories"),
                     "integration_params": {
-                        "tax_rate_remote_id": line_item_data.get(
-                            "tax_rate_remote_id"
-                        )
+                        "tax_rate_remote_id": line_item_data.get("tax_rate_remote_id")
                     },
                     "account": line_item_data.get("account"),
                     "company": line_item_data.get("company"),
@@ -236,12 +232,16 @@ class InvoiceCreate(APIView):
                     "status": payload_data["model"].get("status"),
                     "company": payload_data["model"].get("company"),
                     "currency": payload_data["model"].get("currency"),
-                    "tracking_categories": payload_data["model"].get("tracking_categories"),
+                    "tracking_categories": payload_data["model"].get(
+                        "tracking_categories"
+                    ),
                     "sub_total": payload_data["model"].get("sub_total"),
                     "total_tax_amount": payload_data["model"].get("total_tax_amount"),
                     "total_amount": payload_data["model"].get("total_amount"),
                     "integration_params": {
-                        "tax_application_type": payload_data["model"].get("tax_application_type")
+                        "tax_application_type": payload_data["model"].get(
+                            "tax_application_type"
+                        )
                     },
                     "exchange_rate": payload_data["model"].get("exchange_rate"),
                     "total_discount": payload_data["model"].get("total_discount"),
@@ -313,7 +313,9 @@ class MergeInvoiceCreate(APIView):
         erp_link_token_id = request.data.get("erp_link_token_id")
         org_id = request.data.get("org_id")
 
-        merge_invoice_api_service = MergeInvoiceApiService(self.link_token_details)
+        merge_invoice_api_service = MergeInvoiceApiService(
+            self.link_token_details, org_id, erp_link_token_id
+        )
         invoice_response = merge_invoice_api_service.get_invoices(self.last_modified_at)
 
         try:
@@ -330,30 +332,14 @@ class MergeInvoiceCreate(APIView):
                         status=status.HTTP_204_NO_CONTENT,
                     )
 
-                invoices_json = format_merge_invoice_data(
-                    invoice_response, erp_link_token_id, org_id
-                )
+                api_log(msg="data inserted successfully in the kloo Invoice system")
+                return Response({"message": "API Invoice Info completed successfully"})
 
-                # save the data to the database
-                api_log(msg="Invoices saving to database")
-
-                kloo_service = KlooService(
-                    auth_token=None,
-                    erp_link_token_id=erp_link_token_id,
-                )
-                invoice_kloo_response = kloo_service.post_invoice_data(invoices_json)
-
-                if invoice_kloo_response["status_code"] == status.HTTP_201_CREATED:
-                    api_log(msg="data inserted successfully in the kloo Invoice system")
-                    return Response(
-                        {"message": "API Invoice Info completed successfully"}
-                    )
-
-                else:
-                    return Response(
-                        {"error": "Failed to send data to Kloo Contacts API"},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    )
+            api_log(msg="Failed to send data to Kloo Invoice API")
+            return Response(
+                {"error": "Failed to send data to Kloo Invoice API"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         except Exception as e:
             error_message = f"Failed to send data to Kloo Invoice API. Error: {str(e)}"
@@ -361,5 +347,3 @@ class MergeInvoiceCreate(APIView):
                 {"error": error_message},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
-        return Response("Failed to insert data to the kloo Invoice system")

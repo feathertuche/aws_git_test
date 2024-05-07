@@ -237,8 +237,8 @@ company_info_batch_size = 100
 contacts_page_size = 4
 contacts_batch_size = 4
 
-invoices_page_size = 100
-invoices_batch_size = 100
+invoices_page_size = 50
+invoices_batch_size = 50
 
 tax_rate_page_size = 100
 tax_rate_batch_size = 100
