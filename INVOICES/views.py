@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from INVOICES.helper_functions import format_merge_invoice_data
-from INVOICES.queries import update_invoices_erp_id, update_line_item_erp_id
+from INVOICES.queries import update_invoices_erp_id, get_erp_ids, insert_line_item_erp_id
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer, ErpInvoiceSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
@@ -120,18 +120,12 @@ class InvoiceCreate(APIView):
             print(f"this si a test {model_id}'---'{invoice_id}")
 
             line_items = invoice_data.get("line_items", [])
-            if line_items:
-                print("line_items", line_items)
-                print(" ")
-                first_line_item = line_items[0]
-                print("[first_line_item]", first_line_item)
-                print(" ")
-                line_item_remote_id = first_line_item.remote_id
-                print("line_item_remote_id", line_item_remote_id)
-                update_line_item_erp_id(model_id, line_item_remote_id, line_items)
+            api_log(msg=f"[Line Items ] : {line_items}")
 
-            else:
-                print("No line items found")
+            for loop_line_items in line_items:
+                line_item_remote_id = loop_line_items.remote_id
+                api_log(msg=f"[remote id's] : {line_item_remote_id}")
+                insert_line_item_erp_id(model_id, line_item_remote_id, loop_line_items)
 
             update_invoices_erp_id(model_id, invoice_id)
             print("4")
@@ -275,6 +269,13 @@ class InvoiceCreate(APIView):
 
             api_log(msg=f"[PAYLOAD FOR INVOICE PATCH view file] : {payload}")
             update_response = merge_api_service.update_invoice(invoice_id, payload)
+
+            latest_erp_ids = [i for i in payload_data["model"]["line_items"]]
+            api_log(msg=f"This is a model ID: {payload_data['model']['id']}")
+            api_log(msg=f"This is a Line items payload: {latest_erp_ids}")
+
+            get_erp_ids(payload_data["model"]["id"], latest_erp_ids)
+
             api_log(msg=f"UPDATE INVOICE method response: {update_response}")
 
             if update_response is not None:
