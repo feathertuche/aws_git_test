@@ -72,9 +72,12 @@ def poll_sqs():
             messages = response.get("Messages", [])
             for message in messages:
                 process_message(message["Body"])
-                sqs.delete_message(
-                    QueueUrl=settings.queue_url, ReceiptHandle=message["ReceiptHandle"]
-                )
+                message_data_details = message["Body"]
+                message_data_json = json.loads(message_data_details)
+                if "erp_contacts" in message_data_json:
+                    sqs.delete_message(
+                        QueueUrl=settings.queue_url, ReceiptHandle=message["ReceiptHandle"]
+                    )
 
         except Exception as e:
             print(f"Error occurred: {e}")
