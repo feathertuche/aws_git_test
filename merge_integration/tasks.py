@@ -78,7 +78,10 @@ def poll_sqs():
                     sqs.delete_message(
                         QueueUrl=settings.queue_url, ReceiptHandle=message["ReceiptHandle"]
                     )
-
+                elif "invoices" in message_data_json:
+                    sqs.delete_message(
+                        QueueUrl=settings.queue_url, ReceiptHandle=message["ReceiptHandle"]
+                    )
         except Exception as e:
             print(f"Error occurred: {e}")
             time.sleep(5)  # Wait for a short period before retrying
