@@ -69,6 +69,7 @@ class InvoiceCreate(APIView):
                     # "TaxType": line_item_payload.get("TaxType"),
                     # "purchase_account": line_item_payload.get("purchase_account"),
                     "currency": line_item_payload.get("currency"),
+                    # "sequence": 1,
                     "exchange_rate": line_items_payload.get("exchange_rate"),
                     "remote_updated_at": line_item_payload.get("remote_updated_at"),
                     "remote_was_deleted": line_item_payload.get("remote_was_deleted"),
@@ -117,15 +118,20 @@ class InvoiceCreate(APIView):
             invoice_created = merge_api_service.create_invoice(invoice_data)
             model_id = invoice_data["id"]
             invoice_id = invoice_created.model.id
-            print(f"this si a test {model_id}'---'{invoice_id}")
+            api_log(msg=f"this is a model ID : {model_id}")
+            api_log(msg=f"this is a INVOICE ID : {invoice_id}")
 
             line_items = invoice_data.get("line_items", [])
             api_log(msg=f"[Line Items ] : {line_items}")
 
+            f = []
             for loop_line_items in line_items:
+                api_log(msg=f"[LINE ITEM LOOP] : {loop_line_items}")
                 line_item_remote_id = loop_line_items.remote_id
                 api_log(msg=f"[remote id's] : {line_item_remote_id}")
-                insert_line_item_erp_id(model_id, line_item_remote_id, loop_line_items)
+                f.append(loop_line_items)
+            api_log(msg=f"[line item after for loop] : {f}")
+            insert_line_item_erp_id(model_id, f)
 
             update_invoices_erp_id(model_id, invoice_id)
             print("4")
@@ -265,10 +271,12 @@ class InvoiceCreate(APIView):
                 "warnings": [],
                 "errors": [],
             }
+            payload_model = payload_data["model"]
+            payload_model["line_items"] = line_items
             api_log(msg="6")
 
             api_log(msg=f"[PAYLOAD FOR INVOICE PATCH view file] : {payload}")
-            update_response = merge_api_service.update_invoice(invoice_id, payload)
+            update_response = merge_api_service.update_invoice(invoice_id, payload_model["model"])
 
             latest_erp_ids = [i for i in payload_data["model"]["line_items"]]
             api_log(msg=f"This is a model ID: {payload_data['model']['id']}")
