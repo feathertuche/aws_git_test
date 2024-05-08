@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from INVOICES.helper_functions import format_merge_invoice_data
-from INVOICES.queries import update_invoices_erp_id, get_erp_ids, insert_line_item_erp_id
+from INVOICES.queries import update_invoices_erp_id, insert_line_item_erp_id
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer, ErpInvoiceSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
@@ -23,26 +23,29 @@ class InvoiceCreate(APIView):
         self.last_modified_at = last_modified_at
 
     def get_queryset(self):
+        """
+        Function to query erp_link_token table
+        """
         filter_token = ErpLinkToken.objects.filter(id=self.erp_link_token_id)
         lnk_token = filter_token.values_list("account_token", flat=1)
 
         return lnk_token
 
     def post(self, request):
+        """
+        This is an Invoice POST request method
+        """
         api_log(msg="Processing GET request in MergeInvoice...")
         data = request.data
 
-        # Validate the request data
         serializer = InvoiceCreateSerializer(data=data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # Get the erp_link_token_id from the request data
         self.erp_link_token_id = serializer.validated_data.get("erp_link_token_id")
 
         queryset = self.get_queryset()
         if queryset is None or queryset == []:
-            # Handle the case where link_token_details is None
             api_log(msg="link_token_details is None or empty")
             return Response(
                 "Account token doesn't exist", status=status.HTTP_400_BAD_REQUEST
@@ -60,12 +63,7 @@ class InvoiceCreate(APIView):
                 line_item_data = {
                     "id": line_item_payload.get("id"),
                     "remote_id": line_item_payload.get("id"),
-                    # "name": line_item_payload.get("item"),
-                    # "status": line_item_payload.get("status"),
                     "unit_price": line_item_payload.get("unit_price"),
-                    # "purchase_price": line_item_payload.get("purchase_price"),
-                    # "TaxType": line_item_payload.get("TaxType"),
-                    # "purchase_account": line_item_payload.get("purchase_account"),
                     "currency": line_item_payload.get("currency"),
                     "exchange_rate": line_items_payload.get("exchange_rate"),
                     "remote_updated_at": line_item_payload.get("remote_updated_at"),
@@ -115,18 +113,22 @@ class InvoiceCreate(APIView):
             invoice_created = merge_api_service.create_invoice(invoice_data)
             model_id = invoice_data["id"]
             invoice_id = invoice_created.model.id
-            print(f"this si a test {model_id}'---'{invoice_id}")
+            api_log(msg=f"this is a model ID : {model_id}")
+            api_log(msg=f"this is a INVOICE ID : {invoice_id}")
 
             line_items = invoice_data.get("line_items", [])
             api_log(msg=f"[Line Items ] : {line_items}")
 
+            line_item_list = []
             for loop_line_items in line_items:
+                api_log(msg=f"[LINE ITEM LOOP] : {loop_line_items}")
                 line_item_remote_id = loop_line_items.remote_id
                 api_log(msg=f"[remote id's] : {line_item_remote_id}")
-                insert_line_item_erp_id(model_id, line_item_remote_id, loop_line_items)
+                line_item_list.append(loop_line_items)
+            api_log(msg=f"[line item after for loop] : {line_item_list}")
+            insert_line_item_erp_id(model_id, line_item_list)
 
             update_invoices_erp_id(model_id, invoice_id)
-            print("4")
 
             if invoice_created is None:
                 return Response(
@@ -164,6 +166,9 @@ class InvoiceCreate(APIView):
             )
 
     def patch(self, request, invoice_id: str):
+        """
+        This is an Invoice PATCH request bloc...
+        """
         api_log(msg=".....Processing Invoice UPDATE request bloc.....")
 
         data = request.data
@@ -206,37 +211,20 @@ class InvoiceCreate(APIView):
                     "description": line_item_data.get("item"),
                     "quantity": float(line_item_data.get("quantity") if line_item_data.get("quantity") is not None else 0),
                     "created_at": line_item_data.get("created_at"),
-                    # "modified_at": line_item_data.get("modified_at"),
-                    # "total_amount": float(line_item_data.get("total_amount") if line_item_data.get("total_amount") is not None else 0),
-                    # "item": line_item_data.get("item"),
-                    # "tracking_category": line_item_data.get("tracking_category"),
                     "tracking_categories": line_item_data.get("tracking_categories"),
-                    # "integration_params": {
-                    #     "tax_rate_remote_id": line_item_data.get(
-                    #         "tax_rate_remote_id"
-                    #     )
-                    # },
                     "integration_params": {
                         "tax_rate_remote_id": line_item_data.get("tax_rate_remote_id")
                     },
                     "account": line_item_data.get("account"),
-                    # "company": line_item_data.get("company"),
-                    # "field_mappings": line_item_data.get("field_mappings"),
                     "remote_data": line_item_data.get("remote_data"),
                 }
                 line_items.append(line_item)
 
-                # Construct the payload dynamically
-            # total_tax_amount = payload_data["model"].get("total_tax_amount", 0)
-            # total_tax_amount_float = float(total_tax_amount)
-            # formatted_value = float("{:.2f}".format(total_tax_amount_float))
             payload = {
                 "model": {
                     "id": invoice_id,
                     "remote_id": payload_data["model"].get("remote_id"),
                     "type": payload_data["model"].get("type"),
-                    # "created_at": payload_data["model"].get("created_at"),
-                    # "modified_at": payload_data["model"].get("modified_at"),
                     "due_date": payload_data["model"].get("due_date"),
                     "issue_date": payload_data["model"].get("issue_date"),
                     "contact": payload_data["model"].get("contact"),
@@ -249,33 +237,23 @@ class InvoiceCreate(APIView):
                     "sub_total": float(payload_data["model"].get("sub_total") if payload_data["model"].get("sub_total") is not None else 0),
                     "total_tax_amount": float(payload_data["model"].get("total_tax_amount") if payload_data["model"].get("total_tax_amount") is not None else 0),
                     "total_amount": float(payload_data["model"].get("total_amount") if payload_data["model"].get("total_amount") is not None else 0),
-                    # "integration_params": {
-                    #     "tax_application_type": payload_data["model"].get("tax_application_type")
-                    # },
-                    # "exchange_rate": payload_data["model"].get("exchange_rate"),
-                    # "total_discount": float(payload_data["model"].get("total_discount") if payload_data["model"].get("total_discount") is not None else 0),
-                    # "balance": float(payload_data["model"].get("balance") if payload_data["model"].get("balance") is not None else 0),
-                    # "remote_updated_at": payload_data["model"].get("remote_updated_at"),
-                    # "payments": payload_data["model"].get("payments"),
-                    # "applied_payments": payload_data["model"].get("applied_payments"),
                     "line_items": line_items,
-                    # "line_items": [
-                    #     InvoiceLineItemRequest(**line_item) for line_item in line_items
-                    # ],
                 },
                 "warnings": [],
                 "errors": [],
             }
+            payload_model = payload_data["model"]
+            payload_model["line_items"] = line_items
             api_log(msg="6")
 
             api_log(msg=f"[PAYLOAD FOR INVOICE PATCH view file] : {payload}")
-            update_response = merge_api_service.update_invoice(invoice_id, payload)
+            update_response = merge_api_service.update_invoice(invoice_id, payload_model["model"])
 
             latest_erp_ids = [i for i in payload_data["model"]["line_items"]]
             api_log(msg=f"This is a model ID: {payload_data['model']['id']}")
             api_log(msg=f"This is a Line items payload: {latest_erp_ids}")
 
-            get_erp_ids(payload_data["model"]["id"], latest_erp_ids)
+            # get_erp_ids(payload_data["model"]["id"], latest_erp_ids)
 
             api_log(msg=f"UPDATE INVOICE method response: {update_response}")
 
@@ -284,11 +262,6 @@ class InvoiceCreate(APIView):
                 return Response(
                     {"status": "success", "message": "successfully update invoice in Merge"},
                     status=status.HTTP_200_OK,)
-            else:
-                api_log(msg="8")
-                return Response(
-                    {"status": "error", "message": "Couldn't update invoice in Merge"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR, )
 
         except Exception as e:
             error_message = f"EXCEPTION : Failed to patch invoice in Merge: {str(e)}"
