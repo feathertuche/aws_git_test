@@ -68,7 +68,7 @@ def poll_sqs():
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
     )
 
-    print("polling start message:")
+    api_log(msg="Polling SQS queue...")
 
     while True:
         try:
@@ -105,7 +105,7 @@ def poll_sqs():
                 else:
                     api_log(msg="No new messages found in the queue.")
         except Exception as e:
-            print(f"Error occurred: {e}")
+            api_log(msg=f"Error while polling SQS queue: {str(e)}")
             time.sleep(5)  # Wait for a short period before retrying
 
 
