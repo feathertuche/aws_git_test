@@ -95,67 +95,16 @@ class KlooService:
         except (KlooException, Exception) as e:
             return self.handle_kloo_api_error("post_account_data", e)
 
-    def post_contacts_data(self, contacts_payload: dict):
+    def post_contacts_data(self, contacts_formatted_payload: dict):
         """
         Post contacts data to kloo API
         """
         try:
-            formatted_data = []
-            for contact in contacts_payload:
-                formatted_entry = {
-                    "id": contact.id,
-                    "remote_id": contact.remote_id,
-                    "name": contact.name,
-                    "is_supplier": contact.is_supplier,
-                    "is_customer": contact.is_customer,
-                    "email_address": contact.email_address,
-                    "tax_number": contact.tax_number,
-                    "status": contact.status,
-                    "currency": contact.currency,
-                    "remote_updated_at": contact.remote_updated_at.isoformat() + "Z",
-                    "company": contact.company,
-                    "addresses": [
-                        {
-                            "type": addr.type,
-                            "street_1": addr.street_1,
-                            "street_2": addr.street_2,
-                            "city": addr.city,
-                            "state": addr.state,
-                            "country_subdivision": addr.country_subdivision,
-                            "country": addr.country,
-                            "zip_code": addr.zip_code,
-                            "created_at": addr.created_at.isoformat() + "Z",
-                            "modified_at": addr.modified_at.isoformat() + "Z",
-                        }
-                        for addr in contact.addresses
-                    ],
-                    "phone_numbers": [
-                        {
-                            "number": phone.number,
-                            "type": phone.type,
-                            "created_at": phone.created_at.isoformat() + "Z",
-                            "modified_at": phone.modified_at.isoformat() + "Z",
-                        }
-                        for phone in contact.phone_numbers
-                    ],
-                    "remote_was_deleted": contact.remote_was_deleted,
-                    "created_at": contact.created_at.isoformat() + "Z",
-                    "modified_at": contact.modified_at.isoformat() + "Z",
-                    "field_mappings": contact.field_mappings,
-                    "remote_data": contact.remote_data,
-                }
-                formatted_data.append(formatted_entry)
-
-            kloo_format_json = {"erp_contacts": formatted_data}
-
-            post_contact_payload = kloo_format_json
-            post_contact_payload["erp_link_token_id"] = self.erp_link_token_id
             contact_url = f"{self.KLOO_URL}/ap/erp-integration/insert-erp-contacts"
-
             contact_response_data = requests.post(
                 contact_url,
-                json=post_contact_payload,
-                headers={"Authorization": f"Bearer {self.auth_token}"},
+                json=contacts_formatted_payload,
+                # headers={"Authorization": f"Bearer {self.auth_token}"},
             )
 
             if contact_response_data.status_code != 201:
@@ -307,29 +256,19 @@ class KlooService:
         except (KlooException, Exception) as e:
             return self.handle_kloo_api_error("post_tracking_categories_data", e)
 
-    def post_invoice_data(self, invoice_payload: list):
+    def post_invoice_data(self, invoice_formatted_payload: dict):
         """
         Post invoice data to kloo API
         """
         try:
-            kloo_format_json = {"invoices": invoice_payload}
-
             api_log(
-                msg=f"Total Invoices posting to kloo: {len(kloo_format_json['invoices'])} "
-            )
-
-            post_invoice_payload = kloo_format_json
-            post_invoice_payload["erp_link_token_id"] = str(self.erp_link_token_id)
-
-            api_log(
-                msg=f"Posting invoice data to Kloo: {json.dumps(post_invoice_payload)}"
+                msg=f"Posting invoice data to Kloo: {json.dumps(invoice_formatted_payload)}"
             )
 
             invoice_url = f"{self.KLOO_URL}/ap/erp-integration/insert-erp-invoices"
             invoice_response_data = requests.post(
                 invoice_url,
-                json=post_invoice_payload,
-                stream=True,
+                json=invoice_formatted_payload,
                 # headers={"Authorization": f"Bearer {self.auth_token}"},
             )
 

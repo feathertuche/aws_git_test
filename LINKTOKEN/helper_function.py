@@ -140,6 +140,23 @@ def handle_webhook_link_account(linked_account_data: dict, account_token_data: d
                 account_token=erp_data.account_token,
             )
 
+        # start pooling for sage intacct integration
+        # since sync status webhook are not reliable
+        if linked_account_data.get("integration") == "Sage Intacct":
+            account_token_data = {
+                "sync_status": {
+                    "last_sync_finished": datetime.now(tz=timezone.utc).strftime(
+                        "%Y-%m-%dT%H:%M:%SZ"
+                    ),
+                    "last_sync_start": datetime.now(tz=timezone.utc).strftime(
+                        "%Y-%m-%dT%H:%M:%SZ"
+                    ),
+                    "model_name": "Account",
+                },
+            }
+
+            handle_webhook_sync_modules(linked_account_data, account_token_data)
+
         api_log(msg="WEBHOOK: Sync log table inserted successfully")
 
     except Exception as e:
@@ -194,14 +211,14 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         erp_link_token_id = linked_account_data.get("end_user_origin_id")
         sync_status_data = account_token_data.get("sync_status")
         merge_module_name = sync_status_data.get("model_name")
-        integration_name = account_token_data["integration_name"]
+        integration_name = linked_account_data.get("integration")
 
         modules = []
-        if integration_name == "Sage Intacct" and merge_module_name == "CompanyInfo":
+        if integration_name == "Sage Intacct" and merge_module_name == "Account":
             modules.append("Contact")
             modules.append("TrackingCategory")
             modules.append("Invoice")
-            modules.append("Account")
+            modules.append("CompanyInfo")
 
         modules.append(merge_module_name)
 
@@ -349,7 +366,7 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
         erp_link_token_id = linked_account_data.get("end_user_origin_id")
         erp_data = get_erp_link_token(erp_link_token_id)
         merge_module_name = account_token_data.get("sync_status").get("model_name")
-        integration_name = account_token_data.get("integration_name")
+        integration_name = linked_account_data.get("integration")
 
         # check if cache has the key for webhook sync
         if cache.get(f"webhook_sync_{erp_link_token_id}"):
@@ -384,11 +401,11 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
         cache.delete(f"webhook_sync_{erp_link_token_id}")
 
         modules = []
-        if integration_name == "Sage Intacct" and merge_module_name == "CompanyInfo":
+        if integration_name == "Sage Intacct" and merge_module_name == "Account":
             modules.append("Contact")
             modules.append("TrackingCategory")
             modules.append("Invoice")
-            modules.append("Account")
+            modules.append("CompanyInfo")
 
         modules.append(merge_module_name)
 
