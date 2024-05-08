@@ -44,7 +44,7 @@ def process_sqs_messages():
     queue_url = response["QueueUrl"]  # Extract QueueUrl from response
 
     while True:
-        response = sqs_client.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=1)
+        response = sqs_client.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=10)
 
         messages = response.get("Messages", [])
         for message in messages:
