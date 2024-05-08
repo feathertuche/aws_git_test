@@ -7,7 +7,7 @@ import boto3
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
 from services.kloo_service import KlooService
-from sqs_extended_client import SQSExtendedClientSession
+
 
 def process_message(message):
     # Simulate message processing
@@ -30,7 +30,7 @@ def process_message(message):
         )
         kloo_service.post_contacts_data(message_data)
         api_log(
-            msg="CONTACTS : Response from Kloo Contacts API",
+            msg="CONTACTS : Added in Kloo Contacts API",
         )
 
     elif "invoices" in message_body:
@@ -41,11 +41,22 @@ def process_message(message):
         )
         kloo_service.post_invoice_data(message_data)
         api_log(
-            msg="INVOICES : Response from Kloo Invoices API",
+            msg="INVOICES : Added in Kloo Invoices API",
+        )
+
+    elif "tracking_category" in message_body:
+        # Send tracking categories data to Kloo Tracking Categories API
+        kloo_service = KlooService(
+            auth_token=None,
+            erp_link_token_id=None,
+        )
+        kloo_service.post_tracking_categories_data(message_data)
+        api_log(
+            msg="TRACKING CATEGORIES : Added in Kloo Tracking Categories API",
         )
 
     else:
-        print("empty message. Skipping.")
+        api_log(msg="Invalid message format. Skipping.")
 
 
 def poll_sqs():
@@ -76,13 +87,23 @@ def poll_sqs():
                 if "erp_contacts" in message_data_json:
                     process_message(message["Body"])
                     sqs.delete_message(
-                        QueueUrl=settings.queue_url, ReceiptHandle=message["ReceiptHandle"]
+                        QueueUrl=settings.queue_url,
+                        ReceiptHandle=message["ReceiptHandle"],
                     )
                 elif "invoices" in message_data_json:
                     process_message(message["Body"])
                     sqs.delete_message(
-                        QueueUrl=settings.queue_url, ReceiptHandle=message["ReceiptHandle"]
+                        QueueUrl=settings.queue_url,
+                        ReceiptHandle=message["ReceiptHandle"],
                     )
+                elif "tracking_category" in message_data_json:
+                    process_message(message["Body"])
+                    sqs.delete_message(
+                        QueueUrl=settings.queue_url,
+                        ReceiptHandle=message["ReceiptHandle"],
+                    )
+                else:
+                    api_log(msg="No new messages found in the queue.")
         except Exception as e:
             print(f"Error occurred: {e}")
             time.sleep(5)  # Wait for a short period before retrying

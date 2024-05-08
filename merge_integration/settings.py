@@ -113,22 +113,6 @@ PROJECT_APPS = [
     "merge_integration",
 ]
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "loggers": {
-        "": {
-            "handlers": ["console"],
-            "level": "INFO",
-        },
-    },
-}
-
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
 
 MIDDLEWARE = [
@@ -225,17 +209,17 @@ CRONJOBS = [
     ("*/1 * * * *", "INVOICES.scheduled_tasks.daily_get_merge_invoice.main"),
 ]
 
-tracking_categories_page_size = 100
-tracking_categories_batch_size = 100
+tracking_categories_page_size = 50
+tracking_categories_batch_size = 50
 
 accounts_page_size = 100
 accounts_batch_size = 100
 
-company_info_page_size = 100
-company_info_batch_size = 100
+company_info_page_size = 50
+company_info_batch_size = 50
 
-contacts_page_size = 4
-contacts_batch_size = 4
+contacts_page_size = 100
+contacts_batch_size = 100
 
 invoices_page_size = 50
 invoices_batch_size = 50
