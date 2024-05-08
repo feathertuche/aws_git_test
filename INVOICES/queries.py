@@ -54,11 +54,11 @@ def update_invoices_erp_id(id: str, response_id: str):
 def insert_line_item_erp_id(invoice_id: str, line_items):
     """
     helper function to fetch line item remote id based on invoice id
-    and insert/update in invoice_line_items table
+    and update in invoice_line_items table
 
     """
     api_log(msg=f"line items from query py file : {line_items}")
-
+    api_log(msg=f"updated of the line items started for invoice id : {invoice_id}")
     try:
         with connection.cursor() as cursor:
             cursor.execute(
@@ -80,8 +80,8 @@ def insert_line_item_erp_id(invoice_id: str, line_items):
                 for index in range(db_row):
                     row = rows[index]
                     loop_line_items = new_items[index]
-                    api_log(msg=f"DB rows details: {len(rows)}")
-                    api_log(msg=f"DB rows details: {rows}")
+                    api_log(msg=f"existing rows length: {len(rows)}")
+                    api_log(msg=f"DB rows data: {rows}")
                     api_log(msg=f"List of line item JSON : {loop_line_items}")
 
                     tracking_categories = loop_line_items.get('tracking_categories')
