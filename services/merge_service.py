@@ -15,11 +15,19 @@ from merge.resources.accounting import (
 from rest_framework import status
 from rest_framework.response import Response
 
+from CONTACTS.helper_function import format_contacts_payload
 from INVOICES.exceptions import MergeApiException
+from INVOICES.helper_functions import format_merge_invoice_data
 from INVOICES.models import InvoiceAttachmentLogs
+from TRACKING_CATEGORIES.helper_function import format_tracking_categories_payload
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import invoices_page_size
+from merge_integration.settings import (
+    invoices_page_size,
+    contacts_page_size,
+    tax_rate_page_size,
+)
 from merge_integration.utils import create_merge_client
+from sqs_utils.sqs_manager import send_data_to_queue
 
 
 class MergeService:
@@ -129,8 +137,10 @@ class MergeTrackingCategoriesService(MergeService):
     MergeTrackingCategoriesService class
     """
 
-    def __init__(self, account_token: str):
+    def __init__(self, account_token: str, org_id: str, erp_link_token_id: str):
         super().__init__(account_token)
+        self.org_id = org_id
+        self.erp_link_token_id = erp_link_token_id
 
     def get_tracking_categories(self, modified_date: str = None):
         """
@@ -138,24 +148,64 @@ class MergeTrackingCategoriesService(MergeService):
         """
         try:
             tracking_categories = self.merge_client.accounting.tracking_categories.list(
-                expand="company",
                 remote_fields="status",
                 show_enum_origins="status",
-                page_size=100000,
+                page_size=tax_rate_page_size,
+                include_remote_data=True,
                 modified_after=modified_date,
             )
-            return {"status": True, "data": tracking_categories}
+
+            if (
+                tracking_categories.results is None
+                or len(tracking_categories.results) == 0
+            ):
+                return {"status": True, "data": []}
+
+            while True:
+                api_log(
+                    msg=f"Adding {len(tracking_categories.results)} tracking to the list."
+                )
+
+                # format the data and send to the queue
+                formatted_payload = format_tracking_categories_payload(
+                    tracking_categories.results
+                )
+
+                formatted_payload["erp_link_token_id"] = self.erp_link_token_id
+                formatted_payload["org_id"] = self.org_id
+
+                api_log(msg="started post data to SQS tracking to the list.")
+                send_data_to_queue(formatted_payload)
+                api_log(msg="end  post data to SQS tracking to the list.")
+
+                if tracking_categories.next is None:
+                    break
+
+                tracking_categories = (
+                    self.merge_client.accounting.tracking_categories.list(
+                        remote_fields="status",
+                        show_enum_origins="status",
+                        page_size=tax_rate_page_size,
+                        include_remote_data=True,
+                        modified_after=modified_date,
+                        cursor=tracking_categories.next,
+                    )
+                )
+
+            return {"status": True, "data": tracking_categories.results}
         except ApiError as e:
             return self.handle_merge_api_error("get_tracking_categories", e)
 
 
-class MergeContactsService(MergeService):
+class MergeContactsApiService(MergeService):
     """
     MergeContactsService class
     """
 
-    def __init__(self, account_token: str):
+    def __init__(self, account_token: str, org_id: str, erp_link_token_id: str):
         super().__init__(account_token)
+        self.org_id = org_id
+        self.erp_link_token_id = erp_link_token_id
 
     def get_contacts(self, modified_date: str = None):
         """
@@ -166,10 +216,45 @@ class MergeContactsService(MergeService):
                 expand=ContactsListRequestExpand.ADDRESSES,
                 remote_fields="status",
                 show_enum_origins="status",
-                page_size=100000,
+                page_size=contacts_page_size,
+                is_supplier=True,
+                include_remote_data=True,
                 modified_after=modified_date,
             )
-            return {"status": True, "data": contact_data}
+
+            if contact_data.results is None or len(contact_data.results) == 0:
+                return {"status": True, "data": []}
+
+            while True:
+                api_log(
+                    msg=f"Aaaaaadding {len(contact_data.results)} contacts to the list."
+                )
+
+                # format the data and send to the queue
+                formatted_payload = format_contacts_payload(contact_data.results)
+
+                formatted_payload["erp_link_token_id"] = self.erp_link_token_id
+                formatted_payload["org_id"] = self.org_id
+
+                api_log(msg="started post data to SQS contacts to the list.")
+                send_data_to_queue(formatted_payload)
+                api_log(msg="end  post data to SQS contacts to the list.")
+
+                if contact_data.next is None:
+                    break
+
+                contact_data = self.merge_client.accounting.contacts.list(
+                    expand=ContactsListRequestExpand.ADDRESSES,
+                    remote_fields="status",
+                    show_enum_origins="status",
+                    page_size=contacts_page_size,
+                    is_supplier=True,
+                    include_remote_data=True,
+                    modified_after=modified_date,
+                    cursor=contact_data.next,
+                )
+
+            return {"status": True, "data": contact_data.results}
         except ApiError as e:
             return self.handle_merge_api_error("get_contacts", e)
 
@@ -179,10 +264,12 @@ class MergeInvoiceApiService(MergeService):
     MergeApiService class
     """
 
-    def __init__(self, account_token: str):
+    def __init__(self, account_token: str, org_id: str, erp_link_token_id: str):
         super().__init__(account_token)
+        self.org_id = org_id
+        self.erp_link_token_id = erp_link_token_id
 
-    def get_invoices(self, modified_after: str = None, batch_size: int = 100):
+    def get_invoices(self, modified_after: str = None):
         """
         get_invoices method
         """
@@ -194,13 +281,25 @@ class MergeInvoiceApiService(MergeService):
                 modified_after=modified_after,
             )
 
-            all_company_info = []
+            if invoice_data.results is None or len(invoice_data.results) == 0:
+                return {"status": True, "data": []}
+
             while True:
                 api_log(
                     msg=f"Adding {len(invoice_data.results)} Company Info to the list."
                 )
 
-                all_company_info.extend(invoice_data.results)
+                # format the data and send to the queue
+                formatted_payload = format_merge_invoice_data(
+                    invoice_data.results, self.erp_link_token_id, self.org_id
+                )
+
+                formatted_payload["erp_link_token_id"] = self.erp_link_token_id
+                formatted_payload["org_id"] = self.org_id
+
+                api_log(msg="started post data to SQS invoice to the list.")
+                send_data_to_queue(formatted_payload)
+                api_log(msg="end  post data to SQS invoice to the list.")
 
                 if invoice_data.next is None:
                     break
@@ -211,13 +310,9 @@ class MergeInvoiceApiService(MergeService):
                     modified_after=modified_after,
                     cursor=invoice_data.next,
                 )
-                api_log(msg=f"Length of all COMPANY INFO: {len(invoice_data.results)}")
 
-            api_log(
-                msg=f"COMPANY INFO GET:: The length of all company info data is : {len(all_company_info)}"
-            )
             return {
-                "data": all_company_info,
+                "data": invoice_data.results,
                 "status": True,
             }
 
