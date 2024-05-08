@@ -124,14 +124,14 @@ class InvoiceCreate(APIView):
             line_items = invoice_data.get("line_items", [])
             api_log(msg=f"[Line Items ] : {line_items}")
 
-            f = []
+            line_item_list = []
             for loop_line_items in line_items:
                 api_log(msg=f"[LINE ITEM LOOP] : {loop_line_items}")
                 line_item_remote_id = loop_line_items.remote_id
                 api_log(msg=f"[remote id's] : {line_item_remote_id}")
                 f.append(loop_line_items)
             api_log(msg=f"[line item after for loop] : {f}")
-            insert_line_item_erp_id(model_id, f)
+            insert_line_item_erp_id(model_id, line_item_list)
 
             update_invoices_erp_id(model_id, invoice_id)
             print("4")
