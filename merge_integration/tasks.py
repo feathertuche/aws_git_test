@@ -71,14 +71,15 @@ def poll_sqs():
             # Process received messages
             messages = response.get("Messages", [])
             for message in messages:
-                process_message(message["Body"])
                 message_data_details = message["Body"]
                 message_data_json = json.loads(message_data_details)
                 if "erp_contacts" in message_data_json:
+                    process_message(message["Body"])
                     sqs.delete_message(
                         QueueUrl=settings.queue_url, ReceiptHandle=message["ReceiptHandle"]
                     )
                 elif "invoices" in message_data_json:
+                    process_message(message["Body"])
                     sqs.delete_message(
                         QueueUrl=settings.queue_url, ReceiptHandle=message["ReceiptHandle"]
                     )
