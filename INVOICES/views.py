@@ -129,12 +129,11 @@ class InvoiceCreate(APIView):
                 api_log(msg=f"[LINE ITEM LOOP] : {loop_line_items}")
                 line_item_remote_id = loop_line_items.remote_id
                 api_log(msg=f"[remote id's] : {line_item_remote_id}")
-                f.append(loop_line_items)
-            api_log(msg=f"[line item after for loop] : {f}")
+                line_item_list.append(loop_line_items)
+            api_log(msg=f"[line item after for loop] : {line_item_list}")
             insert_line_item_erp_id(model_id, line_item_list)
 
             update_invoices_erp_id(model_id, invoice_id)
-            print("4")
 
             if invoice_created is None:
                 return Response(
