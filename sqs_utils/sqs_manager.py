@@ -5,7 +5,7 @@ import boto3
 from django.conf import settings
 
 from merge_integration.helper_functions import api_log
-from sqs_extended_client import SQSExtendedClientSession
+
 
 def send_data_to_queue(data_array):
     """
@@ -44,14 +44,14 @@ def process_sqs_messages():
     queue_url = response["QueueUrl"]  # Extract QueueUrl from response
 
     while True:
-        response = sqs_client.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=10)
+        response = sqs_client.receive_message(
+            QueueUrl=queue_url, MaxNumberOfMessages=10
+        )
 
         messages = response.get("Messages", [])
         for message in messages:
             data = json.loads(message["Body"])
-            print("message received")
-            print(data)
-            print("message received")
+            api_log(msg=f"Message received: {data}")
             sqs_client.delete_message(
                 QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"]
             )
