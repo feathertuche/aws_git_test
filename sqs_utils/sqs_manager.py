@@ -5,7 +5,7 @@ import boto3
 from django.conf import settings
 
 from merge_integration.helper_functions import api_log
-
+from sqs_extended_client import SQSExtendedClientSession
 
 def send_data_to_queue(data_array):
     """

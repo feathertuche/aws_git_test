@@ -7,7 +7,7 @@ import boto3
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
 from services.kloo_service import KlooService
-
+from sqs_extended_client import SQSExtendedClientSession
 
 def process_message(message):
     # Simulate message processing
