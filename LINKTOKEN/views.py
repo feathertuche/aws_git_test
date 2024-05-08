@@ -150,11 +150,9 @@ class WebHook(APIView):
                 event = payload.get("hook").get("event")
                 if "synced" in event.split("."):
                     # for sage intacct , we will only check for company module alert
-                    if (
-                        account_token_data.get("integration_name") == "Sage Intacct"
-                        and account_token_data.get("sync_status").get("model_name")
-                        != "Account"
-                    ):
+                    if account_token_data.get(
+                        "integration_name"
+                    ) == "Sage Intacct" and "linked" not in event.split("."):
                         api_log(msg="WEBHOOK: No proper event for sage intacct")
                         return Response(
                             {"status": "No proper event found"},
