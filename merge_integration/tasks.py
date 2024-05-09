@@ -86,18 +86,21 @@ def poll_sqs():
                 message_data_json = json.loads(message_data_details)
                 if "erp_contacts" in message_data_json:
                     process_message(message["Body"])
+                    sqs.delete_payload_from_s3 = True
                     sqs.delete_message(
                         QueueUrl=settings.queue_url,
                         ReceiptHandle=message["ReceiptHandle"],
                     )
                 elif "invoices" in message_data_json:
                     process_message(message["Body"])
+                    sqs.delete_payload_from_s3 = True
                     sqs.delete_message(
                         QueueUrl=settings.queue_url,
                         ReceiptHandle=message["ReceiptHandle"],
                     )
                 elif "tracking_category" in message_data_json:
                     process_message(message["Body"])
+                    sqs.delete_payload_from_s3 = True
                     sqs.delete_message(
                         QueueUrl=settings.queue_url,
                         ReceiptHandle=message["ReceiptHandle"],
