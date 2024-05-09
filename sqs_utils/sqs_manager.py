@@ -3,6 +3,9 @@ import threading
 
 import boto3
 from django.conf import settings
+from sqs_extended_client import (
+    SQSExtendedClientSession,
+)
 
 from merge_integration.helper_functions import api_log
 
@@ -11,7 +14,7 @@ def send_data_to_queue(data_array):
     """
     Send data to the SQS queue
     """
-    api_log(msg=f"SQS payload length: {len(data_array)}")
+    api_log(msg=f"SQS working with session {SQSExtendedClientSession}")
 
     session = boto3.Session(
         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,

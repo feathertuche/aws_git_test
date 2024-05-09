@@ -3,6 +3,9 @@ import threading
 import time
 
 import boto3
+from sqs_extended_client import (
+    SQSExtendedClientSession,
+)
 
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
@@ -10,6 +13,7 @@ from services.kloo_service import KlooService
 
 
 def process_message(message):
+    api_log(msg=f"SQS working with session {SQSExtendedClientSession}")
     # Simulate message processing
     message_body = message
     try:
