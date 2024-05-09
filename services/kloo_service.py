@@ -46,6 +46,10 @@ class KlooService:
         Post contacts data to kloo API
         """
         try:
+            api_log(
+                msg=f"Posting Contacts data to Kloo: {json.dumps(contacts_formatted_payload)}"
+            )
+
             contact_url = f"{self.KLOO_URL}/ap/erp-integration/insert-erp-contacts"
             contact_response_data = requests.post(
                 contact_url,
@@ -74,6 +78,10 @@ class KlooService:
         Post tracking categories data to kloo API
         """
         try:
+            api_log(
+                msg=f"Posting Tracking Categories data to Kloo: {json.dumps(tracking_categories_formatted_payload)}"
+            )
+
             tc_url = f"{self.KLOO_URL}/organizations/erp-tracking-categories"
             tc_response_data = requests.post(
                 tc_url,
