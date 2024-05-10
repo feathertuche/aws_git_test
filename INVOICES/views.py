@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from INVOICES.helper_functions import format_merge_invoice_data
-from INVOICES.queries import update_invoices_erp_id, insert_line_item_erp_id
+from INVOICES.queries import update_invoices_erp_id, insert_line_item_erp_id, get_erp_ids
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer, ErpInvoiceSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
@@ -241,18 +241,16 @@ class InvoiceCreate(APIView):
                 "warnings": [],
                 "errors": [],
             }
-            payload_model = payload_data["model"]
-            payload_model["line_items"] = line_items
-            api_log(msg="6")
 
             api_log(msg=f"[PAYLOAD FOR INVOICE PATCH view file] : {payload}")
-            update_response = merge_api_service.update_invoice(invoice_id, payload_model["model"])
+            update_response = merge_api_service.update_invoice(invoice_id, payload)
 
-            latest_erp_ids = [i for i in payload_data["model"]["line_items"]]
-            api_log(msg=f"This is a model ID: {payload_data['model']['id']}")
-            api_log(msg=f"This is a Line items payload: {latest_erp_ids}")
+            line_items_payload = [i for i in payload_data["model"]["line_items"]]
+            api_log(msg=f"This is a model payload ID: {payload_data['model']['id']}")
+            api_log(msg=f"This is a Line items payload: {line_items_payload}")
 
-            # get_erp_ids(payload_data["model"]["id"], latest_erp_ids)
+            # function call to send line items to invoice_line_items table
+            get_erp_ids(payload_data["model"]["id"], line_items_payload)
 
             api_log(msg=f"UPDATE INVOICE method response: {update_response}")
 
