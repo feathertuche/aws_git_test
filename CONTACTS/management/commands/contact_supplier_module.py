@@ -1,5 +1,4 @@
 import requests
-import tenacity
 from django.core.management.base import BaseCommand
 from merge.resources.accounting import (
     ContactsListRequestExpand,
@@ -34,10 +33,6 @@ class Command(BaseCommand):
 
     help = "Add Matching suppliers from list to Kloo Contacts"
 
-    @tenacity.retry(
-        wait=tenacity.wait_exponential(min=4, max=10),
-        stop=tenacity.stop_after_attempt(3),
-    )
     def handle(self, *args, **options):
         # get all linked account whose status are complete and daily force sync log is null
         print("Adding Invoice Module for all completed linked accounts")
