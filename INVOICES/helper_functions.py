@@ -4,6 +4,8 @@ Helper functions for the INVOICES app
 
 import uuid
 
+from merge.resources.accounting import InvoiceLineItemRequest
+
 from INVOICES.queries import get_currency_id
 from merge_integration.helper_functions import api_log
 
@@ -119,3 +121,190 @@ def format_line_item(line_item):
         "remote_was_deleted": line_item.remote_was_deleted,
         "field_mappings": line_item.field_mappings,
     }
+
+
+def filter_invoice_payloads(invoice_valid_payload):
+    """
+    prepare invoice payload based on integration name
+    """
+    integration_name = invoice_valid_payload.get("integration_name")
+    model_data = invoice_valid_payload.get("model")
+
+    if integration_name == "Sage Intacct":
+        return create_sage_invoice_payload(model_data)
+    elif integration_name == "Xero":
+        return create_xero_invoice_payload(model_data)
+    else:
+        raise Exception("Integration doesn't exists for invoice filter")
+
+
+def filter_attachment_payloads(attachment_valid_payload, invoice_id):
+    """
+    prepare invoice payload based on integration name
+    """
+    integration_name = attachment_valid_payload.get("integration_name")
+    model_data = attachment_valid_payload.get("model")
+
+    if integration_name == "Sage Intacct":
+        return create_sage_attachment_payload(model_data, invoice_id)
+
+    elif integration_name == "Xero":
+        return create_xero_attachment_payload(model_data, invoice_id)
+
+    else:
+        raise Exception("Integration doesn't exists for Attachment filter")
+
+
+def create_sage_invoice_payload(invoice_validated_payload):
+    """
+    Sage invoice payload
+    """
+    api_log(msg="Creating sage invoice payload")
+
+    model_data = invoice_validated_payload
+
+    # prepare line items data
+    line_items_data = []
+    for line_item_payload in model_data.get("line_items", []):
+        line_item_data = {
+            "id": line_item_payload.get("id"),
+            "remote_id": line_item_payload.get("id"),
+            "unit_price": line_item_payload.get("unit_price"),
+            "currency": line_item_payload.get("currency"),
+            "exchange_rate": model_data.get("exchange_rate"),
+            "remote_updated_at": line_item_payload.get("remote_updated_at"),
+            "remote_was_deleted": line_item_payload.get("remote_was_deleted"),
+            "description": line_item_payload.get("item"),
+            "quantity": line_item_payload.get("quantity"),
+            "created_at": line_item_payload.get("created_at"),
+            "total_amount": model_data.get("total_amount"),
+            "tracking_categories": model_data.get("tracking_categories"),
+            "integration_params": {
+                "tax_rate_remote_id": line_item_payload.get("tax_rate_remote_id")
+            },
+            "account": line_item_payload.get("account"),
+            "remote_data": line_item_payload.get("remote_data"),
+        }
+        line_items_data.append(line_item_data)
+
+    # prepare invoice data
+    invoice_data = {
+        "id": model_data.get("id"),
+        "remote_id": model_data.get("remote_id"),
+        "type": model_data.get("type"),
+        "due_date": model_data.get("due_date"),
+        "issue_date": model_data.get("issue_date"),
+        "contact": model_data.get("contact"),
+        "number": model_data.get("number"),
+        "memo": model_data.get("memo"),
+        "status": model_data.get("status"),
+        "company": model_data.get("company"),
+        "currency": model_data.get("currency"),
+        "tracking_categories": model_data.get("tracking_categories"),
+        "sub_total": model_data.get("sub_total"),
+        "total_tax_amount": model_data.get("total_tax_amount"),
+        "total_amount": model_data.get("total_amount"),
+        "integration_params": {
+            "tax_application_type": model_data.get("tax_application_type")
+        },
+        "line_items": [
+            InvoiceLineItemRequest(**line_item) for line_item in line_items_data
+        ],
+    }
+
+    return invoice_data
+
+
+def create_xero_invoice_payload(invoice_validated_payload):
+    """
+    xero invoice payload
+    """
+
+    model_data = invoice_validated_payload
+
+    # prepare line items data
+    line_items_data = []
+    for line_item_payload in model_data.get("line_items", []):
+        line_item_data = {
+            "id": line_item_payload.get("id"),
+            "remote_id": line_item_payload.get("id"),
+            "unit_price": line_item_payload.get("unit_price"),
+            "currency": line_item_payload.get("currency"),
+            "exchange_rate": model_data.get("exchange_rate"),
+            "remote_updated_at": line_item_payload.get("remote_updated_at"),
+            "remote_was_deleted": line_item_payload.get("remote_was_deleted"),
+            "description": line_item_payload.get("item"),
+            "quantity": line_item_payload.get("quantity"),
+            "created_at": line_item_payload.get("created_at"),
+            "tracking_categories": model_data.get("tracking_categories"),
+            "integration_params": {
+                "tax_rate_remote_id": line_item_payload.get("tax_rate_remote_id")
+            },
+            "account": line_item_payload.get("account"),
+            "remote_data": line_item_payload.get("remote_data"),
+        }
+        line_items_data.append(line_item_data)
+
+    # prepare invoice data
+    invoice_data = {
+        "id": model_data.get("id"),
+        "remote_id": model_data.get("remote_id"),
+        "type": model_data.get("type"),
+        "due_date": model_data.get("due_date"),
+        "issue_date": model_data.get("issue_date"),
+        "contact": model_data.get("contact"),
+        "number": model_data.get("number"),
+        "memo": model_data.get("memo"),
+        "status": model_data.get("status"),
+        "company": model_data.get("company"),
+        "currency": model_data.get("currency"),
+        "tracking_categories": model_data.get("tracking_categories"),
+        "sub_total": model_data.get("sub_total"),
+        "total_tax_amount": model_data.get("total_tax_amount"),
+        "total_amount": model_data.get("total_amount"),
+        "integration_params": {
+            "tax_application_type": model_data.get("tax_application_type")
+        },
+        "line_items": [
+            InvoiceLineItemRequest(**line_item) for line_item in line_items_data
+        ],
+    }
+
+    return invoice_data
+
+
+def create_sage_attachment_payload(attachment_validated_payload, invoice_id):
+    """
+    create sage attachment
+    """
+    attachment_data = attachment_validated_payload.get("attachment")
+    attachment_payload = {
+        "id": attachment_validated_payload.get("id"),
+        "file_name": attachment_data.get("file_name"),
+        "file_url": attachment_data.get("file_url"),
+        "integration_params": {
+            "folder_name": attachment_data.get("folder_name"),
+            "supdocid": "1222",
+        },
+    }
+
+    return attachment_payload
+
+
+def create_xero_attachment_payload(attachment_validated_payload, invoice_id):
+    """
+    create xero attachment
+    """
+    attachment_data = attachment_validated_payload.get("attachment")
+
+    attachment_payload = {
+        "id": attachment_validated_payload.get("id"),
+        "file_name": attachment_data.get("file_name"),
+        "file_url": attachment_data.get("file_url"),
+        "integration_params": {
+            "transaction_id": invoice_id,
+            "transaction_name": attachment_data.get("transaction_name"),
+        },
+    }
+
+    return attachment_payload

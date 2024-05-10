@@ -346,6 +346,7 @@ class MergeInvoiceApiService(MergeService):
             return response
 
         except Exception as e:
+            api_log(msg=f"MERGE EXCEPTION: Error creating invoice: {str(e)}")
             self.create_or_update_log(
                 {
                     "id": uuid.uuid4(),
@@ -355,7 +356,6 @@ class MergeInvoiceApiService(MergeService):
                     "message": str(e),
                 }
             )
-            api_log(msg=f"MERGE EXCEPTION: Error creating invoice: {str(e)}")
             raise e
 
     def update_invoice(self, invoice_id: str, invoice_data: dict):
@@ -396,7 +396,6 @@ class MergeInvoiceApiService(MergeService):
                 )
 
             elif invoice_update_request.status_code == status.HTTP_404_NOT_FOUND:
-
                 error_msg = (
                     f"[MERGE SERVICE PY INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} is Incorrect and the "
                     f"status code is : {status.HTTP_404_NOT_FOUND}"
@@ -432,9 +431,12 @@ class MergeInvoiceApiService(MergeService):
         create_attachment method
         """
         try:
+            api_log(msg=f"MERGE : attachment_data {attachment_data}")
             response = self.merge_client.accounting.attachments.create(
                 model=AccountingAttachmentRequest(**attachment_data)
             )
+            api_log(msg=f"MERGE : Response {response}")
+
             if len(response.errors) > 0:
                 api_log(msg="MERGE : Error creating attachment")
                 raise MergeApiException(response.errors)
@@ -453,6 +455,7 @@ class MergeInvoiceApiService(MergeService):
             return response
 
         except Exception as e:
+            api_log(msg=f"MERGE EXCEPTION: Error creating attachment: {str(e)}")
             self.create_or_update_log(
                 {
                     "id": uuid.uuid4(),
@@ -462,7 +465,6 @@ class MergeInvoiceApiService(MergeService):
                     "message": str(e),
                 }
             )
-            api_log(msg=f"MERGE EXCEPTION: Error creating attachment: {str(e)}")
             raise e
 
     @classmethod

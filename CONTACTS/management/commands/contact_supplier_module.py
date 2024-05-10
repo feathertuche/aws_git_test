@@ -1,15 +1,17 @@
 import requests
+import tenacity
 from django.core.management.base import BaseCommand
 from merge.resources.accounting import (
     ContactsListRequestExpand,
     ContactsRetrieveRequestExpand,
 )
 from rest_framework import status
-import tenacity
+
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL, GETKLOO_BASE_URL
+from merge_integration.settings import GETKLOO_BASE_URL
 from merge_integration.utils import create_merge_client
 from sqs_utils.sqs_manager import send_data_to_queue
+
 
 class Command(BaseCommand):
     """
@@ -32,7 +34,10 @@ class Command(BaseCommand):
 
     help = "Add Matching suppliers from list to Kloo Contacts"
 
-    @tenacity.retry(wait=tenacity.wait_exponential(min=4, max=10), stop=tenacity.stop_after_attempt(3))
+    @tenacity.retry(
+        wait=tenacity.wait_exponential(min=4, max=10),
+        stop=tenacity.stop_after_attempt(3),
+    )
     def handle(self, *args, **options):
         # get all linked account whose status are complete and daily force sync log is null
         print("Adding Invoice Module for all completed linked accounts")
@@ -45,7 +50,6 @@ class Command(BaseCommand):
         try:
             contacts_client = create_merge_client(account_token)
 
-            suppliers_name_list = ["Bigbearpromo LTD"]
             contact_ids = []
 
             contact_data = contacts_client.accounting.contacts.list(
@@ -61,8 +65,10 @@ class Command(BaseCommand):
                 for contact in contact_data.results:
                     # api_log(msg=f"[CONTACT name LIST] : {contact.name} and {contact.id}")
                     contact_ids.append(contact.id)
-                    api_log(msg=f"[after append CONTACT name LIST] : {contact.name} and {contact.id}")
-                    #break
+                    api_log(
+                        msg=f"[after append CONTACT name LIST] : {contact.name} and {contact.id}"
+                    )
+                    # break
                     # else:
                     #     api_log(msg="No Name")
 
@@ -122,22 +128,22 @@ class Command(BaseCommand):
             )
             api_log(msg="13")
 
-            api_log(msg=f"2 contact_supplier_ module started post data to SQS contacts to the list.")
             api_log(
-                msg=f"started--- send--- queue"
+                msg="2 contact_supplier_ module started post data to SQS contacts to the list."
             )
+            api_log(msg="started--- send--- queue")
             send_data_to_queue(contact_payload)
-            api_log(msg=f"end  post data to SQS contacts to the list.")
-            api_log(
-                msg=f"end--- send--- queue"
-            )
+            api_log(msg="end  post data to SQS contacts to the list.")
+            api_log(msg="end--- send--- queue")
 
             if contact_response_data.status_code == status.HTTP_201_CREATED:
                 api_log(msg="14")
                 api_log(msg="data inserted successfully in the kloo Contacts system")
             else:
                 api_log(msg="15")
-                api_log(msg=f"Failed to send data to Kloo Contacts API with status code {contact_response_data.status_code}")
+                api_log(
+                    msg=f"Failed to send data to Kloo Contacts API with status code {contact_response_data.status_code}"
+                )
             api_log(msg="16")
         except Exception as e:
             api_log(msg=f"Error in fetching contacts data : {e}")
