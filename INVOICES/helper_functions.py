@@ -167,46 +167,32 @@ def create_sage_invoice_payload(invoice_validated_payload):
     line_items_data = []
     for line_item_payload in model_data.get("line_items", []):
         line_item_data = {
-            "id": line_item_payload.get("id"),
-            "remote_id": line_item_payload.get("id"),
             "unit_price": line_item_payload.get("unit_price"),
             "currency": line_item_payload.get("currency"),
             "exchange_rate": model_data.get("exchange_rate"),
-            "remote_updated_at": line_item_payload.get("remote_updated_at"),
-            "remote_was_deleted": line_item_payload.get("remote_was_deleted"),
             "description": line_item_payload.get("item"),
             "quantity": line_item_payload.get("quantity"),
-            "created_at": line_item_payload.get("created_at"),
             "total_amount": model_data.get("total_amount"),
             "tracking_categories": model_data.get("tracking_categories"),
-            "integration_params": {
-                "tax_rate_remote_id": line_item_payload.get("tax_rate_remote_id")
-            },
             "account": line_item_payload.get("account"),
-            "remote_data": line_item_payload.get("remote_data"),
         }
         line_items_data.append(line_item_data)
 
     # prepare invoice data
     invoice_data = {
-        "id": model_data.get("id"),
-        "remote_id": model_data.get("remote_id"),
+        "id": model_data.get("kloo_invoice_id"),
         "type": model_data.get("type"),
         "due_date": model_data.get("due_date"),
         "issue_date": model_data.get("issue_date"),
         "contact": model_data.get("contact"),
         "number": model_data.get("number"),
         "memo": model_data.get("memo"),
-        "status": model_data.get("status"),
         "company": model_data.get("company"),
         "currency": model_data.get("currency"),
         "tracking_categories": model_data.get("tracking_categories"),
         "sub_total": model_data.get("sub_total"),
         "total_tax_amount": model_data.get("total_tax_amount"),
         "total_amount": model_data.get("total_amount"),
-        "integration_params": {
-            "tax_application_type": model_data.get("tax_application_type")
-        },
         "line_items": [
             InvoiceLineItemRequest(**line_item) for line_item in line_items_data
         ],
@@ -226,13 +212,9 @@ def create_xero_invoice_payload(invoice_validated_payload):
     line_items_data = []
     for line_item_payload in model_data.get("line_items", []):
         line_item_data = {
-            "id": line_item_payload.get("id"),
-            "remote_id": line_item_payload.get("id"),
             "unit_price": line_item_payload.get("unit_price"),
             "currency": line_item_payload.get("currency"),
             "exchange_rate": model_data.get("exchange_rate"),
-            "remote_updated_at": line_item_payload.get("remote_updated_at"),
-            "remote_was_deleted": line_item_payload.get("remote_was_deleted"),
             "description": line_item_payload.get("item"),
             "quantity": line_item_payload.get("quantity"),
             "created_at": line_item_payload.get("created_at"),
@@ -247,8 +229,7 @@ def create_xero_invoice_payload(invoice_validated_payload):
 
     # prepare invoice data
     invoice_data = {
-        "id": model_data.get("id"),
-        "remote_id": model_data.get("remote_id"),
+        "id": model_data.get("kloo_invoice_id"),
         "type": model_data.get("type"),
         "due_date": model_data.get("due_date"),
         "issue_date": model_data.get("issue_date"),
@@ -279,7 +260,7 @@ def create_sage_attachment_payload(attachment_validated_payload, invoice_id):
     """
     attachment_data = attachment_validated_payload.get("attachment")
     attachment_payload = {
-        "id": attachment_validated_payload.get("id"),
+        "id": attachment_validated_payload.get("kloo_invoice_id"),
         "file_name": attachment_data.get("file_name"),
         "file_url": attachment_data.get("file_url"),
         "integration_params": {
@@ -298,7 +279,7 @@ def create_xero_attachment_payload(attachment_validated_payload, invoice_id):
     attachment_data = attachment_validated_payload.get("attachment")
 
     attachment_payload = {
-        "id": attachment_validated_payload.get("id"),
+        "id": attachment_validated_payload.get("kloo_invoice_id"),
         "file_name": attachment_data.get("file_name"),
         "file_url": attachment_data.get("file_url"),
         "integration_params": {
