@@ -56,7 +56,7 @@ def update_invoices_erp_id(uuid_id: str, response_id: str):
         return row
 
 
-def insert_line_item_erp_id(invoice_id: str, line_items):
+def update_erp_id_in_line_items(invoice_id: str, line_items):
     """
     helper function to fetch line item remote id based on invoice id
     and update in invoice_line_items table
@@ -74,6 +74,8 @@ def insert_line_item_erp_id(invoice_id: str, line_items):
                 [invoice_id],
             )
             rows = cursor.fetchall()
+
+            api_log(msg=f" existing rows data from invoice_line_items :{rows}")
             new_items = []
             for line in line_items:
                 new_items.append(dict(line))
@@ -91,30 +93,45 @@ def insert_line_item_erp_id(invoice_id: str, line_items):
 
                     tracking_categories = loop_line_items.get('tracking_categories')
                     list_row = list(row)
-                    api_log(msg=f" uuid id : {list_row[0]}")
-                    list_row[2] = loop_line_items.get('item')
-                    list_row[3] = loop_line_items.get('unit_price')
-                    list_row[4] = loop_line_items.get('quantity')
-                    list_row[5] = loop_line_items.get('total_amount')
+                    api_log(msg=f" uuid id : {list_row}")
+
+                    # list_row[2] = loop_line_items.get('item')
+                    # list_row[3] = loop_line_items.get('unit_price')
+                    # list_row[4] = loop_line_items.get('quantity')
+                    # list_row[5] = loop_line_items.get('total_amount')
                     list_row[10] = loop_line_items.get('remote_id')
-                    list_row[19] = loop_line_items.get('remote_data')
-                    list_row[20] = loop_line_items.get('account')
-                    list_row[21] = loop_line_items.get('integration_params', {}).get('tax_rate_remote_id')
-                    list_row[22] = ','.join(tracking_categories) if tracking_categories else None
+                    api_log(msg=f" list_row[10] : {list_row[10]}")
+                    api_log(msg=f" list row from payload : {loop_line_items.get('remote_id')}")
+
+                    # list_row[19] = loop_line_items.get('remote_data')
+                    # list_row[20] = loop_line_items.get('account')
+                    # list_row[21] = loop_line_items.get('integration_params', {}).get('tax_rate_remote_id')
+                    # list_row[22] = ','.join(tracking_categories) if tracking_categories else None
+
                     update_query = """
-                                UPDATE invoice_line_items
-                                SET item = %s, unit_price = %s, quantity = %s,
-                                    total_amount = %s, sequence = %s, erp_id = %s,
-                                    erp_remote_data = %s, erp_account = %s, erp_tax_rate = %s,
-                                    erp_tracking_categories = %s
-                                WHERE invoice_id = %s AND id = %s
+                              UPDATE invoice_line_items
+                              SET erp_id = %s,sequence = %s
+                              WHERE invoice_id = %s AND id = %s
                             """
-                    api_log(msg="summit")
                     update_args = (
-                        list_row[2], list_row[3], list_row[4], list_row[5], 1,
-                        list_row[10], list_row[19], list_row[20], list_row[21],
-                        list_row[22], invoice_id, list_row[0]
+                        list_row[10], 1, invoice_id, list_row[0]
                     )
+
+
+                    # update_query = """
+                    #             UPDATE invoice_line_items
+                    #             SET item = %s, unit_price = %s, quantity = %s,
+                    #                 total_amount = %s, sequence = %s, erp_id = %s,
+                    #                 erp_remote_data = %s, erp_account = %s, erp_tax_rate = %s,
+                    #                 erp_tracking_categories = %s
+                    #             WHERE invoice_id = %s AND id = %s
+                    #         """
+                    # api_log(msg="summit")
+                    # update_args = (
+                    #     list_row[2], list_row[3], list_row[4], list_row[5], 1,
+                    #     list_row[10], list_row[19], list_row[20], list_row[21],
+                    #     list_row[22], invoice_id, list_row[0]
+                    # )
                     # Convert None values to NULL
                     update_args = tuple(arg if arg is not None else None for arg in update_args)
                     cursor.execute(update_query, update_args)
@@ -170,14 +187,14 @@ def get_erp_ids(invoice_erp_id: str, line_items_payload: list):
 
             # Bloc to compare the erp_id field from db and id field of payload from line_items
             for item_data in line_items_payload:
-                if item_data['id'] not in matching_erp_list:
+                if item_data['erp_id'] not in matching_erp_list:
                     all_tracking_categories = item_data.get('tracking_categories')
                     invoice_id = rows[0][0]
                     item = item_data.get('item')
                     unit_price = item_data.get('unit_price')
                     quantity = item_data.get('quantity')
                     total_amount = item_data.get('total_amount')
-                    erp_id = item_data.get('id')
+                    erp_id = item_data.get('erp_id')
                     erp_remote_data = item_data.get('remote_data')
                     erp_account = item_data.get('account')
                     erp_tracking_categories = ','.join(all_tracking_categories) if all_tracking_categories else None
@@ -207,3 +224,31 @@ def get_erp_ids(invoice_erp_id: str, line_items_payload: list):
         api_log(msg=f"EXCEPTION : Database error occurred: {db_error}")
     except Exception as e:
         api_log(msg=f"EXCEPTION : Failed to send data to invoice_line_items table: {str(e)}")
+
+
+def get_count_erp_id(erp_id):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """SELECT count(*)
+                FROM invoices as i
+                INNER JOIN invoice_line_items as l
+                ON i.id = l.invoice_id
+                i.erp_id = %s
+                """,
+            [erp_id],
+        )
+        row = cursor.fetchone()
+        return row
+
+    # select
+    # count(*)
+    # from invoices as i
+    # inner
+    # join
+    # invoice_line_items as l
+    # on
+    # i.id = l.invoice_id
+    # where
+    # i.erp_id = "aee29b09-2348-4c92-a758-980689d8b938";
+
+# def update_invoice_line_item():

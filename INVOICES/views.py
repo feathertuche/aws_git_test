@@ -68,12 +68,17 @@ class InvoiceCreate(APIView):
             model_id = invoice_data["id"]
             invoice_id = invoice_created.model.id
 
-            line_items = invoice_data.get("line_items", [])
+            # fetching line items from response body
+            invoice_response_line_items = invoice_created.model.line_items
+            api_log(msg=f"Invoice line item response: {invoice_response_line_items}")
 
             line_item_list = []
-            for loop_line_items in line_items:
+            for loop_line_items in invoice_response_line_items:
                 line_item_list.append(loop_line_items)
-            insert_line_item_erp_id(model_id, line_item_list)
+            api_log(msg=f"request line items: {line_item_list}")
+
+            # calling function to update remote id as 'erp id' in erp_id field in invoice_line_items table
+            update_erp_id_in_line_items(model_id, line_item_list)
 
             update_invoices_erp_id(model_id, invoice_id)
 
