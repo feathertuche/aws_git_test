@@ -1,13 +1,12 @@
 """
 DB queries for INVOICES
 """
+
 import uuid
 
 import MySQLdb
-import pandas as pd
-from rest_framework.response import Response
-from rest_framework import status
 from django.db import DatabaseError, connection
+
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
 
@@ -91,7 +90,7 @@ def update_erp_id_in_line_items(invoice_id: str, line_items):
                     api_log(msg=f"DB rows data: {rows}")
                     api_log(msg=f"List of line item JSON : {loop_line_items}")
 
-                    tracking_categories = loop_line_items.get('tracking_categories')
+                    loop_line_items.get("tracking_categories")
                     list_row = list(row)
                     api_log(msg=f" uuid id : {list_row}")
 
@@ -99,9 +98,11 @@ def update_erp_id_in_line_items(invoice_id: str, line_items):
                     # list_row[3] = loop_line_items.get('unit_price')
                     # list_row[4] = loop_line_items.get('quantity')
                     # list_row[5] = loop_line_items.get('total_amount')
-                    list_row[10] = loop_line_items.get('remote_id')
+                    list_row[10] = loop_line_items.get("remote_id")
                     api_log(msg=f" list_row[10] : {list_row[10]}")
-                    api_log(msg=f" list row from payload : {loop_line_items.get('remote_id')}")
+                    api_log(
+                        msg=f" list row from payload : {loop_line_items.get('remote_id')}"
+                    )
 
                     # list_row[19] = loop_line_items.get('remote_data')
                     # list_row[20] = loop_line_items.get('account')
@@ -113,10 +114,7 @@ def update_erp_id_in_line_items(invoice_id: str, line_items):
                               SET erp_id = %s,sequence = %s
                               WHERE invoice_id = %s AND id = %s
                             """
-                    update_args = (
-                        list_row[10], 1, invoice_id, list_row[0]
-                    )
-
+                    update_args = (list_row[10], 1, invoice_id, list_row[0])
 
                     # update_query = """
                     #             UPDATE invoice_line_items
@@ -133,7 +131,9 @@ def update_erp_id_in_line_items(invoice_id: str, line_items):
                     #     list_row[22], invoice_id, list_row[0]
                     # )
                     # Convert None values to NULL
-                    update_args = tuple(arg if arg is not None else None for arg in update_args)
+                    update_args = tuple(
+                        arg if arg is not None else None for arg in update_args
+                    )
                     cursor.execute(update_query, update_args)
                     api_log(msg=f"Updated line item with erp_id: {list_row[10]}")
                     api_log(msg="updated successfully")
@@ -141,7 +141,9 @@ def update_erp_id_in_line_items(invoice_id: str, line_items):
     except MySQLdb.Error as db_error:
         api_log(msg=f"EXCEPTION : Database error occurred: {db_error}")
     except Exception as e:
-        api_log(msg=f"EXCEPTION : Failed to send data to invoice_line_items table: {str(e)}")
+        api_log(
+            msg=f"EXCEPTION : Failed to send data to invoice_line_items table: {str(e)}"
+        )
 
 
 def get_erp_ids(invoice_erp_id: str, line_items_payload: list):
@@ -169,12 +171,16 @@ def get_erp_ids(invoice_erp_id: str, line_items_payload: list):
             )
             line_items_selected_row = cursor.fetchall()
 
-            api_log(msg=f"printing invoice_line_item ERP ID field : {line_items_selected_row}")
+            api_log(
+                msg=f"printing invoice_line_item ERP ID field : {line_items_selected_row}"
+            )
 
             matching_erp_list = []
             for item_lst in line_items_selected_row:
                 matching_erp_list.append(item_lst[10])
-            api_log(msg=f"matching erp list from invoice_line_item table : {matching_erp_list}")
+            api_log(
+                msg=f"matching erp list from invoice_line_item table : {matching_erp_list}"
+            )
             # # fetching list of remote_id's from line items payload
             remote_id_payload_list = []
             for line_item_dict in line_items_payload:
@@ -186,18 +192,22 @@ def get_erp_ids(invoice_erp_id: str, line_items_payload: list):
 
             # processed_ids = set()
             for item_data in line_items_payload:
-                if item_data['id'] not in matching_erp_list:
-                    all_tracking_categories = item_data.get('tracking_categories')
+                if item_data["id"] not in matching_erp_list:
+                    all_tracking_categories = item_data.get("tracking_categories")
 
                     invoice_id = rows[0][0]
-                    item = item_data.get('item')
-                    unit_price = item_data.get('unit_price')
-                    quantity = item_data.get('quantity')
-                    total_amount = item_data.get('total_amount')
-                    erp_id = item_data.get('id')
-                    erp_remote_data = item_data.get('remote_data')
-                    erp_account = item_data.get('account')
-                    erp_tracking_categories = ','.join(all_tracking_categories) if all_tracking_categories else None
+                    item = item_data.get("item")
+                    unit_price = item_data.get("unit_price")
+                    quantity = item_data.get("quantity")
+                    total_amount = item_data.get("total_amount")
+                    erp_id = item_data.get("id")
+                    erp_remote_data = item_data.get("remote_data")
+                    erp_account = item_data.get("account")
+                    erp_tracking_categories = (
+                        ",".join(all_tracking_categories)
+                        if all_tracking_categories
+                        else None
+                    )
 
                     # insert the data
                     insert_query = """
@@ -216,11 +226,13 @@ def get_erp_ids(invoice_erp_id: str, line_items_payload: list):
                         erp_id,
                         erp_remote_data,
                         erp_account,
-                        erp_tracking_categories
+                        erp_tracking_categories,
                     )
                     cursor.execute(insert_query, insert_args)
 
     except MySQLdb.Error as db_error:
         api_log(msg=f"EXCEPTION : Database error occurred: {db_error}")
     except Exception as e:
-        api_log(msg=f"EXCEPTION : Failed to send data to invoice_line_items table: {str(e)}")
+        api_log(
+            msg=f"EXCEPTION : Failed to send data to invoice_line_items table: {str(e)}"
+        )
