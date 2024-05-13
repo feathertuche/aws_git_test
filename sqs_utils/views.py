@@ -2,6 +2,7 @@ import boto3
 from django.conf import settings
 import json
 import threading
+import requests
 
 def send_data_to_queue(data_array):
     session = boto3.Session(
@@ -48,3 +49,19 @@ def process_sqs_messages():
 def start_sqs_message_processing():
     thread = threading.Thread(target=process_sqs_messages)
     thread.start()
+
+def send_slack_notification(message):
+
+    webhook_url = "https://hooks.slack.com/services/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"
+    payload = {
+        "text": message
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    try:
+        response = requests.post(webhook_url, json=payload, headers=headers)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending Slack notification: {e}")

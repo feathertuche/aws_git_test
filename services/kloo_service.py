@@ -8,6 +8,7 @@ import requests
 
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import GETKLOO_LOCAL_URL
+from sqs_utils.sqs_manager import send_slack_notification
 
 
 class KlooException(Exception):
@@ -61,7 +62,8 @@ class KlooService:
                 raise KlooException(
                     f"Error in posting contacts data: {contact_response_data.json()}"
                 )
-
+            success_message = f"success message: posting contacts data to laravel: {contact_response_data.json()}"
+            send_slack_notification(success_message)
             return {
                 "status": True,
                 "data": contact_response_data.json(),
@@ -69,6 +71,8 @@ class KlooService:
             }
 
         except (KlooException, Exception) as e:
+            error_message = f"Error in posting contacts data: {contact_response_data.json() : {e}}"
+            send_slack_notification(error_message)
             return self.handle_kloo_api_error("post_contacts_data", e)
 
     def post_tracking_categories_data(
