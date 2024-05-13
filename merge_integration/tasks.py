@@ -86,6 +86,7 @@ def poll_sqs():
             # Process received messages
             messages = response.get("Messages", [])
             for message in messages:
+                api_log(msg=f"Message received: {message['Body']}")
                 message_data_details = message["Body"]
                 message_data_json = json.loads(message_data_details)
                 if "erp_contacts" in message_data_json:
@@ -107,7 +108,9 @@ def poll_sqs():
                         ReceiptHandle=message["ReceiptHandle"],
                     )
                 else:
-                    api_log(msg="No new messages found in the queue.")
+                    api_log(msg="Message format not recognized. Skipping.")
+
+            api_log(msg="SQS queue polling complete. Sleeping for 20 seconds...")
         except Exception as e:
             api_log(msg=f"Error while polling SQS queue: {str(e)}")
             time.sleep(5)  # Wait for a short period before retrying
