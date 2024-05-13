@@ -1,5 +1,5 @@
 import json
-
+import requests
 import boto3
 from django.conf import settings
 from sqs_extended_client import (
@@ -35,3 +35,21 @@ def send_data_to_queue(data_array):
     api_log(msg=f"Data sent to SQS: {response}")
 
     return response
+
+
+def send_slack_notification(message):
+
+    webhook_url = "https://hooks.slack.com/services/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"
+    payload = {
+        "text": message
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    try:
+        response = requests.post(webhook_url, json=payload, headers=headers)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending Slack notification: {e}")
+
