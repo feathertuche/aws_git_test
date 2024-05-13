@@ -170,14 +170,11 @@ def get_erp_ids(invoice_erp_id: str, line_items_payload: list):
             line_items_selected_row = cursor.fetchall()
 
             api_log(msg=f"printing invoice_line_item ERP ID field : {line_items_selected_row}")
-            columns = [col[0] for col in cursor.description]
-            api_log(msg=f"columns name : {columns}")
-            df = pd.DataFrame(line_items_selected_row, columns=columns)
 
-            api_log(msg=f"dataframe : {df}")
-            matching_erp_list = df["erp_id"].to_list()
+            matching_erp_list = []
+            for item_lst in line_items_selected_row:
+                matching_erp_list.append(item_lst[10])
             api_log(msg=f"matching erp list from invoice_line_item table : {matching_erp_list}")
-
             # # fetching list of remote_id's from line items payload
             remote_id_payload_list = []
             for line_item_dict in line_items_payload:
@@ -186,15 +183,18 @@ def get_erp_ids(invoice_erp_id: str, line_items_payload: list):
             api_log(msg=f"remote_id_payload_list : {remote_id_payload_list}")
 
             # Bloc to compare the erp_id field from db and id field of payload from line_items
+
+            # processed_ids = set()
             for item_data in line_items_payload:
-                if item_data['erp_id'] not in matching_erp_list:
+                if item_data['id'] not in matching_erp_list:
                     all_tracking_categories = item_data.get('tracking_categories')
+
                     invoice_id = rows[0][0]
                     item = item_data.get('item')
                     unit_price = item_data.get('unit_price')
                     quantity = item_data.get('quantity')
                     total_amount = item_data.get('total_amount')
-                    erp_id = item_data.get('erp_id')
+                    erp_id = item_data.get('id')
                     erp_remote_data = item_data.get('remote_data')
                     erp_account = item_data.get('account')
                     erp_tracking_categories = ','.join(all_tracking_categories) if all_tracking_categories else None
@@ -224,31 +224,3 @@ def get_erp_ids(invoice_erp_id: str, line_items_payload: list):
         api_log(msg=f"EXCEPTION : Database error occurred: {db_error}")
     except Exception as e:
         api_log(msg=f"EXCEPTION : Failed to send data to invoice_line_items table: {str(e)}")
-
-
-def get_count_erp_id(erp_id):
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """SELECT count(*)
-                FROM invoices as i
-                INNER JOIN invoice_line_items as l
-                ON i.id = l.invoice_id
-                i.erp_id = %s
-                """,
-            [erp_id],
-        )
-        row = cursor.fetchone()
-        return row
-
-    # select
-    # count(*)
-    # from invoices as i
-    # inner
-    # join
-    # invoice_line_items as l
-    # on
-    # i.id = l.invoice_id
-    # where
-    # i.erp_id = "aee29b09-2348-4c92-a758-980689d8b938";
-
-# def update_invoice_line_item():

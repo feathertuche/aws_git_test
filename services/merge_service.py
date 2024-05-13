@@ -19,6 +19,7 @@ from CONTACTS.helper_function import format_contacts_payload
 from INVOICES.exceptions import MergeApiException
 from INVOICES.helper_functions import format_merge_invoice_data
 from INVOICES.models import InvoiceAttachmentLogs
+from INVOICES.queries import get_erp_ids
 from TRACKING_CATEGORIES.helper_function import format_tracking_categories_payload
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import (
@@ -332,7 +333,7 @@ class MergeInvoiceApiService(MergeService):
                 raise MergeApiException(response.errors)
 
             api_log(msg=f"MERGE : Invoice created successfully: {response}")
-
+            api_log(msg=f"MERGE : INVOICE DATA in create invoice {invoice_data}")
             self.create_or_update_log(
                 {
                     "id": uuid.uuid4(),
@@ -380,7 +381,7 @@ class MergeInvoiceApiService(MergeService):
             invoice_update_request = requests.patch(
                 invoice_update_url, json=invoice_data, headers=headers
             )
-            api_log(msg=f"[INVOICE REQUESTS.PATCH RESPONSE] : {invoice_update_request}")
+            api_log(msg=f"[INVOICE REQUESTS.PATCH RESPONSE] : {invoice_update_request.json()}")
 
             if invoice_update_request.status_code == status.HTTP_200_OK:
                 api_log(msg="Invoice updated successfully......")
@@ -388,10 +389,19 @@ class MergeInvoiceApiService(MergeService):
                     msg=f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in Xero "
                     f"with status code: {status.HTTP_200_OK}"
                 )
+                response_json = invoice_update_request.json()
+
+                line_items_payload = [i for i in response_json["model"]["line_items"]]
+                api_log(msg=f"This is a model payload ID: {response_json['model']['id']}")
+                api_log(msg=f"This is a Line items payload: {line_items_payload}")
+
+                # function call to send line items to invoice_line_items table
+                get_erp_ids(response_json["model"]["id"], line_items_payload)
                 return Response(
                     {
                         "message": f"[INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in Xero "
-                        f"with status code: {status.HTTP_200_OK}"
+                        f"with status code: {status.HTTP_200_OK}",
+                        "data": response_json
                     }
                 )
 

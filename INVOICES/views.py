@@ -8,8 +8,7 @@ from INVOICES.helper_functions import (
 )
 from INVOICES.queries import (
     update_invoices_erp_id,
-    insert_line_item_erp_id,
-    get_erp_ids,
+    get_erp_ids, update_erp_id_in_line_items,
 )
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer
 from LINKTOKEN.model import ErpLinkToken
@@ -64,14 +63,14 @@ class InvoiceCreate(APIView):
             )
 
             invoice_data = filter_invoice_payloads(data)
+            api_log(msg=f"invoice_data : {invoice_data}")
             invoice_created = merge_api_service.create_invoice(invoice_data)
+            api_log(msg=f"invoice_created : {invoice_created}")
             model_id = invoice_data["id"]
             invoice_id = invoice_created.model.id
-
             # fetching line items from response body
             invoice_response_line_items = invoice_created.model.line_items
             api_log(msg=f"Invoice line item response: {invoice_response_line_items}")
-
             line_item_list = []
             for loop_line_items in invoice_response_line_items:
                 line_item_list.append(loop_line_items)
@@ -79,9 +78,7 @@ class InvoiceCreate(APIView):
 
             # calling function to update remote id as 'erp id' in erp_id field in invoice_line_items table
             update_erp_id_in_line_items(model_id, line_item_list)
-
             update_invoices_erp_id(model_id, invoice_id)
-
             if invoice_created is None:
                 return Response(
                     {"status": "error", "message": "Failed to create invoice in Merge"},
@@ -91,7 +88,6 @@ class InvoiceCreate(APIView):
             if data.get("integration_name") == "Xero":
                 attachment_payload = filter_attachment_payloads(data, invoice_id)
                 merge_api_service.create_attachment(attachment_payload)
-
             return Response(
                 {
                     "status": "success",
@@ -123,6 +119,7 @@ class InvoiceCreate(APIView):
         api_log(msg="1")
 
         queryset = self.get_queryset()
+        org_id = serializer.validated_data.get("org_id")
         if queryset is None or queryset == []:
             api_log(msg="link token details are None or empty")
             return Response(
@@ -130,18 +127,16 @@ class InvoiceCreate(APIView):
             )
 
         try:
-            api_log(msg="2")
             account_token = queryset[0]
             print("THIS IS INVOICE UPDATE view ACCOUNT TOKEN:: ", account_token)
-            api_log(msg="3")
             print("[account token data] ::", account_token)
-            merge_api_service = MergeInvoiceApiService(account_token)
+            merge_api_service = MergeInvoiceApiService(
+                account_token, org_id, self.erp_link_token_id
+            )
 
             payload_data = request.data
             line_items = []
-            api_log(msg="4")
             for line_item_data in payload_data["model"]["line_items"]:
-                api_log(msg="5")
                 line_item = {
                     "id": line_item_data.get("id"),
                     "remote_id": line_item_data.get("remote_id"),
@@ -161,9 +156,9 @@ class InvoiceCreate(APIView):
                     ),
                     "created_at": line_item_data.get("created_at"),
                     "tracking_categories": line_item_data.get("tracking_categories"),
-                    "integration_params": {
-                        "tax_rate_remote_id": line_item_data.get("tax_rate_remote_id")
-                    },
+                    # "integration_params": {
+                    #     "tax_rate_remote_id": line_item_data.get("tax_rate_remote_id")
+                    # },
                     "account": line_item_data.get("account"),
                     "remote_data": line_item_data.get("remote_data"),
                 }
@@ -208,14 +203,7 @@ class InvoiceCreate(APIView):
 
             api_log(msg=f"[PAYLOAD FOR INVOICE PATCH view file] : {payload}")
             update_response = merge_api_service.update_invoice(invoice_id, payload)
-            line_items_payload = [i for i in payload_data["model"]["line_items"]]
-            api_log(msg=f"This is a model payload ID: {payload_data['model']['id']}")
-            api_log(msg=f"This is a Line items payload: {line_items_payload}")
-
-            # function call to send line items to invoice_line_items table
-            get_erp_ids(payload_data["model"]["id"], line_items_payload)
-
-            api_log(msg=f"UPDATE INVOICE method response: {update_response}")
+            api_log(msg=f"PATCH response in views file: {update_response}")
 
             if update_response is not None:
                 api_log(msg="7")
@@ -223,6 +211,7 @@ class InvoiceCreate(APIView):
                     {
                         "status": "success",
                         "message": "successfully update invoice in Merge",
+                        "response_data": update_response
                     },
                     status=status.HTTP_200_OK,
                 )
