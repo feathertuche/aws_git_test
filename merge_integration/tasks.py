@@ -100,10 +100,10 @@ def poll_sqs():
                     api_log(
                         msg=f"start delete SQS "
                     )
-                    # sqs.delete_message(
-                    #     QueueUrl=settings.queue_url,
-                    #     ReceiptHandle=message["ReceiptHandle"],
-                    # )
+                    sqs.delete_message(
+                        QueueUrl=settings.queue_url,
+                        ReceiptHandle=message["ReceiptHandle"],
+                    )
                     api_log(
                         msg=f"deleted SQS"
                     )
