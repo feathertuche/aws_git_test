@@ -384,7 +384,7 @@ class MergeInvoiceApiService(MergeService):
             api_log(msg=f"[INVOICE REQUESTS.PATCH RESPONSE] : {invoice_update_request.json()}")
 
             if invoice_update_request.status_code == status.HTTP_200_OK:
-                api_log(msg="Invoice updated successfully......")
+                api_log(msg="Invoice updated successfully.....")
                 api_log(
                     msg=f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in Xero "
                     f"with status code: {status.HTTP_200_OK}"
