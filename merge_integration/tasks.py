@@ -32,6 +32,9 @@ def process_message(message):
             auth_token=None,
             erp_link_token_id=None,
         )
+        api_log(
+            msg="CONTACTS : send to post_contacts_data function to pass data to laravel API",
+        )
         kloo_service.post_contacts_data(message_data)
         api_log(
             msg="CONTACTS : Added in Kloo Contacts API",
@@ -91,9 +94,18 @@ def poll_sqs():
                 message_data_json = json.loads(message_data_details)
                 if "erp_contacts" in message_data_json:
                     process_message(message["Body"])
-                    sqs.delete_message(
-                        QueueUrl=settings.queue_url,
-                        ReceiptHandle=message["ReceiptHandle"],
+                    api_log(
+                        msg=f"Posting contact data to Kloo"
+                    )
+                    api_log(
+                        msg=f"start delete SQS "
+                    )
+                    # sqs.delete_message(
+                    #     QueueUrl=settings.queue_url,
+                    #     ReceiptHandle=message["ReceiptHandle"],
+                    # )
+                    api_log(
+                        msg=f"deleted SQS"
                     )
                 elif "invoices" in message_data_json:
                     process_message(message["Body"])
