@@ -19,7 +19,7 @@ from CONTACTS.helper_function import format_contacts_payload
 from INVOICES.exceptions import MergeApiException
 from INVOICES.helper_functions import format_merge_invoice_data
 from INVOICES.models import InvoiceAttachmentLogs
-from INVOICES.queries import get_erp_ids, update_line_items
+from INVOICES.queries import update_line_items
 from TRACKING_CATEGORIES.helper_function import format_tracking_categories_payload
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import (
