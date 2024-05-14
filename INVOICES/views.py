@@ -7,8 +7,7 @@ from INVOICES.helper_functions import (
     filter_attachment_payloads,
 )
 from INVOICES.queries import (
-    update_invoices_erp_id,
-    get_erp_ids, update_erp_id_in_line_items,
+    update_invoices_erp_id, update_erp_id_in_line_items,
 )
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer
 from LINKTOKEN.model import ErpLinkToken
