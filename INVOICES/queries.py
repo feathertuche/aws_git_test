@@ -91,43 +91,17 @@ def update_erp_id_in_line_items(invoice_id: str, line_items):
                     loop_line_items.get("tracking_categories")
                     list_row = list(row)
                     api_log(msg=f" uuid id : {list_row}")
-
-                    # list_row[2] = loop_line_items.get('item')
-                    # list_row[3] = loop_line_items.get('unit_price')
-                    # list_row[4] = loop_line_items.get('quantity')
-                    # list_row[5] = loop_line_items.get('total_amount')
                     list_row[10] = loop_line_items.get("remote_id")
                     api_log(msg=f" list_row[10] : {list_row[10]}")
                     api_log(
                         msg=f" list row from payload : {loop_line_items.get('remote_id')}"
                     )
-
-                    # list_row[19] = loop_line_items.get('remote_data')
-                    # list_row[20] = loop_line_items.get('account')
-                    # list_row[21] = loop_line_items.get('integration_params', {}).get('tax_rate_remote_id')
-                    # list_row[22] = ','.join(tracking_categories) if tracking_categories else None
-
                     update_query = """
                               UPDATE invoice_line_items
                               SET erp_id = %s,sequence = %s
                               WHERE invoice_id = %s AND id = %s
                             """
                     update_args = (list_row[10], 1, invoice_id, list_row[0])
-
-                    # update_query = """
-                    #             UPDATE invoice_line_items
-                    #             SET item = %s, unit_price = %s, quantity = %s,
-                    #                 total_amount = %s, sequence = %s, erp_id = %s,
-                    #                 erp_remote_data = %s, erp_account = %s, erp_tax_rate = %s,
-                    #                 erp_tracking_categories = %s
-                    #             WHERE invoice_id = %s AND id = %s
-                    #         """
-                    # api_log(msg="summit")
-                    # update_args = (
-                    #     list_row[2], list_row[3], list_row[4], list_row[5], 1,
-                    #     list_row[10], list_row[19], list_row[20], list_row[21],
-                    #     list_row[22], invoice_id, list_row[0]
-                    # )
                     # Convert None values to NULL
                     update_args = tuple(
                         arg if arg is not None else None for arg in update_args
