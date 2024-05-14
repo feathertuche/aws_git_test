@@ -1,3 +1,5 @@
+import json
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,7 +9,8 @@ from INVOICES.helper_functions import (
     filter_attachment_payloads,
 )
 from INVOICES.queries import (
-    update_invoices_erp_id, update_erp_id_in_line_items,
+    update_invoices_erp_id,
+    update_erp_id_in_line_items,
 )
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer
 from LINKTOKEN.model import ErpLinkToken
@@ -61,10 +64,12 @@ class InvoiceCreate(APIView):
                 account_token, org_id, self.erp_link_token_id
             )
 
+            api_log(msg=f"Invoice Request : {json.dumps(data)}")
             invoice_data = filter_invoice_payloads(data)
-            api_log(msg=f"invoice_data : {invoice_data}")
+            api_log(msg=f"Invoice Formatted Payload : {invoice_data}")
+
             invoice_created = merge_api_service.create_invoice(invoice_data)
-            api_log(msg=f"invoice_created : {invoice_created}")
+            api_log(msg=f"Merge Invoice Created : {invoice_created}")
             model_id = invoice_data["id"]
             invoice_id = invoice_created.model.id
             # fetching line items from response body
@@ -210,7 +215,7 @@ class InvoiceCreate(APIView):
                     {
                         "status": "success",
                         "message": "successfully update invoice in Merge",
-                        "response_data": update_response
+                        "response_data": update_response,
                     },
                     status=status.HTTP_200_OK,
                 )

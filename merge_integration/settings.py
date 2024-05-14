@@ -17,7 +17,8 @@ import boto3
 
 # from celery import Celery
 from dotenv import load_dotenv
-
+# from celery import Celery
+import sentry_sdk
 from merge_integration.utils import get_db_password
 
 # from sqs_utils.sqs_manager import start_sqs_message_processing

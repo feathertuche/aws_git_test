@@ -227,9 +227,7 @@ class MergeContactsApiService(MergeService):
                 return {"status": True, "data": []}
 
             while True:
-                api_log(
-                    msg=f"Aaaaaadding {len(contact_data.results)} contacts to the list."
-                )
+                api_log(msg=f"Add {len(contact_data.results)} contacts to the list.")
 
                 # format the data and send to the queue
                 formatted_payload = format_contacts_payload(contact_data.results)
@@ -381,7 +379,9 @@ class MergeInvoiceApiService(MergeService):
             invoice_update_request = requests.patch(
                 invoice_update_url, json=invoice_data, headers=headers
             )
-            api_log(msg=f"[INVOICE REQUESTS.PATCH RESPONSE] : {invoice_update_request.json()}")
+            api_log(
+                msg=f"[INVOICE REQUESTS.PATCH RESPONSE] : {invoice_update_request.json()}"
+            )
 
             if invoice_update_request.status_code == status.HTTP_200_OK:
                 api_log(msg="Invoice updated successfully.....")
@@ -390,6 +390,7 @@ class MergeInvoiceApiService(MergeService):
                     f"with status code: {status.HTTP_200_OK}"
                 )
                 response_json = invoice_update_request.json()
+
 
                 # To fetch the response line items JSON and send to invoice_line_items table
                 line_items_payload = [line_elements for line_elements in response_json["model"]["line_items"]]
@@ -404,7 +405,7 @@ class MergeInvoiceApiService(MergeService):
                     {
                         "message": f"[INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in Xero "
                         f"with status code: {status.HTTP_200_OK}",
-                        "data": response_json
+                        "data": response_json,
                     }
                 )
 

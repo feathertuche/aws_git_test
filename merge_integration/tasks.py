@@ -32,6 +32,9 @@ def process_message(message):
             auth_token=None,
             erp_link_token_id=None,
         )
+        api_log(
+            msg="CONTACTS : send to post_contacts_data function to pass data to laravel API",
+        )
         kloo_service.post_contacts_data(message_data)
         api_log(
             msg="CONTACTS : Added in Kloo Contacts API",
@@ -86,13 +89,23 @@ def poll_sqs():
             # Process received messages
             messages = response.get("Messages", [])
             for message in messages:
+                api_log(msg=f"Message received: {message['Body']}")
                 message_data_details = message["Body"]
                 message_data_json = json.loads(message_data_details)
                 if "erp_contacts" in message_data_json:
                     process_message(message["Body"])
-                    sqs.delete_message(
-                        QueueUrl=settings.queue_url,
-                        ReceiptHandle=message["ReceiptHandle"],
+                    api_log(
+                        msg=f"Posting contact data to Kloo"
+                    )
+                    api_log(
+                        msg=f"start delete SQS "
+                    )
+                    # sqs.delete_message(
+                    #     QueueUrl=settings.queue_url,
+                    #     ReceiptHandle=message["ReceiptHandle"],
+                    # )
+                    api_log(
+                        msg=f"deleted SQS"
                     )
                 elif "invoices" in message_data_json:
                     process_message(message["Body"])
@@ -107,7 +120,9 @@ def poll_sqs():
                         ReceiptHandle=message["ReceiptHandle"],
                     )
                 else:
-                    api_log(msg="No new messages found in the queue.")
+                    api_log(msg="Message format not recognized. Skipping.")
+
+            api_log(msg="SQS queue polling complete. Sleeping for 20 seconds...")
         except Exception as e:
             api_log(msg=f"Error while polling SQS queue: {str(e)}")
             time.sleep(5)  # Wait for a short period before retrying
