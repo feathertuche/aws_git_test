@@ -2,6 +2,7 @@
 DB queries for INVOICES
 """
 
+import json
 import uuid
 
 import MySQLdb
@@ -134,7 +135,7 @@ def update_line_items(invoice_erp_id: str, line_items_payload: list):
             )
             rows = cursor.fetchall()
             invoice_id = rows[0][0]
-            api_log(msg=f"rows[0][0]: {rows[0][0]}")
+            api_log(msg=f"ID field of invoices table: {rows[0][0]}")
 
             cursor.execute(
                 """SELECT erp_id
@@ -201,6 +202,13 @@ def update_line_items(invoice_erp_id: str, line_items_payload: list):
                 else:
                     api_log(msg="Executing the Insert bloc as the ERP ID doesn't exist")
                     all_tracking_categories = item_data.get("tracking_categories")
+
+                    tracking_categories = (
+                        [category for category in all_tracking_categories]
+                        if all_tracking_categories is not None
+                        else None
+                    )
+
                     invoice_id = rows[0][0]
                     item = item_data.get("description")
                     unit_price = item_data.get("unit_price")
@@ -209,11 +217,7 @@ def update_line_items(invoice_erp_id: str, line_items_payload: list):
                     erp_id = item_data.get("id")
                     erp_remote_data = item_data.get("remote_data")
                     erp_account = item_data.get("account")
-                    erp_tracking_categories = (
-                        ",".join(all_tracking_categories)
-                        if all_tracking_categories
-                        else None
-                    )
+                    erp_tracking_categories = tracking_categories
 
                     # insert the data
                     insert_query = """INSERT INTO invoice_line_items (id, invoice_id, item, unit_price, quantity,
