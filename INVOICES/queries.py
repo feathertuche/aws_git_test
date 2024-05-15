@@ -34,3 +34,16 @@ def get_currency_id(currency_code: str):
         )
         row = cursor.fetchone()
         return row
+
+
+def update_invoices_erp_id(id: str, response_id: str):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """UPDATE invoices 
+            SET erp_id = %s
+            WHERE id = %s
+            """,
+            [response_id, id],
+        )
+        row = cursor.fetchone()
+        return row

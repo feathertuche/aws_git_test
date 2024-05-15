@@ -18,6 +18,11 @@ class InvoiceCreateSerializer(serializers.Serializer):
     model = ModelSerializer()
 
 
+class InvoiceUpdateSerializer(serializers.Serializer):
+    erp_link_token_id = serializers.CharField()
+    model = serializers.DictField()
+
+
 class ErpInvoiceSerializer(serializers.Serializer):
     id = serializers.UUIDField()
     organization_id = serializers.UUIDField(required=False, allow_null=True)

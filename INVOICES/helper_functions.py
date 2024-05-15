@@ -14,7 +14,7 @@ def format_merge_invoice_data(invoice_response, erp_link_token_id, org_id):
     """
     try:
         invoices_json = []
-        for invoice in invoice_response["data"]:
+        for invoice in invoice_response:
             invoices_data = {
                 "id": str(uuid.uuid4()),
                 "erp_id": invoice.id,
@@ -87,8 +87,7 @@ def format_merge_invoice_data(invoice_response, erp_link_token_id, org_id):
             }
             invoices_json.append(invoices_data)
 
-        api_log(msg=f"Formatted merge invoice data: {invoices_json}")
-        return invoices_json
+        return {"invoices": invoices_json}
     except Exception as e:
         api_log(msg=f"Error formatting merge invoice data: {e}")
 
