@@ -1,7 +1,7 @@
 """
 DB queries for INVOICES
 """
-
+import json
 import uuid
 
 import MySQLdb
@@ -134,7 +134,7 @@ def update_line_items(invoice_erp_id: str, line_items_payload: list):
             )
             rows = cursor.fetchall()
             invoice_id = rows[0][0]
-            api_log(msg=f"rows[0][0]: {rows[0][0]}")
+            api_log(msg=f"ID field of invoices table: {rows[0][0]}")
 
             cursor.execute(
                 """SELECT erp_id
@@ -210,9 +210,7 @@ def update_line_items(invoice_erp_id: str, line_items_payload: list):
                     erp_remote_data = item_data.get("remote_data")
                     erp_account = item_data.get("account")
                     erp_tracking_categories = (
-                        ",".join(all_tracking_categories)
-                        if all_tracking_categories
-                        else None
+                        json.dumps(all_tracking_categories) if all_tracking_categories else None
                     )
 
                     # insert the data
