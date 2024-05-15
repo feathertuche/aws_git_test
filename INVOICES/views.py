@@ -69,28 +69,28 @@ class InvoiceCreate(APIView):
             api_log(msg=f"Invoice Formatted Payload : {invoice_data}")
 
             invoice_created = merge_api_service.create_invoice(invoice_data)
-            api_log(msg=f"Merge Invoice Created : {invoice_created}")
-            model_id = invoice_data["id"]
-            invoice_id = invoice_created.model.id
-            # fetching line items from response body
-            invoice_response_line_items = invoice_created.model.line_items
-            api_log(msg=f"Invoice line item response: {invoice_response_line_items}")
-            line_item_list = []
-            for loop_line_items in invoice_response_line_items:
-                line_item_list.append(loop_line_items)
-            api_log(msg=f"request line items: {line_item_list}")
-
-            # calling function to update remote id as 'erp id' in erp_id field in invoice_line_items table
-            update_erp_id_in_line_items(model_id, line_item_list)
-            update_invoices_erp_id(model_id, invoice_id)
             if invoice_created is None:
                 return Response(
                     {"status": "error", "message": "Failed to create invoice in Merge"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
+            api_log(msg=f"Merge Invoice Created : {invoice_created}")
+            invoice_table_id = invoice_data["id"]
+            erp_invoice_id = invoice_created.model.id
+            erp_remote_id = invoice_created.model.remote_id
+            # fetching line items from response body
+            invoice_response_line_items = invoice_created.model.line_items
+            line_item_list = []
+            for loop_line_items in invoice_response_line_items:
+                line_item_list.append(loop_line_items)
+
+            # calling function to update remote id as 'erp id' in erp_id field in invoice_line_items table
+            update_erp_id_in_line_items(invoice_table_id, line_item_list)
+            update_invoices_erp_id(invoice_table_id, erp_invoice_id, erp_remote_id)
+
             if data.get("integration_name") == "Xero":
-                attachment_payload = filter_attachment_payloads(data, invoice_id)
+                attachment_payload = filter_attachment_payloads(data, invoice_table_id)
                 merge_api_service.create_attachment(attachment_payload)
             return Response(
                 {
