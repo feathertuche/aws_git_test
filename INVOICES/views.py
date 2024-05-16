@@ -89,9 +89,9 @@ class InvoiceCreate(APIView):
             update_erp_id_in_line_items(invoice_table_id, line_item_list)
             update_invoices_erp_id(invoice_table_id, erp_invoice_id, erp_remote_id)
 
-            if data.get("integration_name") == "Xero":
-                attachment_payload = filter_attachment_payloads(data, invoice_table_id)
-                merge_api_service.create_attachment(attachment_payload)
+            attachment_payload = filter_attachment_payloads(data, invoice_created)
+            merge_api_service.create_attachment(attachment_payload)
+
             return Response(
                 {
                     "status": "success",

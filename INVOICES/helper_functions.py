@@ -138,7 +138,7 @@ def filter_invoice_payloads(invoice_valid_payload):
         raise Exception("Integration doesn't exists for invoice filter")
 
 
-def filter_attachment_payloads(attachment_valid_payload, invoice_id):
+def filter_attachment_payloads(attachment_valid_payload, invoice_created):
     """
     prepare invoice payload based on integration name
     """
@@ -146,10 +146,12 @@ def filter_attachment_payloads(attachment_valid_payload, invoice_id):
     model_data = attachment_valid_payload.get("model")
 
     if integration_name == "Sage Intacct":
-        return create_sage_attachment_payload(model_data, invoice_id)
+        return create_sage_attachment_payload(
+            model_data, invoice_created.model.remote_id
+        )
 
     elif integration_name == "Xero":
-        return create_xero_attachment_payload(model_data, invoice_id)
+        return create_xero_attachment_payload(model_data, invoice_created.model.id)
 
     else:
         raise Exception("Integration doesn't exists for Attachment filter")
@@ -254,7 +256,7 @@ def create_xero_invoice_payload(invoice_validated_payload):
     return invoice_data
 
 
-def create_sage_attachment_payload(attachment_validated_payload, invoice_id):
+def create_sage_attachment_payload(attachment_validated_payload, remote_id):
     """
     create sage attachment
     """
@@ -264,8 +266,8 @@ def create_sage_attachment_payload(attachment_validated_payload, invoice_id):
         "file_name": attachment_data.get("file_name"),
         "file_url": attachment_data.get("file_url"),
         "integration_params": {
-            "folder_name": attachment_data.get("folder_name"),
-            "supdocid": "1222",
+            "folder_name": "Invoices",
+            "supdocid": remote_id,
         },
     }
 
