@@ -174,7 +174,7 @@ def create_sage_invoice_payload(invoice_validated_payload):
             "exchange_rate": model_data.get("exchange_rate"),
             "description": line_item_payload.get("item"),
             "quantity": line_item_payload.get("quantity"),
-            "total_amount": line_item_payload.get("unit_price"),
+            "total_amount": line_item_payload.get("total_amount"),
             "tracking_categories": model_data.get("tracking_categories"),
             "account": line_item_payload.get("account"),
         }
