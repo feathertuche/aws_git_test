@@ -1,12 +1,14 @@
 import json
-import requests
+
 import boto3
+import requests
 from django.conf import settings
 from sqs_extended_client import (
     SQSExtendedClientSession,
 )
 
 from merge_integration.helper_functions import api_log
+from merge_integration.settings import SQS_BUCKET
 
 
 def send_data_to_queue(data_array):
@@ -21,7 +23,7 @@ def send_data_to_queue(data_array):
         region_name=settings.AWS_DEFAULT_REGION,
     )
     sqs_client = session.client("sqs")
-    sqs_client.large_payload_support = "dev-bulk-data-import"
+    sqs_client.large_payload_support = SQS_BUCKET
     sqs_client.use_legacy_attribute = False
     queue_name = settings.SQS_QUEUE
     queue_url = sqs_client.get_queue_url(QueueName=queue_name)
@@ -38,18 +40,12 @@ def send_data_to_queue(data_array):
 
 
 def send_slack_notification(message):
-
     webhook_url = "https://hooks.slack.com/services/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"
-    payload = {
-        "text": message
-    }
-    headers = {
-        "Content-Type": "application/json"
-    }
+    payload = {"text": message}
+    headers = {"Content-Type": "application/json"}
 
     try:
         response = requests.post(webhook_url, json=payload, headers=headers)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         print(f"Error sending Slack notification: {e}")
-
