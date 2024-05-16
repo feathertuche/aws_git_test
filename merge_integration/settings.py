@@ -17,8 +17,8 @@ import boto3
 
 # from celery import Celery
 from dotenv import load_dotenv
+
 # from celery import Celery
-import sentry_sdk
 from merge_integration.utils import get_db_password
 
 # from sqs_utils.sqs_manager import start_sqs_message_processing
@@ -39,6 +39,7 @@ AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION")
 SQS_QUEUE = os.environ.get("SQS_QUEUE")
+SQS_BUCKET = os.environ.get("SQS_BUCKET")
 # app = Celery("merge_integration")
 # app.config_from_object("django.conf:settings", namespace="CELERY")
 # Quick-start development settings - unsuitable for production
