@@ -25,9 +25,7 @@ class RequestLogMiddleware:
             request.META["REMOTE_ADDR"],
             request.method,
             request.get_full_path(),
-            json.dumps(dict(request.headers)),
             response.status_code,
-            json.dumps(dict(response.items())),
             f"{response_time:.6f}",
             f"{upstream_time:.6f}",
         ]
