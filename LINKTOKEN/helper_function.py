@@ -15,6 +15,7 @@ from ACCOUNTS.views import InsertAccountData
 from COMPANY_INFO.views import MergeKlooCompanyInsert
 from CONTACTS.views import MergePostContacts
 from INVOICES.views import MergeInvoiceCreate
+from ITEMS.views import MergeItemCreate
 from LINKTOKEN.merge_sync_log_model import MergeSyncLog
 from LINKTOKEN.model import ErpLinkToken, ErpDailySyncLogs
 from LINKTOKEN.queries import (
@@ -278,6 +279,7 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
             modules.append("TrackingCategory")
             modules.append("Invoice")
             modules.append("CompanyInfo")
+            modules.append("Item")
 
         modules.append(merge_module_name)
 
@@ -363,6 +365,10 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
             ),
             "TaxRate": (
                 MergePostTaxRates,
+                {"link_token_details": erp_data.account_token},
+            ),
+            "Item": (
+                MergeItemCreate,
                 {"link_token_details": erp_data.account_token},
             ),
         }
@@ -465,6 +471,7 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
             modules.append("TrackingCategory")
             modules.append("Invoice")
             modules.append("CompanyInfo")
+            modules.append("Item")
 
         modules.append(merge_module_name)
 
@@ -577,6 +584,15 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
                     "link_token_details": erp_data.account_token,
                     "last_modified_at": last_modified_dates.get(
                         webhook_sync_modul_filter("TaxRate")
+                    ),
+                },
+            ),
+            "Item": (
+                MergeItemCreate,
+                {
+                    "link_token_details": erp_data.account_token,
+                    "last_modified_at": last_modified_dates.get(
+                        webhook_sync_modul_filter("item")
                     ),
                 },
             ),

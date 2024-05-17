@@ -3,10 +3,13 @@ Kloo Service class to connect with kloo API
 """
 
 import json
+
 import requests
+
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import GETKLOO_LOCAL_URL
 from sqs_utils.sqs_manager import send_slack_notification
+
 
 class KlooException(Exception):
     """
@@ -134,6 +137,35 @@ class KlooService:
 
         except (KlooException, Exception) as e:
             return self.handle_kloo_api_error("post_invoice_data", e)
+
+    def post_items_data(self, items_formatted_payload: dict):
+        """
+        Post invoice data to kloo API
+        """
+        try:
+            api_log(
+                msg=f"Posting Items data to Kloo: {json.dumps(items_formatted_payload)}"
+            )
+
+            items_url = f"{self.KLOO_URL}/ap/erp-integration/insert-erp-invoices"
+            items_response_data = requests.post(
+                items_url, json=items_formatted_payload, headers=self.headers
+            )
+
+            if items_response_data.status_code != 201:
+                api_log(
+                    msg=f"Error in posting items data: {items_response_data.json()}"
+                )
+                raise KlooException
+
+            return {
+                "status": True,
+                "data": items_response_data.json(),
+                "status_code": items_response_data.status_code,
+            }
+
+        except (KlooException, Exception) as e:
+            return self.handle_kloo_api_error("post_items_data", e)
 
     def sync_complete_mail(self, sync_complete_payload: dict):
         """
