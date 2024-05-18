@@ -13,13 +13,12 @@ from merge.resources.accounting import (
     InvoicesListRequestExpand,
 )
 from rest_framework import status
-from rest_framework.response import Response
 
 from CONTACTS.helper_function import format_contacts_payload
 from INVOICES.exceptions import MergeApiException
 from INVOICES.helper_functions import format_merge_invoice_data
 from INVOICES.models import InvoiceAttachmentLogs
-from INVOICES.queries import update_erp_id_in_line_items, patch_update_line_items
+from INVOICES.queries import patch_update_line_items
 from TRACKING_CATEGORIES.helper_function import format_tracking_categories_payload
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import (
@@ -390,13 +389,20 @@ class MergeInvoiceApiService(MergeService):
                     f"with status code: {status.HTTP_200_OK}"
                 )
                 response_json = invoice_update_request.json()
-                line_items_payload = [line_elements for line_elements in response_json["model"]["line_items"]]
-                api_log(msg=f"This is a model payload ID: {response_json['model']['id']}")
+                line_items_payload = [
+                    line_elements
+                    for line_elements in response_json["model"]["line_items"]
+                ]
+                api_log(
+                    msg=f"This is a model payload ID: {response_json['model']['id']}"
+                )
                 api_log(msg=f"This is a Line items payload: {line_items_payload}")
                 api_log(msg="calling : update_line_items function")
 
                 # function call to update line items and send to invoice_line_items table.
-                patch_update_line_items(response_json['model']['id'], line_items_payload)
+                patch_update_line_items(
+                    response_json["model"]["id"], line_items_payload
+                )
 
                 return response_json
 

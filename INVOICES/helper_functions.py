@@ -292,8 +292,9 @@ def create_xero_attachment_payload(attachment_validated_payload, invoice_id):
 
     return attachment_payload
 
+
 # =========================================================================================#
-                                        #PATCH PAYLOAD#
+# PATCH PAYLOAD#
 # =========================================================================================#
 
 
@@ -346,9 +347,7 @@ def patch_sage_invoice_payload(patch_payload):
             "status": payload_data["model"].get("status"),
             "company": payload_data["model"].get("company"),
             "currency": payload_data["model"].get("currency"),
-            "tracking_categories": payload_data["model"].get(
-                "tracking_categories"
-            ),
+            "tracking_categories": payload_data["model"].get("tracking_categories"),
             "sub_total": float(
                 payload_data["model"].get("sub_total")
                 if payload_data["model"].get("sub_total") is not None
@@ -415,8 +414,10 @@ def patch_xero_invoice_payload(patch_payload):
 
     payload = {
         "model": {
-            "id": payload_data["model"].get("erp_id"), # erp_id of invoice table
-            "invoice_id": payload_data["model"].get("kloo_invoice_id"), # id field of invoice table
+            "id": payload_data["model"].get("erp_id"),  # erp_id of invoice table
+            "invoice_id": payload_data["model"].get(
+                "kloo_invoice_id"
+            ),  # id field of invoice table
             "type": payload_data["model"].get("type"),
             "due_date": payload_data["model"].get("due_date"),
             "issue_date": payload_data["model"].get("issue_date"),
@@ -426,9 +427,7 @@ def patch_xero_invoice_payload(patch_payload):
             "status": payload_data["model"].get("status"),
             "company": payload_data["model"].get("company"),
             "currency": payload_data["model"].get("currency"),
-            "tracking_categories": payload_data["model"].get(
-                "tracking_categories"
-            ),
+            "tracking_categories": payload_data["model"].get("tracking_categories"),
             "sub_total": float(
                 payload_data["model"].get("sub_total")
                 if payload_data["model"].get("sub_total") is not None
@@ -455,7 +454,7 @@ def patch_xero_invoice_payload(patch_payload):
 
 def invoice_patch_payload(request_data):
     """
-        prepare invoice payload based on integration name
+    prepare invoice payload based on integration name
     """
     api_log(msg=f"request payload : {request_data}")
 

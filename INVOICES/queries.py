@@ -2,7 +2,6 @@
 DB queries for INVOICES
 """
 
-import json
 import uuid
 
 import MySQLdb
@@ -148,7 +147,9 @@ def patch_update_line_items(invoice_id: str, line_items):
                 [rows[0][0]],
             )
             invoice_id_row = cursor.fetchall()
-            api_log(msg=f" invoice ID field of invoice_line_items table :{invoice_id_row}")
+            api_log(
+                msg=f" invoice ID field of invoice_line_items table :{invoice_id_row}"
+            )
             new_items = []
             for line in line_items:
                 new_items.append(line)
@@ -206,9 +207,25 @@ def patch_update_line_items(invoice_id: str, line_items):
                     erp_account = %s
                               WHERE invoice_id = %s AND id = %s
                             """
-                    update_args = (row[1], row[2], row[3], row[4], row[5], row[6],
-                                   row[7], row[8], row[9], row[10], row[11], row[18],
-                                   row[19], row[20], row[21], row[1], row[0])
+                    update_args = (
+                        row[1],
+                        row[2],
+                        row[3],
+                        row[4],
+                        row[5],
+                        row[6],
+                        row[7],
+                        row[8],
+                        row[9],
+                        row[10],
+                        row[11],
+                        row[18],
+                        row[19],
+                        row[20],
+                        row[21],
+                        row[1],
+                        row[0],
+                    )
                     # Convert None values to NULL
                     update_args = tuple(
                         arg if arg is not None else None for arg in update_args

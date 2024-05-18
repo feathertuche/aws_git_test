@@ -6,7 +6,8 @@ from rest_framework.views import APIView
 
 from INVOICES.helper_functions import (
     filter_invoice_payloads,
-    filter_attachment_payloads, invoice_patch_payload,
+    filter_attachment_payloads,
+    invoice_patch_payload,
 )
 from INVOICES.queries import (
     update_invoices_erp_id,
