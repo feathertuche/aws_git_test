@@ -90,8 +90,6 @@ def update_erp_id_in_line_items(invoice_id: str, line_items):
                     api_log(msg=f"existing rows length: {len(rows)}")
                     api_log(msg=f"DB rows data: {rows}")
                     api_log(msg=f"List of line item JSON : {loop_line_items}")
-
-                    loop_line_items.get("tracking_categories")
                     list_row = list(row)
                     api_log(msg=f" uuid id : {list_row}")
                     list_row[10] = loop_line_items.get("id")
@@ -123,121 +121,100 @@ def update_erp_id_in_line_items(invoice_id: str, line_items):
         )
 
 
-def update_line_items(invoice_erp_id: str, line_items_payload: list):
-    api_log(msg=f"invoice_erp_id: {invoice_erp_id}")
+def patch_update_line_items(invoice_id: str, line_items):
+    """
+    helper function to fetch line item remote id based on invoice id
+    and update in invoice_line_items table
+
+    """
+    api_log(msg=f"line items from query py file : {line_items}")
+    api_log(msg=f"updated of the line items started for invoice id : {invoice_id}")
     try:
         with connection.cursor() as cursor:
             cursor.execute(
                 """SELECT id
                  FROM invoices
                  WHERE erp_id = %s""",
-                [invoice_erp_id],
-            )
-            rows = cursor.fetchall()
-            invoice_id = rows[0][0]
-            api_log(msg=f"ID field of invoices table: {rows[0][0]}")
-
-            cursor.execute(
-                """SELECT erp_id
-                 FROM invoice_line_items
-                 WHERE invoice_id = %s""",
                 [invoice_id],
             )
-            api_log(msg="12")
-            get_erp_id_from_db = cursor.fetchall()
-            invoice_id = rows[0][0]
-            api_log(msg="13")
-            api_log(msg=f"uuid field of invoice_line_items table: {get_erp_id_from_db}")
-            api_log(msg="14")
+            rows = cursor.fetchall()
+            api_log(msg=f" ID field of invoices table :{rows[0][0]}")
 
-            # convert erp_ids tuple from DB to a list
-            erp_id_list = [
-                element for tuple_ in get_erp_id_from_db for element in tuple_
-            ]
-            api_log(msg=f"erp id list from invoice_line_item table : {erp_id_list}")
+            cursor.execute(
+                """SELECT *
+                 FROM invoice_line_items
+                 WHERE invoice_id = %s
+                 ORDER BY sequence desc""",
+                [rows[0][0]],
+            )
+            invoice_id_row = cursor.fetchall()
+            api_log(msg=f" invoice ID field of invoice_line_items table :{invoice_id_row}")
+            new_items = []
+            for line in line_items:
+                new_items.append(line)
+            api_log(msg=f"payload data: {new_items}")
+            api_log(msg=f"payload data type: {type(new_items)}")
+            db_row = len(invoice_id_row)
 
-            # fetching list of remote_id's from line items payload
-            remote_id_payload_list = []
-            for line_item_dict in line_items_payload:
-                api_log(msg=f"remote ids dictionary : {line_item_dict}")
-                remote_id_payload_list.append(line_item_dict["id"])
-            api_log(msg=f"remote id's list from payload : {remote_id_payload_list}")
+            if db_row > 0:
+                for index in range(db_row):
+                    row_tuple = invoice_id_row[index]
+                    loop_line_items = new_items[index]
+                    api_log(msg=f"loop_line_items {loop_line_items}")
+                    # loop_line_items_dict = dict(loop_line_items)
+                    # api_log(msg=f"loop_line_items dict :{loop_line_items_dict}")
+                    # api_log(msg=f"existing rows length: {len(rows)}")
+                    api_log(msg=f"DB rows data: {row_tuple}")
+                    api_log(msg=f"List of line item JSON : {loop_line_items}")
 
-            # Bloc to compare the erp_id field from db and id field of payload from line_items
-            api_log(msg=f"merge payload: {line_items_payload}")
-            for item_data in line_items_payload:
-                api_log(msg=f"item_data : {item_data}")
-                if item_data["id"] in erp_id_list:
-                    api_log(msg="Executing the UPDATE bloc as the ERP iD already exist")
-                    item = item_data["description"]
-                    unit_price = (item_data["unit_price"],)
-                    quantity = (item_data["quantity"],)
-                    erp_id = item_data["id"]
-                    update_query = """
-                        UPDATE invoice_line_items
-                        SET
-                            item = %s,
-                            unit_price = %s,
-                            quantity = %s
-                        WHERE
-                            invoice_id = %s AND erp_id = %s
-                    """
+                    row = list(row_tuple)
+                    row[0] = uuid.uuid1()
+                    row[1] = rows[0][0]
+                    api_log(msg=f"{invoice_id}")
+                    row[2] = loop_line_items.get("description")
+                    # api_log(msg=f"{item}")
+                    row[3] = loop_line_items.get("unit_price")
+                    # api_log(msg=f"{unit_price}")
+                    row[4] = loop_line_items.get("quantity")
+                    # api_log(msg=f"{quantity}")
+                    row[5] = loop_line_items.get("total_amount")
+                    # api_log(msg=f"{total_amount}")
+                    row[6] = loop_line_items.get("sequence")
+                    # api_log(msg=f"{sequence}")
+                    row[7] = loop_line_items.get("created_at")
+                    # api_log(msg=f"{created_at}")
+                    row[8] = loop_line_items.get("updated_at")
+                    # api_log(msg=f"{updated_at}")
+                    row[9] = loop_line_items.get("deleted_at")
+                    # api_log(msg=f"{deleted_at}")
+                    row[10] = loop_line_items.get("id")
+                    # api_log(msg=f"{erp_id}")
+                    row[11] = loop_line_items.get("remote_id")
+                    # api_log(msg=f"{remote_id}")
+                    row[18] = loop_line_items.get("erp_modified_at")
+                    # api_log(msg=f"{erp_modified_at}")
+                    row[19] = loop_line_items.get("erp_created_at")
+                    # api_log(msg=f"{erp_created_at}")
+                    row[20] = loop_line_items.get("erp_remote_data")
+                    # api_log(msg=f"{erp_remote_data}")
+                    row[21] = loop_line_items.get("erp_account")
+                    # api_log(msg=f"{row[21]}")
 
-                    # Assuming list_row[10] corresponds to tracking_categories
-                    update_args = (
-                        # description,
-                        item,
-                        unit_price,
-                        quantity,
-                        invoice_id,
-                        erp_id,
-                    )
-
+                    update_query = """UPDATE invoice_line_items SET invoice_id = %s, item = %s, unit_price = %s,
+                    quantity = %s, total_amount = %s, sequence = %s, created_at = %s, updated_at = %s, deleted_at = %s,
+                    erp_id = %s, remote_id = %s, erp_modified_at = %s, erp_created_at = %s, erp_remote_data = %s,
+                    erp_account = %s
+                              WHERE invoice_id = %s AND id = %s
+                            """
+                    update_args = (row[1], row[2], row[3], row[4], row[5], row[6],
+                                   row[7], row[8], row[9], row[10], row[11], row[18],
+                                   row[19], row[20], row[21], row[1], row[0])
+                    # Convert None values to NULL
                     update_args = tuple(
                         arg if arg is not None else None for arg in update_args
                     )
                     cursor.execute(update_query, update_args)
                     api_log(msg="updated successfully")
-
-                else:
-                    api_log(msg="Executing the Insert bloc as the ERP ID doesn't exist")
-                    all_tracking_categories = item_data.get("tracking_categories")
-
-                    tracking_categories = (
-                        [category for category in all_tracking_categories]
-                        if all_tracking_categories is not None
-                        else None
-                    )
-
-                    invoice_id = rows[0][0]
-                    item = item_data.get("description")
-                    unit_price = item_data.get("unit_price")
-                    quantity = item_data.get("quantity")
-                    total_amount = item_data.get("total_amount")
-                    erp_id = item_data.get("id")
-                    erp_remote_data = item_data.get("remote_data")
-                    erp_account = item_data.get("account")
-                    erp_tracking_categories = tracking_categories
-
-                    # insert the data
-                    insert_query = """INSERT INTO invoice_line_items (id, invoice_id, item, unit_price, quantity,
-                    total_amount, erp_id, erp_remote_data, erp_account, erp_tracking_categories) VALUES (%s, %s, %s,
-                    %s, %s, %s, %s, %s, %s, %s) """
-
-                    id = uuid.uuid1()
-                    insert_args = (
-                        id,
-                        invoice_id,
-                        item,
-                        unit_price,
-                        quantity,
-                        total_amount,
-                        erp_id,
-                        erp_remote_data,
-                        erp_account,
-                        erp_tracking_categories,
-                    )
-                    cursor.execute(insert_query, insert_args)
 
     except MySQLdb.Error as db_error:
         api_log(msg=f"EXCEPTION : Database error occurred: {db_error}")
