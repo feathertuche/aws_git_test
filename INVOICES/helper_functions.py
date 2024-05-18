@@ -174,11 +174,15 @@ def create_sage_invoice_payload(invoice_validated_payload):
             "exchange_rate": model_data.get("exchange_rate"),
             "description": line_item_payload.get("item"),
             "quantity": line_item_payload.get("quantity"),
-            "total_amount": model_data.get("total_amount"),
+            "total_amount": line_item_payload.get("total_amount"),
             "tracking_categories": model_data.get("tracking_categories"),
             "account": line_item_payload.get("account"),
+            "sequence": line_item_payload.get("sequence"),
         }
         line_items_data.append(line_item_data)
+
+    # sort line items by sequence
+    line_items_data = sorted(line_items_data, key=lambda x: x["sequence"])
 
     # prepare invoice data
     invoice_data = {
@@ -225,8 +229,12 @@ def create_xero_invoice_payload(invoice_validated_payload):
             },
             "account": line_item_payload.get("account"),
             "remote_data": line_item_payload.get("remote_data"),
+            "sequence": line_item_payload.get("sequence"),
         }
         line_items_data.append(line_item_data)
+
+    # sort line items by sequence
+    line_items_data = sorted(line_items_data, key=lambda x: x["sequence"])
 
     # prepare invoice data
     invoice_data = {

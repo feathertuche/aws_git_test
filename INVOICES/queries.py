@@ -61,7 +61,6 @@ def update_erp_id_in_line_items(invoice_id: str, line_items):
     and update in invoice_line_items table
 
     """
-    api_log(msg=f"line items from query py file : {line_items}")
     api_log(msg=f"updated of the line items started for invoice id : {invoice_id}")
     try:
         with connection.cursor() as cursor:
@@ -78,22 +77,20 @@ def update_erp_id_in_line_items(invoice_id: str, line_items):
             new_items = []
             for line in line_items:
                 new_items.append(dict(line))
-            api_log(msg=f" query line item list :{new_items}")
             db_row = len(rows)
-            api_log(msg=f" query count :{db_row}")
 
             if db_row > 0:
                 for index in range(db_row):
                     row = rows[index]
                     loop_line_items = new_items[index]
-                    api_log(msg=f"existing rows length: {len(rows)}")
-                    api_log(msg=f"DB rows data: {rows}")
-                    api_log(msg=f"List of line item JSON : {loop_line_items}")
+
+                    api_log(msg=f"DB rows data: {row}")
+
+                    loop_line_items.get("tracking_categories")
                     list_row = list(row)
                     api_log(msg=f" uuid id : {list_row}")
                     list_row[10] = loop_line_items.get("id")
                     list_row[11] = loop_line_items.get("remote_id")
-                    api_log(msg=f" list_row[10] : {list_row[10]}")
                     api_log(
                         msg=f" list row from payload : {loop_line_items.get('remote_id')}"
                     )
@@ -110,7 +107,6 @@ def update_erp_id_in_line_items(invoice_id: str, line_items):
                     )
                     cursor.execute(update_query, update_args)
                     api_log(msg=f"Updated line item with erp_id: {list_row[10]}")
-                    api_log(msg="updated successfully")
 
     except MySQLdb.Error as db_error:
         api_log(msg=f"EXCEPTION : Database error occurred: {db_error}")
