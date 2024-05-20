@@ -177,8 +177,12 @@ def create_sage_invoice_payload(invoice_validated_payload):
             "total_amount": line_item_payload.get("total_amount"),
             "tracking_categories": model_data.get("tracking_categories"),
             "account": line_item_payload.get("account"),
+            "sequence": line_item_payload.get("sequence"),
         }
         line_items_data.append(line_item_data)
+
+    # sort line items by sequence
+    line_items_data = sorted(line_items_data, key=lambda x: x["sequence"])
 
     # prepare invoice data
     invoice_data = {
@@ -209,7 +213,6 @@ def create_xero_invoice_payload(invoice_validated_payload):
     """
 
     model_data = invoice_validated_payload
-
     # prepare line items data
     line_items_data = []
     for line_item_payload in model_data.get("line_items", []):
@@ -226,8 +229,12 @@ def create_xero_invoice_payload(invoice_validated_payload):
             },
             "account": line_item_payload.get("account"),
             "remote_data": line_item_payload.get("remote_data"),
+            "sequence": line_item_payload.get("sequence"),
         }
         line_items_data.append(line_item_data)
+
+    # sort line items by sequence
+    line_items_data = sorted(line_items_data, key=lambda x: x["sequence"])
 
     # prepare invoice data
     invoice_data = {
@@ -252,6 +259,7 @@ def create_xero_invoice_payload(invoice_validated_payload):
             InvoiceLineItemRequest(**line_item) for line_item in line_items_data
         ],
     }
+    api_log(msg=f"this is a invoice data: {invoice_data}")
 
     return invoice_data
 
@@ -291,3 +299,183 @@ def create_xero_attachment_payload(attachment_validated_payload, invoice_id):
     }
 
     return attachment_payload
+
+
+# =========================================================================================#
+# PATCH PAYLOAD#
+# =========================================================================================#
+
+
+def patch_sage_invoice_payload(patch_payload):
+    """
+    Sage invoice payload
+    """
+    api_log(msg="Creating sage invoice payload")
+
+    payload_data = patch_payload
+
+    line_items = []
+    for line_item_data in payload_data["model"]["line_items"]:
+        line_item = {
+            "id": line_item_data.get("id"),
+            "remote_id": line_item_data.get("remote_id"),
+            "unit_price": float(
+                line_item_data.get("unit_price")
+                if line_item_data.get("unit_price") is not None
+                else 0
+            ),
+            "currency": line_item_data.get("currency"),
+            "exchange_rate": line_item_data.get("exchange_rate"),
+            "description": line_item_data.get("item"),
+            "quantity": float(
+                line_item_data.get("quantity")
+                if line_item_data.get("quantity") is not None
+                else 0
+            ),
+            "total_amount": float(
+                line_item_data.get("total_amount")
+                if line_item_data.get("total_amount") is not None
+                else 0
+            ),
+            "created_at": line_item_data.get("created_at"),
+            "tracking_categories": line_item_data.get("tracking_categories"),
+            "account": line_item_data.get("account"),
+        }
+        line_items.append(line_item)
+
+    payload = {
+        "model": {
+            "id": payload_data.get("kloo_invoice_id"),
+            "type": payload_data["model"].get("type"),
+            "due_date": payload_data["model"].get("due_date"),
+            "issue_date": payload_data["model"].get("issue_date"),
+            "contact": payload_data["model"].get("contact"),
+            "number": payload_data["model"].get("number"),
+            "memo": payload_data["model"].get("memo"),
+            "status": payload_data["model"].get("status"),
+            "company": payload_data["model"].get("company"),
+            "currency": payload_data["model"].get("currency"),
+            "tracking_categories": payload_data["model"].get("tracking_categories"),
+            "sub_total": float(
+                payload_data["model"].get("sub_total")
+                if payload_data["model"].get("sub_total") is not None
+                else 0
+            ),
+            "total_tax_amount": float(
+                payload_data["model"].get("total_tax_amount")
+                if payload_data["model"].get("total_tax_amount") is not None
+                else 0
+            ),
+            "total_amount": float(
+                payload_data["model"].get("total_amount")
+                if payload_data["model"].get("total_amount") is not None
+                else 0
+            ),
+            "line_items": line_items,
+        },
+        "warnings": [],
+        "errors": [],
+    }
+
+    return payload
+
+
+def patch_xero_invoice_payload(patch_payload):
+    """
+    Xero invoice payload
+    """
+    api_log(msg=f"payload in invoice helper function: {patch_payload}")
+
+    api_log(msg="Creating Xero invoice payload")
+    api_log(msg="45")
+    payload_data = patch_payload
+    api_log(msg="46")
+    line_items = []
+    for line_item_data in payload_data["model"]["line_items"]:
+        api_log(msg="47")
+        api_log(msg=f"line_item_data: {line_item_data}")
+        line_item = {
+            "id": line_item_data.get("erp_id"),
+            "remote_id": line_item_data.get("remote_id"),
+            "unit_price": float(
+                line_item_data.get("unit_price")
+                if line_item_data.get("unit_price") is not None
+                else 0
+            ),
+            "currency": line_item_data.get("currency"),
+            "exchange_rate": line_item_data.get("exchange_rate"),
+            "description": line_item_data.get("item"),
+            "quantity": float(
+                line_item_data.get("quantity")
+                if line_item_data.get("quantity") is not None
+                else 0
+            ),
+            "created_at": line_item_data.get("created_at"),
+            # "tracking_categories": line_item_data.get("tracking_categories"),
+            # "integration_params": {
+            #     "tax_rate_remote_id": line_item_data.get("tax_rate_remote_id")
+            # },
+            "account": line_item_data.get("account"),
+            "remote_data": line_item_data.get("remote_data"),
+        }
+        line_items.append(line_item)
+
+    payload = {
+        "model": {
+            "id": payload_data["model"].get("erp_id"),  # erp_id of invoice table
+            "invoice_id": payload_data["model"].get(
+                "kloo_invoice_id"
+            ),  # id field of invoice table
+            "type": payload_data["model"].get("type"),
+            "due_date": payload_data["model"].get("due_date"),
+            "issue_date": payload_data["model"].get("issue_date"),
+            "contact": payload_data["model"].get("contact"),
+            "number": payload_data["model"].get("number"),
+            "memo": payload_data["model"].get("memo"),
+            "status": payload_data["model"].get("status"),
+            "company": payload_data["model"].get("company"),
+            "currency": payload_data["model"].get("currency"),
+            "tracking_categories": payload_data["model"].get("tracking_categories"),
+            "sub_total": float(
+                payload_data["model"].get("sub_total")
+                if payload_data["model"].get("sub_total") is not None
+                else 0
+            ),
+            "total_tax_amount": float(
+                payload_data["model"].get("total_tax_amount")
+                if payload_data["model"].get("total_tax_amount") is not None
+                else 0
+            ),
+            "total_amount": float(
+                payload_data["model"].get("total_amount")
+                if payload_data["model"].get("total_amount") is not None
+                else 0
+            ),
+            "line_items": line_items,
+        },
+        "warnings": [],
+        "errors": [],
+    }
+
+    return payload
+
+
+def invoice_patch_payload(request_data):
+    """
+    prepare invoice payload based on integration name
+    """
+    api_log(msg=f"request payload : {request_data}")
+
+    integration_name = request_data.get("integration_name")
+    # model_data = request_data.get("model")
+
+    api_log(msg=f"model data : {request_data}")
+
+    if integration_name == "Sage Intacct":
+        return patch_sage_invoice_payload(request_data)
+
+    elif integration_name == "Xero":
+        return patch_xero_invoice_payload(request_data)
+
+    else:
+        raise Exception("Integration doesn't exists for invoice filter")
