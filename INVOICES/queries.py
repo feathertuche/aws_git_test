@@ -157,13 +157,10 @@ def patch_update_line_items(invoice_id: str, line_items):
                 for index in range(db_row):
                     row_tuple = invoice_id_row[index]
                     loop_line_items = new_items[index]
-                    api_log(msg=f"loop_line_items {loop_line_items}")
-                    # loop_line_items_dict = dict(loop_line_items)
-                    # api_log(msg=f"loop_line_items dict :{loop_line_items_dict}")
-                    # api_log(msg=f"existing rows length: {len(rows)}")
-                    api_log(msg=f"DB rows data: {row_tuple}")
-                    api_log(msg=f"List of line item JSON : {loop_line_items}")
-
+                    # api_log(msg=f"loop_line_items {loop_line_items}")
+                    # api_log(msg=f"DB rows data: {row_tuple}")
+                    # api_log(msg=f"List of line item JSON : {loop_line_items}")
+                    # deploy
                     row = list(row_tuple)
                     row[0] = uuid.uuid1()
                     row[1] = rows[0][0]
