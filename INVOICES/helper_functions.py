@@ -317,7 +317,7 @@ def patch_sage_invoice_payload(patch_payload):
     line_items = []
     for line_item_data in payload_data["model"]["line_items"]:
         line_item = {
-            "id": line_item_data.get("id"),
+            "id": line_item_data.get("erp_id"),
             "remote_id": line_item_data.get("remote_id"),
             "unit_price": float(
                 line_item_data.get("unit_price")
@@ -345,7 +345,8 @@ def patch_sage_invoice_payload(patch_payload):
 
     payload = {
         "model": {
-            "id": payload_data.get("kloo_invoice_id"),
+            "id": payload_data["model"].get("erp_id"),  # erp_id of invoice table
+            "invoice_id": payload_data["model"].get("kloo_invoice_id"),
             "type": payload_data["model"].get("type"),
             "due_date": payload_data["model"].get("due_date"),
             "issue_date": payload_data["model"].get("issue_date"),

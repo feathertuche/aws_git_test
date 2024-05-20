@@ -147,11 +147,12 @@ class InvoiceCreate(APIView):
             api_log(msg=f"PATCH response in views file: {update_response}")
 
             if update_response is None:
-                api_log(msg="7")
                 return Response(
                     {"status": "error", "message": "Failed to create invoice in Merge"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+
+            api_log(msg=f"Merge Invoice Created : {update_response}")
 
             # line_item_list = []
             # for loop_line_items in update_response["model"]["line_items"]:
