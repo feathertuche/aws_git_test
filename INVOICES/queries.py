@@ -2,7 +2,9 @@
 DB queries for INVOICES
 """
 
+import json
 import uuid
+from datetime import datetime
 
 import MySQLdb
 from django.db import DatabaseError, connection
@@ -53,6 +55,118 @@ def update_invoices_erp_id(invoice_table_id: str, erp_invoice_id: str, remote_id
         )
         row = cursor.fetchone()
         return row
+
+
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return json.JSONEncoder.default(self, obj)
+
+
+def update_invoices_table(invoice_table_id, invoice_created_payload):
+    api_log(msg=f" invoice table id field : {invoice_table_id}")
+    api_log(msg=f" invoice model payload : {dict(invoice_created_payload)}")
+
+    try:
+        model_payload_data = dict(invoice_created_payload)
+        new_line = []
+        for loop_line_items in model_payload_data.get("line_items"):
+            api_log(msg=f" invoice line items payload : {dict(loop_line_items)}")
+            new_line.append(dict(loop_line_items))
+        # api_log(msg=f" line_items_json : {new_line}")
+        line_items_json = json.dumps(new_line, cls=DateTimeEncoder)
+        api_log(msg=f" line_items_json : {line_items_json}")
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """SELECT *
+                 FROM invoices
+                 WHERE id = %s""",
+                [invoice_table_id],
+            )
+            rows = cursor.fetchall()
+
+            api_log(msg=f" existing rows data from invoices table :{rows}")
+
+            column_names = [desc[0] for desc in cursor.description]
+            results = [dict(zip(column_names, row)) for row in rows]
+
+            if len(results) > 0:
+                erp_id = model_payload_data.get("id")
+                remote_id = model_payload_data.get("remote_id")
+                erp_exchange_rate = model_payload_data.get("exchange_rate")
+                erp_balance = model_payload_data.get("balance")
+                erp_total_discount = model_payload_data.get("total_discount")
+                erp_status = model_payload_data.get("status")
+                erp_tracking_categories = (
+                    json.dumps(model_payload_data.get("tracking_categories"))
+                    if model_payload_data.get("tracking_categories")
+                    else None
+                )
+                erp_payment = (
+                    json.dumps(model_payload_data.get("payment"))
+                    if model_payload_data.get("payment")
+                    else None
+                )
+                erp_applied_payments = (
+                    json.dumps(model_payload_data.get("applied_payments"))
+                    if model_payload_data.get("applied_payments")
+                    else None
+                )
+                erp_line_items = line_items_json
+                api_log(msg=f"oooooooooooooooooooooooooooo : {erp_line_items}")
+                erp_created_at = model_payload_data.get("created_at")
+                erp_modified_at = model_payload_data.get("modified_at")
+                erp_remote_data = model_payload_data.get("erp_remote_data")
+
+                update_query = """
+                               UPDATE invoices
+                               SET erp_id = %s,
+                                   remote_id = %s,
+                                   erp_exchange_rate=%s,
+                                   erp_total_discount= %s,
+                                   erp_status = %s,
+                                   erp_tracking_categories= %s,
+                                   erp_payment = %s,
+                                   erp_applied_payments = %s,
+                                   erp_line_items = %s,
+                                   erp_created_at = %s,
+                                   erp_modified_at = %s,
+                                   erp_remote_data = %s,
+                                   erp_balance = %s
+                              WHERE  id = %s
+                            """
+                update_args = (
+                    erp_id,
+                    remote_id,
+                    erp_exchange_rate,
+                    erp_total_discount,
+                    erp_status,
+                    erp_tracking_categories,
+                    erp_payment,
+                    erp_applied_payments,
+                    erp_line_items,
+                    erp_created_at,
+                    erp_modified_at,
+                    erp_remote_data,
+                    erp_balance,
+                    invoice_table_id,
+                )
+
+                # Convert None values to NULL
+                update_args = tuple(
+                    arg if arg is not None else None for arg in update_args
+                )
+                cursor.execute(update_query, update_args)
+                api_log(msg=f"Updated invoices erp data for ID : {invoice_table_id}")
+
+            else:
+                api_log(msg="No records found in invoice table")
+
+    except MySQLdb.Error as db_error:
+        api_log(msg=f"EXCEPTION : Database error occurred: {db_error}")
+    except Exception as e:
+        api_log(msg=f"EXCEPTION : Failed to send data to invoices table: {str(e)}")
 
 
 def update_erp_id_in_line_items(invoice_id: str, line_items):
