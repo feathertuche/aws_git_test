@@ -4,7 +4,6 @@ DB queries for INVOICES
 
 import uuid
 
-import MySQLdb
 from django.db import DatabaseError, connection
 
 from LINKTOKEN.model import ErpLinkToken
@@ -55,180 +54,75 @@ def update_invoices_erp_id(invoice_table_id: str, erp_invoice_id: str, remote_id
         return row
 
 
-def update_erp_id_in_line_items(invoice_id: str, line_items):
+def get_existing_invoice_line_items(invoice_id: uuid.UUID):
     """
-    helper function to fetch line item remote id based on invoice id
-    and update in invoice_line_items table
+    Get the line items from the invoice_line_items table
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """SELECT *
+                FROM invoice_line_items
+                WHERE invoice_id = %s AND erp_id IS NOT NULL
+                ORDER BY sequence desc""",
+            [invoice_id],
+        )
+        columns = [col[0] for col in cursor.description]
+        rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        return rows
 
+
+def get_new_invoice_line_items(invoice_id: uuid.UUID):
     """
-    api_log(msg=f"updated of the line items started for invoice id : {invoice_id}")
+    Get the line items from the invoice_line_items table
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """SELECT *
+                FROM invoice_line_items
+                WHERE invoice_id = %s AND erp_id IS NULL
+                ORDER BY sequence desc""",
+            [invoice_id],
+        )
+        columns = [col[0] for col in cursor.description]
+        rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        return rows
+
+
+def update_line_item(line_item_id: uuid.UUID, update_data: dict):
+    """
+    Update the erp_id and remote_id in the invoice_line_items table
+    """
     try:
         with connection.cursor() as cursor:
             cursor.execute(
-                """SELECT *
-                 FROM invoice_line_items
-                 WHERE invoice_id = %s
-                 ORDER BY sequence desc""",
-                [invoice_id],
+                """UPDATE invoice_line_items
+                    SET
+                        erp_id = %s,
+                        remote_id = %s,
+                        erp_purchase_price = %s,
+                        erp_purchase_account = %s,
+                        erp_company = %s,
+                        erp_field_mappings = %s,
+                        erp_modified_at = %s,
+                        erp_created_at = %s,
+                        erp_remote_data = %s
+                    WHERE id = %s
+                """,
+                [
+                    update_data.get("id"),
+                    update_data.get("remote_id"),
+                    update_data.get("unit_price"),
+                    update_data.get("account"),
+                    update_data.get("company"),
+                    update_data.get("field_mappings"),
+                    update_data.get("modified_at"),
+                    update_data.get("created_at"),
+                    update_data.get("remote_data"),
+                    line_item_id,
+                ],
             )
-            rows = cursor.fetchall()
-
-            api_log(msg=f" existing rows data from invoice_line_items :{rows}")
-            new_items = []
-            for line in line_items:
-                new_items.append(dict(line))
-            db_row = len(rows)
-
-            if db_row > 0:
-                for index in range(db_row):
-                    row = rows[index]
-                    loop_line_items = new_items[index]
-
-                    api_log(msg=f"DB rows data: {row}")
-
-                    loop_line_items.get("tracking_categories")
-                    list_row = list(row)
-                    api_log(msg=f" uuid id : {list_row}")
-                    list_row[10] = loop_line_items.get("id")
-                    list_row[11] = loop_line_items.get("remote_id")
-                    api_log(
-                        msg=f" list row from payload : {loop_line_items.get('remote_id')}"
-                    )
-                    update_query = """
-                              UPDATE invoice_line_items
-                              SET erp_id = %s,
-                              remote_id = %s
-                              WHERE invoice_id = %s AND id = %s
-                            """
-                    update_args = (list_row[10], list_row[11], invoice_id, list_row[0])
-                    # Convert None values to NULL
-                    update_args = tuple(
-                        arg if arg is not None else None for arg in update_args
-                    )
-                    cursor.execute(update_query, update_args)
-                    api_log(msg=f"Updated line item with erp_id: {list_row[10]}")
-
-    except MySQLdb.Error as db_error:
-        api_log(msg=f"EXCEPTION : Database error occurred: {db_error}")
-    except Exception as e:
-        api_log(
-            msg=f"EXCEPTION : Failed to send data to invoice_line_items table: {str(e)}"
-        )
-
-
-def patch_update_line_items(invoice_id: str, line_items):
-    """
-    helper function to fetch line item remote id based on invoice id
-    and update in invoice_line_items table
-
-    """
-    api_log(msg=f"line items from query py file : {line_items}")
-    api_log(msg=f"updated of the line items started for invoice id : {invoice_id}")
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """SELECT id
-                 FROM invoices
-                 WHERE erp_id = %s""",
-                [invoice_id],
-            )
-            rows = cursor.fetchall()
-            api_log(msg=f" ID field of invoices table :{rows[0][0]}")
-
-            cursor.execute(
-                """SELECT *
-                 FROM invoice_line_items
-                 WHERE invoice_id = %s
-                 ORDER BY sequence desc""",
-                [rows[0][0]],
-            )
-            invoice_id_row = cursor.fetchall()
-            api_log(
-                msg=f" invoice ID field of invoice_line_items table :{invoice_id_row}"
-            )
-            new_items = []
-            for line in line_items:
-                new_items.append(line)
-            api_log(msg=f"payload data: {new_items}")
-            api_log(msg=f"payload data type: {type(new_items)}")
-            db_row = len(invoice_id_row)
-
-            if db_row > 0:
-                for index in range(db_row):
-                    row_tuple = invoice_id_row[index]
-                    loop_line_items = new_items[index]
-                    # api_log(msg=f"loop_line_items {loop_line_items}")
-                    # api_log(msg=f"DB rows data: {row_tuple}")
-                    # api_log(msg=f"List of line item JSON : {loop_line_items}")
-                    # deploy
-                    row = list(row_tuple)
-                    row[0] = uuid.uuid1()
-                    row[1] = rows[0][0]
-                    api_log(msg=f"{invoice_id}")
-                    row[2] = loop_line_items.get("description")
-                    # api_log(msg=f"{item}")
-                    row[3] = loop_line_items.get("unit_price")
-                    # api_log(msg=f"{unit_price}")
-                    row[4] = loop_line_items.get("quantity")
-                    # api_log(msg=f"{quantity}")
-                    row[5] = loop_line_items.get("total_amount")
-                    # api_log(msg=f"{total_amount}")
-                    row[6] = loop_line_items.get("sequence")
-                    # api_log(msg=f"{sequence}")
-                    row[7] = loop_line_items.get("created_at")
-                    # api_log(msg=f"{created_at}")
-                    row[8] = loop_line_items.get("updated_at")
-                    # api_log(msg=f"{updated_at}")
-                    row[9] = loop_line_items.get("deleted_at")
-                    # api_log(msg=f"{deleted_at}")
-                    row[10] = loop_line_items.get("id")
-                    # api_log(msg=f"{erp_id}")
-                    row[11] = loop_line_items.get("remote_id")
-                    # api_log(msg=f"{remote_id}")
-                    row[18] = loop_line_items.get("erp_modified_at")
-                    # api_log(msg=f"{erp_modified_at}")
-                    row[19] = loop_line_items.get("erp_created_at")
-                    # api_log(msg=f"{erp_created_at}")
-                    row[20] = loop_line_items.get("erp_remote_data")
-                    # api_log(msg=f"{erp_remote_data}")
-                    row[21] = loop_line_items.get("erp_account")
-                    # api_log(msg=f"{row[21]}")
-
-                    update_query = """UPDATE invoice_line_items SET invoice_id = %s, item = %s, unit_price = %s,
-                    quantity = %s, total_amount = %s, sequence = %s, created_at = %s, updated_at = %s, deleted_at = %s,
-                    erp_id = %s, remote_id = %s, erp_modified_at = %s, erp_created_at = %s, erp_remote_data = %s,
-                    erp_account = %s
-                              WHERE invoice_id = %s AND id = %s
-                            """
-                    update_args = (
-                        row[1],
-                        row[2],
-                        row[3],
-                        row[4],
-                        row[5],
-                        row[6],
-                        row[7],
-                        row[8],
-                        row[9],
-                        row[10],
-                        row[11],
-                        row[18],
-                        row[19],
-                        row[20],
-                        row[21],
-                        row[1],
-                        row[0],
-                    )
-                    # Convert None values to NULL
-                    update_args = tuple(
-                        arg if arg is not None else None for arg in update_args
-                    )
-                    cursor.execute(update_query, update_args)
-                    api_log(msg="updated successfully")
-
-    except MySQLdb.Error as db_error:
-        api_log(msg=f"EXCEPTION : Database error occurred: {db_error}")
-    except Exception as e:
-        api_log(
-            msg=f"EXCEPTION : Failed to send data to invoice_line_items table: {str(e)}"
-        )
+            row = cursor.fetchone()
+            return row
+    except DatabaseError as e:
+        api_log(msg=f"Error updating line item query: {str(e)}")
+        raise e
