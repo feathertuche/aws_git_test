@@ -6,7 +6,12 @@ import uuid
 
 from merge.resources.accounting import InvoiceLineItemRequest
 
-from INVOICES.queries import get_currency_id
+from INVOICES.queries import (
+    get_currency_id,
+    update_line_item,
+    get_existing_invoice_line_items,
+    get_new_invoice_line_items,
+)
 from merge_integration.helper_functions import api_log
 
 
@@ -193,7 +198,7 @@ def create_sage_invoice_payload(invoice_validated_payload):
         "contact": model_data.get("contact"),
         "number": model_data.get("number"),
         "memo": model_data.get("memo"),
-        "company": model_data.get("company"),
+        "company": None,
         "currency": model_data.get("currency"),
         "tracking_categories": model_data.get("tracking_categories"),
         "sub_total": model_data.get("sub_total"),
@@ -332,6 +337,7 @@ def patch_sage_invoice_payload(patch_payload):
                 if line_item_data.get("quantity") is not None
                 else 0
             ),
+            "sequence": line_item_data.get("sequence"),
             "total_amount": float(
                 line_item_data.get("total_amount")
                 if line_item_data.get("total_amount") is not None
@@ -342,6 +348,9 @@ def patch_sage_invoice_payload(patch_payload):
             "account": line_item_data.get("account"),
         }
         line_items.append(line_item)
+
+    # arrange the payload
+    line_items_data = sorted(line_items, key=lambda x: x["sequence"])
 
     payload = {
         "model": {
@@ -372,7 +381,7 @@ def patch_sage_invoice_payload(patch_payload):
                 if payload_data["model"].get("total_amount") is not None
                 else 0
             ),
-            "line_items": line_items,
+            "line_items": line_items_data,
         },
         "warnings": [],
         "errors": [],
@@ -388,13 +397,9 @@ def patch_xero_invoice_payload(patch_payload):
     api_log(msg=f"payload in invoice helper function: {patch_payload}")
 
     api_log(msg="Creating Xero invoice payload")
-    api_log(msg="45")
     payload_data = patch_payload
-    api_log(msg="46")
     line_items = []
     for line_item_data in payload_data["model"]["line_items"]:
-        api_log(msg="47")
-        api_log(msg=f"line_item_data: {line_item_data}")
         line_item = {
             "id": line_item_data.get("erp_id"),
             "remote_id": line_item_data.get("remote_id"),
@@ -404,6 +409,7 @@ def patch_xero_invoice_payload(patch_payload):
                 else 0
             ),
             "currency": line_item_data.get("currency"),
+            "sequence": line_item_data.get("sequence"),
             "exchange_rate": line_item_data.get("exchange_rate"),
             "description": line_item_data.get("item"),
             "quantity": float(
@@ -420,6 +426,9 @@ def patch_xero_invoice_payload(patch_payload):
             "remote_data": line_item_data.get("remote_data"),
         }
         line_items.append(line_item)
+
+    # arrange the payload
+    line_items_data = sorted(line_items, key=lambda x: x["sequence"])
 
     payload = {
         "model": {
@@ -452,7 +461,7 @@ def patch_xero_invoice_payload(patch_payload):
                 if payload_data["model"].get("total_amount") is not None
                 else 0
             ),
-            "line_items": line_items,
+            "line_items": line_items_data,
         },
         "warnings": [],
         "errors": [],
@@ -480,3 +489,93 @@ def invoice_patch_payload(request_data):
 
     else:
         raise Exception("Integration doesn't exists for invoice filter")
+
+
+def update_post_erp_line_items(invoice_id: uuid.UUID, invoice_payload):
+    """
+    helper function to fetch line item remote id based on invoice id
+    and update in invoice_line_items table
+    """
+    api_log(msg=f"updated of the line items started for invoice id : {invoice_id}")
+    try:
+        merge_line_items = invoice_payload.model.line_items
+        existing_line_items = get_existing_invoice_line_items(invoice_id)
+
+        if existing_line_items:
+            filter_and_update_existing_line_items(merge_line_items, existing_line_items)
+
+    except Exception as e:
+        api_log(
+            msg=f"EXCEPTION : Failed to send data to invoice_line_items table: {str(e)}"
+        )
+
+
+def update_patch_erp_line_items(invoice_id: uuid.UUID, invoice_payload: dict):
+    """
+    Update the line items in the ERP
+    """
+    try:
+        # get the line items from the payload
+        merge_line_items = invoice_payload.get("model").get("line_items")
+
+        # get database line items
+        existing_line_items = get_existing_invoice_line_items(invoice_id)
+        new_line_items = get_new_invoice_line_items(invoice_id)
+
+        # filter and update the existing line items
+        if existing_line_items:
+            filter_and_update_existing_line_items(merge_line_items, existing_line_items)
+
+        # filter and update the  new line items
+        if new_line_items:
+            filter_and_update_new_line_items(merge_line_items, new_line_items)
+
+    except Exception as e:
+        api_log(msg=f"Error updating ERP line items: {e}")
+        raise Exception(f"Error updating ERP line items: {e}")
+
+
+def filter_and_update_existing_line_items(
+    merge_line_items: list, existing_line_items: list
+):
+    """
+    Filter and update the existing line items
+    """
+    try:
+        for line_item in merge_line_items:
+            merge_id = line_item.get("id")
+
+            # check if the line item exists in the database
+            database_line_item = next(
+                (item for item in existing_line_items if item["erp_id"] == merge_id),
+                None,
+            )
+
+            if database_line_item:
+                api_log(
+                    msg=f"Updating existing line item: {database_line_item.get('id')}"
+                )
+                update_line_item(database_line_item["id"], line_item)
+
+    except Exception as e:
+        api_log(msg=f"Error updating existing line items: {e}")
+        raise Exception(f"Error updating existing line items: {e}")
+
+
+def filter_and_update_new_line_items(merge_line_items: list, new_line_items: list):
+    """
+    Filter and update the new line items
+    """
+    try:
+        for line_item in zip(merge_line_items, new_line_items):
+            merge_line_item = line_item[0]
+            new_line_item = line_item[1]
+
+            api_log(
+                msg=f"Updating DB line item: {new_line_item.get('item')} and merge line item: {merge_line_item.get('description')}"
+            )
+
+            update_line_item(new_line_item["id"], merge_line_item)
+    except Exception as e:
+        api_log(msg=f"Error updating new line items: {e}")
+        raise Exception(f"Error updating new line items: {e}")
