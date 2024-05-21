@@ -10,10 +10,9 @@ from INVOICES.helper_functions import (
     invoice_patch_payload,
     update_patch_erp_line_items,
     update_post_erp_line_items,
+    update_invoices_table,
 )
-from INVOICES.queries import (
-    update_invoices_erp_id,
-)
+
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
@@ -80,12 +79,13 @@ class InvoiceCreate(APIView):
             api_log(msg=f"Merge Invoice Created : {invoice_created}")
 
             invoice_table_id = invoice_data["id"]
-            erp_invoice_id = invoice_created.model.id
-            erp_remote_id = invoice_created.model.remote_id
+            # erp_invoice_id = invoice_created.model.id
+            # erp_remote_id = invoice_created.model.remote_id
+            # fetching line items from response bod
 
             # calling function to update remote id as 'erp id' in erp_id field in invoice_line_items table
+            update_invoices_table(invoice_table_id, dict(invoice_created.model))
             update_post_erp_line_items(invoice_table_id, invoice_created)
-            update_invoices_erp_id(invoice_table_id, erp_invoice_id, erp_remote_id)
 
             attachment_payload = filter_attachment_payloads(data, invoice_created)
             merge_api_service.create_attachment(attachment_payload)
@@ -153,6 +153,8 @@ class InvoiceCreate(APIView):
             invoice_table_id = invoice_data.get("model").get("invoice_id")
 
             # update the invoice data
+
+            update_invoices_table(invoice_table_id, update_response.get("model"))
             # update the line items data
             update_patch_erp_line_items(invoice_table_id, update_response)
 

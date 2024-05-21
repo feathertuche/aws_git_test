@@ -2,7 +2,9 @@
 Helper functions for the INVOICES app
 """
 
+import json
 import uuid
+from datetime import datetime
 
 from merge.resources.accounting import InvoiceLineItemRequest
 
@@ -11,6 +13,7 @@ from INVOICES.queries import (
     update_line_item,
     get_existing_invoice_line_items,
     get_new_invoice_line_items,
+    update_erp_invoice,
 )
 from merge_integration.helper_functions import api_log
 
@@ -501,8 +504,14 @@ def update_post_erp_line_items(invoice_id: uuid.UUID, invoice_payload):
         merge_line_items = invoice_payload.model.line_items
         existing_line_items = get_existing_invoice_line_items(invoice_id)
 
+        merge_line_items_list = []
+        for line_item in merge_line_items:
+            merge_line_items_list.append(dict(line_item))
+
+        api_log(msg=f"merge line item: {merge_line_items_list}")
+        api_log(msg=f"existing line item: {existing_line_items}")
         if existing_line_items:
-            filter_and_update_existing_line_items(merge_line_items, existing_line_items)
+            filter_and_update_new_line_items(merge_line_items_list, existing_line_items)
 
     except Exception as e:
         api_log(
@@ -579,3 +588,59 @@ def filter_and_update_new_line_items(merge_line_items: list, new_line_items: lis
     except Exception as e:
         api_log(msg=f"Error updating new line items: {e}")
         raise Exception(f"Error updating new line items: {e}")
+
+
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return json.JSONEncoder.default(self, obj)
+
+
+def update_invoices_table(invoice_table_id, invoice_created_payload):
+    api_log(msg=f" invoice table id field : {invoice_table_id}")
+    api_log(msg=f" invoice model payload : {dict(invoice_created_payload)}")
+
+    try:
+        new_line = []
+        for loop_line_items in invoice_created_payload.get("line_items"):
+            api_log(msg=f" invoice line items payload : {dict(loop_line_items)}")
+            new_line.append(dict(loop_line_items))
+        # api_log(msg=f" line_items_json : {new_line}")
+        line_items_json = json.dumps(new_line, cls=DateTimeEncoder)
+        api_log(msg=f" line_items_json : {line_items_json}")
+
+        payload = {
+            "erp_id": invoice_created_payload.get("id"),
+            "remote_id": invoice_created_payload.get("remote_id"),
+            "erp_exchange_rate": invoice_created_payload.get("exchange_rate"),
+            "erp_balance": invoice_created_payload.get("balance"),
+            "erp_total_discount": invoice_created_payload.get("total_discount"),
+            "erp_status": invoice_created_payload.get("status"),
+            "erp_tracking_categories": (
+                json.dumps(invoice_created_payload.get("tracking_categories"))
+                if invoice_created_payload.get("tracking_categories")
+                else None
+            ),
+            "erp_payment": (
+                json.dumps(invoice_created_payload.get("payment"))
+                if invoice_created_payload.get("payment")
+                else None
+            ),
+            "erp_applied_payments": (
+                json.dumps(invoice_created_payload.get("applied_payments"))
+                if invoice_created_payload.get("applied_payments")
+                else None
+            ),
+            "erp_line_items": line_items_json,
+            "erp_created_at": invoice_created_payload.get("created_at"),
+            "erp_modified_at": invoice_created_payload.get("modified_at"),
+            "erp_remote_data": invoice_created_payload.get("remote_data"),
+        }
+        update_erp_invoice(invoice_table_id, payload)
+
+        api_log(msg=f"Updated invoices erp data for ID : {invoice_table_id}")
+
+    except Exception as e:
+        api_log(msg=f"Error updating line item query: {str(e)}")
+        raise e

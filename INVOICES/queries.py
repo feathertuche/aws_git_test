@@ -5,7 +5,6 @@ DB queries for INVOICES
 import uuid
 
 from django.db import DatabaseError, connection
-
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
 
@@ -38,17 +37,45 @@ def get_currency_id(currency_code: str):
         return row
 
 
-def update_invoices_erp_id(invoice_table_id: str, erp_invoice_id: str, remote_id: str):
+def update_erp_invoice(invoice_table_id: str, invoice_data: dict):
     """
     helper function update erp_id on Invoices table ID field.
     """
     with connection.cursor() as cursor:
         cursor.execute(
-            """UPDATE invoices
-            SET erp_id = %s, remote_id = %s
-            WHERE id = %s
-            """,
-            [erp_invoice_id, remote_id, invoice_table_id],
+            """
+               UPDATE invoices
+               SET erp_id = %s,
+                   remote_id = %s,
+                   erp_exchange_rate=%s,
+                   erp_total_discount= %s,
+                   erp_status = %s,
+                   erp_tracking_categories= %s,
+                   erp_payment = %s,
+                   erp_applied_payments = %s,
+                   erp_line_items = %s,
+                   erp_created_at = %s,
+                   erp_modified_at = %s,
+                   erp_remote_data = %s,
+                   erp_balance = %s
+              WHERE  id = %s
+                    """,
+            [
+                invoice_data.get("erp_id"),
+                invoice_data.get("remote_id"),
+                invoice_data.get("erp_exchange_rate"),
+                invoice_data.get("erp_total_discount"),
+                invoice_data.get("erp_status"),
+                invoice_data.get("erp_tracking_categories"),
+                invoice_data.get("erp_payment"),
+                invoice_data.get("erp_applied_payments"),
+                invoice_data.get("erp_line_items"),
+                invoice_data.get("erp_created_at"),
+                invoice_data.get("erp_modified_at"),
+                invoice_data.get("erp_remote_data"),
+                invoice_data.get("erp_balance"),
+                invoice_table_id,
+            ],
         )
         row = cursor.fetchone()
         return row
