@@ -8,11 +8,11 @@ from INVOICES.helper_functions import (
     filter_invoice_payloads,
     filter_attachment_payloads,
     invoice_patch_payload,
-)
-from INVOICES.queries import (
-    update_erp_id_in_line_items,
+    update_patch_erp_line_items,
+    update_post_erp_line_items,
     update_invoices_table,
 )
+
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
@@ -81,16 +81,11 @@ class InvoiceCreate(APIView):
             invoice_table_id = invoice_data["id"]
             # erp_invoice_id = invoice_created.model.id
             # erp_remote_id = invoice_created.model.remote_id
-            # fetching line items from response body
-            invoice_response_line_items = invoice_created.model.line_items
-            line_item_list = []
-            for loop_line_items in invoice_response_line_items:
-                line_item_list.append(loop_line_items)
+            # fetching line items from response bod
 
             # calling function to update remote id as 'erp id' in erp_id field in invoice_line_items table
-            update_invoices_table(invoice_table_id, invoice_created.model)
-            update_erp_id_in_line_items(invoice_table_id, line_item_list)
-            # update_invoices_erp_id(invoice_table_id, erp_invoice_id, erp_remote_id)
+            update_invoices_table(invoice_table_id, dict(invoice_created.model))
+            update_post_erp_line_items(invoice_table_id, invoice_created)
 
             attachment_payload = filter_attachment_payloads(data, invoice_created)
             merge_api_service.create_attachment(attachment_payload)
@@ -109,24 +104,24 @@ class InvoiceCreate(APIView):
                 {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    def patch(self, request, invoice_id: str):
+    def patch(self, request, erp_invoice_id: str):
         """
         This is an Invoice PATCH request bloc...
         """
-        api_log(msg=".....Processing Invoice UPDATE request bloc.....")
+        api_log(msg="Processing Invoice UPDATE request")
 
         data = request.data
         serializer = InvoiceUpdateSerializer(data=data)
-        api_log(msg=f"[SERIALIZER bloc in views file for UPDATE] :: {serializer}")
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         self.erp_link_token_id = serializer.validated_data.get("erp_link_token_id")
-        api_log(msg="1")
 
         queryset = self.get_queryset()
         org_id = serializer.validated_data.get("org_id")
+        api_log(msg=f"PATCH: Invoice ID : {erp_invoice_id}")
+
         if queryset is None or queryset == []:
             api_log(msg="link token details are None or empty")
             return Response(
@@ -135,32 +130,42 @@ class InvoiceCreate(APIView):
 
         try:
             account_token = queryset[0]
-            print("THIS IS INVOICE UPDATE view ACCOUNT TOKEN:: ", account_token)
-            print("[account token data] ::", account_token)
+
+            api_log(msg=f"PATCH: Account Token : {account_token}")
             merge_api_service = MergeInvoiceApiService(
                 account_token, org_id, self.erp_link_token_id
             )
             payload_data = request.data
-            api_log(msg=f"payload_data Request : {json.dumps(payload_data)}")
+            api_log(msg=f"PATCH: Invoice request : {json.dumps(payload_data)}")
             invoice_data = invoice_patch_payload(payload_data)
 
-            api_log(msg=f"[PAYLOAD FOR INVOICE PATCH view file] : {invoice_data}")
-            update_response = merge_api_service.update_invoice(invoice_id, invoice_data)
-            api_log(msg=f"PATCH response in views file: {update_response}")
-
+            api_log(msg=f"PATCH: Invoice formatted : {invoice_data}")
+            update_response = merge_api_service.update_invoice(
+                erp_invoice_id, invoice_data
+            )
+            api_log(msg=f"PATCH : Merge response : {update_response}")
             if update_response is None:
                 return Response(
                     {"status": "error", "message": "Failed to create invoice in Merge"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            api_log(msg=f"Merge Invoice Created : {update_response}")
+            invoice_table_id = invoice_data.get("model").get("invoice_id")
 
-            # line_item_list = []
-            # for loop_line_items in update_response["model"]["line_items"]:
-            #     api_log(msg=f" loop_line_items: {loop_line_items}")
-            #     line_item_list.append(loop_line_items)
-            # update_erp_id_in_line_items(invoice_id, line_item_list)
+            # update the invoice data
+
+            update_invoices_table(invoice_table_id, update_response.get("model"))
+            # update the line items data
+            update_patch_erp_line_items(invoice_table_id, update_response)
+
+            return Response(
+                {
+                    "data": update_response,
+                    "status": "success",
+                    "message": "Invoice updated successfully in Merge",
+                },
+                status=status.HTTP_200_OK,
+            )
 
         except Exception as e:
             error_message = f"EXCEPTION : Failed to patch invoice in Merge: {str(e)}"
