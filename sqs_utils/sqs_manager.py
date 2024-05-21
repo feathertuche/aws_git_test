@@ -19,7 +19,7 @@ def send_data_to_queue(data_array):
         region_name=settings.AWS_DEFAULT_REGION,
     )
     sqs_client = session.client("sqs")
-    sqs_client.large_payload_support = "dev-bulk-data-import"
+    sqs_client.large_payload_support = "prod-bulk-data-import"
     sqs_client.use_legacy_attribute = False
     queue_name = settings.SQS_QUEUE
     queue_url = sqs_client.get_queue_url(QueueName=queue_name)
