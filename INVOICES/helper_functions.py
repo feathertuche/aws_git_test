@@ -502,7 +502,7 @@ def update_post_erp_line_items(invoice_id: uuid.UUID, invoice_payload):
     api_log(msg=f"updated of the line items started for invoice id : {invoice_id}")
     try:
         merge_line_items = invoice_payload.model.line_items
-        existing_line_items = get_existing_invoice_line_items(invoice_id)
+        existing_line_items = get_new_invoice_line_items(invoice_id)
 
         merge_line_items_list = []
         for line_item in merge_line_items:
