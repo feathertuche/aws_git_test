@@ -1,4 +1,3 @@
-import os
 import uuid
 
 import requests
@@ -13,7 +12,6 @@ from merge.resources.accounting import (
     InvoicesListRequestExpand,
 )
 from rest_framework import status
-from rest_framework.response import Response
 
 from CONTACTS.helper_function import format_contacts_payload
 from INVOICES.exceptions import MergeApiException
@@ -25,6 +23,8 @@ from merge_integration.settings import (
     invoices_page_size,
     contacts_page_size,
     tax_rate_page_size,
+    API_KEY,
+    MERGE_BASE_URL,
 )
 from merge_integration.utils import create_merge_client
 from sqs_utils.sqs_manager import send_data_to_queue
@@ -226,9 +226,7 @@ class MergeContactsApiService(MergeService):
                 return {"status": True, "data": []}
 
             while True:
-                api_log(
-                    msg=f"Aaaaaadding {len(contact_data.results)} contacts to the list."
-                )
+                api_log(msg=f"Add {len(contact_data.results)} contacts to the list.")
 
                 # format the data and send to the queue
                 formatted_payload = format_contacts_payload(contact_data.results)
@@ -332,7 +330,7 @@ class MergeInvoiceApiService(MergeService):
                 raise MergeApiException(response.errors)
 
             api_log(msg=f"MERGE : Invoice created successfully: {response}")
-
+            api_log(msg=f"MERGE : INVOICE DATA in create invoice {invoice_data}")
             self.create_or_update_log(
                 {
                     "id": uuid.uuid4(),
@@ -346,6 +344,7 @@ class MergeInvoiceApiService(MergeService):
             return response
 
         except Exception as e:
+            api_log(msg=f"MERGE EXCEPTION: Error creating invoice: {str(e)}")
             self.create_or_update_log(
                 {
                     "id": uuid.uuid4(),
@@ -355,65 +354,37 @@ class MergeInvoiceApiService(MergeService):
                     "message": str(e),
                 }
             )
-            api_log(msg=f"MERGE EXCEPTION: Error creating invoice: {str(e)}")
             raise e
 
     def update_invoice(self, invoice_id: str, invoice_data: dict):
-        api_key = os.getenv("API_KEY")
-        api_log(msg=f"[API KEY FOR INVOICE PATCH] : {api_key}")
-        api_log(msg=f"[ACCOUNT TOKEN FOR INVOICE PATCH] : {self.account_token}")
-        api_log(msg=f"[PAYLOAD FOR INVOICE PATCH] :{invoice_data}")
-        print(" ")
-
         try:
             headers = {
-                "Authorization": f"Bearer {api_key}",
+                "Authorization": f"Bearer {API_KEY}",
                 "X-Account-Token": self.account_token,
                 "Accept": "application/json",
             }
-            api_log(msg=f"[BEARER TOKEN BLOC merge service file] : {headers}")
+
             invoice_update_url = (
-                f"https://api-eu.merge.dev/api/accounting/v1/invoices/{invoice_id}"
+                f"{MERGE_BASE_URL}/api/accounting/v1/invoices/{invoice_id}"
             )
             api_log(msg=f"[URL response] : {invoice_update_url}")
 
             invoice_update_request = requests.patch(
                 invoice_update_url, json=invoice_data, headers=headers
             )
-            api_log(msg=f"[INVOICE REQUESTS.PATCH RESPONSE] : {invoice_update_request}")
+            api_log(
+                msg=f"[INVOICE REQUESTS.PATCH RESPONSE] : {invoice_update_request.json()}"
+            )
 
-            if invoice_update_request.status_code == status.HTTP_200_OK:
-                api_log("Invoice updated successfully......")
-                api_log(
-                    msg=f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in Xero "
-                    f"with status code: {status.HTTP_200_OK}"
-                )
-                return Response(
-                    {
-                        "message": f"[INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} was successfully updated in Xero "
-                        f"with status code: {status.HTTP_200_OK}"
-                    }
-                )
-
-            elif invoice_update_request.status_code == status.HTTP_404_NOT_FOUND:
-                print("THIS IS A ELIF bloc....")
-                error_msg = (
-                    f"[MERGE SERVICE PY INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} is Incorrect and the "
-                    f"status code is : {status.HTTP_404_NOT_FOUND}"
-                )
-                api_log(msg=error_msg)
+            if invoice_update_request.status_code != status.HTTP_200_OK:
+                error_msg = invoice_update_request.json().get("errors")
                 raise MergeApiException(error_msg)
 
-            else:
-                error_msg = (
-                    f"[MERGE INVOICE UPDATE BLOC] :: Invoice ID {invoice_id} failed to update in Xero with "
-                    f"status code: {invoice_update_request.status_code} "
-                )
-                api_log(msg=error_msg)
-                raise MergeApiException(error_msg)
+            api_log(msg="Invoice updated successfully")
+            response_json = invoice_update_request.json()
+            return response_json
 
         except Exception as e:
-            print("This is a exception bloc in merge_service py file ::", e)
             # self.create_or_update_log(
             #     {
             #         "id": uuid.uuid4(),
@@ -423,7 +394,7 @@ class MergeInvoiceApiService(MergeService):
             #         "message": str(e),
             #     }
             # )
-            api_log(msg=f"MERGE EXCEPTION: Error creating invoice: {str(e)}")
+            api_log(msg=f"MERGE EXCEPTION: Error updating invoice: {str(e)}")
             raise e
 
     def create_attachment(self, attachment_data: dict):
@@ -431,9 +402,12 @@ class MergeInvoiceApiService(MergeService):
         create_attachment method
         """
         try:
+            api_log(msg=f"MERGE : attachment_data {attachment_data}")
             response = self.merge_client.accounting.attachments.create(
                 model=AccountingAttachmentRequest(**attachment_data)
             )
+            api_log(msg=f"MERGE : Response {response}")
+
             if len(response.errors) > 0:
                 api_log(msg="MERGE : Error creating attachment")
                 raise MergeApiException(response.errors)
@@ -452,6 +426,7 @@ class MergeInvoiceApiService(MergeService):
             return response
 
         except Exception as e:
+            api_log(msg=f"MERGE EXCEPTION: Error creating attachment: {str(e)}")
             self.create_or_update_log(
                 {
                     "id": uuid.uuid4(),
@@ -461,7 +436,6 @@ class MergeInvoiceApiService(MergeService):
                     "message": str(e),
                 }
             )
-            api_log(msg=f"MERGE EXCEPTION: Error creating attachment: {str(e)}")
             raise e
 
     @classmethod

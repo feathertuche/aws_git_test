@@ -3,12 +3,10 @@ Kloo Service class to connect with kloo API
 """
 
 import json
-
 import requests
-
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import GETKLOO_LOCAL_URL
-
+from sqs_utils.sqs_manager import send_slack_notification
 
 class KlooException(Exception):
     """
@@ -46,18 +44,25 @@ class KlooService:
         Post contacts data to kloo API
         """
         try:
+            api_log(
+                msg=f"SQS data  -Posting Contacts data to Kloo: {json.dumps(contacts_formatted_payload)}"
+            )
+
             contact_url = f"{self.KLOO_URL}/ap/erp-integration/insert-erp-contacts"
             contact_response_data = requests.post(
                 contact_url,
                 json=contacts_formatted_payload,
                 headers=self.headers,
             )
+            api_log(msg=f"After hit API to kloo laravel {contact_response_data}")
 
             if contact_response_data.status_code != 201:
                 raise KlooException(
                     f"Error in posting contacts data: {contact_response_data.json()}"
                 )
 
+            success_message = "success message: posting contacts data to laravel"
+            send_slack_notification(success_message)
             return {
                 "status": True,
                 "data": contact_response_data.json(),
@@ -65,6 +70,8 @@ class KlooService:
             }
 
         except (KlooException, Exception) as e:
+            error_message = "Error in posting contacts data"
+            send_slack_notification(error_message)
             return self.handle_kloo_api_error("post_contacts_data", e)
 
     def post_tracking_categories_data(
@@ -74,6 +81,10 @@ class KlooService:
         Post tracking categories data to kloo API
         """
         try:
+            api_log(
+                msg=f"Posting Tracking Categories data to Kloo: {json.dumps(tracking_categories_formatted_payload)}"
+            )
+
             tc_url = f"{self.KLOO_URL}/organizations/erp-tracking-categories"
             tc_response_data = requests.post(
                 tc_url,
