@@ -147,7 +147,7 @@ class KlooService:
                 msg=f"Posting Items data to Kloo: {json.dumps(items_formatted_payload)}"
             )
 
-            items_url = f"{self.KLOO_URL}/ap/erp-integration/insert-erp-invoices"
+            items_url = f"{self.KLOO_URL}/ap/erp-integration/insert-erp-items"
             items_response_data = requests.post(
                 items_url, json=items_formatted_payload, headers=self.headers
             )

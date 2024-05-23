@@ -2,8 +2,10 @@
 Helper Functions for the ITEMS package
 """
 
+import uuid
 
-def format_items_data(items_data: dict):
+
+def format_items_data(items_data: dict, erp_link_token_id: str, organization_id: str):
     """
     Format items data for Kloo API
     """
@@ -17,10 +19,13 @@ def format_items_data(items_data: dict):
             ]
 
         formatted_items_data = {
-            "id": item.id,
+            "id": str(uuid.uuid4()),
+            "erp_id": item.id,
+            "erp_link_token_id": erp_link_token_id,
+            "organization_id": organization_id,
             "remote_id": item.remote_id,
-            "created_at": item.created_at.isoformat(),
-            "modified_at": item.modified_at.isoformat(),
+            "erp_created_at": item.created_at.isoformat(),
+            "erp_modified_at": item.modified_at.isoformat(),
             "name": item.name,
             "status": item.status,
             "unit_price": item.unit_price,

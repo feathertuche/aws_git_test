@@ -535,9 +535,9 @@ def update_logs_for_daily_sync(
         erp_data = get_erp_link_token(erp_link_token_id)
 
         if erp_data.integration_name == "Xero":
-            modules_count = 6
+            modules_count = 7
         else:
-            modules_count = 5
+            modules_count = 6
 
         if not daily_sync_log:
             api_log(
