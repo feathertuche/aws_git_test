@@ -225,6 +225,9 @@ invoices_batch_size = 50
 tax_rate_page_size = 100
 tax_rate_batch_size = 100
 
+items_rate_page_size = 100
+items_rate_batch_size = 100
+
 SAGE_INTACCT_RETRIES = 12
 SAGE_INTACCT_INTERVAL = 300
 

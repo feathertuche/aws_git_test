@@ -10,6 +10,7 @@ from merge.resources.accounting import (
     InvoiceRequest,
     AccountingAttachmentRequest,
     InvoicesListRequestExpand,
+    ItemsListRequestExpand,
 )
 from rest_framework import status
 
@@ -17,6 +18,7 @@ from CONTACTS.helper_function import format_contacts_payload
 from INVOICES.exceptions import MergeApiException
 from INVOICES.helper_functions import format_merge_invoice_data
 from INVOICES.models import InvoiceAttachmentLogs
+from ITEMS.helper_functions import format_items_data
 from TRACKING_CATEGORIES.helper_function import format_tracking_categories_payload
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import (
@@ -25,6 +27,7 @@ from merge_integration.settings import (
     tax_rate_page_size,
     API_KEY,
     MERGE_BASE_URL,
+    items_rate_page_size,
 )
 from merge_integration.utils import create_merge_client
 from sqs_utils.sqs_manager import send_data_to_queue
@@ -464,3 +467,63 @@ class MergeInvoiceApiService(MergeService):
         except Exception as e:
             api_log(msg=f"INVOICE LOG EXCEPTION: Error creating log: {str(e)}")
             raise e
+
+
+class MergeItemsApiService(MergeService):
+    """
+    MergeItemsApiService class
+    """
+
+    def __init__(self, account_token: str, org_id: str, erp_link_token_id: str):
+        super().__init__(account_token)
+        self.org_id = org_id
+        self.erp_link_token_id = erp_link_token_id
+
+    def get_items(self, modified_date: str = None):
+        """
+        Get items from merge
+        """
+        try:
+            items = self.merge_client.accounting.items.list(
+                expand=ItemsListRequestExpand.COMPANY,
+                page_size=items_rate_page_size,
+                include_remote_data=True,
+                remote_fields="status",
+                show_enum_origins="status",
+                modified_after=modified_date,
+            )
+
+            if items.results is None or len(items.results) == 0:
+                return {"status": True, "data": []}
+
+            while True:
+                api_log(msg=f"Adding {len(items.results)} items to the list.")
+
+                # format the data and send to the queue
+                formatted_payload = format_items_data(
+                    items.results, self.erp_link_token_id, self.org_id
+                )
+
+                formatted_payload["erp_link_token_id"] = self.erp_link_token_id
+                formatted_payload["org_id"] = self.org_id
+
+                api_log(msg="started post data to SQS items to the list.")
+                send_data_to_queue(formatted_payload)
+                api_log(msg="end  post data to SQS items to the list.")
+
+                if items.next is None:
+                    break
+
+                items = self.merge_client.accounting.items.list(
+                    expand=ItemsListRequestExpand.COMPANY,
+                    page_size=items_rate_page_size,
+                    include_remote_data=True,
+                    remote_fields="status",
+                    show_enum_origins="status",
+                    modified_after=modified_date,
+                    cursor=items.next,
+                )
+
+            return {"status": True, "data": items.results}
+        except ApiError as e:
+            return self.handle_merge_api_error("get_items", e)
