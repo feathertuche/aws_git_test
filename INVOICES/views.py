@@ -31,7 +31,7 @@ class InvoiceCreate(APIView):
         return lnk_token
 
     def post(self, request):
-        api_log(msg="Processing GET request in MergeInvoice...")
+        api_log(msg=f"Processing Invoice CREATE request with data : {request.data}")
         data = request.data
 
         api_log(msg=f"Invoice Request : {json.dumps(data)}")
