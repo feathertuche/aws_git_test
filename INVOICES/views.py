@@ -1,3 +1,5 @@
+import json
+
 from merge.resources.accounting import (
     InvoiceLineItemRequest,
 )
@@ -31,6 +33,8 @@ class InvoiceCreate(APIView):
     def post(self, request):
         api_log(msg="Processing GET request in MergeInvoice...")
         data = request.data
+
+        api_log(msg=f"Invoice Request : {json.dumps(data)}")
 
         # Validate the request data
         serializer = InvoiceCreateSerializer(data=data)
@@ -113,6 +117,8 @@ class InvoiceCreate(APIView):
                 ],
             }
 
+            api_log(msg=f"Invoice Data : {invoice_data}")
+
             invoice_created = merge_api_service.create_invoice(invoice_data)
 
             model_id = invoice_data["id"]
@@ -120,6 +126,7 @@ class InvoiceCreate(APIView):
             update_invoices_erp_id(model_id, invoice_id)
 
             if invoice_created is None:
+                api_log(msg="Failed to create invoice in Merge")
                 return Response(
                     {"status": "error", "message": "Failed to create invoice in Merge"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -140,6 +147,7 @@ class InvoiceCreate(APIView):
 
             merge_api_service.create_attachment(attachment_payload)
 
+            api_log(msg="Invoice and attachment created successfully in Merge")
             return Response(
                 {
                     "status": "success",
