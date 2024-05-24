@@ -183,7 +183,7 @@ def create_sage_invoice_payload(invoice_validated_payload):
             "description": line_item_payload.get("item"),
             "quantity": line_item_payload.get("quantity"),
             "total_amount": line_item_payload.get("total_amount"),
-            "tracking_categories": model_data.get("tracking_categories"),
+            "tracking_categories": line_item_payload.get("tracking_categories"),
             "account": line_item_payload.get("account"),
             "sequence": line_item_payload.get("sequence"),
         }
@@ -231,7 +231,7 @@ def create_xero_invoice_payload(invoice_validated_payload):
             "description": line_item_payload.get("item"),
             "quantity": line_item_payload.get("quantity"),
             "created_at": line_item_payload.get("created_at"),
-            "tracking_categories": model_data.get("tracking_categories"),
+            "tracking_categories": line_item_payload.get("tracking_categories"),
             "integration_params": {
                 "tax_rate_remote_id": line_item_payload.get("tax_rate_remote_id")
             },
@@ -421,7 +421,7 @@ def patch_xero_invoice_payload(patch_payload):
                 else 0
             ),
             "created_at": line_item_data.get("created_at"),
-            # "tracking_categories": line_item_data.get("tracking_categories"),
+            "tracking_categories": line_item_data.get("tracking_categories"),
             # "integration_params": {
             #     "tax_rate_remote_id": line_item_data.get("tax_rate_remote_id")
             # },
