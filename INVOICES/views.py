@@ -43,6 +43,7 @@ class InvoiceCreate(APIView):
 
         # Get the erp_link_token_id from the request data
         self.erp_link_token_id = serializer.validated_data.get("erp_link_token_id")
+        org_id = serializer.validated_data.get("org_id")
 
         queryset = self.get_queryset()
         if queryset is None or queryset == []:
@@ -54,7 +55,9 @@ class InvoiceCreate(APIView):
 
         try:
             account_token = queryset[0]
-            merge_api_service = MergeInvoiceApiService(account_token)
+            merge_api_service = MergeInvoiceApiService(
+                account_token, org_id, self.erp_link_token_id
+            )
 
             line_items_payload = request.data.get("model")
 
