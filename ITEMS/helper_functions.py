@@ -24,8 +24,12 @@ def format_items_data(items_data: dict, erp_link_token_id: str, organization_id:
             "erp_link_token_id": erp_link_token_id,
             "organization_id": organization_id,
             "remote_id": item.remote_id,
-            "erp_created_at": item.created_at.isoformat(),
-            "erp_modified_at": item.modified_at.isoformat(),
+            "erp_created_at": (
+                item.created_at.isoformat() if item.created_at else None
+            ),
+            "erp_modified_at": (
+                item.modified_at.isoformat() if item.modified_at else None
+            ),
             "name": item.name,
             "status": item.status,
             "unit_price": item.unit_price,
@@ -33,7 +37,9 @@ def format_items_data(items_data: dict, erp_link_token_id: str, organization_id:
             "purchase_account": item.purchase_account,
             "sales_account": item.sales_account,
             "company": item.company,
-            "remote_updated_at": item.remote_updated_at.isoformat(),
+            "remote_updated_at": (
+                item.remote_updated_at.isoformat() if item.remote_updated_at else None
+            ),
             "remote_was_deleted": item.remote_was_deleted,
             "field_mappings": item.field_mappings,
             "remote_data": erp_remote_data,
