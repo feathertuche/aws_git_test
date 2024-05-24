@@ -155,7 +155,7 @@ def filter_attachment_payloads(attachment_valid_payload, invoice_created):
 
     if integration_name == "Sage Intacct":
         return create_sage_attachment_payload(
-            model_data, invoice_created.model.remote_id
+            model_data, invoice_created.model.id, invoice_created.model.remote_id
         )
 
     elif integration_name == "Xero":
@@ -272,7 +272,7 @@ def create_xero_invoice_payload(invoice_validated_payload):
     return invoice_data
 
 
-def create_sage_attachment_payload(attachment_validated_payload, remote_id):
+def create_sage_attachment_payload(attachment_validated_payload, invoice_id, remote_id):
     """
     create sage attachment
     """
@@ -284,6 +284,8 @@ def create_sage_attachment_payload(attachment_validated_payload, remote_id):
         "integration_params": {
             "folder_name": "Invoices",
             "supdocid": remote_id,
+            "transaction_type": "invoices",
+            "transaction_merge_id": invoice_id,
         },
     }
 

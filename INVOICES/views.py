@@ -12,7 +12,6 @@ from INVOICES.helper_functions import (
     update_post_erp_line_items,
     update_invoices_table,
 )
-
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
@@ -79,9 +78,6 @@ class InvoiceCreate(APIView):
             api_log(msg=f"Merge Invoice Created : {invoice_created}")
 
             invoice_table_id = invoice_data["id"]
-            # erp_invoice_id = invoice_created.model.id
-            # erp_remote_id = invoice_created.model.remote_id
-            # fetching line items from response bod
 
             # calling function to update remote id as 'erp id' in erp_id field in invoice_line_items table
             update_invoices_table(invoice_table_id, dict(invoice_created.model))
