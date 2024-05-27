@@ -3,7 +3,6 @@ from django.conf import settings
 import json
 import threading
 
-
 def send_data_to_queue(data_array):
     session = boto3.Session(
         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
