@@ -7,9 +7,10 @@ from merge.resources.accounting import (
 from rest_framework import status
 
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL
+from merge_integration.settings import GETKLOO_BASE_URL
 from merge_integration.utils import create_merge_client
 from sqs_utils.sqs_manager import send_data_to_queue
+
 
 class Command(BaseCommand):
     """
@@ -44,26 +45,27 @@ class Command(BaseCommand):
         try:
             contacts_client = create_merge_client(account_token)
 
-            suppliers_name_list = ["Digital Qube", "Lianne Hartley Solutions Limited"]
             contact_ids = []
 
             contact_data = contacts_client.accounting.contacts.list(
                 expand=ContactsListRequestExpand.ADDRESSES,
                 remote_fields="status",
+                is_supplier=True,
                 show_enum_origins="status",
                 page_size=100,
                 include_remote_data=True,
             )
-
             while True:
                 api_log(msg=f"Adding {len(contact_data.results)} contacts to the list.")
-
                 for contact in contact_data.results:
-                    if contact.name is None:
-                        continue
-                    api_log(msg=f"Contact Name: {contact.name} : {contact.id}")
-                    if contact.name in suppliers_name_list:
-                        contact_ids.append(contact.id)
+                    # api_log(msg=f"[CONTACT name LIST] : {contact.name} and {contact.id}")
+                    contact_ids.append(contact.id)
+                    api_log(
+                        msg=f"[after append CONTACT name LIST] : {contact.name} and {contact.id}"
+                    )
+                    # break
+                    # else:
+                    #     api_log(msg="No Name")
 
                 if contact_data.next is None:
                     break
@@ -71,6 +73,7 @@ class Command(BaseCommand):
                 contact_data = contacts_client.accounting.contacts.list(
                     expand=ContactsListRequestExpand.ADDRESSES,
                     remote_fields="status",
+                    is_supplier=True,
                     show_enum_origins="status",
                     page_size=100,
                     include_remote_data=True,
@@ -78,9 +81,13 @@ class Command(BaseCommand):
                 )
 
             api_log(msg=f"Total Contacts: {contact_ids}")
+            api_log(msg="1")
 
             contacts = []
+            api_log(msg="2")
             for contact_id in contact_ids:
+                api_log(msg="3")
+                api_log(msg=f"Total Contact ids in retrive bloc: {contact_ids}")
                 contact = contacts_client.accounting.contacts.retrieve(
                     id=contact_id,
                     expand=ContactsRetrieveRequestExpand.ADDRESSES,
@@ -88,38 +95,51 @@ class Command(BaseCommand):
                     show_enum_origins="status",
                     include_remote_data=True,
                 )
+                api_log(msg="4")
                 contacts.append(contact)
-
+                api_log(msg="5")
+                api_log(msg=f"[CONTACTS LIST] : {contacts}")
+            # api_log(msg=f"[CONTACTS LIST outside for loop] : {contacts}")
+            api_log(msg="6")
             formatted_data = format_contact_data(contacts)
+            api_log(msg="7")
+            api_log(msg=f"[FORMATTED DATA] : {formatted_data}")
             api_log(msg=f"Formatted Data: {len(formatted_data)}")
-
+            api_log(msg="8")
             contact_payload = formatted_data
+            api_log(msg="9")
+            # api_log(msg=f"[contact payload] : {contact_payload}")
             contact_payload["erp_link_token_id"] = erp_link_token_id
             contact_payload["org_id"] = org_id
-
-            contact_url = f"{GETKLOO_LOCAL_URL}/ap/erp-integration/insert-erp-contacts"
-
+            api_log(msg="10")
+            api_log(msg=f"After erp link token {contact_payload}")
+            api_log(msg="11")
+            contact_url = f"{GETKLOO_BASE_URL}/ap/erp-integration/insert-erp-contacts"
+            api_log(msg="12")
             contact_response_data = requests.post(
                 contact_url,
                 json=contact_payload,
                 headers={"Authorization": f"Bearer {auth_token}"},
             )
+            api_log(msg="13")
 
-            api_log(msg=f"2 contact_supplier_ module started post data to SQS contacts to the list.")
             api_log(
-                msg=f"started--- send--- queue"
+                msg="2 contact_supplier_ module started post data to SQS contacts to the list."
             )
+            api_log(msg="started--- send--- queue")
             send_data_to_queue(contact_payload)
-            api_log(msg=f"end  post data to SQS contacts to the list.")
-            api_log(
-                msg=f"end--- send--- queue"
-            )
+            api_log(msg="end  post data to SQS contacts to the list.")
+            api_log(msg="end--- send--- queue")
 
             if contact_response_data.status_code == status.HTTP_201_CREATED:
+                api_log(msg="14")
                 api_log(msg="data inserted successfully in the kloo Contacts system")
             else:
-                api_log(msg="Failed to send data to Kloo Contacts API")
-
+                api_log(msg="15")
+                api_log(
+                    msg=f"Failed to send data to Kloo Contacts API with status code {contact_response_data.status_code}"
+                )
+            api_log(msg="16")
         except Exception as e:
             api_log(msg=f"Error in fetching contacts data : {e}")
             return

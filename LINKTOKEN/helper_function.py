@@ -35,6 +35,65 @@ from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from merge_integration.helper_functions import api_log
 
 
+def validate_webhook(payload):
+    """
+    Function to validate the webhook
+    """
+    api_log(msg="WEBHOOK: Webhook validated successfully")
+
+    linked_account_data = payload.get("linked_account", None)
+    account_token_data = payload.get("data")
+    end_user_origin_id = linked_account_data.get("end_user_origin_id")
+
+    erp_link_token_exists = get_erp_link_token(erp_link_token_id=end_user_origin_id)
+    if erp_link_token_exists is None:
+        api_log(
+            msg=f"WEBHOOK: Erp link token does not exist for {end_user_origin_id}"
+            f" in this environment"
+        )
+        return {
+            "status": False,
+            "message": "WEBHOOK: Erp link token does not exist",
+        }
+
+    event = payload.get("hook").get("event")
+    if account_token_data.get(
+        "integration_name"
+    ) == "Sage Intacct" and "synced" in event.split("."):
+        if account_token_data.get("sync_status").get("model_name") != "Account":
+            return {
+                "status": False,
+                "message": "WEBHOOK: Webhook event not found",
+            }
+        daily_or_force_sync = daily_or_force_sync_log(
+            {
+                "link_token_id": end_user_origin_id,
+                "is_initial_sync": True,
+                "status": "success",
+            }
+        )
+
+        if not daily_or_force_sync:
+            api_log(
+                msg=f"WEBHOOK: No initial sync record found for {end_user_origin_id}"
+            )
+            return {
+                "status": False,
+                "message": "WEBHOOK: No initial sync record found",
+            }
+
+        api_log(msg="WEBHOOK: No proper event for sage intacct")
+        return {
+            "status": True,
+            "message": "WEBHOOK: Sage Intacct event found",
+        }
+
+    return {
+        "status": True,
+        "message": "WEBHOOK: Webhook validated successfully",
+    }
+
+
 def get_org_entity(organization_id):
     with connection.cursor() as cursor:
         cursor.execute(
