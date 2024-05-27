@@ -22,13 +22,10 @@ class RequestLogMiddleware:
         upstream_time = response_start_time - request_end_time
 
         log_data = [
-            f"[{time.strftime('%Y-%m-%d %H:%M:%S')}]",
             request.META["REMOTE_ADDR"],
             request.method,
             request.get_full_path(),
-            json.dumps(dict(request.headers)),
             response.status_code,
-            json.dumps(dict(response.items())),
             f"{response_time:.6f}",
             f"{upstream_time:.6f}",
         ]
