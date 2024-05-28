@@ -104,9 +104,11 @@ class InvoiceCreate(APIView):
             error_message = f"EXCEPTION : Failed to create invoice in Merge: {str(e)}"
             merge_invoice_request_error_payload = f"Invoice creation failed : Invoice payload:{invoice_data}"
             send_slack_notification(merge_invoice_request_error_payload)
+            merge_invoice_request_error = f"Merge Request ERROR: Invoice:{str(e)}"
+            send_slack_notification(merge_invoice_request_error)
             merge_invoice_attc_payload = f"Invoice creation failed: attachment payload:{attachment_payload}"
             send_slack_notification(merge_invoice_attc_payload)
-            merge_invoice_request_error = f"Merge Request: Invoice and attachment Failed:{str(e)}"
+            merge_invoice_request_error = f"Merge Request ERROR: Invoice attachment:{str(e)}"
             send_slack_notification(merge_invoice_request_error)
             return Response(
                 {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
