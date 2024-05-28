@@ -36,6 +36,7 @@ AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION")
 SQS_QUEUE = os.environ.get("SQS_QUEUE")
 SQS_BUCKET = os.environ.get("SQS_BUCKET")
 MERGE_BASE_URL = os.environ.get("BASE_URL")
+SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 # app = Celery("merge_integration")
 # app.config_from_object("django.conf:settings", namespace="CELERY")
 # Quick-start development settings - unsuitable for production

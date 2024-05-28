@@ -40,7 +40,7 @@ def send_data_to_queue(data_array):
 
 
 def send_slack_notification(message):
-    webhook_url = "https://hooks.slack.com/services/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"
+    webhook_url = settings.SLACK_WEBHOOK_URL,
     payload = {"text": message}
     headers = {"Content-Type": "application/json"}
 
