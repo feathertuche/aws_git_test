@@ -67,8 +67,8 @@ class InvoiceCreate(APIView):
             api_log(msg=f"Invoice Request : {json.dumps(data)}")
             invoice_data = filter_invoice_payloads(data)
             api_log(msg=f"Invoice Formatted Payload : {invoice_data}")
-            merge_invoice_request = f"Invoice Formatted Payload : {invoice_data}"
-            send_slack_notification(merge_invoice_request)
+            # merge_invoice_request = f"Invoice Formatted Payload : {invoice_data}"
+            # send_slack_notification(merge_invoice_request)
             invoice_created = merge_api_service.create_invoice(invoice_data)
             if invoice_created is None:
                 return Response(
@@ -102,9 +102,9 @@ class InvoiceCreate(APIView):
 
         except Exception as e:
             error_message = f"EXCEPTION : Failed to create invoice in Merge: {str(e)}"
-            merge_invoice_request_error_payload = f"Merge Request: Invoice:{invoice_data}"
+            merge_invoice_request_error_payload = f"Invoice creation failed : Invoice payload:{invoice_data}"
             send_slack_notification(merge_invoice_request_error_payload)
-            merge_invoice_attc_payload = f"Merge Request: attachment payload:{attachment_payload}"
+            merge_invoice_attc_payload = f"Invoice creation failed: attachment payload:{attachment_payload}"
             send_slack_notification(merge_invoice_attc_payload)
             merge_invoice_request_error = f"Merge Request: Invoice and attachment Failed:{str(e)}"
             send_slack_notification(merge_invoice_request_error)
