@@ -88,8 +88,8 @@ class InvoiceCreate(APIView):
             merge_api_service.create_attachment(attachment_payload)
             merge_invoice_request=f"Invoice Formatted Payload : {invoice_data}"
             send_slack_notification(merge_invoice_request)
-            merge_invoice_request = f"Invoice and attachment created successfully in Merge : {invoice_table_id}"
-            send_slack_notification(merge_invoice_request)
+            # merge_invoice_request = f"Invoice and attachment created successfully in Merge : {invoice_table_id}"
+            # send_slack_notification(merge_invoice_request)
 
             return Response(
                 {
@@ -101,7 +101,7 @@ class InvoiceCreate(APIView):
 
         except Exception as e:
             error_message = f"EXCEPTION : Failed to create invoice in Merge: {str(e)}"
-            merge_invoice_request_error = f"Merge Request: Invoice and attachment Failed : {invoice_data} : error msg :{str(e)}"
+            merge_invoice_request_error = f"Merge Request: Invoice and attachment Failed:{str(e)}"
             send_slack_notification(merge_invoice_request_error)
             return Response(
                 {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR

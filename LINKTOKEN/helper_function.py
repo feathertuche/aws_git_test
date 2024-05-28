@@ -245,15 +245,14 @@ def handle_webhook_sync_modules(linked_account_data: dict, account_token_data: d
 
             if response_data.status == "in_progress":
                 # store the initial sync data
-                msg = "Initial sync started"
+                msg = f"WEBHOOK: Start initial sync {account_token_data.get('account_token')}"
                 send_slack_notification(msg)
                 store_initial_sync(linked_account_data, account_token_data)
-                send_slack_notification("initial sync completed")
             else:
                 # store daily sync data
-                send_slack_notification("daily sync started")
+                msg = f"daily sync started: {account_token_data.get('account_token')}"
+                send_slack_notification(msg)
                 store_daily_sync(linked_account_data, account_token_data)
-                send_slack_notification("daily sync completed")
 
         else:
             api_log(
