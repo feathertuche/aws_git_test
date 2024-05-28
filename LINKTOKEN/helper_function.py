@@ -34,6 +34,7 @@ from SYNC.helper_function import (
 from TAX_RATE.views import MergePostTaxRates
 from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from merge_integration.helper_functions import api_log
+from sqs_utils.sqs_manager import send_slack_notification
 
 
 def validate_webhook(payload):
@@ -244,10 +245,15 @@ def handle_webhook_sync_modules(linked_account_data: dict, account_token_data: d
 
             if response_data.status == "in_progress":
                 # store the initial sync data
+                msg = "Initial sync started"
+                send_slack_notification(msg)
                 store_initial_sync(linked_account_data, account_token_data)
+                send_slack_notification("initial sync completed")
             else:
                 # store daily sync data
+                send_slack_notification("daily sync started")
                 store_daily_sync(linked_account_data, account_token_data)
+                send_slack_notification("daily sync completed")
 
         else:
             api_log(
@@ -266,6 +272,8 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
     api_log(
         msg=f"WEBHOOK: Start initial sync {linked_account_data.get('end_user_origin_id')}"
     )
+    initial_sync = f"WEBHOOK: Start initial sync {linked_account_data.get('end_user_origin_id')}"
+    send_slack_notification(initial_sync)
 
     try:
         erp_link_token_id = linked_account_data.get("end_user_origin_id")
@@ -312,6 +320,9 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         api_log(
             msg=f"WEBHOOK: Inserting sync log table for in progress for erp_data {erp_data}"
         )
+
+        insert_sync = f"WEBHOOK: Inserting sync log table for in progress for erp_data {erp_data}"
+        send_slack_notification(insert_sync)
         for module in modules:
             api_log(
                 msg=f"WEBHOOK: insert sync log table for in progress: {module} in progress"
@@ -380,9 +391,11 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         }
 
         api_log(msg="WEBHOOK: Thread started")
-
+        integration_name_msg = f"Integration Name: {integration_name}"
+        send_slack_notification(integration_name_msg)
         api_log(msg=f"WEBHOOK:: Total module syncing: {modules}")
-
+        total_module_sync = f"WEBHOOK:: Total module syncing: {modules}"
+        send_slack_notification(total_module_sync)
         if integration_name == "Sage Intacct":
             for module in modules:
                 thread = Thread(
@@ -415,8 +428,12 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
 
             thread.start()
         api_log(msg="WEBHOOK: Thread started successfully")
+        thread_sync = "WEBHOOK: Thread started successfully"
+        send_slack_notification(thread_sync)
     except Exception as e:
         api_log(msg=f"WEBHOOK: Exception occurred: in store_initial_sync {e}")
+        thread_error_sync = f"WEBHOOK: Exception occurred: in store_initial_sync {e}"
+        send_slack_notification(thread_error_sync)
 
 
 def store_daily_sync(linked_account_data: dict, account_token_data: dict):
@@ -426,6 +443,7 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
     api_log(
         msg=f"WEBHOOK: Start Daily sync {linked_account_data.get('end_user_origin_id')}"
     )
+
 
     try:
         erp_link_token_id = linked_account_data.get("end_user_origin_id")
@@ -605,7 +623,8 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
         }
 
         api_log(msg="WEBHOOK: Thread started")
-
+        webhook_msg = f"WEBHOOK:: Total module syncing: {modules}"
+        send_slack_notification(webhook_msg)
         api_log(msg=f"WEBHOOK:: Total module syncing: {modules}")
         if integration_name == "Sage Intacct":
             for module in modules:
@@ -642,6 +661,9 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
             thread.start()
 
         api_log(msg="WEBHOOK: Thread started successfully")
-
+        webhook_msg_complete = f"WEBHOOK: Thread started successfully"
+        send_slack_notification(webhook_msg_complete)
     except Exception as e:
         api_log(msg=f"WEBHOOK: Exception occurred: in store_daily_sync {e}")
+        webhook_error_msg = f"WEBHOOK: Exception occurred: in store_daily_sync {e}"
+        send_slack_notification(webhook_error_msg)
