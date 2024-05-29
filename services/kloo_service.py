@@ -126,8 +126,8 @@ class KlooService:
                 erp_error_msg = f"Invoice data sync failed {invoice_response_data.json()}"
                 send_slack_notification(erp_error_msg)
                 raise KlooException
-            erp_msg = f"Invoice data sync completed successfully"
-            send_slack_notification(erp_msg)
+            # erp_msg = f"Invoice data sync completed successfully"
+            # send_slack_notification(erp_msg)
             return {
                 "status": True,
                 "data": invoice_response_data.json(),
