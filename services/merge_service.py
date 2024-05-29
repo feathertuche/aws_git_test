@@ -527,3 +527,118 @@ class MergeItemsApiService(MergeService):
             return {"status": True, "data": items.results}
         except ApiError as e:
             return self.handle_merge_api_error("get_items", e)
+
+
+class MergePassthroughApiService(MergeService):
+    """
+    MergeItemsApiService class
+    """
+
+    def __init__(self, account_token: str, org_id: str, erp_link_token_id: str):
+        super().__init__(account_token)
+        self.org_id = org_id
+        self.erp_link_token_id = erp_link_token_id
+
+    def api_call(self, passthrough_data: dict):
+        """
+        api_call method
+        """
+        try:
+            headers = {
+                "Authorization": f"Bearer {API_KEY}",
+                "X-Account-Token": self.account_token,
+                "Accept": "application/json",
+            }
+
+            passthrough_url = f"{MERGE_BASE_URL}/api/accounting/v1/passthrough"
+            api_log(msg=f"passthrough_url {passthrough_url}")
+
+            response = requests.post(
+                passthrough_url, json=passthrough_data, headers=headers
+            )
+            api_log(msg=f"Response : {response.json()}")
+
+            if response.status_code != status.HTTP_200_OK:
+                error = f"Error in passthrough_api_call : {response.json()}"
+                raise MergeApiException(error)
+
+            response_json = response.json()
+            return response_json
+
+        except Exception as e:
+            return self.handle_merge_api_error("passthrough_api_call", e)
+
+    def get_sage_attachment_folders(self):
+        try:
+            payload = {
+                "method": "POST",
+                "path": "/ia/xml/xmlgw.phtml",
+                "request_format": "XML",
+                "headers": {"Content-Type": "application/xml"},
+                "data": "<?xml version='1.0' encoding='UTF-8'?><request><control><senderid>{"
+                "sender_id}</senderid><password>{sender_password}</password><controlid>{"
+                "timestamp}</controlid><uniqueid>false</uniqueid><dtdversion>3.0</dtdversion"
+                "><includewhitespace>false</includewhitespace></control><operation><authentication><sessionid"
+                ">{temp_session_id}</sessionid></authentication><content><function controlid='{guid}'><get "
+                "object='supdocfolder' key='Kloo'></get></function></content></operation></request>",
+            }
+
+            response = self.api_call(payload)
+            if response["status"] is False:
+                return {"status": False, "error": response["error"]}
+
+            # now check if there is some error from sage
+            sage_response = response.get("response").get("response")
+            if sage_response.get("control").get("status") == "failure":
+                api_log(
+                    msg=f"Error checking Sage attachment folder: {sage_response.get('errormessage')}"
+                )
+                return {
+                    "status": False,
+                    "error": "Error checking Sage attachment folder",
+                }
+
+            return {"status": True, "data": response}
+        except Exception as e:
+            return self.handle_merge_api_error("get_sage_attachment_folders", e)
+
+    def create_sage_attachment_folders(self):
+        """
+        Create attachment folder in Sage
+        """
+
+        try:
+            payload = {
+                "method": "POST",
+                "path": "/ia/xml/xmlgw.phtml",
+                "request_format": "XML",
+                "headers": {"Content-Type": "application/xml"},
+                "data": "<?xml version='1.0' encoding='UTF-8'?><request><control><senderid>{"
+                "sender_id}</senderid><password>{sender_password}</password><controlid>{"
+                "timestamp}</controlid><uniqueid>false</uniqueid><dtdversion>3.0</dtdversion"
+                "><includewhitespace>false</includewhitespace></control><operation><authentication><sessionid"
+                ">{temp_session_id}</sessionid></authentication><content><function controlid='{"
+                "guid}'><create_supdocfolder><supdocfoldername>Kloo</supdocfoldername"
+                "><supdocfolderdescription></supdocfolderdescription><supdocparentfoldername"
+                "></supdocparentfoldername></create_supdocfolder></function></content></operation></request>",
+            }
+
+            response = self.api_call(payload)
+            if response["status"] is False:
+                return {"status": False, "error": response["error"]}
+
+            # now check if there is some error from sage
+            sage_response = response.get("response").get("response")
+            if sage_response.get("control").get("status") == "failure":
+                api_log(
+                    msg=f"Error checking Sage attachment folder: {sage_response.get('errormessage')}"
+                )
+                return {
+                    "status": False,
+                    "error": "Error checking Sage attachment folder",
+                }
+
+            return {"status": True, "data": response}
+
+        except Exception as e:
+            return self.handle_merge_api_error("get_sage_attachment_folders", e)

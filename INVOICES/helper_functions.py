@@ -201,7 +201,7 @@ def create_sage_invoice_payload(invoice_validated_payload):
         "contact": model_data.get("contact"),
         "number": model_data.get("number"),
         "memo": model_data.get("memo"),
-        "company": None,
+        "company": model_data.get("company"),
         "currency": model_data.get("currency"),
         "tracking_categories": model_data.get("tracking_categories"),
         "sub_total": model_data.get("sub_total"),
@@ -282,7 +282,7 @@ def create_sage_attachment_payload(attachment_validated_payload, invoice_id, rem
         "file_name": attachment_data.get("file_name"),
         "file_url": attachment_data.get("file_url"),
         "integration_params": {
-            "folder_name": "Invoices",
+            "folder_name": "Kloo",
             "supdocid": remote_id,
             "transaction_type": "invoices",
             "transaction_merge_id": invoice_id,
@@ -645,4 +645,53 @@ def update_invoices_table(invoice_table_id, invoice_created_payload):
 
     except Exception as e:
         api_log(msg=f"Error updating line item query: {str(e)}")
+        raise e
+
+
+def check_or_create_sage_attachment_folder(
+    merge_passthrough_service,
+):
+    """
+    Check if the attachment folder exists in Sage Intacct
+    """
+    try:
+        # check if the folder exists
+        get_folder_response = merge_passthrough_service.get_sage_attachment_folders()
+        if get_folder_response["status"] is False:
+            return {
+                "status": False,
+                "error": f"Error checking Sage attachment folder: {get_folder_response}",
+            }
+
+        # create the folder if it doesn't exist
+        sage_folder = (
+            get_folder_response.get("data")
+            .get("response")
+            .get("response")
+            .get("operation")
+            .get("result")
+            .get("data")
+        )
+
+        if sage_folder:
+            return {
+                "status": True,
+                "message": "Sage attachment folder already exists",
+            }
+
+        create_folder_response = (
+            merge_passthrough_service.create_sage_attachment_folders()
+        )
+        if create_folder_response["status"] is False:
+            return {
+                "status": False,
+                "error": f"Error checking Sage attachment folder: {create_folder_response}",
+            }
+
+        return {
+            "status": True,
+            "message": "Sage attachment folder created successfully",
+        }
+    except Exception as e:
+        api_log(msg=f"Error checking or creating Sage attachment folder: {e}")
         raise e
