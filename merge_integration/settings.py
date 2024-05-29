@@ -38,6 +38,7 @@ AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION")
 SQS_QUEUE = os.environ.get("SQS_QUEUE")
+SLACK_WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL")
 # app = Celery("merge_integration")
 # app.config_from_object("django.conf:settings", namespace="CELERY")
 # Quick-start development settings - unsuitable for production
