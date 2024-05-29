@@ -201,7 +201,7 @@ def create_sage_invoice_payload(invoice_validated_payload):
         "contact": model_data.get("contact"),
         "number": model_data.get("number"),
         "memo": model_data.get("memo"),
-        "company": None,
+        "company": model_data.get("company"),
         "currency": model_data.get("currency"),
         "tracking_categories": model_data.get("tracking_categories"),
         "sub_total": model_data.get("sub_total"),
