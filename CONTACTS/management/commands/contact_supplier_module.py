@@ -2,7 +2,6 @@ import requests
 from django.core.management.base import BaseCommand
 from merge.resources.accounting import (
     ContactsRetrieveRequestExpand,
-    ContactsListRequestExpand,
 )
 from rest_framework import status
 
@@ -44,35 +43,35 @@ class Command(BaseCommand):
         try:
             contacts_client = create_merge_client(account_token)
 
-            contact_data = contacts_client.accounting.contacts.list(
-                expand=ContactsListRequestExpand.ADDRESSES,
-                # remote_fields="status",
-                # is_supplier=True,
-                show_enum_origins="status",
-                page_size=100,
-                include_remote_data=True,
-            )
-            while True:
-                api_log(msg=f"Adding {len(contact_data.results)} contacts to the list.")
-                for contact in contact_data.results:
-                    api_log(
-                        msg=f"[CONTACT name LIST] : {contact.name} and {contact.id}"
-                    )
-
-                if contact_data.next is None:
-                    break
-
-                contact_data = contacts_client.accounting.contacts.list(
-                    expand=ContactsListRequestExpand.ADDRESSES,
-                    # remote_fields="status",
-                    # is_supplier=True,
-                    show_enum_origins="status",
-                    page_size=100,
-                    include_remote_data=True,
-                    cursor=contact_data.next,
-                )
-
-            contact_ids = []
+            # contact_data = contacts_client.accounting.contacts.list(
+            #     expand=ContactsListRequestExpand.ADDRESSES,
+            #     # remote_fields="status",
+            #     # is_supplier=True,
+            #     show_enum_origins="status",
+            #     page_size=100,
+            #     include_remote_data=True,
+            # )
+            # while True:
+            #     api_log(msg=f"Adding {len(contact_data.results)} contacts to the list.")
+            #     for contact in contact_data.results:
+            #         api_log(
+            #             msg=f"[CONTACT name LIST] : {contact.name} and {contact.id}"
+            #         )
+            #
+            #     if contact_data.next is None:
+            #         break
+            #
+            #     contact_data = contacts_client.accounting.contacts.list(
+            #         expand=ContactsListRequestExpand.ADDRESSES,
+            #         # remote_fields="status",
+            #         # is_supplier=True,
+            #         show_enum_origins="status",
+            #         page_size=100,
+            #         include_remote_data=True,
+            #         cursor=contact_data.next,
+            #     )
+            #
+            contact_ids = ["c883ee88-b0bf-4320-8921-58e2f9f0cd59"]
 
             api_log(msg=f"Total Contacts: {contact_ids}")
 
@@ -96,7 +95,8 @@ class Command(BaseCommand):
                 json=contact_payload,
                 headers={"Authorization": f"Bearer {auth_token}"},
             )
-            api_log(msg="13")
+
+            api_log(msg=f"Contact Response : {contact_response_data.json()}")
 
             if contact_response_data.status_code == status.HTTP_201_CREATED:
                 api_log(msg="14")
