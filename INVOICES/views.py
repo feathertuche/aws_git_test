@@ -12,7 +12,7 @@ from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerialize
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
 from services.merge_service import MergeInvoiceApiService
-
+from sqs_utils.sqs_manager import send_slack_notification
 
 class InvoiceCreate(APIView):
     """
@@ -123,6 +123,8 @@ class InvoiceCreate(APIView):
             api_log(msg=f"Invoice Data : {invoice_data}")
 
             invoice_created = merge_api_service.create_invoice(invoice_data)
+            merge_invoice_request_create = f"Invoice created : {invoice_created}"
+            send_slack_notification(merge_invoice_request_create)
 
             model_id = invoice_data["id"]
             invoice_id = invoice_created.model.id
@@ -149,7 +151,9 @@ class InvoiceCreate(APIView):
             }
 
             merge_api_service.create_attachment(attachment_payload)
-
+            merge_invoice_request_create = f"Invoice attachment: {attachment_payload}"
+            send_slack_notification(merge_invoice_request_create)
+            
             api_log(msg="Invoice and attachment created successfully in Merge")
             return Response(
                 {
@@ -161,6 +165,12 @@ class InvoiceCreate(APIView):
 
         except Exception as e:
             error_message = f"EXCEPTION : Failed to create invoice in Merge: {str(e)}"
+            merge_invoice_request_error_payload = f"Invoice creation failed : Invoice payload:{invoice_data}"
+            send_slack_notification(merge_invoice_request_error_payload)
+            merge_invoice_request_error = f"Merge Request ERROR: Invoice:{str(e)}"
+            send_slack_notification(merge_invoice_request_error)
+            merge_invoice_attc_payload = f"Invoice creation failed: attachment payload:{attachment_payload}"
+            send_slack_notification(merge_invoice_attc_payload)
             return Response(
                 {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

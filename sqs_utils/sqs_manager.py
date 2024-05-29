@@ -2,6 +2,7 @@ import json
 import threading
 
 import boto3
+import requests
 from django.conf import settings
 
 from merge_integration.helper_functions import api_log
@@ -60,3 +61,14 @@ def process_sqs_messages():
 def start_sqs_message_processing():
     thread = threading.Thread(target=process_sqs_messages)
     thread.start()
+
+def send_slack_notification(message):
+    webhook_url = settings.SLACK_WEBHOOK_URL
+    payload = {"text": message}
+    headers = {"Content-Type": "application/json"}
+
+    try:
+        response = requests.post(webhook_url, json=payload, headers=headers)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending Slack notification: {e}")
