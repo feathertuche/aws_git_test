@@ -206,7 +206,7 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
     """
     Function to store the initial sync data
     """
-    msg = f"WEBHOOK: Start initial sync link token id {erp_link_token_id} enduser org id  {linked_account_data.get('end_user_origin_id')}"
+    msg = f"WEBHOOK: Start initial sync link enduser org id  {linked_account_data.get('end_user_origin_id')}"
     send_slack_notification(msg)
     api_log(
         msg=f"WEBHOOK: Start initial sync {linked_account_data.get('end_user_origin_id')}"
