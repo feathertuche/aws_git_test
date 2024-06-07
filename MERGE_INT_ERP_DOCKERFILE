@@ -3,14 +3,16 @@ FROM python:3.10 AS builder
 
 WORKDIR /app
 
-# Install build and runtime dependencies in one layer
+# Install build dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+    apt-get install -y \
     gcc \
     python3-dev \
     libmariadb-dev \
-    libmariadb3 \
     && rm -rf /var/lib/apt/lists/*
+
+# Install runtime dependencies
+RUN apt-get install -y libmariadb3
 
 # Copy and install Python dependencies
 COPY requirements.txt .
@@ -20,18 +22,15 @@ RUN python -m venv venv && \
     pip install --no-cache-dir -r requirements.txt"
 
 # Stage 2: Production environment
-FROM python:3.10-slim-buster
+FROM python:3.10-alpine
 
 WORKDIR /app
 
 # Install runtime dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    mariadb-connector-c \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache mariadb-connector-c
 
 # Create a non-root user
-RUN useradd -m appuser && echo "appuser:appuser" | chpasswd
+RUN adduser -D appuser
 
 # Switch to the non-root user
 USER appuser
@@ -39,9 +38,6 @@ USER appuser
 # Copy virtual environment and application code from the builder stage
 COPY --from=builder /app/venv /app/venv
 COPY . .
-
-# Set environment variables
-ENV PYTHONUNBUFFERED 1
 
 # Expose the port your app runs on
 EXPOSE 8000
