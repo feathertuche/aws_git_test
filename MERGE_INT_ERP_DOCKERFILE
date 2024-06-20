@@ -11,36 +11,28 @@ RUN apt-get update && \
     libmariadb-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install runtime dependencies
-RUN apt-get install -y libmariadb3
-
 # Copy and install Python dependencies
 COPY requirements.txt .
 RUN python -m venv venv && \
     /bin/bash -c "source venv/bin/activate && \
-    pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r requirements.txt"
 
 # Stage 2: Production environment
 FROM python:3.10-alpine
 
 WORKDIR /app
+# Copy virtual environment from the builder stage
+COPY --from=builder /app/venv /app/venv
+COPY . .
 
 # Install runtime dependencies
 RUN apk add --no-cache mariadb-connector-c
 
-# Create a non-root user
-RUN adduser -D appuser
+# Update Python packages
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade setuptools wheel
 
-# Switch to the non-root user
-USER appuser
-
-# Copy virtual environment and application code from the builder stage
-COPY --from=builder /app/venv /app/venv
-COPY . .
-
-# Expose the port your app runs on
 EXPOSE 8000
 
-# Command to run your application
+#CMD ["venv/bin/gunicorn", "--workers", "2", "--bind", "0.0.0.0:8000", "merge_integration.wsgi:application"]
 CMD ["venv/bin/gunicorn", "--workers", "2", "--threads", "4", "--bind", "0.0.0.0:8000", "--timeout", "60", "--log-level", "debug", "--limit-request-field_size", "10000", "--limit-request-fields", "100", "merge_integration.wsgi:application"]
