@@ -181,6 +181,7 @@ def create_sage_invoice_payload(invoice_validated_payload):
             "currency": line_item_payload.get("currency"),
             "exchange_rate": model_data.get("exchange_rate"),
             "description": line_item_payload.get("item"),
+            "item": line_item_payload.get("item_id"),
             "quantity": line_item_payload.get("quantity"),
             "total_amount": line_item_payload.get("total_amount"),
             "tracking_categories": line_item_payload.get("tracking_categories"),
@@ -229,6 +230,7 @@ def create_xero_invoice_payload(invoice_validated_payload):
             "currency": line_item_payload.get("currency"),
             "exchange_rate": model_data.get("exchange_rate"),
             "description": line_item_payload.get("item"),
+            "item": line_item_payload.get("item_id"),
             "quantity": line_item_payload.get("quantity"),
             "created_at": line_item_payload.get("created_at"),
             "tracking_categories": line_item_payload.get("tracking_categories"),
@@ -337,6 +339,7 @@ def patch_sage_invoice_payload(patch_payload):
             "currency": line_item_data.get("currency"),
             "exchange_rate": line_item_data.get("exchange_rate"),
             "description": line_item_data.get("item"),
+            "item": line_item_data.get("item_id"),
             "quantity": float(
                 line_item_data.get("quantity")
                 if line_item_data.get("quantity") is not None
@@ -417,6 +420,7 @@ def patch_xero_invoice_payload(patch_payload):
             "sequence": line_item_data.get("sequence"),
             "exchange_rate": line_item_data.get("exchange_rate"),
             "description": line_item_data.get("item"),
+            "item": line_item_data.get("item_id"),
             "quantity": float(
                 line_item_data.get("quantity")
                 if line_item_data.get("quantity") is not None
