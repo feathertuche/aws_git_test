@@ -267,8 +267,7 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
     """
     Function to store the initial sync data
     """
-    msg = f"WEBHOOK: Start initial sync link enduser org id  {linked_account_data.get('end_user_origin_id')}"
-    send_slack_notification(msg)
+
     api_log(
         msg=f"WEBHOOK: Start initial sync {linked_account_data.get('end_user_origin_id')}"
     )
@@ -320,6 +319,7 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         api_log(
             msg=f"WEBHOOK: Inserting sync log table for in progress for erp_data {erp_data}"
         )
+
         insert_sync = f"WEBHOOK: Inserting sync log table for in progress for erp_data {erp_data}"
         send_slack_notification(insert_sync)
         for module in modules:
@@ -393,13 +393,8 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         integration_name_msg = f"Integration Name: {integration_name}"
         send_slack_notification(integration_name_msg)
         api_log(msg=f"WEBHOOK:: Total module syncing: {modules}")
-
-        integration_name_msg = f"Integration Name: {integration_name}"
-        send_slack_notification(integration_name_msg)
-        api_log(msg=f"WEBHOOK:: Total module syncing: {modules}")
         total_module_sync = f"WEBHOOK:: Total module syncing: {modules}"
         send_slack_notification(total_module_sync)
-
         if integration_name == "Sage Intacct":
             for module in modules:
                 thread = Thread(
@@ -447,8 +442,6 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
     api_log(
         msg=f"WEBHOOK: Start Daily sync {linked_account_data.get('end_user_origin_id')}"
     )
-    msg = f"daily sync started: {linked_account_data.get('end_user_origin_id')}"
-    send_slack_notification(msg)
 
 
     try:

@@ -18,9 +18,9 @@ from .helper_function import (
     get_linktoken,
     handle_webhook_link_account,
     handle_webhook_sync_modules,
+    validate_webhook,
 )
 from .model import ErpLinkToken
-from .queries import get_erp_link_token
 
 # Define a global lock
 webhook_lock = Lock()
@@ -132,35 +132,17 @@ class WebHook(APIView):
                 linked_account_data = payload.get("linked_account", None)
                 account_token_data = payload.get("data")
                 end_user_origin_id = linked_account_data.get("end_user_origin_id")
-                # check if the linked account exists , since webhook hits all env
-                erp_link_token_exists = get_erp_link_token(
-                    erp_link_token_id=end_user_origin_id
-                )
-                if erp_link_token_exists is None:
-                    api_log(
-                        msg=f"WEBHOOK: Erp link token does not exist for {end_user_origin_id}"
-                        f" in this environment"
-                    )
+
+                # validate webhook
+                is_valid = validate_webhook(payload)
+                if not is_valid["status"]:
                     return Response(
-                        {"status": "WEBHOOK: Erp link token does not exist"},
-                        status=status.HTTP_404_NOT_FOUND,
+                        {"status": is_valid["message"]},
+                        status=status.HTTP_400_BAD_REQUEST,
                     )
 
                 # check type of webhook it is
                 event = payload.get("hook").get("event")
-                if "synced" in event.split("."):
-                    # for sage intacct , we will only check for company module alert
-                    if (
-                        account_token_data.get("integration_name") == "Sage Intacct"
-                        and account_token_data.get("sync_status").get("model_name")
-                        != "Account"
-                    ):
-                        api_log(msg="WEBHOOK: No proper event for sage intacct")
-                        return Response(
-                            {"status": "No proper event found"},
-                            status=status.HTTP_404_NOT_FOUND,
-                        )
-
                 if "synced" in event.split("."):
                     api_log(
                         msg=f"WEBHOOK: Merge module data sync data alert for End User id {end_user_origin_id} "

@@ -47,24 +47,27 @@ class KlooService:
         Post contacts data to kloo API
         """
         try:
+            api_log(
+                msg=f"SQS data  -Posting Contacts data to Kloo: {json.dumps(contacts_formatted_payload)}"
+            )
+
             contact_url = f"{self.KLOO_URL}/ap/erp-integration/insert-erp-contacts"
             contact_response_data = requests.post(
                 contact_url,
                 json=contacts_formatted_payload,
                 headers=self.headers,
             )
+            api_log(msg=f"After hit API to kloo laravel {contact_response_data}")
 
             if contact_response_data.status_code != 201:
-                merge_error_msg = f"Kloo Error in posting contacts data: {contact_response_data.json()}"
-                send_slack_notification(merge_error_msg)
                 raise KlooException(
                     f"Error in posting contacts data: {contact_response_data.json()}"
                 )
-                
+                merge_error_msg = f"Kloo Error in posting contacts data: {contact_response_data.json()}"
+                send_slack_notification(merge_error_msg)
 
             success_message = "Contact data sync completed successfully"
             send_slack_notification(success_message)
-
             return {
                 "status": True,
                 "data": contact_response_data.json(),
@@ -83,6 +86,10 @@ class KlooService:
         Post tracking categories data to kloo API
         """
         try:
+            api_log(
+                msg=f"Posting Tracking Categories data to Kloo: {json.dumps(tracking_categories_formatted_payload)}"
+            )
+
             tc_url = f"{self.KLOO_URL}/organizations/erp-tracking-categories"
             tc_response_data = requests.post(
                 tc_url,
@@ -128,8 +135,8 @@ class KlooService:
                 erp_error_msg = f"Invoice data sync failed {invoice_response_data.json()}"
                 send_slack_notification(erp_error_msg)
                 raise KlooException
-            # erp_msg = f"Invoice data sync completed successfully"
-            # send_slack_notification(erp_msg)
+            erp_msg = f"Invoice data sync completed successfully"
+            send_slack_notification(erp_msg)
             return {
                 "status": True,
                 "data": invoice_response_data.json(),

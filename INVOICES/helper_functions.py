@@ -2,9 +2,19 @@
 Helper functions for the INVOICES app
 """
 
+import json
 import uuid
+from datetime import datetime
 
-from INVOICES.queries import get_currency_id
+from merge.resources.accounting import InvoiceLineItemRequest
+
+from INVOICES.queries import (
+    get_currency_id,
+    update_line_item,
+    get_existing_invoice_line_items,
+    get_new_invoice_line_items,
+    update_erp_invoice,
+)
 from merge_integration.helper_functions import api_log
 
 
@@ -418,9 +428,9 @@ def patch_xero_invoice_payload(patch_payload):
             ),
             "created_at": line_item_data.get("created_at"),
             "tracking_categories": line_item_data.get("tracking_categories"),
-            # "integration_params": {
-            #     "tax_rate_remote_id": line_item_data.get("tax_rate_remote_id")
-            # },
+            "integration_params": {
+                "tax_rate_remote_id": line_item_data.get("tax_rate_remote_id")
+            },
             "account": line_item_data.get("account"),
             "remote_data": line_item_data.get("remote_data"),
         }
