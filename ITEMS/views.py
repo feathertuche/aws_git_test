@@ -1,7 +1,6 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from merge_integration.helper_functions import api_log
 from services.merge_service import MergeItemsApiService
 

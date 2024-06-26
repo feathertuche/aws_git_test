@@ -1,18 +1,19 @@
 import json
-import threading
-
 import boto3
 import requests
 from django.conf import settings
-
+from sqs_extended_client import (
+    SQSExtendedClientSession,
+)
 from merge_integration.helper_functions import api_log
-from sqs_extended_client import SQSExtendedClientSession
+from merge_integration.settings import SQS_BUCKET
+
 
 def send_data_to_queue(data_array):
     """
     Send data to the SQS queue
     """
-    api_log(msg=f"SQS payload length: {len(data_array)}")
+    api_log(msg=f"SQS working with session {SQSExtendedClientSession}")
 
     session = boto3.Session(
         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -20,7 +21,7 @@ def send_data_to_queue(data_array):
         region_name=settings.AWS_DEFAULT_REGION,
     )
     sqs_client = session.client("sqs")
-    sqs_client.large_payload_support = "prod-bulk-data-import"
+    sqs_client.large_payload_support = SQS_BUCKET
     sqs_client.use_legacy_attribute = False
     queue_name = settings.SQS_QUEUE
     queue_url = sqs_client.get_queue_url(QueueName=queue_name)
@@ -30,37 +31,11 @@ def send_data_to_queue(data_array):
         QueueUrl=queue_url["QueueUrl"],
         MessageBody=json.dumps(data_array),  # Convert data to JSON
     )
+
+    api_log(msg=f"Data sent to SQS: {response}")
+
     return response
 
-
-def process_sqs_messages():
-    session = boto3.Session(
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        region_name=settings.AWS_DEFAULT_REGION,
-    )
-    sqs_client = session.client("sqs")
-    queue_name = settings.SQS_QUEUE
-    response = sqs_client.get_queue_url(QueueName=queue_name)
-    queue_url = response["QueueUrl"]  # Extract QueueUrl from response
-
-    while True:
-        response = sqs_client.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=10)
-
-        messages = response.get("Messages", [])
-        for message in messages:
-            data = json.loads(message["Body"])
-            print("message received")
-            print(data)
-            print("message received")
-            sqs_client.delete_message(
-                QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"]
-            )
-
-
-def start_sqs_message_processing():
-    thread = threading.Thread(target=process_sqs_messages)
-    thread.start()
 
 def send_slack_notification(message):
     webhook_url = settings.SLACK_WEBHOOK_URL
