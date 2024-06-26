@@ -428,9 +428,9 @@ def patch_xero_invoice_payload(patch_payload):
             ),
             "created_at": line_item_data.get("created_at"),
             "tracking_categories": line_item_data.get("tracking_categories"),
-            # "integration_params": {
-            #     "tax_rate_remote_id": line_item_data.get("tax_rate_remote_id")
-            # },
+            "integration_params": {
+                "tax_rate_remote_id": line_item_data.get("tax_rate_remote_id")
+            },
             "account": line_item_data.get("account"),
             "remote_data": line_item_data.get("remote_data"),
         }
