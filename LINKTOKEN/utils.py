@@ -14,5 +14,6 @@ def webhook_sync_modul_filter(module_name_merge):
         "Account": "ACCOUNTS",
         "Contact": "CONTACTS",
         "Invoice": "INVOICES",
+        "Item": "ITEMS",
     }
     return module_label_map.get(module_name_merge)

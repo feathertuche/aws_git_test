@@ -38,6 +38,8 @@ AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION")
 SQS_QUEUE = os.environ.get("SQS_QUEUE")
+SQS_BUCKET = os.environ.get("SQS_BUCKET")
+MERGE_BASE_URL = os.environ.get("BASE_URL")
 SLACK_WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL")
 # app = Celery("merge_integration")
 # app.config_from_object("django.conf:settings", namespace="CELERY")
@@ -227,6 +229,9 @@ invoices_batch_size = 50
 
 tax_rate_page_size = 100
 tax_rate_batch_size = 100
+
+items_rate_page_size = 100
+items_rate_batch_size = 100
 
 SAGE_INTACCT_RETRIES = 12
 SAGE_INTACCT_INTERVAL = 300

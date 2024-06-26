@@ -10,6 +10,7 @@ from merge_integration.helper_functions import api_log
 from merge_integration.settings import GETKLOO_LOCAL_URL
 from sqs_utils.sqs_manager import send_slack_notification
 
+
 class KlooException(Exception):
     """
     KlooException class
@@ -59,6 +60,8 @@ class KlooService:
                 raise KlooException(
                     f"Error in posting contacts data: {contact_response_data.json()}"
                 )
+                
+
             success_message = "Contact data sync completed successfully"
             send_slack_notification(success_message)
 
@@ -95,7 +98,6 @@ class KlooService:
                 )
             erp_msg = f"Tracking Categories data sync completed successfully"
             send_slack_notification(erp_msg)
-
             return {
                 "status": True,
                 "data": tc_response_data.json(),
@@ -136,6 +138,35 @@ class KlooService:
 
         except (KlooException, Exception) as e:
             return self.handle_kloo_api_error("post_invoice_data", e)
+
+    def post_items_data(self, items_formatted_payload: dict):
+        """
+        Post invoice data to kloo API
+        """
+        try:
+            api_log(
+                msg=f"Posting Items data to Kloo: {json.dumps(items_formatted_payload)}"
+            )
+
+            items_url = f"{self.KLOO_URL}/ap/erp-integration/insert-erp-items"
+            items_response_data = requests.post(
+                items_url, json=items_formatted_payload, headers=self.headers
+            )
+
+            if items_response_data.status_code != 201:
+                api_log(
+                    msg=f"Error in posting items data: {items_response_data.json()}"
+                )
+                raise KlooException
+
+            return {
+                "status": True,
+                "data": items_response_data.json(),
+                "status_code": items_response_data.status_code,
+            }
+
+        except (KlooException, Exception) as e:
+            return self.handle_kloo_api_error("post_items_data", e)
 
     def sync_complete_mail(self, sync_complete_payload: dict):
         """
