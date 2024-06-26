@@ -6,13 +6,24 @@ from merge.resources.accounting import (
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from INVOICES.queries import update_invoices_erp_id
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer
 from LINKTOKEN.model import ErpLinkToken
 from merge_integration.helper_functions import api_log
-from services.merge_service import MergeInvoiceApiService
+from services.merge_service import MergeInvoiceApiService, MergePassthroughApiService
 from sqs_utils.sqs_manager import send_slack_notification
+
+from INVOICES.helper_functions import (
+    filter_invoice_payloads,
+    filter_attachment_payloads,
+    invoice_patch_payload,
+    update_patch_erp_line_items,
+    update_post_erp_line_items,
+    update_invoices_table,
+    check_or_create_sage_attachment_folder,
+)
+
+
 
 class InvoiceCreate(APIView):
     """
@@ -59,69 +70,11 @@ class InvoiceCreate(APIView):
                 account_token, org_id, self.erp_link_token_id
             )
 
-            line_items_payload = request.data.get("model")
-
-            # prepare line items data
-            line_items_data = []
-            for line_item_payload in line_items_payload.get("line_items", []):
-                line_item_data = {
-                    "id": line_item_payload.get("id"),
-                    "remote_id": line_item_payload.get("id"),
-                    # "name": line_item_payload.get("item"),
-                    # "status": line_item_payload.get("status"),
-                    "unit_price": line_item_payload.get("unit_price"),
-                    # "purchase_price": line_item_payload.get("purchase_price"),
-                    # "TaxType": line_item_payload.get("TaxType"),
-                    # "purchase_account": line_item_payload.get("purchase_account"),
-                    "currency": line_item_payload.get("currency"),
-                    "exchange_rate": line_items_payload.get("exchange_rate"),
-                    "remote_updated_at": line_item_payload.get("remote_updated_at"),
-                    "remote_was_deleted": line_item_payload.get("remote_was_deleted"),
-                    "description": line_item_payload.get("item"),
-                    "quantity": line_item_payload.get("quantity"),
-                    "created_at": line_item_payload.get("created_at"),
-                    "tracking_categories": line_items_payload.get(
-                        "tracking_categories"
-                    ),
-                    "integration_params": {
-                        "tax_rate_remote_id": line_item_payload.get(
-                            "tax_rate_remote_id"
-                        )
-                    },
-                    "account": line_item_payload.get("account"),
-                    "remote_data": line_item_payload.get("remote_data"),
-                }
-                line_items_data.append(line_item_data)
-
-            # prepare invoice data
-            invoice_data = {
-                "id": line_items_payload.get("id"),
-                "remote_id": line_items_payload.get("remote_id"),
-                "type": line_items_payload.get("type"),
-                "due_date": line_items_payload.get("due_date"),
-                "issue_date": line_items_payload.get("issue_date"),
-                "contact": line_items_payload.get("contact"),
-                "number": line_items_payload.get("number"),
-                "memo": line_items_payload.get("memo"),
-                "status": line_items_payload.get("status"),
-                "company": line_items_payload.get("company"),
-                "currency": line_items_payload.get("currency"),
-                "tracking_categories": line_items_payload.get("tracking_categories"),
-                "sub_total": line_items_payload.get("sub_total"),
-                "total_tax_amount": line_items_payload.get("total_tax_amount"),
-                "total_amount": line_items_payload.get("total_amount"),
-                "integration_params": {
-                    "tax_application_type": line_items_payload.get(
-                        "tax_application_type"
-                    )
-                },
-                "line_items": [
-                    InvoiceLineItemRequest(**line_item) for line_item in line_items_data
-                ],
-            }
-
-            api_log(msg=f"Invoice Data : {invoice_data}")
-
+            api_log(msg=f"Invoice Request : {json.dumps(data)}")
+            invoice_data = filter_invoice_payloads(data)
+            api_log(msg=f"Invoice Formatted Payload : {invoice_data}")
+            # merge_invoice_request = f"Invoice Formatted Payload : {invoice_data}"
+            # send_slack_notification(merge_invoice_request)
             invoice_created = merge_api_service.create_invoice(invoice_data)
             merge_invoice_request_create = f"Invoice created : {invoice_created}"
             send_slack_notification(merge_invoice_request_create)
@@ -155,6 +108,36 @@ class InvoiceCreate(APIView):
             send_slack_notification(merge_invoice_request_create)
             
             api_log(msg="Invoice and attachment created successfully in Merge")
+            invoice_table_id = invoice_data["id"]
+
+            # calling function to update remote id as 'erp id' in erp_id field in invoice_line_items table
+            update_invoices_table(invoice_table_id, dict(invoice_created.model))
+            update_post_erp_line_items(invoice_table_id, invoice_created)
+
+            # if sage attachment then create folder
+            if data.get("integration_name") == "Sage Intacct":
+                merge_passthrough_service = MergePassthroughApiService(
+                    account_token, org_id, self.erp_link_token_id
+                )
+                response = check_or_create_sage_attachment_folder(
+                    merge_passthrough_service
+                )
+                if response["status"] is False:
+                    return Response(
+                        {"error": response["error"]},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    )
+
+                api_log(msg=f"Sage Attachment Folder Created : {response['message']}")
+
+            attachment_payload = filter_attachment_payloads(data, invoice_created)
+            merge_api_service.create_attachment(attachment_payload)
+            # merge_invoice_request=f"Invoice Formatted Payload : {invoice_data}"
+            # send_slack_notification(merge_invoice_request)
+            # merge_invoice_request = f"Invoice and attachment created successfully in Merge : {invoice_table_id}"
+            merge_invoice_request_create = f"Invoice created : {invoice_created}"
+            send_slack_notification(merge_invoice_request_create)
+
             return Response(
                 {
                     "status": "success",
@@ -165,12 +148,18 @@ class InvoiceCreate(APIView):
 
         except Exception as e:
             error_message = f"EXCEPTION : Failed to create invoice in Merge: {str(e)}"
-            merge_invoice_request_error_payload = f"Invoice creation failed : Invoice payload:{invoice_data}"
+            merge_invoice_request_error_payload = (
+                f"Invoice creation failed : Invoice payload:{invoice_data}"
+            )
             send_slack_notification(merge_invoice_request_error_payload)
-            merge_invoice_request_error = f"Merge Request ERROR: Invoice:{str(e)}"
-            send_slack_notification(merge_invoice_request_error)
-            merge_invoice_attc_payload = f"Invoice creation failed: attachment payload:{attachment_payload}"
+            merge_invoice_attc_payload = (
+                f"Invoice creation failed: attachment payload:{attachment_payload}"
+            )
             send_slack_notification(merge_invoice_attc_payload)
+            merge_invoice_request_error = (
+                f"Merge Request: Invoice and attachment Failed:{str(e)}"
+            )
+            send_slack_notification(merge_invoice_request_error)
             return Response(
                 {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

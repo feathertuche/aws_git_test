@@ -15,6 +15,7 @@ from ACCOUNTS.views import InsertAccountData
 from COMPANY_INFO.views import MergeKlooCompanyInsert
 from CONTACTS.views import MergePostContacts
 from INVOICES.views import MergeInvoiceCreate
+from ITEMS.views import MergeItemCreate
 from LINKTOKEN.merge_sync_log_model import MergeSyncLog
 from LINKTOKEN.model import ErpLinkToken, ErpDailySyncLogs
 from LINKTOKEN.queries import (
@@ -34,6 +35,66 @@ from TAX_RATE.views import MergePostTaxRates
 from TRACKING_CATEGORIES.views import MergePostTrackingCategories
 from merge_integration.helper_functions import api_log
 from sqs_utils.sqs_manager import send_slack_notification
+
+
+def validate_webhook(payload):
+    """
+    Function to validate the webhook
+    """
+    api_log(msg="WEBHOOK: Webhook validated successfully")
+
+    linked_account_data = payload.get("linked_account", None)
+    account_token_data = payload.get("data")
+    end_user_origin_id = linked_account_data.get("end_user_origin_id")
+
+    erp_link_token_exists = get_erp_link_token(erp_link_token_id=end_user_origin_id)
+    if erp_link_token_exists is None:
+        api_log(
+            msg=f"WEBHOOK: Erp link token does not exist for {end_user_origin_id}"
+            f" in this environment"
+        )
+        return {
+            "status": False,
+            "message": "WEBHOOK: Erp link token does not exist",
+        }
+
+    event = payload.get("hook").get("event")
+    if account_token_data.get(
+        "integration_name"
+    ) == "Sage Intacct" and "synced" in event.split("."):
+        if account_token_data.get("sync_status").get("model_name") != "Account":
+            return {
+                "status": False,
+                "message": "WEBHOOK: Webhook event not found",
+            }
+        daily_or_force_sync = daily_or_force_sync_log(
+            {
+                "link_token_id": end_user_origin_id,
+                "is_initial_sync": True,
+                "status": "success",
+            }
+        )
+
+        if not daily_or_force_sync:
+            api_log(
+                msg=f"WEBHOOK: No initial sync record found for {end_user_origin_id}"
+            )
+            return {
+                "status": False,
+                "message": "WEBHOOK: No initial sync record found",
+            }
+
+        api_log(msg="WEBHOOK: No proper event for sage intacct")
+        return {
+            "status": True,
+            "message": "WEBHOOK: Sage Intacct event found",
+        }
+
+    return {
+        "status": True,
+        "message": "WEBHOOK: Webhook validated successfully",
+    }
+
 
 def get_org_entity(organization_id):
     with connection.cursor() as cursor:
@@ -211,6 +272,8 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
     api_log(
         msg=f"WEBHOOK: Start initial sync {linked_account_data.get('end_user_origin_id')}"
     )
+    initial_sync = f"WEBHOOK: Start initial sync {linked_account_data.get('end_user_origin_id')}"
+    send_slack_notification(initial_sync)
 
     try:
         erp_link_token_id = linked_account_data.get("end_user_origin_id")
@@ -224,6 +287,7 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
             modules.append("TrackingCategory")
             modules.append("Invoice")
             modules.append("CompanyInfo")
+            modules.append("Item")
 
         modules.append(merge_module_name)
 
@@ -313,6 +377,10 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
                 MergePostTaxRates,
                 {"link_token_details": erp_data.account_token},
             ),
+            "Item": (
+                MergeItemCreate,
+                {"link_token_details": erp_data.account_token},
+            ),
         }
         custom_request = HttpRequest()
         custom_request.method = "POST"
@@ -322,7 +390,8 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         }
 
         api_log(msg="WEBHOOK: Thread started")
-
+        integration_name_msg = f"Integration Name: {integration_name}"
+        send_slack_notification(integration_name_msg)
         api_log(msg=f"WEBHOOK:: Total module syncing: {modules}")
 
         integration_name_msg = f"Integration Name: {integration_name}"
@@ -363,6 +432,8 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
 
             thread.start()
         api_log(msg="WEBHOOK: Thread started successfully")
+        thread_sync = "WEBHOOK: Thread started successfully"
+        send_slack_notification(thread_sync)
     except Exception as e:
         api_log(msg=f"WEBHOOK: Exception occurred: in store_initial_sync {e}")
         thread_error_sync = f"WEBHOOK: Exception occurred: in store_initial_sync {e}"
@@ -378,6 +449,7 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
     )
     msg = f"daily sync started: {linked_account_data.get('end_user_origin_id')}"
     send_slack_notification(msg)
+
 
     try:
         erp_link_token_id = linked_account_data.get("end_user_origin_id")
@@ -423,6 +495,7 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
             modules.append("TrackingCategory")
             modules.append("Invoice")
             modules.append("CompanyInfo")
+            modules.append("Item")
 
         modules.append(merge_module_name)
 
@@ -538,6 +611,15 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
                     ),
                 },
             ),
+            "Item": (
+                MergeItemCreate,
+                {
+                    "link_token_details": erp_data.account_token,
+                    "last_modified_at": last_modified_dates.get(
+                        webhook_sync_modul_filter("item")
+                    ),
+                },
+            ),
         }
         custom_request = HttpRequest()
         custom_request.method = "POST"
@@ -547,7 +629,8 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
         }
 
         api_log(msg="WEBHOOK: Thread started")
-
+        webhook_msg = f"WEBHOOK:: Total module syncing: {modules}"
+        send_slack_notification(webhook_msg)
         api_log(msg=f"WEBHOOK:: Total module syncing: {modules}")
         if integration_name == "Sage Intacct":
             for module in modules:
@@ -584,6 +667,9 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
             thread.start()
 
         api_log(msg="WEBHOOK: Thread started successfully")
-
+        webhook_msg_complete = f"WEBHOOK: Thread started successfully"
+        send_slack_notification(webhook_msg_complete)
     except Exception as e:
         api_log(msg=f"WEBHOOK: Exception occurred: in store_daily_sync {e}")
+        webhook_error_msg = f"WEBHOOK: Exception occurred: in store_daily_sync {e}"
+        send_slack_notification(webhook_error_msg)

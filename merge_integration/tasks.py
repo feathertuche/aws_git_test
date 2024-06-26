@@ -55,6 +55,17 @@ def process_message(message):
             msg="TRACKING CATEGORIES : Added in Kloo Tracking Categories API",
         )
 
+    elif "erp_items" in message_body:
+        # Send items data to Kloo Items API
+        kloo_service = KlooService(
+            auth_token=None,
+            erp_link_token_id=None,
+        )
+        kloo_service.post_items_data(message_data)
+        api_log(
+            msg="ITEMS : Added in Kloo Items API",
+        )
+
     else:
         api_log(msg="Invalid message format. Skipping.")
 
@@ -87,10 +98,13 @@ def poll_sqs():
                 if "erp_contacts" in message_data_json:
                     process_message(message["Body"])
                     sqs.delete_payload_from_s3 = True
+                    api_log(msg="Posting contact data to Kloo")
+                    api_log(msg="start delete SQS ")
                     sqs.delete_message(
                         QueueUrl=settings.queue_url,
                         ReceiptHandle=message["ReceiptHandle"],
                     )
+                    api_log(msg="deleted SQS")
                 elif "invoices" in message_data_json:
                     process_message(message["Body"])
                     sqs.delete_payload_from_s3 = True
@@ -101,6 +115,12 @@ def poll_sqs():
                 elif "tracking_category" in message_data_json:
                     process_message(message["Body"])
                     sqs.delete_payload_from_s3 = True
+                    sqs.delete_message(
+                        QueueUrl=settings.queue_url,
+                        ReceiptHandle=message["ReceiptHandle"],
+                    )
+                elif "erp_items" in message_data_json:
+                    process_message(message["Body"])
                     sqs.delete_message(
                         QueueUrl=settings.queue_url,
                         ReceiptHandle=message["ReceiptHandle"],

@@ -11,6 +11,7 @@ from merge.resources.accounting import (
     InvoiceRequest,
     AccountingAttachmentRequest,
     InvoicesListRequestExpand,
+    ItemsListRequestExpand,
 )
 from rest_framework import status
 from rest_framework.response import Response
@@ -19,12 +20,16 @@ from CONTACTS.helper_function import format_contacts_payload
 from INVOICES.exceptions import MergeApiException
 from INVOICES.helper_functions import format_merge_invoice_data
 from INVOICES.models import InvoiceAttachmentLogs
+from ITEMS.helper_functions import format_items_data
 from TRACKING_CATEGORIES.helper_function import format_tracking_categories_payload
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import (
     invoices_page_size,
     contacts_page_size,
     tax_rate_page_size,
+    API_KEY,
+    MERGE_BASE_URL,
+    items_rate_page_size,
 )
 from merge_integration.utils import create_merge_client
 from sqs_utils.sqs_manager import send_data_to_queue
@@ -490,3 +495,178 @@ class MergeInvoiceApiService(MergeService):
         except Exception as e:
             api_log(msg=f"INVOICE LOG EXCEPTION: Error creating log: {str(e)}")
             raise e
+
+
+class MergeItemsApiService(MergeService):
+    """
+    MergeItemsApiService class
+    """
+
+    def __init__(self, account_token: str, org_id: str, erp_link_token_id: str):
+        super().__init__(account_token)
+        self.org_id = org_id
+        self.erp_link_token_id = erp_link_token_id
+
+    def get_items(self, modified_date: str = None):
+        """
+        Get items from merge
+        """
+        try:
+            items = self.merge_client.accounting.items.list(
+                expand=ItemsListRequestExpand.COMPANY,
+                page_size=items_rate_page_size,
+                include_remote_data=True,
+                remote_fields="status",
+                show_enum_origins="status",
+                modified_after=modified_date,
+            )
+
+            if items.results is None or len(items.results) == 0:
+                return {"status": True, "data": []}
+
+            while True:
+                api_log(msg=f"Adding {len(items.results)} items to the list.")
+
+                # format the data and send to the queue
+                formatted_payload = format_items_data(
+                    items.results, self.erp_link_token_id, self.org_id
+                )
+
+                formatted_payload["erp_link_token_id"] = self.erp_link_token_id
+                formatted_payload["org_id"] = self.org_id
+
+                api_log(msg="started post data to SQS items to the list.")
+                send_data_to_queue(formatted_payload)
+                api_log(msg="end  post data to SQS items to the list.")
+
+                if items.next is None:
+                    break
+
+                items = self.merge_client.accounting.items.list(
+                    expand=ItemsListRequestExpand.COMPANY,
+                    page_size=items_rate_page_size,
+                    include_remote_data=True,
+                    remote_fields="status",
+                    show_enum_origins="status",
+                    modified_after=modified_date,
+                    cursor=items.next,
+                )
+
+            return {"status": True, "data": items.results}
+        except ApiError as e:
+            return self.handle_merge_api_error("get_items", e)
+
+
+class MergePassthroughApiService(MergeService):
+    """
+    MergeItemsApiService class
+    """
+
+    def __init__(self, account_token: str, org_id: str, erp_link_token_id: str):
+        super().__init__(account_token)
+        self.org_id = org_id
+        self.erp_link_token_id = erp_link_token_id
+
+    def api_call(self, passthrough_data: dict):
+        """
+        api_call method
+        """
+        try:
+            headers = {
+                "Authorization": f"Bearer {API_KEY}",
+                "X-Account-Token": self.account_token,
+                "Accept": "application/json",
+            }
+
+            passthrough_url = f"{MERGE_BASE_URL}/api/accounting/v1/passthrough"
+            api_log(msg=f"passthrough_url {passthrough_url}")
+
+            response = requests.post(
+                passthrough_url, json=passthrough_data, headers=headers
+            )
+            api_log(msg=f"Response : {response.json()}")
+
+            if response.status_code != status.HTTP_200_OK:
+                error = f"Error in passthrough_api_call : {response.json()}"
+                raise MergeApiException(error)
+
+            response_json = response.json()
+            return response_json
+
+        except Exception as e:
+            return self.handle_merge_api_error("passthrough_api_call", e)
+
+    def get_sage_attachment_folders(self):
+        try:
+            payload = {
+                "method": "POST",
+                "path": "/ia/xml/xmlgw.phtml",
+                "request_format": "XML",
+                "headers": {"Content-Type": "application/xml"},
+                "data": "<?xml version='1.0' encoding='UTF-8'?><request><control><senderid>{"
+                "sender_id}</senderid><password>{sender_password}</password><controlid>{"
+                "timestamp}</controlid><uniqueid>false</uniqueid><dtdversion>3.0</dtdversion"
+                "><includewhitespace>false</includewhitespace></control><operation><authentication><sessionid"
+                ">{temp_session_id}</sessionid></authentication><content><function controlid='{guid}'><get "
+                "object='supdocfolder' key='Kloo'></get></function></content></operation></request>",
+            }
+
+            response = self.api_call(payload)
+            if response["status"] is False:
+                return {"status": False, "error": response["error"]}
+
+            # now check if there is some error from sage
+            sage_response = response.get("response").get("response")
+            if sage_response.get("control").get("status") == "failure":
+                api_log(
+                    msg=f"Error checking Sage attachment folder: {sage_response.get('errormessage')}"
+                )
+                return {
+                    "status": False,
+                    "error": "Error checking Sage attachment folder",
+                }
+
+            return {"status": True, "data": response}
+        except Exception as e:
+            return self.handle_merge_api_error("get_sage_attachment_folders", e)
+
+    def create_sage_attachment_folders(self):
+        """
+        Create attachment folder in Sage
+        """
+
+        try:
+            payload = {
+                "method": "POST",
+                "path": "/ia/xml/xmlgw.phtml",
+                "request_format": "XML",
+                "headers": {"Content-Type": "application/xml"},
+                "data": "<?xml version='1.0' encoding='UTF-8'?><request><control><senderid>{"
+                "sender_id}</senderid><password>{sender_password}</password><controlid>{"
+                "timestamp}</controlid><uniqueid>false</uniqueid><dtdversion>3.0</dtdversion"
+                "><includewhitespace>false</includewhitespace></control><operation><authentication><sessionid"
+                ">{temp_session_id}</sessionid></authentication><content><function controlid='{"
+                "guid}'><create_supdocfolder><supdocfoldername>Kloo</supdocfoldername"
+                "><supdocfolderdescription></supdocfolderdescription><supdocparentfoldername"
+                "></supdocparentfoldername></create_supdocfolder></function></content></operation></request>",
+            }
+
+            response = self.api_call(payload)
+            if response["status"] is False:
+                return {"status": False, "error": response["error"]}
+
+            # now check if there is some error from sage
+            sage_response = response.get("response").get("response")
+            if sage_response.get("control").get("status") == "failure":
+                api_log(
+                    msg=f"Error checking Sage attachment folder: {sage_response.get('errormessage')}"
+                )
+                return {
+                    "status": False,
+                    "error": "Error checking Sage attachment folder",
+                }
+
+            return {"status": True, "data": response}
+
+        except Exception as e:
+            return self.handle_merge_api_error("get_sage_attachment_folders", e)
