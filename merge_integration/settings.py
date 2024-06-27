@@ -261,7 +261,7 @@ broker_transport_options = {"wait_time_seconds": 10}
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_TIMEZONE = "UTC"
 
-TASK_QUEUE_NAME = "prod-bulk-data-import"
+TASK_QUEUE_NAME = "dev-bulk-data-import"
 CELERY_TRACK_STARTED = True
 
 CELERY_ACCEPT_CONTENT = ["json"]
