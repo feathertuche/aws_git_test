@@ -35,9 +35,8 @@ class InvoiceCreate(APIView):
         Function to query erp_link_token table
         """
         filter_token = ErpLinkToken.objects.filter(id=self.erp_link_token_id)
-        lnk_token = filter_token.values_list("account_token", flat=1)
-
-        return lnk_token
+        lnk_token = filter_token.values_list("account_token", "integration_name")
+        return list(lnk_token)
 
     def post(self, request):
         """
@@ -61,16 +60,16 @@ class InvoiceCreate(APIView):
             )
 
         try:
-            account_token = queryset[0]
+            integration_name = queryset[0][1]
+            account_token = queryset[0][0]
+
             merge_api_service = MergeInvoiceApiService(
                 account_token, org_id, self.erp_link_token_id
             )
 
             api_log(msg=f"Invoice Request : {json.dumps(data)}")
-            invoice_data = filter_invoice_payloads(data)
+            invoice_data = filter_invoice_payloads(data, integration_name)
             api_log(msg=f"Invoice Formatted Payload : {invoice_data}")
-            # merge_invoice_request = f"Invoice Formatted Payload : {invoice_data}"
-            # send_slack_notification(merge_invoice_request)
             invoice_created = merge_api_service.create_invoice(invoice_data)
             if invoice_created is None:
                 return Response(
@@ -102,11 +101,8 @@ class InvoiceCreate(APIView):
 
                 api_log(msg=f"Sage Attachment Folder Created : {response['message']}")
 
-            attachment_payload = filter_attachment_payloads(data, invoice_created)
+            attachment_payload = filter_attachment_payloads(data, invoice_created, integration_name)
             merge_api_service.create_attachment(attachment_payload)
-            # merge_invoice_request=f"Invoice Formatted Payload : {invoice_data}"
-            # send_slack_notification(merge_invoice_request)
-            # merge_invoice_request = f"Invoice and attachment created successfully in Merge : {invoice_table_id}"
             merge_invoice_request_create = f"Invoice created : {invoice_created}"
             send_slack_notification(merge_invoice_request_create)
 

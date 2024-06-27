@@ -1,12 +1,10 @@
 import json
-
 import boto3
 import requests
 from django.conf import settings
 from sqs_extended_client import (
     SQSExtendedClientSession,
 )
-
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import SQS_BUCKET
 

@@ -46,4 +46,5 @@ COPY .env /app/.env
 EXPOSE 8000
 
 # Command to run your application
-CMD ["gunicorn", "--reload", "--timeout", "60", "--bind", "0.0.0.0:8000", "merge_integration.wsgi:application"]
+CMD ["gunicorn", "--reload", "--bind", "0.0.0.0:8000", "merge_integration.wsgi:application"]
+#CMD ["python", "manage.py", "runserver" , "0.0.0.0:8000"]
