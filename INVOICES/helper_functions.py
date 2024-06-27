@@ -131,34 +131,34 @@ def format_line_item(line_item):
     }
 
 
-def filter_invoice_payloads(invoice_valid_payload):
+def filter_invoice_payloads(invoice_valid_payload, integration_name):
     """
     prepare invoice payload based on integration name
     """
-    integration_name = invoice_valid_payload.get("integration_name")
+
     model_data = invoice_valid_payload.get("model")
 
-    if integration_name == "Sage Intacct":
+    if integration_name == "Sage Intacct" or "sage-intacct":
         return create_sage_invoice_payload(model_data)
-    elif integration_name == "Xero":
+    elif integration_name == "Xero" or "xero":
         return create_xero_invoice_payload(model_data)
     else:
         raise Exception("Integration doesn't exists for invoice filter")
 
 
-def filter_attachment_payloads(attachment_valid_payload, invoice_created):
+def filter_attachment_payloads(attachment_valid_payload, invoice_created, integration_name):
     """
     prepare invoice payload based on integration name
     """
-    integration_name = attachment_valid_payload.get("integration_name")
+
     model_data = attachment_valid_payload.get("model")
 
-    if integration_name == "Sage Intacct":
+    if integration_name == "Sage Intacct" or "sage-intacct":
         return create_sage_attachment_payload(
             model_data, invoice_created.model.id, invoice_created.model.remote_id
         )
 
-    elif integration_name == "Xero":
+    elif integration_name == "Xero" or "xero":
         return create_xero_attachment_payload(model_data, invoice_created.model.id)
 
     else:
