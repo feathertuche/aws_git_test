@@ -232,7 +232,7 @@ def create_xero_invoice_payload(invoice_validated_payload):
             "item": line_item_payload.get("item_id") if "item_id" in line_item_payload else None,
             "quantity": float(line_item_payload.get("quantity") if line_item_payload.get("quantity") is not None else 0),
             "created_at": line_item_payload.get("created_at"),
-            "tracking_categories": line_item_payload.get("tracking_categories"),
+            "tracking_categories": model_data.get("tracking_categories"),
             "integration_params": {
                 "tax_rate_remote_id": line_item_payload.get("tax_rate_remote_id")
             },
