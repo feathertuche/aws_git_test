@@ -25,7 +25,7 @@ class InvoiceCreate(APIView):
     API to create invoices in the Merge system.
     """
 
-    def __init__(self, link_token_details=None, last_modified_at=None):
+    def __init__(self, link_token_details=None, last_modified_at=None, integration_name=None):
         super().__init__()
         self.link_token_details = link_token_details
         self.last_modified_at = last_modified_at
@@ -35,9 +35,8 @@ class InvoiceCreate(APIView):
         Function to query erp_link_token table
         """
         filter_token = ErpLinkToken.objects.filter(id=self.erp_link_token_id)
-        lnk_token = filter_token.values_list("account_token", flat=1)
-
-        return lnk_token
+        lnk_token = filter_token.values_list("account_token", "integration_name")
+        return list(lnk_token)
 
     def post(self, request):
         """
@@ -61,13 +60,16 @@ class InvoiceCreate(APIView):
             )
 
         try:
-            account_token = queryset[0]
+            integration_name = queryset[0][1]  # fetching integration Name from queryset
+            account_token = queryset[0][0]  # fetching account token from queryset
+            api_log(msg=f"account_token:::: {account_token}")
+            api_log(msg=f"integration_name:::: {integration_name}")
             merge_api_service = MergeInvoiceApiService(
                 account_token, org_id, self.erp_link_token_id
             )
 
             api_log(msg=f"Invoice Request : {json.dumps(data)}")
-            invoice_data = filter_invoice_payloads(data)
+            invoice_data = filter_invoice_payloads(data, integration_name)
             api_log(msg=f"Invoice Formatted Payload : {invoice_data}")
             # merge_invoice_request = f"Invoice Formatted Payload : {invoice_data}"
             # send_slack_notification(merge_invoice_request)
