@@ -9,5 +9,8 @@ urlpatterns = [
         InvoiceCreate.as_view(),
         name="invoicesUpdate",
     ),
+        path(
+        "invoicesMergeCreate/", MergeInvoiceCreate.as_view(), name="invoicesMergeCreate"
+    ),
 
 ]
