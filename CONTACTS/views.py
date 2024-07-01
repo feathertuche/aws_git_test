@@ -41,13 +41,13 @@ class MergePostContacts(APIView):
         try:
             if contacts_response["status"]:
                 api_log(
-                    msg=f"CONTACTS : Processing {len(contacts_response['data'])} conatcts"
+                    msg=f"CONTACTS : Processing {len(contacts_response['data'])} contacts"
                 )
 
                 if len(contacts_response["data"]) == 0:
                     return Response(
                         {
-                            "message": "No new data found to insert in the kloo contacts system"
+                            "message": "No new data found to insert in the kloo contacts"
                         },
                         status=status.HTTP_204_NO_CONTENT,
                     )
