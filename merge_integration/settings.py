@@ -13,8 +13,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 import boto3
-
 from dotenv import load_dotenv
+
 from merge_integration.utils import get_db_password
 
 load_dotenv()
