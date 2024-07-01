@@ -46,9 +46,7 @@ class MergePostContacts(APIView):
 
                 if len(contacts_response["data"]) == 0:
                     return Response(
-                        {
-                            "message": "No new data found to insert in the kloo contacts"
-                        },
+                        {"message": "No new data found to insert in the kloo contacts"},
                         status=status.HTTP_204_NO_CONTENT,
                     )
 
