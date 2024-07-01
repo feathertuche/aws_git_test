@@ -6,7 +6,7 @@ from merge.resources.accounting import (
 from rest_framework import status
 
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL
+from merge_integration.settings import GETKLOO_BASE_URL
 from merge_integration.utils import create_merge_client
 
 class Command(BaseCommand):

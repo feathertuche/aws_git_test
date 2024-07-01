@@ -35,6 +35,7 @@ class InvoiceCreate(APIView):
         Function to query erp_link_token table
         """
         filter_token = ErpLinkToken.objects.filter(id=self.erp_link_token_id)
+
         lnk_token = filter_token.values_list("account_token", flat=1)
         return lnk_token
 
@@ -60,6 +61,7 @@ class InvoiceCreate(APIView):
             )
 
         try:
+
             account_token = queryset[0]
             api_log(msg=f"account_token:::: {account_token}")
             merge_api_service = MergeInvoiceApiService(
