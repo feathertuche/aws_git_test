@@ -25,7 +25,7 @@ class InvoiceCreate(APIView):
     API to create invoices in the Merge system.
     """
 
-    def __init__(self, link_token_details=None, last_modified_at=None, integration_name=None):
+    def __init__(self, link_token_details=None, last_modified_at=None):
         super().__init__()
         self.link_token_details = link_token_details
         self.last_modified_at = last_modified_at
