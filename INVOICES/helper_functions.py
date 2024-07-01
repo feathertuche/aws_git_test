@@ -131,19 +131,17 @@ def format_line_item(line_item):
     }
 
 
-
 def filter_invoice_payloads(invoice_valid_payload):
 
     """
     prepare invoice payload based on integration name
     """
     
-    integration_name = attachment_valid_payload.get("integration_name")
+    integration_name = invoice_valid_payload.get("integration_name")
     model_data = invoice_valid_payload.get("model")
 
     if integration_name == "Sage Intacct":
         return create_sage_invoice_payload(model_data)
-
 
     elif integration_name == "Xero":
         return create_xero_invoice_payload(model_data)
