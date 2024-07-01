@@ -131,34 +131,40 @@ def format_line_item(line_item):
     }
 
 
-def filter_invoice_payloads(invoice_valid_payload, integration_name):
+
+def filter_invoice_payloads(invoice_valid_payload):
+
     """
     prepare invoice payload based on integration name
     """
-
+    
+    integration_name = attachment_valid_payload.get("integration_name")
     model_data = invoice_valid_payload.get("model")
 
-    if integration_name == "Sage Intacct" or "sage-intacct":
+    if integration_name == "Sage Intacct":
         return create_sage_invoice_payload(model_data)
-    elif integration_name == "Xero" or "xero":
+
+
+    elif integration_name == "Xero":
         return create_xero_invoice_payload(model_data)
+
     else:
         raise Exception("Integration doesn't exists for invoice filter")
 
 
-def filter_attachment_payloads(attachment_valid_payload, invoice_created, integration_name):
+def filter_attachment_payloads(attachment_valid_payload, invoice_created):
     """
     prepare invoice payload based on integration name
     """
-
+    integration_name = attachment_valid_payload.get("integration_name")
     model_data = attachment_valid_payload.get("model")
 
-    if integration_name == "Sage Intacct" or "sage-intacct":
+    if integration_name == "Sage Intacct":
         return create_sage_attachment_payload(
             model_data, invoice_created.model.id, invoice_created.model.remote_id
         )
 
-    elif integration_name == "Xero" or "xero":
+    elif integration_name == "Xero":
         return create_xero_attachment_payload(model_data, invoice_created.model.id)
 
     else:
@@ -181,10 +187,10 @@ def create_sage_invoice_payload(invoice_validated_payload):
             "currency": line_item_payload.get("currency"),
             "exchange_rate": model_data.get("exchange_rate"),
             "description": line_item_payload.get("item"),
-            "item": line_item_payload.get("item_id"),
+            "item": line_item_payload.get("item_id") if "item_id" in line_item_payload else None,
             "quantity": line_item_payload.get("quantity"),
             "total_amount": line_item_payload.get("total_amount"),
-            "tracking_categories": line_item_payload.get("tracking_categories"),
+            "tracking_categories": line_item_payload.get("tracking_categories", None),
             "account": line_item_payload.get("account"),
             "sequence": line_item_payload.get("sequence"),
         }
@@ -204,7 +210,7 @@ def create_sage_invoice_payload(invoice_validated_payload):
         "memo": model_data.get("memo"),
         "company": model_data.get("company"),
         "currency": model_data.get("currency"),
-        "tracking_categories": model_data.get("tracking_categories"),
+        "tracking_categories": model_data.get("tracking_categories", None),
         "sub_total": model_data.get("sub_total"),
         "total_tax_amount": model_data.get("total_tax_amount"),
         "total_amount": model_data.get("total_amount"),
@@ -230,10 +236,10 @@ def create_xero_invoice_payload(invoice_validated_payload):
             "currency": line_item_payload.get("currency"),
             "exchange_rate": model_data.get("exchange_rate"),
             "description": line_item_payload.get("item"),
-            "item": line_item_payload.get("item_id"),
+            "item": line_item_payload.get("item_id") if "item_id" in line_item_payload else None,
             "quantity": line_item_payload.get("quantity"),
             "created_at": line_item_payload.get("created_at"),
-            "tracking_categories": line_item_payload.get("tracking_categories"),
+            "tracking_categories": line_item_payload.get("tracking_categories", None),
             "integration_params": {
                 "tax_rate_remote_id": line_item_payload.get("tax_rate_remote_id")
             },
@@ -258,7 +264,7 @@ def create_xero_invoice_payload(invoice_validated_payload):
         "status": model_data.get("status"),
         "company": model_data.get("company"),
         "currency": model_data.get("currency"),
-        "tracking_categories": model_data.get("tracking_categories"),
+        "tracking_categories": model_data.get("tracking_categories", None),
         "sub_total": model_data.get("sub_total"),
         "total_tax_amount": model_data.get("total_tax_amount"),
         "total_amount": model_data.get("total_amount"),
@@ -269,8 +275,6 @@ def create_xero_invoice_payload(invoice_validated_payload):
             InvoiceLineItemRequest(**line_item) for line_item in line_items_data
         ],
     }
-    api_log(msg=f"this is a invoice data: {invoice_data}")
-
     return invoice_data
 
 
