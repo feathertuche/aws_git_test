@@ -35,7 +35,6 @@ class InvoiceCreate(APIView):
         Function to query erp_link_token table
         """
         filter_token = ErpLinkToken.objects.filter(id=self.erp_link_token_id)
-
         lnk_token = filter_token.values_list("account_token", flat=1)
         return lnk_token
 
