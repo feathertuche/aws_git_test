@@ -187,7 +187,7 @@ def create_sage_invoice_payload(invoice_validated_payload):
             "item": line_item_payload.get("item_id"),
             "quantity": line_item_payload.get("quantity"),
             "total_amount": line_item_payload.get("total_amount"),
-            "tracking_categories": line_item_payload.get("tracking_categories"),
+            "tracking_categories": line_item_payload.get("tracking_categories", None),
             "account": line_item_payload.get("account"),
             "sequence": line_item_payload.get("sequence"),
         }
@@ -207,7 +207,7 @@ def create_sage_invoice_payload(invoice_validated_payload):
         "memo": model_data.get("memo"),
         "company": model_data.get("company"),
         "currency": model_data.get("currency"),
-        "tracking_categories": model_data.get("tracking_categories"),
+        "tracking_categories": model_data.get("tracking_categories", None),
         "sub_total": model_data.get("sub_total"),
         "total_tax_amount": model_data.get("total_tax_amount"),
         "total_amount": model_data.get("total_amount"),
@@ -236,7 +236,7 @@ def create_xero_invoice_payload(invoice_validated_payload):
             "item": line_item_payload.get("item_id") if "item_id" in line_item_payload else None,
             "quantity": line_item_payload.get("quantity"),
             "created_at": line_item_payload.get("created_at"),
-            "tracking_categories": line_item_payload.get("tracking_categories"),
+            "tracking_categories": line_item_payload.get("tracking_categories", None),
             "integration_params": {
                 "tax_rate_remote_id": line_item_payload.get("tax_rate_remote_id")
             },
@@ -261,7 +261,7 @@ def create_xero_invoice_payload(invoice_validated_payload):
         "status": model_data.get("status"),
         "company": model_data.get("company"),
         "currency": model_data.get("currency"),
-        "tracking_categories": model_data.get("tracking_categories"),
+        "tracking_categories": model_data.get("tracking_categories", None),
         "sub_total": model_data.get("sub_total"),
         "total_tax_amount": model_data.get("total_tax_amount"),
         "total_amount": model_data.get("total_amount"),
