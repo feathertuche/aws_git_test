@@ -11,6 +11,19 @@ class StatusEnum(models.TextChoices):
     failed = "failed"
 
 
+class InvoiceStatusEnum(models.TextChoices):
+    paid = "paid"
+    approved = "approved"
+    rejected = "rejected"
+    scheduled = "scheduled"
+    submitted = "submitted"
+    cancelled = "cancelled"
+    failed = "failed"
+    in_review = "in_review"
+    hold = "hold"
+    DRAFT = "DRAFT"
+
+
 class InvoiceAttachmentLogs(models.Model):
     id = models.UUIDField(primary_key=True, editable=False)
     invoice_id = models.UUIDField()
@@ -21,6 +34,16 @@ class InvoiceAttachmentLogs(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(blank=True, null=True)
+    invoice_status = models.CharField(max_length=20, choices=InvoiceStatusEnum.choices)
 
     class Meta:
         db_table = "invoice_attachment_logs"
+
+
+class CronRetry(models.Model):
+    id = models.UUIDField(primary_key=True, editable=False)
+    kloo_invoice_id = models.CharField(max_length=50)
+    cron_execution_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "erp_pending_invoices_retry"

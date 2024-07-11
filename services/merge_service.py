@@ -1,5 +1,4 @@
 import uuid
-
 import requests
 from merge.core import ApiError
 from merge.resources.accounting import (
@@ -13,7 +12,7 @@ from merge.resources.accounting import (
     ItemsListRequestExpand,
 )
 from rest_framework import status
-
+from INVOICES.models import InvoiceStatusEnum
 from CONTACTS.helper_function import format_contacts_payload
 from INVOICES.exceptions import MergeApiException
 from INVOICES.helper_functions import format_merge_invoice_data
@@ -334,6 +333,32 @@ class MergeInvoiceApiService(MergeService):
 
             api_log(msg=f"MERGE : Invoice created successfully: {response}")
             api_log(msg=f"MERGE : INVOICE DATA in create invoice {invoice_data}")
+
+            # snippet to extract "status" from Response payload
+
+            invoice_status = response.model.status
+            # Define a mapping from response statuses to InvoiceStatusEnum values
+            status_mapping = {
+                "paid": InvoiceStatusEnum.paid,
+                "approved": InvoiceStatusEnum.approved,
+                "rejected": InvoiceStatusEnum.rejected,
+                "scheduled": InvoiceStatusEnum.scheduled,
+                "submitted": InvoiceStatusEnum.submitted,
+                "cancelled": InvoiceStatusEnum.cancelled,
+                "failed": InvoiceStatusEnum.failed,
+                "in_review": InvoiceStatusEnum.in_review,
+                "hold": InvoiceStatusEnum.hold,
+                "DRAFT": InvoiceStatusEnum.DRAFT,
+                # Add more mappings as needed
+            }
+
+            # Check if the response_status exists in the mapping
+            if invoice_status in status_mapping:
+                invoice_status_enum = status_mapping[invoice_status]
+            else:
+                # Handle the case where response_status does not match any known status
+                invoice_status_enum = None
+            api_log(msg=f"MERGE : Invoice model status field::: {invoice_status}")
             self.create_or_update_log(
                 {
                     "id": uuid.uuid4(),
@@ -341,6 +366,7 @@ class MergeInvoiceApiService(MergeService):
                     "type": "invoice",
                     "status": "success",
                     "message": "Invoice created successfully",
+                    "invoice_status": invoice_status_enum
                 }
             )
 
@@ -455,6 +481,7 @@ class MergeInvoiceApiService(MergeService):
             if log:
                 log.status = log_data.get("status")
                 log.message = log_data.get("message")
+                log.invoice_status = log_data.get("invoice_status")
                 log.save()
                 api_log(msg=f"INVOICE LOG : Log updated successfully: {log}")
                 return log

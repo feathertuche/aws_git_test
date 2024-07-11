@@ -41,6 +41,8 @@ def update_erp_invoice(invoice_table_id: str, invoice_data: dict):
     """
     helper function update erp_id on Invoices table ID field.
     """
+    api_log(msg=f"invoice_data in query file: {invoice_data}")
+
     with connection.cursor() as cursor:
         cursor.execute(
             """
