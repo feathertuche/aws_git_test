@@ -1,4 +1,5 @@
 import uuid
+import re
 import requests
 from merge.core import ApiError
 from merge.resources.accounting import (
@@ -373,6 +374,14 @@ class MergeInvoiceApiService(MergeService):
             return response
 
         except Exception as e:
+            pattern = r"'problem_type': '(\w+)'"
+            match = re.search(pattern, str(e))
+            if match:
+                problem_type = match.group(1)
+                print(problem_type)
+            else:
+                print("problem_type not found")
+
             api_log(msg=f"MERGE EXCEPTION: Error creating invoice: {str(e)}")
             self.create_or_update_log(
                 {
@@ -381,6 +390,7 @@ class MergeInvoiceApiService(MergeService):
                     "type": "invoice",
                     "status": "failed",
                     "message": str(e),
+                    "problem_type": match
                 }
             )
             raise e

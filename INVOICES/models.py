@@ -35,6 +35,7 @@ class InvoiceAttachmentLogs(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(blank=True, null=True)
     invoice_status = models.CharField(max_length=20, choices=InvoiceStatusEnum.choices)
+    problem_type = models.CharField(max_length=55)
 
     class Meta:
         db_table = "invoice_attachment_logs"
