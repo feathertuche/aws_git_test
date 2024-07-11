@@ -35,10 +35,8 @@ class Command(BaseCommand):
         """
         GET API for pending list of invoices
         """
-        print("1")
         auth_token = ""
         pending_url = f"{GETKLOO_BASE_URL}/ap/erp-integration/pending_post_invoices_erp"
-        print("2")
 
         print("3")
         try:
@@ -77,9 +75,9 @@ class Command(BaseCommand):
 
     def handle_invoice_response(self, invoice, response):
         if response["model"]["problem_type"] == "RATE_LIMITED":
-            self.schedule_retry(invoice, timedelta(hours=1))
+            self.schedule_retry(invoice, timedelta(minutes=2))
         elif response["model"]["problem_type"] == "MISSING_PERMISSION":
-            self.schedule_retry(invoice, timedelta(minutes=15))
+            self.schedule_retry(invoice, timedelta(minutes=2))
         else:
             self.stdout.write(f"Error: Invoice {invoice['kloo_invoice_id']} not in 'RATE_LIMITED' or 'TIMEOUT'")
 
