@@ -206,7 +206,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Cron jobs
 CRONJOBS = [
     ("*/1 * * * *", "INVOICES.scheduled_tasks.daily_get_merge_invoice.main"),
-    ('*/5 * * * 1-5', 'django.core.management.call_command', ['create_pending_invoice_module']),
+    ('*/2 * * * 1-5', 'django.core.management.call_command', ['create_pending_invoice_module']),
 ]
 
 tracking_categories_page_size = 50
