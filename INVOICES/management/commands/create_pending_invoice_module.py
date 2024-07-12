@@ -24,12 +24,11 @@ class Command(BaseCommand):
         self.read_pending_invoice_api()
 
     def create_invoice(self, payload: list):
-        print("this is create invoice block")
+        api_log(msg="this is create invoice block")
         mock_request = MockRequest(data=payload)
         pending_invoice_creator = InvoiceCreate()
         response = pending_invoice_creator.post(mock_request)
-        api_log(msg=f"create invoice in mangt:: {response}")
-        self.stdout.write(f"invoice pending response:::: {response}")
+        api_log(msg=f"create invoice in management command file:: {response}")
         return response.data
 
     def read_pending_invoice_api(self):
@@ -37,7 +36,7 @@ class Command(BaseCommand):
         GET API for pending list of invoices
         """
         pending_url = f"{GETKLOO_BASE_URL}/ap/erp-integration/pending_post_invoices_erp"
-        # auth_token = ""
+        #auth_token = ""
         header = {'Content-type': 'application/json'}
         try:
             pending_invoice_response = requests.get(
@@ -50,17 +49,17 @@ class Command(BaseCommand):
                 formatted_paylaod = api_payload["result"]
                 if isinstance(formatted_paylaod, list):
                     if not formatted_paylaod:
-                        self.stdout.write("There is no invoice payload in the API")
+                        api_log(msg="There is no invoice payload in the API")
                     else:
                         self.retry_invoices_from_api(formatted_paylaod)
                         self.process_invoices(formatted_paylaod)
                 else:
-                    self.stdout.write("Invalid payload format received from API")
+                    api_log(msg="Invalid payload format received from API")
                 return pending_invoice_response
             else:
                 pending_invoice_response.raise_for_status()
         except Exception as e:
-            self.stdout.write(f"Error fetching pending invoices: {str(e)}")
+            api_log(msg=f"Error fetching pending invoices: {str(e)}")
 
     def process_invoices(self, payload):
         for invoice_payload in payload:
@@ -77,7 +76,7 @@ class Command(BaseCommand):
             api_log(msg="setting cron execution time in table for 'MISSING_PERMISSION'")
             self.schedule_retry(invoice_payload, timedelta(minutes=5))
         else:
-            self.stdout.write(f"Error: Invoice {invoice_payload['model']['kloo_invoice_id']} not in 'RATE_LIMITED' or 'TIMEOUT'")
+            api_log(msg=f"Error: Invoice {invoice_payload['model']['kloo_invoice_id']} not in 'RATE_LIMITED' or 'MISSING_PERMISSION'")
 
     def schedule_retry(self, invoice_payload: dict, retry_delay):
         retry_at = datetime.now() + retry_delay
@@ -89,9 +88,9 @@ class Command(BaseCommand):
             defaults={'cron_execution_time': retry_at}
         )
         if created:
-            self.stdout.write(f"New retry scheduled for invoice {kloo_invoice_id} at {retry_at}")
+            api_log(msg=f"New retry scheduled for invoice {kloo_invoice_id} at {retry_at}")
         else:
-            self.stdout.write(f"Updated retry time for invoice {kloo_invoice_id} to {retry_at}")
+            api_log(msg=f"Updated retry time for invoice {kloo_invoice_id} to {retry_at}")
 
     def retry_invoices_from_api(self, payload: list):
         retries = CronRetry.objects.filter(cron_execution_time__lte=datetime.now())
@@ -107,7 +106,7 @@ class Command(BaseCommand):
                     except Exception as e:
                         retry.cron_execution_time = datetime.now() + timedelta(hours=1)
                         retry.save()
-                        self.stdout.write(f"Error retrying invoice {invoice['model']['kloo_invoice_id']}: {str(e)}")
+                        api_log(msg=f"Error retrying invoice {invoice['model']['kloo_invoice_id']}: {str(e)}")
                     except TimeoutError:
                         retry.cron_execution_time = datetime.now() + timedelta(minutes=15)
                         retry.save()
