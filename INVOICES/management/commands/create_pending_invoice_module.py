@@ -37,7 +37,7 @@ class Command(BaseCommand):
         GET API for pending list of invoices
         """
         pending_url = f"{GETKLOO_BASE_URL}/ap/erp-integration/pending_post_invoices_erp"
-
+        # auth_token = ""
         header = {'Content-type': 'application/json'}
         try:
             pending_invoice_response = requests.get(
