@@ -44,14 +44,12 @@ class InvoiceCreate(APIView):
         """
         api_log(msg="Processing GET request in MergeInvoice...")
         data = request.data
-
         serializer = InvoiceCreateSerializer(data=data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         self.erp_link_token_id = serializer.validated_data.get("erp_link_token_id")
         org_id = serializer.validated_data.get("org_id")
-
         queryset = self.get_queryset()
         if queryset is None or queryset == []:
             api_log(msg="link_token_details is None or empty")
@@ -71,7 +69,7 @@ class InvoiceCreate(APIView):
             invoice_data = filter_invoice_payloads(data)
             api_log(msg=f"Invoice Formatted Payload : {invoice_data}")
             invoice_created = merge_api_service.create_invoice(invoice_data)
-            if invoice_created is None:
+            if not invoice_created:
                 return Response(
                     {"status": "error", "message": "Failed to create invoice in Merge"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -111,26 +109,15 @@ class InvoiceCreate(APIView):
                 {
                     "status": "success",
                     "message": "Invoice and attachment created successfully in Merge",
+                    "data": invoice_created
                 },
                 status=status.HTTP_201_CREATED,
             )
 
         except Exception as e:
-            error_message = f"EXCEPTION : Failed to create invoice in Merge: {str(e)}"
-            merge_invoice_request_error_payload = (
-                f"Invoice creation failed : Invoice payload:{invoice_data}"
-            )
-            send_slack_notification(merge_invoice_request_error_payload)
-            merge_invoice_attc_payload = (
-                f"Invoice creation failed: attachment payload:{attachment_payload}"
-            )
-            send_slack_notification(merge_invoice_attc_payload)
-            merge_invoice_request_error = (
-                f"Merge Request: Invoice and attachment Failed:{str(e)}"
-            )
-            send_slack_notification(merge_invoice_request_error)
+            error_message = str(e)
             return Response(
-                {"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": error_message}, status=status.HTTP_400_BAD_REQUEST
             )
 
     def patch(self, request, erp_invoice_id: str):

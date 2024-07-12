@@ -371,16 +371,20 @@ class MergeInvoiceApiService(MergeService):
                 }
             )
 
-            return response
+            return {
+                "status": "success",
+                "data": response,
+            }
 
         except Exception as e:
             pattern = r"'problem_type': '(\w+)'"
             match = re.search(pattern, str(e))
             if match:
                 problem_type = match.group(1)
-                print(problem_type)
+                api_log(msg=f"problem_type:: {problem_type}")
+                return str(e)
             else:
-                print("problem_type not found")
+                api_log(msg=f"problem_type not found")
 
             api_log(msg=f"MERGE EXCEPTION: Error creating invoice: {str(e)}")
             self.create_or_update_log(
