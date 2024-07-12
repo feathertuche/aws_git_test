@@ -104,7 +104,7 @@ class Command(BaseCommand):
                         if response:
                             self.handle_invoice_response(invoice_payload)
                     except Exception as e:
-                        retry.cron_execution_time = datetime.now() + timedelta(hours=5)
+                        retry.cron_execution_time = datetime.now() + timedelta(minutes=5)
                         retry.save()
                         api_log(msg=f"Error retrying invoice {invoice_payload['model']['kloo_invoice_id']}: {str(e)}")
                     except TimeoutError:
