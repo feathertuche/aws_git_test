@@ -382,8 +382,9 @@ class MergeInvoiceApiService(MergeService):
             if match:
                 problem_type = match.group(1)
                 api_log(msg=f"problem_type:: {problem_type}")
-                return str(e)
+                # return str(e)
             else:
+                problem_type = None
                 api_log(msg=f"problem_type not found")
 
             api_log(msg=f"MERGE EXCEPTION: Error creating invoice: {str(e)}")
@@ -394,7 +395,7 @@ class MergeInvoiceApiService(MergeService):
                     "type": "invoice",
                     "status": "failed",
                     "message": str(e),
-                    "problem_type": match
+                    "problem_type": problem_type
                 }
             )
             raise e
