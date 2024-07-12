@@ -95,18 +95,18 @@ class Command(BaseCommand):
     def retry_invoices_from_api(self, payload: list):
         retries = CronRetry.objects.filter(cron_execution_time__lte=datetime.now())
         for retry in retries:
-            for invoice in payload:
-                api_log(msg=f"api payload in retry invoice function:: {invoice}")
-                if invoice['model']['kloo_invoice_id'] == retry.kloo_invoice_id:
+            for invoice_payload in payload:
+                api_log(msg=f"api payload in retry invoice function:: {invoice_payload}")
+                if invoice_payload['model']['kloo_invoice_id'] == retry.kloo_invoice_id:
                     try:
-                        response = self.create_invoice(invoice)
+                        response = self.create_invoice(invoice_payload)
                         retry.delete()
                         if response:
-                            self.handle_invoice_response(invoice, response)
+                            self.handle_invoice_response(invoice_payload)
                     except Exception as e:
-                        retry.cron_execution_time = datetime.now() + timedelta(hours=1)
+                        retry.cron_execution_time = datetime.now() + timedelta(minutes=5)
                         retry.save()
-                        api_log(msg=f"Error retrying invoice {invoice['model']['kloo_invoice_id']}: {str(e)}")
+                        api_log(msg=f"Error retrying invoice {invoice_payload['model']['kloo_invoice_id']}: {str(e)}")
                     except TimeoutError:
-                        retry.cron_execution_time = datetime.now() + timedelta(minutes=15)
+                        retry.cron_execution_time = datetime.now() + timedelta(minutes=5)
                         retry.save()
