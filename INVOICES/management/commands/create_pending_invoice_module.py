@@ -1,3 +1,4 @@
+import json
 import uuid
 from datetime import timedelta, datetime
 from rest_framework import status
@@ -36,11 +37,13 @@ class Command(BaseCommand):
         GET API for pending list of invoices
         """
         pending_url = f"{GETKLOO_BASE_URL}/ap/erp-integration/pending_post_invoices_erp"
+
         header = {'Content-type': 'application/json'}
         try:
             pending_invoice_response = requests.get(
                 pending_url,
-                headers=header
+                # headers={"Authorization": f"Bearer {auth_token}"},
+                headers=header,
             )
             if pending_invoice_response.status_code == status.HTTP_200_OK:
                 api_payload = pending_invoice_response.json()
@@ -69,21 +72,26 @@ class Command(BaseCommand):
     def handle_invoice_response(self, invoice_payload: dict):
         if invoice_payload["model"]["problem_type"] == "RATE_LIMITED":
             api_log(msg="setting cron execution time in table for 'RATE_LIMITED'")
-            self.schedule_retry(invoice_payload, timedelta(minutes=2))
+            self.schedule_retry(invoice_payload, timedelta(minutes=5))
         elif invoice_payload["model"]["problem_type"] == "MISSING_PERMISSION":
             api_log(msg="setting cron execution time in table for 'MISSING_PERMISSION'")
-            self.schedule_retry(invoice_payload, timedelta(minutes=2))
+            self.schedule_retry(invoice_payload, timedelta(minutes=5))
         else:
             self.stdout.write(f"Error: Invoice {invoice_payload['model']['kloo_invoice_id']} not in 'RATE_LIMITED' or 'TIMEOUT'")
 
     def schedule_retry(self, invoice_payload: dict, retry_delay):
         retry_at = datetime.now() + retry_delay
-        CronRetry.objects.create(
+        kloo_invoice_id = invoice_payload['model']['kloo_invoice_id']
+
+        retry_entry, created = CronRetry.objects.update_or_create(
             id=uuid.uuid1(),
-            kloo_invoice_id=invoice_payload['model']['kloo_invoice_id'],
-            cron_execution_time=retry_at
+            kloo_invoice_id=kloo_invoice_id,
+            defaults={'cron_execution_time': retry_at}
         )
-        self.stdout.write(f"Invoice {invoice_payload['model']['kloo_invoice_id']} will be retried at {retry_at}")
+        if created:
+            self.stdout.write(f"New retry scheduled for invoice {kloo_invoice_id} at {retry_at}")
+        else:
+            self.stdout.write(f"Updated retry time for invoice {kloo_invoice_id} to {retry_at}")
 
     def retry_invoices_from_api(self, payload: list):
         retries = CronRetry.objects.filter(cron_execution_time__lte=datetime.now())
@@ -103,31 +111,3 @@ class Command(BaseCommand):
                     except TimeoutError:
                         retry.cron_execution_time = datetime.now() + timedelta(minutes=15)
                         retry.save()
-#
-#     # Function to determine status based on problem_type
-#     # def determine_status(self, response):
-#     #     errors = response.get("errors", [])
-#     #     if errors:
-#     #         problem_type = errors[0].get("problem_type", "").lower()
-#     #         if problem_type in ["RATE_LIMITED", "timeout"]:
-#     #             return "pending"
-#     #         elif problem_type in ["provider_error", "model_not_found_error", "MISSING_REQUIRED_FIELD"]:
-#     #             return "failure"
-#     #     return "unknown"
-#     #
-#     # # Example of posting status to another API
-#     # def post_status_to_api(status):
-#     #     api_url = "https://example.com/api/status"  # Replace with your API endpoint
-#     #     payload = {"status": status}
-#     #     headers = {"Content-Type": "application/json"}
-#     #     response = requests.post(api_url, data=json.dumps(payload), headers=headers)
-#     #     return response
-#
-#     # # Determine status based on the response
-#     # status = determine_status(response)
-#     # print(f"Determined status: {status}")
-#     #
-#     # # Post the status to the API
-#     # api_response = post_status_to_api(status)
-#     # print(f"API response: {api_response.status_code}, {api_response.text}")
-
