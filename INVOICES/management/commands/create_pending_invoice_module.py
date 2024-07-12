@@ -1,3 +1,4 @@
+import uuid
 from datetime import timedelta, datetime
 from rest_framework import status
 import requests
@@ -20,43 +21,34 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.read_pending_invoice_api()
-        # self.retry_invoices(api_response)
 
     def create_invoice(self, payload: list):
         print("this is create invoice block")
         mock_request = MockRequest(data=payload)
         pending_invoice_creator = InvoiceCreate()
         response = pending_invoice_creator.post(mock_request)
+        api_log(msg=f"create invoice in mangt:: {response}")
         self.stdout.write(f"invoice pending response:::: {response}")
-        # self.determine_status(response)
-        return response
+        return response.data
 
     def read_pending_invoice_api(self):
         """
         GET API for pending list of invoices
         """
-        auth_token = ""
         pending_url = f"{GETKLOO_BASE_URL}/ap/erp-integration/pending_post_invoices_erp"
-
-        print("3")
+        header = {'Content-type': 'application/json'}
         try:
-            print("4")
             pending_invoice_response = requests.get(
                 pending_url,
-                headers={"Authorization": f"Bearer {auth_token}"},
+                headers=header
             )
-            print("5")
             if pending_invoice_response.status_code == status.HTTP_200_OK:
-                print("6")
                 api_payload = pending_invoice_response.json()
                 formatted_paylaod = api_payload["result"]
                 if isinstance(formatted_paylaod, list):
-                    print("7")
                     if not formatted_paylaod:
                         self.stdout.write("There is no invoice payload in the API")
-                        print("9")
                     else:
-                        print("8")
                         self.retry_invoices_from_api(formatted_paylaod)
                         self.process_invoices(formatted_paylaod)
                 else:
@@ -71,23 +63,27 @@ class Command(BaseCommand):
         for invoice_payload in payload:
             response = self.create_invoice(invoice_payload)
             if response:
-                self.handle_invoice_response(invoice_payload, response)
+                api_log(msg=f"Response in the PROCESS INVOICES function in management command file::: {response}")
+                self.handle_invoice_response(invoice_payload)
 
-    def handle_invoice_response(self, invoice, response):
-        if response["model"]["problem_type"] == "RATE_LIMITED":
-            self.schedule_retry(invoice, timedelta(minutes=2))
-        elif response["model"]["problem_type"] == "MISSING_PERMISSION":
-            self.schedule_retry(invoice, timedelta(minutes=2))
+    def handle_invoice_response(self, invoice_payload: dict):
+        if invoice_payload["model"]["problem_type"] == "RATE_LIMITED":
+            api_log(msg="setting cron execution time in table for 'RATE_LIMITED'")
+            self.schedule_retry(invoice_payload, timedelta(minutes=2))
+        elif invoice_payload["model"]["problem_type"] == "MISSING_PERMISSION":
+            api_log(msg="setting cron execution time in table for 'MISSING_PERMISSION'")
+            self.schedule_retry(invoice_payload, timedelta(minutes=2))
         else:
-            self.stdout.write(f"Error: Invoice {invoice['kloo_invoice_id']} not in 'RATE_LIMITED' or 'TIMEOUT'")
+            self.stdout.write(f"Error: Invoice {invoice_payload['model']['kloo_invoice_id']} not in 'RATE_LIMITED' or 'TIMEOUT'")
 
-    def schedule_retry(self, invoice, retry_delay):
+    def schedule_retry(self, invoice_payload: dict, retry_delay):
         retry_at = datetime.now() + retry_delay
         CronRetry.objects.create(
-            kloo_invoice_id=invoice['kloo_invoice_id'],
+            id=uuid.uuid1(),
+            kloo_invoice_id=invoice_payload['model']['kloo_invoice_id'],
             cron_execution_time=retry_at
         )
-        self.stdout.write(f"Invoice {invoice['kloo_invoice_id']} will be retried at {retry_at}")
+        self.stdout.write(f"Invoice {invoice_payload['model']['kloo_invoice_id']} will be retried at {retry_at}")
 
     def retry_invoices_from_api(self, payload: list):
         retries = CronRetry.objects.filter(cron_execution_time__lte=datetime.now())
