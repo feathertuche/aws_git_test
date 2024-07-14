@@ -1,4 +1,6 @@
 import json
+import logging
+import time
 import uuid
 from datetime import timedelta, datetime
 from rest_framework import status
@@ -9,6 +11,8 @@ from django.http import HttpRequest
 from INVOICES.models import CronRetry
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import GETKLOO_BASE_URL
+
+logger = logging.getLogger(__name__)
 
 
 class MockRequest(HttpRequest):
@@ -36,7 +40,7 @@ class Command(BaseCommand):
         GET API for pending list of invoices
         """
         pending_url = f"{GETKLOO_BASE_URL}/ap/erp-integration/pending_post_invoices_erp"
-        #auth_token = ""
+        # auth_token = ""
         header = {'Content-type': 'application/json'}
         try:
             pending_invoice_response = requests.get(
@@ -46,6 +50,8 @@ class Command(BaseCommand):
             )
             if pending_invoice_response.status_code == status.HTTP_200_OK:
                 api_payload = pending_invoice_response.json()
+                time.sleep(3)
+                print("sleeping for 3 seconds......")
                 formatted_paylaod = api_payload["result"]
                 if isinstance(formatted_paylaod, list):
                     if not formatted_paylaod:
@@ -62,10 +68,15 @@ class Command(BaseCommand):
             api_log(msg=f"Error fetching pending invoices: {str(e)}")
 
     def process_invoices(self, payload):
+        print("1")
         for invoice_payload in payload:
+            print("2")
             response = self.create_invoice(invoice_payload)
+            print("3")
             if response:
-                api_log(msg=f"Response in the PROCESS INVOICES function in management command file::: {response}")
+                print("4")
+                api_log(msg=f"Response in the PROCESS INVOICES function in management command file::: {response} and "
+                            f"Invoice_id is {payload['model']['kloo_invoice_id']}")
                 self.handle_invoice_response(invoice_payload)
 
     def handle_invoice_response(self, invoice_payload: dict):
@@ -76,7 +87,8 @@ class Command(BaseCommand):
             api_log(msg="setting cron execution time in table for 'MISSING_PERMISSION'")
             self.schedule_retry(invoice_payload, timedelta(minutes=5))
         else:
-            api_log(msg=f"Error: Invoice {invoice_payload['model']['kloo_invoice_id']} not in 'RATE_LIMITED' or 'MISSING_PERMISSION'")
+            api_log(msg=f"Error: Invoice {invoice_payload['model']['kloo_invoice_id']} not in 'RATE_LIMITED' or "
+                        f"'MISSING_PERMISSION'")
 
     def schedule_retry(self, invoice_payload: dict, retry_delay):
         retry_at = datetime.now() + retry_delay
@@ -93,11 +105,16 @@ class Command(BaseCommand):
             api_log(msg=f"Updated retry time for invoice {kloo_invoice_id} to {retry_at}")
 
     def retry_invoices_from_api(self, payload: list):
+        api_log(msg=f"34")
         retries = CronRetry.objects.filter(cron_execution_time__lte=datetime.now())
         for retry in retries:
             for invoice_payload in payload:
                 api_log(msg=f"api payload in retry invoice function:: {invoice_payload}")
                 if invoice_payload['model']['kloo_invoice_id'] == retry.kloo_invoice_id:
+                    t = invoice_payload['model']['kloo_invoice_id']
+                    b = retry.kloo_invoice_id
+                    api_log(msg=f"this is payload invoice id::{t}")
+                    api_log(msg=f"this is DB invoice id::{b}")
                     try:
                         response = self.create_invoice(invoice_payload)
                         retry.delete()
