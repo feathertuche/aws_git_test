@@ -13,9 +13,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 import boto3
-import django.core.management
+# import django.core.management
 from dotenv import load_dotenv
-from INVOICES.management.commands.create_pending_invoice_module import process_pending_invoice
+# from INVOICES.management.commands.create_pending_invoice_module import process_pending_invoice
 from merge_integration.utils import get_db_password
 
 load_dotenv()
