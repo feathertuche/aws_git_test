@@ -9,11 +9,11 @@ from django.core.management.base import BaseCommand
 from django.http import HttpRequest
 from merge_integration.helper_functions import api_log
 
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "merge_integration.settings")
+# import os
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "merge_integration.settings")
 
-from django.core.wsgi import get_wsgi_application
-application = get_wsgi_application()
+# from django.core.wsgi import get_wsgi_application
+# application = get_wsgi_application()
 
 
 class MockRequest(HttpRequest):
@@ -23,14 +23,12 @@ class MockRequest(HttpRequest):
 
 
 class Command(BaseCommand):
-    help = 'Process pending invoices and retry failed ones'
-    from INVOICES.views import InvoiceCreate
+    api_log(msg='Process pending invoices and retry failed ones')
 
     def handle(self, *args, **options):
         self.read_pending_invoice_api()
 
     def create_invoice(self, payload: list):
-        from LINKTOKEN.model import ErpLinkToken
         from INVOICES.views import InvoiceCreate
         api_log(msg="this is create invoice block")
         mock_request = MockRequest(data=payload)
@@ -68,7 +66,7 @@ class Command(BaseCommand):
                     api_log(msg="Invalid payload format received from API")
                 return pending_invoice_response
             else:
-                pending_invoice_response.raise_for_status()
+                api_log(msg=f"{pending_invoice_response.raise_for_status()}")
         except Exception as e:
             api_log(msg=f"Error fetching pending invoices: {str(e)}")
 
@@ -183,13 +181,13 @@ class Command(BaseCommand):
             api_log(msg=f"Exception occurred while posting invoices: {str(e)}")
 
 
-def process_pending_invoice():
-    print("Started Processing")
-    api_log(msg="Started Processing")
-    try:
-        Command().handle()
-    except Exception as e:
-        print(e)
-        api_log(msg=f"Error while procesing pending invoice {str(e)}")
-    print("End Processing")
-    api_log(msg="End Processing")
+# def process_pending_invoice():
+#     print("Started Processing")
+#     api_log(msg="Started Processing")
+#     try:
+#         Command().handle()
+#     except Exception as e:
+#         print(e)
+#         api_log(msg=f"Error while processing pending invoice {str(e)}")
+#     print("End Processing")
+#     api_log(msg="End Processing")
