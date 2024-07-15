@@ -7,9 +7,7 @@ from datetime import timedelta, datetime
 from rest_framework import status
 import requests
 from django.core.management.base import BaseCommand
-from INVOICES.views import InvoiceCreate
 from django.http import HttpRequest
-from INVOICES.models import CronRetry
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import GETKLOO_BASE_URL
 
