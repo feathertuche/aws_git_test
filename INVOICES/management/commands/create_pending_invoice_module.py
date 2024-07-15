@@ -42,6 +42,7 @@ class Command(BaseCommand):
         """
         GET API for pending list of invoices
         """
+        api_log(msg="Fetching pending invoices from Back-end api for cron execution....")
         pending_url = f"{GETKLOO_BASE_URL}/ap/erp-integration/pending_post_invoices_erp"
         # auth_token = ""
         header = {'Content-type': 'application/json'}
