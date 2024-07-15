@@ -13,8 +13,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 import boto3
+import django.core.management
 from dotenv import load_dotenv
-
+from INVOICES.management.commands.create_pending_invoice_module import process_pending_invoice
 from merge_integration.utils import get_db_password
 
 load_dotenv()
@@ -208,9 +209,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CRONJOBS = [
     ("*/1 * * * *", "INVOICES.scheduled_tasks.daily_get_merge_invoice.main"),
     # ('*/2 * * * 1-5', 'django.core.management.call_command', ['create_pending_invoice_module']),
-    ('*/2 * * * *', 'django.core.management.call_command', ['create_pending_invoice_module']),
+    ('*/2 * * * *', 'django.core.management.call_command', ['process_pending_invoice']),
 ]
-
 
 # Define the path to the cron_logs directory
 CRON_LOGS_DIR = BASE_DIR / 'INVOICES' / 'cron_logs'

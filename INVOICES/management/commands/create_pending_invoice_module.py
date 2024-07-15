@@ -174,3 +174,15 @@ class Command(BaseCommand):
                 api_log(msg=f"Failed to post invoices: {response}. Status Code: {pending_invoice_response.status_code}")
         except Exception as e:
             api_log(msg=f"Exception occurred while posting invoices: {str(e)}")
+
+
+def process_pending_invoice():
+    print("Started Processing")
+    api_log(msg="Started Processing")
+    try:
+        Command().handle()
+    except Exception as e:
+        print(e)
+        api_log(msg=f"Error while procesing pending invoice {str(e)}")
+    print("End Processing")
+    api_log(msg="End Processing")
