@@ -29,6 +29,7 @@ class Command(BaseCommand):
         self.read_pending_invoice_api()
 
     def create_invoice(self, payload: list):
+        from INVOICES.views import InvoiceCreate
         api_log(msg="this is create invoice block")
         mock_request = MockRequest(data=payload)
         pending_invoice_creator = InvoiceCreate()
@@ -122,6 +123,7 @@ class Command(BaseCommand):
                         f"'MISSING_PERMISSION'")
 
     def schedule_retry(self, invoice_payload: dict, retry_delay):
+        from INVOICES.models import CronRetry
         retry_at = datetime.now() + retry_delay
         kloo_invoice_id = invoice_payload['model']['kloo_invoice_id']
 
@@ -136,6 +138,7 @@ class Command(BaseCommand):
             api_log(msg=f"Updated retry time for invoice {kloo_invoice_id} to {retry_at}")
 
     def retry_invoices_from_api(self, payload: list):
+        from INVOICES.models import CronRetry
         api_log(msg=f"34")
         retries = CronRetry.objects.filter(cron_execution_time__lte=datetime.now())
         for retry in retries:
