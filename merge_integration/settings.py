@@ -23,7 +23,6 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-
 SECRET_KEY = os.getenv("SECRET_KEY")
 ACCOUNT_TOKEN = os.getenv("ACCOUNT_TOKEN")
 BASE_URL = os.getenv("BASE_URL")

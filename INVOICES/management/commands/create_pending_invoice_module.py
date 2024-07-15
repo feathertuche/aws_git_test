@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 import time
 import uuid
 from datetime import timedelta, datetime
@@ -68,16 +69,46 @@ class Command(BaseCommand):
             api_log(msg=f"Error fetching pending invoices: {str(e)}")
 
     def process_invoices(self, payload):
-        print("1")
+        invoices = []  # Initialize an empty list to hold the invoice statuses
+
+        pattern = r"'problem_type': '(\w+)'"
+
         for invoice_payload in payload:
-            print("2")
             response = self.create_invoice(invoice_payload)
-            print("3")
             if response:
-                print("4")
+                invoice_id = invoice_payload['model']['kloo_invoice_id']
+
+                # Extract problem_type using regex
+                match = re.search(pattern, str(response))
+                if match:
+                    problem_type = match.group(1)
+                    api_log(msg=f"problem_type:: {problem_type}")
+                else:
+                    problem_type = None
+                    api_log(msg=f"problem_type not found")
+
+                # Determine status based on the extracted problem_type
+                if problem_type in ['RATE_LIMITED', 'TIMED_OUT']:
+                    status = 'pending'
+                elif problem_type == 'PROVIDER_ERROR':
+                    status = 'failed'
+                else:
+                    status = 'unknown'  # Handle other cases if necessary
+
                 api_log(msg=f"Response in the PROCESS INVOICES function in management command file::: {response} and "
-                            f"Invoice_id is {payload['model']['kloo_invoice_id']}")
+                            f"Invoice_id is {invoice_id}")
+
+                # Append the status to the invoices list
+                invoices.append({
+                    'id': invoice_id,
+                    'status': status
+                })
+
                 self.handle_invoice_response(invoice_payload)
+
+        # Log or return the invoices JSON
+        api_log(msg=f"Final invoices JSON: {invoices}")
+        self.post_response(invoices)
 
     def handle_invoice_response(self, invoice_payload: dict):
         if invoice_payload["model"]["problem_type"] == "RATE_LIMITED":
@@ -127,3 +158,19 @@ class Command(BaseCommand):
                     except TimeoutError:
                         retry.cron_execution_time = datetime.now() + timedelta(minutes=5)
                         retry.save()
+
+    def post_response(self, response: list):
+        pending_url = f"{GETKLOO_BASE_URL}/ap/erp-integration/update_accounting_portal_status"
+        header = {'Content-type': 'application/json'}
+        try:
+            pending_invoice_response = requests.post(
+                pending_url,
+                headers=header,
+                data=json.dumps(response)  # Convert the response list to JSON format
+            )
+            if pending_invoice_response.status_code in [200, 201]:
+                api_log(msg=f"Successfully posted invoices: {response}")
+            else:
+                api_log(msg=f"Failed to post invoices: {response}. Status Code: {pending_invoice_response.status_code}")
+        except Exception as e:
+            api_log(msg=f"Exception occurred while posting invoices: {str(e)}")
