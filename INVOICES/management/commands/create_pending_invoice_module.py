@@ -1,5 +1,4 @@
 import json
-import logging
 import re
 import time
 import uuid
@@ -10,7 +9,11 @@ from django.core.management.base import BaseCommand
 from django.http import HttpRequest
 from merge_integration.helper_functions import api_log
 
-logger = logging.getLogger(__name__)
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "merge_integration.settings")
+
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
 
 
 class MockRequest(HttpRequest):
