@@ -27,6 +27,7 @@ class Command(BaseCommand):
         self.read_pending_invoice_api()
 
     def create_invoice(self, payload: list):
+        from LINKTOKEN.model import ErpLinkToken
         from INVOICES.views import InvoiceCreate
         api_log(msg="this is create invoice block")
         mock_request = MockRequest(data=payload)
