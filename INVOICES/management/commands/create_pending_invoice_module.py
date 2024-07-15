@@ -24,6 +24,7 @@ class MockRequest(HttpRequest):
 
 class Command(BaseCommand):
     help = 'Process pending invoices and retry failed ones'
+    from INVOICES.views import InvoiceCreate
 
     def handle(self, *args, **options):
         self.read_pending_invoice_api()
