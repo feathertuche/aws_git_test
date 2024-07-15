@@ -66,9 +66,9 @@ class Command(BaseCommand):
                     api_log(msg="Invalid payload format received from API")
                 return pending_invoice_response
             else:
-                api_log(msg=f"{pending_invoice_response.raise_for_status()}")
+                api_log(msg=f"The error coming from CRON Invoice script::{pending_invoice_response.raise_for_status()}")
         except Exception as e:
-            api_log(msg=f"Error fetching pending invoices: {str(e)}")
+            api_log(msg=f"Error fetching pending invoices in CRON script: {str(e)}")
 
     def process_invoices(self, payload):
         invoices = []  # Initialize an empty list to hold the invoice statuses
