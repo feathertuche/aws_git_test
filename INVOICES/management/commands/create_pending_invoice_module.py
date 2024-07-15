@@ -14,6 +14,7 @@ from merge_integration.helper_functions import api_log
 
 # from django.core.wsgi import get_wsgi_application
 # application = get_wsgi_application()
+from merge_integration.settings import GETKLOO_LOCAL_URL
 
 
 class MockRequest(HttpRequest):
@@ -43,7 +44,7 @@ class Command(BaseCommand):
         GET API for pending list of invoices
         """
         api_log(msg="Fetching pending invoices from Back-end api for cron execution....")
-        pending_url = f"{GETKLOO_BASE_URL}/ap/erp-integration/pending_post_invoices_erp"
+        pending_url = f"{GETKLOO_LOCAL_URL}/ap/erp-integration/pending_post_invoices_erp"
         # auth_token = ""
         header = {'Content-type': 'application/json'}
         try:
