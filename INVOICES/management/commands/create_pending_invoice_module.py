@@ -9,7 +9,6 @@ import requests
 from django.core.management.base import BaseCommand
 from django.http import HttpRequest
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_BASE_URL
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +36,7 @@ class Command(BaseCommand):
         return response.data
 
     def read_pending_invoice_api(self):
+        from merge_integration.settings import GETKLOO_BASE_URL
         """
         GET API for pending list of invoices
         """
@@ -162,6 +162,7 @@ class Command(BaseCommand):
                         retry.save()
 
     def post_response(self, response: list):
+        from merge_integration.settings import GETKLOO_BASE_URL
         pending_url = f"{GETKLOO_BASE_URL}/ap/erp-integration/update_accounting_portal_status"
         header = {'Content-type': 'application/json'}
         try:
