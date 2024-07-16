@@ -370,6 +370,7 @@ class MergeInvoiceApiService(MergeService):
                     "invoice_status": invoice_status_enum
                 }
             )
+
             return response
 
         except Exception as e:
