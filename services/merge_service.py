@@ -370,11 +370,7 @@ class MergeInvoiceApiService(MergeService):
                     "invoice_status": invoice_status_enum
                 }
             )
-
-            return {
-                "status": "success",
-                "data": response,
-            }
+            return response
 
         except Exception as e:
             pattern = r"'problem_type': '(\w+)'"
