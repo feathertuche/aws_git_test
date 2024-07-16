@@ -5,7 +5,7 @@ Helper functions for the INVOICES app
 import json
 import uuid
 from datetime import datetime
-
+import requests
 from merge.resources.accounting import InvoiceLineItemRequest
 
 from INVOICES.queries import (
@@ -315,6 +315,24 @@ def create_xero_attachment_payload(attachment_validated_payload, invoice_id):
     return attachment_payload
 
 
+def post_response(response: dict):
+    from merge_integration.settings import GETKLOO_LOCAL_URL
+    pending_url = f"{GETKLOO_LOCAL_URL}/ap/erp-integration/update_accounting_portal_status"
+    # auth_token = ""
+    header = {'Content-type': 'application/json'}
+    try:
+        pending_invoice_response = requests.post(
+            pending_url,
+            # headers={"Authorization": f"Bearer {auth_token}"},
+            headers=header,
+            json=response
+        )
+        if pending_invoice_response.status_code in [200, 201]:
+            api_log(msg=f"Successfully UPDATED the response code: {response}")
+        else:
+            api_log(msg=f"Failed to update response code:::: {response}. Status Code:::: {pending_invoice_response.status_code}")
+    except Exception as e:
+        api_log(msg=f"Exception occurred while posting invoices: {str(e)}")
 # =========================================================================================#
 # PATCH PAYLOAD#
 # =========================================================================================#

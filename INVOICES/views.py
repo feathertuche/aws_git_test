@@ -11,7 +11,7 @@ from INVOICES.helper_functions import (
     update_patch_erp_line_items,
     update_post_erp_line_items,
     update_invoices_table,
-    check_or_create_sage_attachment_folder,
+    check_or_create_sage_attachment_folder, post_response,
 )
 from INVOICES.serializers import InvoiceCreateSerializer, InvoiceUpdateSerializer
 from LINKTOKEN.model import ErpLinkToken
@@ -105,13 +105,21 @@ class InvoiceCreate(APIView):
             merge_invoice_request_create = f"Invoice created : {invoice_created}"
             send_slack_notification(merge_invoice_request_create)
 
+            invoice_id = data["model"]["kloo_invoice_id"]
+            response_data = {
+                "invoices": [
+                    {
+                        "id": invoice_id,
+                        "status": "success"
+                    }
+                ]
+            }
+
+            post_response(response_data)
+
             return Response(
-                {
-                    "status": "success",
-                    "message": "Invoice and attachment created successfully in Merge",
-                    "data": invoice_created
-                },
-                status=status.HTTP_201_CREATED,
+                response_data,
+                status=status.HTTP_201_CREATED
             )
 
         except Exception as e:
