@@ -8118,3 +8118,774 @@ DEBUG 2024-07-16 13:38:33,581 hooks Event request-created.sqs.ReceiveMessage: ca
 DEBUG 2024-07-16 13:38:33,581 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T080833Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=901f9cb5cb008711e394ef07d0cc2f0ed4f845b104de008131c8e831b9a53812', 'amz-sdk-invocation-id': b'a8b09184-e20e-4348-a96d-66788e3f101c', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
 DEBUG 2024-07-16 13:38:33,581 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
 DEBUG 2024-07-16 13:38:33,581 connectionpool Starting new HTTPS connection (1): sqs.eu-west-2.amazonaws.com:443
+DEBUG 2024-07-16 13:38:39,763 helper_functions Processing GET request in MergeInvoice...
+DEBUG 2024-07-16 13:38:41,069 helper_functions account_token:::: j5KpAm3bGnAOOHHznrYCAcbbsT_yZl3piLVL0Y1EuP6zY3-nNPP1Iw
+DEBUG 2024-07-16 13:38:41,069 _config load_ssl_context verify=True cert=None trust_env=True http2=False
+DEBUG 2024-07-16 13:38:41,070 _config load_verify_locations cafile='C:\\Users\\AmiteshSahay\\AppData\\Local\\Programs\\Python\\Python310\\lib\\site-packages\\certifi\\cacert.pem'
+DEBUG 2024-07-16 13:38:41,078 helper_functions Invoice Request : {"org_id": "0aabf5ee-e26e-4d86-a518-eecb039a9e77", "entity_id": "b594767a-76ba-48a8-8d19-459f3d073108", "erp_link_token_id": "b012d178-4053-11ef-b8b8-0242ac11000c", "integration_name": "Xero", "model": {"kloo_invoice_id": "e1b779cf-4359-4aa0-aea6-7029221715a2", "erp_id": null, "type": "ACCOUNTS_PAYABLE", "contact": "0847cf8b-83c7-443d-97e1-59172de9b5ee", "number": "testing 16-07-02", "issue_date": "2023-03-31T00:00:00.000000Z", "due_date": "2024-07-31T00:00:00.000000Z", "memo": "Payment Gateway Services including Mail Order/Telephone Order and Tokens.", "status": "DRAFT", "company": "ba688049-9d9d-4b43-a820-2787480e6000", "currency": "GBP", "sub_total": "12.04", "total_tax_amount": 9.41, "total_amount": "21.45", "tracking_categories": ["a7480b36-0f43-442a-87ac-2b44f31f8688"], "line_items": [{"kloo_line_item_id": "d2d75e01-480e-4b87-bb99-0ede0cf60944", "erp_id": null, "remote_id": null, "invoice_id": "e1b779cf-4359-4aa0-aea6-7029221715a2", "sequence": 1, "item": "Mail Order / Telephone Order -- 01/03/2023- 31/03/2023 Overage Q", "unit_price": 12.04, "account": "ad6916c4-4626-4264-aaef-431bca0e7d35", "tracking_categories": ["a7480b36-0f43-442a-87ac-2b44f31f8688"], "quantity": "1.0000", "tax_rate_remote_id": "NONE", "total_amount": 12.04, "item_id": null}], "attachment": {"file_name": "1721114104-1_1_1_.pdf", "file_url": "https://dev-file.getkloo.com/ap-invoices/1721114104-1_1_1_.pdf", "transaction_name": "invoices"}, "tax_application_type": "EXCLUSIVE"}}
+DEBUG 2024-07-16 13:38:41,081 helper_functions Invoice Formatted Payload : {'id': 'e1b779cf-4359-4aa0-aea6-7029221715a2', 'type': 'ACCOUNTS_PAYABLE', 'due_date': '2024-07-31T00:00:00.000000Z', 'issue_date': '2023-03-31T00:00:00.000000Z', 'contact': '0847cf8b-83c7-443d-97e1-59172de9b5ee', 'number': 'testing 16-07-02', 'memo': 'Payment Gateway Services including Mail Order/Telephone Order and Tokens.', 'status': 'DRAFT', 'company': 'ba688049-9d9d-4b43-a820-2787480e6000', 'currency': 'GBP', 'tracking_categories': ['a7480b36-0f43-442a-87ac-2b44f31f8688'], 'sub_total': '12.04', 'total_tax_amount': 9.41, 'total_amount': '21.45', 'integration_params': {'tax_application_type': 'EXCLUSIVE'}, 'line_items': [InvoiceLineItemRequest(remote_id=None, description='Mail Order / Telephone Order -- 01/03/2023- 31/03/2023 Overage Q', unit_price=12.04, quantity=1.0, total_amount=None, currency=None, exchange_rate=None, item=None, account='ad6916c4-4626-4264-aaef-431bca0e7d35', tracking_category=None, tracking_categories=['a7480b36-0f43-442a-87ac-2b44f31f8688'], company=None, integration_params={'tax_rate_remote_id': 'NONE'}, linked_account_params=None)]}
+DEBUG 2024-07-16 13:38:41,083 _trace connect_tcp.started host='api-eu.merge.dev' port=443 local_address=None timeout=60 socket_options=None
+DEBUG 2024-07-16 13:38:41,226 _trace connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000016470AC8460>
+DEBUG 2024-07-16 13:38:41,226 _trace start_tls.started ssl_context=<ssl.SSLContext object at 0x0000016470A8C440> server_hostname='api-eu.merge.dev' timeout=60
+DEBUG 2024-07-16 13:38:41,280 _trace start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000016470AC8430>
+DEBUG 2024-07-16 13:38:41,280 _trace send_request_headers.started request=<Request [b'POST']>
+DEBUG 2024-07-16 13:38:41,280 _trace send_request_headers.complete
+DEBUG 2024-07-16 13:38:41,280 _trace send_request_body.started request=<Request [b'POST']>
+DEBUG 2024-07-16 13:38:41,281 _trace send_request_body.complete
+DEBUG 2024-07-16 13:38:41,281 _trace receive_response_headers.started request=<Request [b'POST']>
+DEBUG 2024-07-16 13:38:44,383 _trace receive_response_headers.complete return_value=(b'HTTP/1.1', 201, b'Created', [(b'Date', b'Tue, 16 Jul 2024 08:08:44 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'1510'), (b'Connection', b'keep-alive'), (b'content-security-policy', b"style-src 'self'; default-src 'self'; frame-ancestors 'self'; font-src 'self'; connect-src 'self'; img-src 'self'; script-src 'self'"), (b'x-frame-options', b'DENY'), (b'expires', b'Tue, 16 Jul 2024 08:08:44 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'pragma', b'no-cache'), (b'vary', b'Accept-Language, Origin'), (b'content-language', b'en'), (b'strict-transport-security', b'max-age=15552000; includeSubDomains; preload'), (b'x-content-type-options', b'nosniff'), (b'referrer-policy', b'same-origin'), (b'cross-origin-opener-policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=tI.be7awyc0JxwC8paClnG_OMaKZLMjzOtuPOQEeS6A-1721117324-1.0.1.1-cmS_e_dpihCE_HihzyO6HlH7aDNvgtiqsJg.XOW91nT0niQCd9pKCVbklI2CrglTV9fQ.sESIBjH.bkRXnMDfA; path=/; expires=Tue, 16-Jul-24 08:38:44 GMT; domain=.merge.dev; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'8a40817d3c0da7d4-DEL'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO 2024-07-16 13:38:44,384 _client HTTP Request: POST https://api-eu.merge.dev/api/accounting/v1/invoices "HTTP/1.1 201 Created"
+DEBUG 2024-07-16 13:38:44,384 _trace receive_response_body.started request=<Request [b'POST']>
+DEBUG 2024-07-16 13:38:44,385 _trace receive_response_body.complete
+DEBUG 2024-07-16 13:38:44,385 _trace response_closed.started
+DEBUG 2024-07-16 13:38:44,385 _trace response_closed.complete
+DEBUG 2024-07-16 13:38:44,386 helper_functions MERGE : Invoice created successfully: model=Invoice(id='385ef529-48c5-4144-86ae-d28aee90fb9d', type='ACCOUNTS_PAYABLE', contact='0847cf8b-83c7-443d-97e1-59172de9b5ee', number='testing 16-07-02', issue_date=datetime.datetime(2023, 3, 31, 0, 0, tzinfo=datetime.timezone.utc), due_date=datetime.datetime(2024, 7, 31, 0, 0, tzinfo=datetime.timezone.utc), paid_on_date=None, memo='Payment Gateway Services including Mail Order/Telephone Order and Tokens.', company=None, currency='GBP', exchange_rate='1.2344962699695203', total_discount=None, sub_total=12.04, status='DRAFT', total_tax_amount=0.0, total_amount=12.04, balance=12.04, remote_updated_at=datetime.datetime(2024, 7, 16, 8, 8, 44, 413000, tzinfo=datetime.timezone.utc), tracking_categories=[], payments=[], applied_payments=[], line_items=[InvoiceLineItem(remote_id='84fae483-419d-4996-b3dc-79e0471ac281', description='Mail Order / Telephone Order -- 01/03/2023- 31/03/2023 Overage Q', unit_price=12.04, quantity=1.0, total_amount=12.04, currency=None, exchange_rate=None, item=None, account='ad6916c4-4626-4264-aaef-431bca0e7d35', tracking_category=None, tracking_categories=['a7480b36-0f43-442a-87ac-2b44f31f8688'], company=None, remote_was_deleted=False, id='1abf9aff-e198-4c9d-a98b-921b0737eeda', created_at=datetime.datetime(2024, 7, 16, 8, 8, 44, 610492, tzinfo=datetime.timezone.utc), modified_at=datetime.datetime(2024, 7, 16, 8, 8, 44, 632333, tzinfo=datetime.timezone.utc), field_mappings=None)], remote_was_deleted=False, accounting_period=None, purchase_orders=[], remote_id='9e686664-368f-4058-a5a5-33687a7c9464', created_at=datetime.datetime(2024, 7, 16, 8, 8, 43, 511392, tzinfo=datetime.timezone.utc), modified_at=datetime.datetime(2024, 7, 16, 8, 8, 44, 579468, tzinfo=datetime.timezone.utc), field_mappings=None, remote_data=None) warnings=[] errors=[] logs=None
+DEBUG 2024-07-16 13:38:44,388 helper_functions MERGE : INVOICE DATA in create invoice {'id': 'e1b779cf-4359-4aa0-aea6-7029221715a2', 'type': 'ACCOUNTS_PAYABLE', 'due_date': '2024-07-31T00:00:00.000000Z', 'issue_date': '2023-03-31T00:00:00.000000Z', 'contact': '0847cf8b-83c7-443d-97e1-59172de9b5ee', 'number': 'testing 16-07-02', 'memo': 'Payment Gateway Services including Mail Order/Telephone Order and Tokens.', 'status': 'DRAFT', 'company': 'ba688049-9d9d-4b43-a820-2787480e6000', 'currency': 'GBP', 'tracking_categories': ['a7480b36-0f43-442a-87ac-2b44f31f8688'], 'sub_total': '12.04', 'total_tax_amount': 9.41, 'total_amount': '21.45', 'integration_params': {'tax_application_type': 'EXCLUSIVE'}, 'line_items': [InvoiceLineItemRequest(remote_id=None, description='Mail Order / Telephone Order -- 01/03/2023- 31/03/2023 Overage Q', unit_price=12.04, quantity=1.0, total_amount=None, currency=None, exchange_rate=None, item=None, account='ad6916c4-4626-4264-aaef-431bca0e7d35', tracking_category=None, tracking_categories=['a7480b36-0f43-442a-87ac-2b44f31f8688'], company=None, integration_params={'tax_rate_remote_id': 'NONE'}, linked_account_params=None)]}
+DEBUG 2024-07-16 13:38:44,389 helper_functions MERGE : Invoice model status field::: DRAFT
+DEBUG 2024-07-16 13:38:44,676 helper_functions INVOICE LOG : Log updated successfully: InvoiceAttachmentLogs object (95f53555-daba-4b79-8252-c526db762d05)
+DEBUG 2024-07-16 13:38:44,677 helper_functions Merge Invoice Created : model=Invoice(id='385ef529-48c5-4144-86ae-d28aee90fb9d', type='ACCOUNTS_PAYABLE', contact='0847cf8b-83c7-443d-97e1-59172de9b5ee', number='testing 16-07-02', issue_date=datetime.datetime(2023, 3, 31, 0, 0, tzinfo=datetime.timezone.utc), due_date=datetime.datetime(2024, 7, 31, 0, 0, tzinfo=datetime.timezone.utc), paid_on_date=None, memo='Payment Gateway Services including Mail Order/Telephone Order and Tokens.', company=None, currency='GBP', exchange_rate='1.2344962699695203', total_discount=None, sub_total=12.04, status='DRAFT', total_tax_amount=0.0, total_amount=12.04, balance=12.04, remote_updated_at=datetime.datetime(2024, 7, 16, 8, 8, 44, 413000, tzinfo=datetime.timezone.utc), tracking_categories=[], payments=[], applied_payments=[], line_items=[InvoiceLineItem(remote_id='84fae483-419d-4996-b3dc-79e0471ac281', description='Mail Order / Telephone Order -- 01/03/2023- 31/03/2023 Overage Q', unit_price=12.04, quantity=1.0, total_amount=12.04, currency=None, exchange_rate=None, item=None, account='ad6916c4-4626-4264-aaef-431bca0e7d35', tracking_category=None, tracking_categories=['a7480b36-0f43-442a-87ac-2b44f31f8688'], company=None, remote_was_deleted=False, id='1abf9aff-e198-4c9d-a98b-921b0737eeda', created_at=datetime.datetime(2024, 7, 16, 8, 8, 44, 610492, tzinfo=datetime.timezone.utc), modified_at=datetime.datetime(2024, 7, 16, 8, 8, 44, 632333, tzinfo=datetime.timezone.utc), field_mappings=None)], remote_was_deleted=False, accounting_period=None, purchase_orders=[], remote_id='9e686664-368f-4058-a5a5-33687a7c9464', created_at=datetime.datetime(2024, 7, 16, 8, 8, 43, 511392, tzinfo=datetime.timezone.utc), modified_at=datetime.datetime(2024, 7, 16, 8, 8, 44, 579468, tzinfo=datetime.timezone.utc), field_mappings=None, remote_data=None) warnings=[] errors=[] logs=None
+DEBUG 2024-07-16 13:38:44,679 helper_functions  invoice table id field : e1b779cf-4359-4aa0-aea6-7029221715a2
+DEBUG 2024-07-16 13:38:44,681 helper_functions  invoice model payload : {'id': '385ef529-48c5-4144-86ae-d28aee90fb9d', 'type': 'ACCOUNTS_PAYABLE', 'contact': '0847cf8b-83c7-443d-97e1-59172de9b5ee', 'number': 'testing 16-07-02', 'issue_date': datetime.datetime(2023, 3, 31, 0, 0, tzinfo=datetime.timezone.utc), 'due_date': datetime.datetime(2024, 7, 31, 0, 0, tzinfo=datetime.timezone.utc), 'paid_on_date': None, 'memo': 'Payment Gateway Services including Mail Order/Telephone Order and Tokens.', 'company': None, 'currency': 'GBP', 'exchange_rate': '1.2344962699695203', 'total_discount': None, 'sub_total': 12.04, 'status': 'DRAFT', 'total_tax_amount': 0.0, 'total_amount': 12.04, 'balance': 12.04, 'remote_updated_at': datetime.datetime(2024, 7, 16, 8, 8, 44, 413000, tzinfo=datetime.timezone.utc), 'tracking_categories': [], 'payments': [], 'applied_payments': [], 'line_items': [InvoiceLineItem(remote_id='84fae483-419d-4996-b3dc-79e0471ac281', description='Mail Order / Telephone Order -- 01/03/2023- 31/03/2023 Overage Q', unit_price=12.04, quantity=1.0, total_amount=12.04, currency=None, exchange_rate=None, item=None, account='ad6916c4-4626-4264-aaef-431bca0e7d35', tracking_category=None, tracking_categories=['a7480b36-0f43-442a-87ac-2b44f31f8688'], company=None, remote_was_deleted=False, id='1abf9aff-e198-4c9d-a98b-921b0737eeda', created_at=datetime.datetime(2024, 7, 16, 8, 8, 44, 610492, tzinfo=datetime.timezone.utc), modified_at=datetime.datetime(2024, 7, 16, 8, 8, 44, 632333, tzinfo=datetime.timezone.utc), field_mappings=None)], 'remote_was_deleted': False, 'accounting_period': None, 'purchase_orders': [], 'remote_id': '9e686664-368f-4058-a5a5-33687a7c9464', 'created_at': datetime.datetime(2024, 7, 16, 8, 8, 43, 511392, tzinfo=datetime.timezone.utc), 'modified_at': datetime.datetime(2024, 7, 16, 8, 8, 44, 579468, tzinfo=datetime.timezone.utc), 'field_mappings': None, 'remote_data': None}
+DEBUG 2024-07-16 13:38:44,683 helper_functions  invoice line items payload : {'remote_id': '84fae483-419d-4996-b3dc-79e0471ac281', 'description': 'Mail Order / Telephone Order -- 01/03/2023- 31/03/2023 Overage Q', 'unit_price': 12.04, 'quantity': 1.0, 'total_amount': 12.04, 'currency': None, 'exchange_rate': None, 'item': None, 'account': 'ad6916c4-4626-4264-aaef-431bca0e7d35', 'tracking_category': None, 'tracking_categories': ['a7480b36-0f43-442a-87ac-2b44f31f8688'], 'company': None, 'remote_was_deleted': False, 'id': '1abf9aff-e198-4c9d-a98b-921b0737eeda', 'created_at': datetime.datetime(2024, 7, 16, 8, 8, 44, 610492, tzinfo=datetime.timezone.utc), 'modified_at': datetime.datetime(2024, 7, 16, 8, 8, 44, 632333, tzinfo=datetime.timezone.utc), 'field_mappings': None}
+DEBUG 2024-07-16 13:38:44,684 helper_functions  line_items_json : [{"remote_id": "84fae483-419d-4996-b3dc-79e0471ac281", "description": "Mail Order / Telephone Order -- 01/03/2023- 31/03/2023 Overage Q", "unit_price": 12.04, "quantity": 1.0, "total_amount": 12.04, "currency": null, "exchange_rate": null, "item": null, "account": "ad6916c4-4626-4264-aaef-431bca0e7d35", "tracking_category": null, "tracking_categories": ["a7480b36-0f43-442a-87ac-2b44f31f8688"], "company": null, "remote_was_deleted": false, "id": "1abf9aff-e198-4c9d-a98b-921b0737eeda", "created_at": "2024-07-16T08:08:44.610492+00:00", "modified_at": "2024-07-16T08:08:44.632333+00:00", "field_mappings": null}]
+DEBUG 2024-07-16 13:38:44,686 helper_functions invoice_data in query file: {'erp_id': '385ef529-48c5-4144-86ae-d28aee90fb9d', 'remote_id': '9e686664-368f-4058-a5a5-33687a7c9464', 'erp_exchange_rate': '1.2344962699695203', 'erp_balance': 12.04, 'erp_total_discount': None, 'erp_status': 'DRAFT', 'erp_tracking_categories': None, 'erp_payment': None, 'erp_applied_payments': None, 'erp_line_items': '[{"remote_id": "84fae483-419d-4996-b3dc-79e0471ac281", "description": "Mail Order / Telephone Order -- 01/03/2023- 31/03/2023 Overage Q", "unit_price": 12.04, "quantity": 1.0, "total_amount": 12.04, "currency": null, "exchange_rate": null, "item": null, "account": "ad6916c4-4626-4264-aaef-431bca0e7d35", "tracking_category": null, "tracking_categories": ["a7480b36-0f43-442a-87ac-2b44f31f8688"], "company": null, "remote_was_deleted": false, "id": "1abf9aff-e198-4c9d-a98b-921b0737eeda", "created_at": "2024-07-16T08:08:44.610492+00:00", "modified_at": "2024-07-16T08:08:44.632333+00:00", "field_mappings": null}]', 'erp_created_at': datetime.datetime(2024, 7, 16, 8, 8, 43, 511392, tzinfo=datetime.timezone.utc), 'erp_modified_at': datetime.datetime(2024, 7, 16, 8, 8, 44, 579468, tzinfo=datetime.timezone.utc), 'erp_remote_data': None}
+DEBUG 2024-07-16 13:38:44,828 helper_functions Updated invoices erp data for ID : e1b779cf-4359-4aa0-aea6-7029221715a2
+DEBUG 2024-07-16 13:38:44,829 helper_functions updated of the line items started for invoice id : e1b779cf-4359-4aa0-aea6-7029221715a2
+DEBUG 2024-07-16 13:38:44,968 helper_functions merge line item: [{'remote_id': '84fae483-419d-4996-b3dc-79e0471ac281', 'description': 'Mail Order / Telephone Order -- 01/03/2023- 31/03/2023 Overage Q', 'unit_price': 12.04, 'quantity': 1.0, 'total_amount': 12.04, 'currency': None, 'exchange_rate': None, 'item': None, 'account': 'ad6916c4-4626-4264-aaef-431bca0e7d35', 'tracking_category': None, 'tracking_categories': ['a7480b36-0f43-442a-87ac-2b44f31f8688'], 'company': None, 'remote_was_deleted': False, 'id': '1abf9aff-e198-4c9d-a98b-921b0737eeda', 'created_at': datetime.datetime(2024, 7, 16, 8, 8, 44, 610492, tzinfo=datetime.timezone.utc), 'modified_at': datetime.datetime(2024, 7, 16, 8, 8, 44, 632333, tzinfo=datetime.timezone.utc), 'field_mappings': None}]
+DEBUG 2024-07-16 13:38:44,969 helper_functions existing line item: []
+DEBUG 2024-07-16 13:38:44,970 helper_functions MERGE : attachment_data {'id': 'e1b779cf-4359-4aa0-aea6-7029221715a2', 'file_name': '1721114104-1_1_1_.pdf', 'file_url': 'https://dev-file.getkloo.com/ap-invoices/1721114104-1_1_1_.pdf', 'integration_params': {'transaction_id': '385ef529-48c5-4144-86ae-d28aee90fb9d', 'transaction_name': 'invoices'}}
+DEBUG 2024-07-16 13:38:44,972 _trace send_request_headers.started request=<Request [b'POST']>
+DEBUG 2024-07-16 13:38:44,973 _trace send_request_headers.complete
+DEBUG 2024-07-16 13:38:44,973 _trace send_request_body.started request=<Request [b'POST']>
+DEBUG 2024-07-16 13:38:44,973 _trace send_request_body.complete
+DEBUG 2024-07-16 13:38:44,973 _trace receive_response_headers.started request=<Request [b'POST']>
+DEBUG 2024-07-16 13:38:48,147 _trace receive_response_headers.complete return_value=(b'HTTP/1.1', 201, b'Created', [(b'Date', b'Tue, 16 Jul 2024 08:08:48 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'2310'), (b'Connection', b'keep-alive'), (b'content-security-policy', b"default-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; style-src 'self'; frame-ancestors 'self'; script-src 'self'"), (b'x-frame-options', b'DENY'), (b'expires', b'Tue, 16 Jul 2024 08:08:48 GMT'), (b'Cache-Control', b'max-age=0, no-cache, no-store, must-revalidate, private'), (b'pragma', b'no-cache'), (b'vary', b'Accept-Language, Origin'), (b'content-language', b'en'), (b'strict-transport-security', b'max-age=15552000; includeSubDomains; preload'), (b'x-content-type-options', b'nosniff'), (b'referrer-policy', b'same-origin'), (b'cross-origin-opener-policy', b'same-origin'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Server', b'cloudflare'), (b'CF-RAY', b'8a4081944c45a7d4-DEL'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO 2024-07-16 13:38:48,149 _client HTTP Request: POST https://api-eu.merge.dev/api/accounting/v1/attachments "HTTP/1.1 201 Created"
+DEBUG 2024-07-16 13:38:48,149 _trace receive_response_body.started request=<Request [b'POST']>
+DEBUG 2024-07-16 13:38:48,149 _trace receive_response_body.complete
+DEBUG 2024-07-16 13:38:48,150 _trace response_closed.started
+DEBUG 2024-07-16 13:38:48,150 _trace response_closed.complete
+DEBUG 2024-07-16 13:38:48,151 helper_functions MERGE : Response model=AccountingAttachment(id='11158486-5392-4fd5-9daf-dcda6ce525e7', remote_id='c787e824-a461-4734-8335-d19de9cb0900', file_name='1721114104-1_1_1_.pdf', file_url='https://merge-api-production-eu.s3.amazonaws.com/public/linked-account-files/f1c84455-5283-4367-b69c-b5a525ff5d1c/6916c36d4ab6cb2980cba9761a2028d13762d9669d61dc939af203a16cdf6f7f.pdf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIATTAKIFMYAWCTBC6B%2F20240716%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20240716T080848Z&X-Amz-Expires=10800&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEAcaCmV1LW5vcnRoLTEiRzBFAiEAy1I3FlAARdejWQz0GNJog710rpM7vHKbQGI7SLInsWMCIB6AAKfMadnD1q2PFyY5ui7i38kxfCg4y6EiszusWPshKscFCND%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQAxoMMjQ2OTgyMTI2Mzg0Igx5W6qxqTw3auxonCMqmwXbuNYOMgCC9e64aS9JRVQoiAdlrSTcpcc%2FAdrwis%2BSqo5xy7cPRTZ4Oz%2FLPnmTjLXs8Xm19s3skbEvF0PRN%2FQv%2BvuSLGImH28hsCx%2BUXsE9sRQPLMfqwOnLk4M2RtT9hOx4c14bevJAggyNcI09BFehTIn1Mu%2BaJXEnHS%2F8i2kAgpRibjpqmF%2FBlCmElGXXurYauyfJTOEjOUmPUuVtoLVkBp2Lq1s9xYKW7A7bxla%2BLupxEKSlROwXXAdoKjdNLxGPibwfl0G80rfVEhZSU%2BvZ1GoVqI9aueN7Mwl5ofb%2Bpzzl9FKpcWriHFklfEf4uTJBhkxT%2BaXcUjmvPfM0mkRc0I6jxDycL%2B0RZdJM2qViqFTnlvJjUonLwM%2F3ZKgTbG6l%2FOQOTGoetZTVIqNHYcjeSbzrVuMepYVwQZDSYhLm4VblE6eHYzSTVaLAPsY5Is5BWOdOGvAxGGc5zFk7IEtzq5PS00olxmM3Kb7MMXpKaLWNpWq%2FL%2Bs5ihS%2Bjo7TyIhkCVy0GrvgRvvQLrHf1sT5Jvxp2ch8JXW7MvWeEnEzcHEF0qfepISA2WrOovh%2Fw8crx%2B8jwtYyEF3pNtSaNTuE2OSfpqyqG8wFX6nLPfOdMyMoAL1r8mI7McwKDAURUpb3Cdmo2cwQ%2FNO7EGNnRvOQYJkHXFWrqKlL8mv7ltvx4vRybjCFdNnDxR3xkILqwHtPnPkCkP7dFg0EGE5q8OTjvNN0TbhT%2BWH0f4vl%2BILEuTH5t9fKksqM7IEdofr2%2BIFqq%2B2qLkPHajJ6s1T%2FDyMAkllozmSOJFE4gavLdApJUcHlE1EIDdMKEt9hC1e07oRjtqgm%2BV8xWqYp1CBx1umFQ76QaMb%2FHBfYzpF1H8WNd%2F40t5HgdQoj1UDMI2%2F2LQGOrEBcu1kSdIfETt92b8MouIB2MkTZT2C7LgXs6UnvIpcm1wKF37QDSd3V9sJ0qw9w7qUU0SooRZqEk%2FgGRgBSGdc9LhbX0m2EE1MGpSBYDxINDSRC5yqWu9ZwS7iarBGbzwcHDmQ7P6WuVFpk78bjR5Gp0mgb6IW3Ebbb32o7qjRQNlHAc465UCOTwoylChVD4xdlv8MioeOtSHIn5o7%2FQGsmKptBs64SuZSnbTx6a5zEZOS&X-Amz-Signature=41e9d159894938587e6aa593ff2ed294dde2cbf1c0515af574ade090cefea5f7', company=None, remote_was_deleted=False, created_at=datetime.datetime(2024, 7, 16, 8, 8, 46, 468107, tzinfo=datetime.timezone.utc), modified_at=datetime.datetime(2024, 7, 16, 8, 8, 48, 421129, tzinfo=datetime.timezone.utc), field_mappings={'organization_defined_targets': {}, 'linked_account_defined_targets': {}}, remote_data=None) warnings=[] errors=[] logs=None
+DEBUG 2024-07-16 13:38:48,578 helper_functions INVOICE LOG : Log created successfully: None
+DEBUG 2024-07-16 13:38:48,581 helper_functions MERGE : Attachment created successfully: model=AccountingAttachment(id='11158486-5392-4fd5-9daf-dcda6ce525e7', remote_id='c787e824-a461-4734-8335-d19de9cb0900', file_name='1721114104-1_1_1_.pdf', file_url='https://merge-api-production-eu.s3.amazonaws.com/public/linked-account-files/f1c84455-5283-4367-b69c-b5a525ff5d1c/6916c36d4ab6cb2980cba9761a2028d13762d9669d61dc939af203a16cdf6f7f.pdf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIATTAKIFMYAWCTBC6B%2F20240716%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20240716T080848Z&X-Amz-Expires=10800&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEAcaCmV1LW5vcnRoLTEiRzBFAiEAy1I3FlAARdejWQz0GNJog710rpM7vHKbQGI7SLInsWMCIB6AAKfMadnD1q2PFyY5ui7i38kxfCg4y6EiszusWPshKscFCND%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQAxoMMjQ2OTgyMTI2Mzg0Igx5W6qxqTw3auxonCMqmwXbuNYOMgCC9e64aS9JRVQoiAdlrSTcpcc%2FAdrwis%2BSqo5xy7cPRTZ4Oz%2FLPnmTjLXs8Xm19s3skbEvF0PRN%2FQv%2BvuSLGImH28hsCx%2BUXsE9sRQPLMfqwOnLk4M2RtT9hOx4c14bevJAggyNcI09BFehTIn1Mu%2BaJXEnHS%2F8i2kAgpRibjpqmF%2FBlCmElGXXurYauyfJTOEjOUmPUuVtoLVkBp2Lq1s9xYKW7A7bxla%2BLupxEKSlROwXXAdoKjdNLxGPibwfl0G80rfVEhZSU%2BvZ1GoVqI9aueN7Mwl5ofb%2Bpzzl9FKpcWriHFklfEf4uTJBhkxT%2BaXcUjmvPfM0mkRc0I6jxDycL%2B0RZdJM2qViqFTnlvJjUonLwM%2F3ZKgTbG6l%2FOQOTGoetZTVIqNHYcjeSbzrVuMepYVwQZDSYhLm4VblE6eHYzSTVaLAPsY5Is5BWOdOGvAxGGc5zFk7IEtzq5PS00olxmM3Kb7MMXpKaLWNpWq%2FL%2Bs5ihS%2Bjo7TyIhkCVy0GrvgRvvQLrHf1sT5Jvxp2ch8JXW7MvWeEnEzcHEF0qfepISA2WrOovh%2Fw8crx%2B8jwtYyEF3pNtSaNTuE2OSfpqyqG8wFX6nLPfOdMyMoAL1r8mI7McwKDAURUpb3Cdmo2cwQ%2FNO7EGNnRvOQYJkHXFWrqKlL8mv7ltvx4vRybjCFdNnDxR3xkILqwHtPnPkCkP7dFg0EGE5q8OTjvNN0TbhT%2BWH0f4vl%2BILEuTH5t9fKksqM7IEdofr2%2BIFqq%2B2qLkPHajJ6s1T%2FDyMAkllozmSOJFE4gavLdApJUcHlE1EIDdMKEt9hC1e07oRjtqgm%2BV8xWqYp1CBx1umFQ76QaMb%2FHBfYzpF1H8WNd%2F40t5HgdQoj1UDMI2%2F2LQGOrEBcu1kSdIfETt92b8MouIB2MkTZT2C7LgXs6UnvIpcm1wKF37QDSd3V9sJ0qw9w7qUU0SooRZqEk%2FgGRgBSGdc9LhbX0m2EE1MGpSBYDxINDSRC5yqWu9ZwS7iarBGbzwcHDmQ7P6WuVFpk78bjR5Gp0mgb6IW3Ebbb32o7qjRQNlHAc465UCOTwoylChVD4xdlv8MioeOtSHIn5o7%2FQGsmKptBs64SuZSnbTx6a5zEZOS&X-Amz-Signature=41e9d159894938587e6aa593ff2ed294dde2cbf1c0515af574ade090cefea5f7', company=None, remote_was_deleted=False, created_at=datetime.datetime(2024, 7, 16, 8, 8, 46, 468107, tzinfo=datetime.timezone.utc), modified_at=datetime.datetime(2024, 7, 16, 8, 8, 48, 421129, tzinfo=datetime.timezone.utc), field_mappings={'organization_defined_targets': {}, 'linked_account_defined_targets': {}}, remote_data=None) warnings=[] errors=[] logs=None
+DEBUG 2024-07-16 13:38:48,593 helper_functions ['[2024-07-16 13:38:48]', '127.0.0.1', 'POST', '/api/v1/erp/invoice-info/invoicesCreate/', '{"Content-Length": "2047", "Content-Type": "application/json", "Authorization": "Bearer vDQmwYYKwwP88Kdijnmm1jvEYKKyDwebs2oMbXHBwUfg85WUMHLTlQ", "User-Agent": "PostmanRuntime/7.40.0", "Accept": "*/*", "Cache-Control": "no-cache", "Postman-Token": "81f99def-a0bb-4b28-a3c6-c88b4b818d0a", "Host": "127.0.0.1:8000", "Accept-Encoding": "gzip, deflate, br", "Connection": "keep-alive", "Cookie": "csrftoken=dUqkdvg3pxpqhCiBkPTZZriHZvP4lDni"}', 201, '{"Content-Type": "application/json", "Vary": "Accept", "Allow": "POST, PATCH, OPTIONS"}', '8.831094', '0.000000']
+DEBUG 2024-07-16 13:38:51,411 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:38:51,411 parsers Response headers: {'x-amzn-RequestId': 'fadd6039-7a2f-5308-b1d3-3f295690f805', 'Date': 'Tue, 16 Jul 2024 08:08:51 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:38:51,411 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>fadd6039-7a2f-5308-b1d3-3f295690f805</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:38:51,411 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x00000233E3AED6F0>
+DEBUG 2024-07-16 13:38:51,411 retryhandler No retry needed.
+DEBUG 2024-07-16 13:38:51,411 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:38:51,411 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x00000233DE92AD40>
+DEBUG 2024-07-16 13:38:51,411 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:38:51,411 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:38:51,411 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x00000233DE92A9E0>
+DEBUG 2024-07-16 13:38:51,411 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x00000233DE94C5E0>
+DEBUG 2024-07-16 13:38:51,411 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x00000233E3AEC430>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:38:51,411 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x00000233E3AEC3A0>>
+DEBUG 2024-07-16 13:38:51,411 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x00000233DE92AC20>
+DEBUG 2024-07-16 13:38:51,411 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:38:51,411 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T080851Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:38:51,427 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T080851Z
+20240716/eu-west-2/sqs/aws4_request
+2ef9041d160c3e8556a5cebdb4a069e145133cda94b5b69a4b9fe7979af8ab7a
+DEBUG 2024-07-16 13:38:51,427 auth Signature:
+1158d081f2383efba6f81427b8c835cbab420dd6bf22d5dd4c1b0af06cbd359f
+DEBUG 2024-07-16 13:38:51,427 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x00000233DE94CCA0>
+DEBUG 2024-07-16 13:38:51,427 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T080851Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=1158d081f2383efba6f81427b8c835cbab420dd6bf22d5dd4c1b0af06cbd359f', 'amz-sdk-invocation-id': b'3734a8ec-9cf8-47f5-960d-414eeca54465', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:38:51,427 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:38:54,133 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:38:54,133 parsers Response headers: {'x-amzn-RequestId': 'afe9f6f6-465d-5f19-ad89-a9e66a9f53f7', 'Date': 'Tue, 16 Jul 2024 08:08:54 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:38:54,133 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>afe9f6f6-465d-5f19-ad89-a9e66a9f53f7</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:38:54,133 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x000001646FCC8CD0>
+DEBUG 2024-07-16 13:38:54,133 retryhandler No retry needed.
+DEBUG 2024-07-16 13:38:54,133 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:38:54,133 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x000001646A20AD40>
+DEBUG 2024-07-16 13:38:54,133 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:38:54,133 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:38:54,133 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x000001646A20A9E0>
+DEBUG 2024-07-16 13:38:54,133 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x000001646A22C5E0>
+DEBUG 2024-07-16 13:38:54,133 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x000001646FCA79D0>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:38:54,133 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x000001646FCA7970>>
+DEBUG 2024-07-16 13:38:54,133 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x000001646A20AC20>
+DEBUG 2024-07-16 13:38:54,133 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:38:54,133 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T080854Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:38:54,133 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T080854Z
+20240716/eu-west-2/sqs/aws4_request
+d89e748f7b06eae196a5c566d01d8b5f3f20f265a70c385e3b0b38a64d112871
+DEBUG 2024-07-16 13:38:54,133 auth Signature:
+8e8e7875c52a1c4d0d8f6fae675285217a712c64df613ef09a4cfb0be6c0cbd2
+DEBUG 2024-07-16 13:38:54,133 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x000001646A22CCA0>
+DEBUG 2024-07-16 13:38:54,133 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T080854Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=8e8e7875c52a1c4d0d8f6fae675285217a712c64df613ef09a4cfb0be6c0cbd2', 'amz-sdk-invocation-id': b'cd2904b6-6cc4-43a2-b9d0-bd95088a56b0', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:38:54,133 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:39:11,552 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:39:11,552 parsers Response headers: {'x-amzn-RequestId': 'cced5979-1483-555a-93cd-06693850ce57', 'Date': 'Tue, 16 Jul 2024 08:09:11 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:39:11,552 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>cced5979-1483-555a-93cd-06693850ce57</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:39:11,552 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x00000233E3AED6F0>
+DEBUG 2024-07-16 13:39:11,552 retryhandler No retry needed.
+DEBUG 2024-07-16 13:39:11,552 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:39:11,552 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x00000233DE92AD40>
+DEBUG 2024-07-16 13:39:11,552 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:39:11,552 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:39:11,552 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x00000233DE92A9E0>
+DEBUG 2024-07-16 13:39:11,552 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x00000233DE94C5E0>
+DEBUG 2024-07-16 13:39:11,552 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x00000233E3AEC430>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:39:11,552 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x00000233E3AEC3A0>>
+DEBUG 2024-07-16 13:39:11,552 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x00000233DE92AC20>
+DEBUG 2024-07-16 13:39:11,552 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:39:11,552 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T080911Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:39:11,552 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T080911Z
+20240716/eu-west-2/sqs/aws4_request
+ddbd30e3c5581f854ed6492b10e2c409c96ac6916864f40500fd83f33af71ca6
+DEBUG 2024-07-16 13:39:11,552 auth Signature:
+4e2f2ec95b015ab41edb89efc1b7fdcad4c8eb5e20fe6acaa78fd9497931815a
+DEBUG 2024-07-16 13:39:11,552 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x00000233DE94CCA0>
+DEBUG 2024-07-16 13:39:11,552 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T080911Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=4e2f2ec95b015ab41edb89efc1b7fdcad4c8eb5e20fe6acaa78fd9497931815a', 'amz-sdk-invocation-id': b'eda71922-afb8-4b3a-8194-f0bd87fdbde7', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:39:11,552 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:39:14,285 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:39:14,285 parsers Response headers: {'x-amzn-RequestId': '95d68859-21fe-57a6-a720-d7490d286b48', 'Date': 'Tue, 16 Jul 2024 08:09:14 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:39:14,285 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>95d68859-21fe-57a6-a720-d7490d286b48</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:39:14,285 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x000001646FCC8CD0>
+DEBUG 2024-07-16 13:39:14,285 retryhandler No retry needed.
+DEBUG 2024-07-16 13:39:14,285 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:39:14,285 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x000001646A20AD40>
+DEBUG 2024-07-16 13:39:14,285 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:39:14,285 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:39:14,285 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x000001646A20A9E0>
+DEBUG 2024-07-16 13:39:14,285 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x000001646A22C5E0>
+DEBUG 2024-07-16 13:39:14,285 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x000001646FCA79D0>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:39:14,285 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x000001646FCA7970>>
+DEBUG 2024-07-16 13:39:14,285 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x000001646A20AC20>
+DEBUG 2024-07-16 13:39:14,285 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:39:14,285 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T080914Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:39:14,285 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T080914Z
+20240716/eu-west-2/sqs/aws4_request
+a2735ff6a412ae67f1618455d916ab0beed2fe72aa64450e53189329e276b19a
+DEBUG 2024-07-16 13:39:14,285 auth Signature:
+f0a762bd1f897418f053ecf1cbde70891cc0b7f8c694c5a782ea870f234d3ab2
+DEBUG 2024-07-16 13:39:14,285 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x000001646A22CCA0>
+DEBUG 2024-07-16 13:39:14,285 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T080914Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=f0a762bd1f897418f053ecf1cbde70891cc0b7f8c694c5a782ea870f234d3ab2', 'amz-sdk-invocation-id': b'a29accb1-df64-4aae-aa6e-f622f7bbdbec', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:39:14,285 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:39:31,708 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:39:31,708 parsers Response headers: {'x-amzn-RequestId': 'a199019e-f242-5464-b3a3-5e8edeaa8f69', 'Date': 'Tue, 16 Jul 2024 08:09:32 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:39:31,708 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>a199019e-f242-5464-b3a3-5e8edeaa8f69</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:39:31,708 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x00000233E3AED6F0>
+DEBUG 2024-07-16 13:39:31,708 retryhandler No retry needed.
+DEBUG 2024-07-16 13:39:31,708 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:39:31,708 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x00000233DE92AD40>
+DEBUG 2024-07-16 13:39:31,708 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:39:31,708 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:39:31,708 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x00000233DE92A9E0>
+DEBUG 2024-07-16 13:39:31,708 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x00000233DE94C5E0>
+DEBUG 2024-07-16 13:39:31,708 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x00000233E3AEC430>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:39:31,708 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x00000233E3AEC3A0>>
+DEBUG 2024-07-16 13:39:31,708 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x00000233DE92AC20>
+DEBUG 2024-07-16 13:39:31,708 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:39:31,708 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T080931Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:39:31,708 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T080931Z
+20240716/eu-west-2/sqs/aws4_request
+1928d1375b249abdd59a2580e9acc7cb4f7c2ae6fb6a29db3122d4334dda0ab5
+DEBUG 2024-07-16 13:39:31,708 auth Signature:
+7d6b193c5fcca4320d1558d90a9e2b76d9140e3e96cf667321e0395191f04666
+DEBUG 2024-07-16 13:39:31,708 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x00000233DE94CCA0>
+DEBUG 2024-07-16 13:39:31,708 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T080931Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=7d6b193c5fcca4320d1558d90a9e2b76d9140e3e96cf667321e0395191f04666', 'amz-sdk-invocation-id': b'63886457-e673-474a-a573-e6ff4b6e3613', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:39:31,708 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:39:34,416 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:39:34,416 parsers Response headers: {'x-amzn-RequestId': '32c3d1ca-5a94-5a25-9b61-8eda767e16cb', 'Date': 'Tue, 16 Jul 2024 08:09:34 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:39:34,416 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>32c3d1ca-5a94-5a25-9b61-8eda767e16cb</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:39:34,416 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x000001646FCC8CD0>
+DEBUG 2024-07-16 13:39:34,416 retryhandler No retry needed.
+DEBUG 2024-07-16 13:39:34,416 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:39:34,416 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x000001646A20AD40>
+DEBUG 2024-07-16 13:39:34,416 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:39:34,416 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:39:34,416 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x000001646A20A9E0>
+DEBUG 2024-07-16 13:39:34,416 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x000001646A22C5E0>
+DEBUG 2024-07-16 13:39:34,416 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x000001646FCA79D0>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:39:34,416 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x000001646FCA7970>>
+DEBUG 2024-07-16 13:39:34,416 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x000001646A20AC20>
+DEBUG 2024-07-16 13:39:34,416 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:39:34,416 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T080934Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:39:34,416 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T080934Z
+20240716/eu-west-2/sqs/aws4_request
+f4c392de2ba52a773af1822761eb095bd0581308371ab8680b36b731f6efc92b
+DEBUG 2024-07-16 13:39:34,416 auth Signature:
+750db204f7bd4433d2e55b70fbba4a14fded63554115830063aa0785256a2e6e
+DEBUG 2024-07-16 13:39:34,416 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x000001646A22CCA0>
+DEBUG 2024-07-16 13:39:34,416 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T080934Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=750db204f7bd4433d2e55b70fbba4a14fded63554115830063aa0785256a2e6e', 'amz-sdk-invocation-id': b'050fdcb7-f5ba-47b0-be9f-6f0348857d67', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:39:34,431 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:39:51,848 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:39:51,848 parsers Response headers: {'x-amzn-RequestId': '3b022c90-44f9-52e7-9ae2-7380680569ea', 'Date': 'Tue, 16 Jul 2024 08:09:52 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:39:51,848 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>3b022c90-44f9-52e7-9ae2-7380680569ea</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:39:51,848 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x00000233E3AED6F0>
+DEBUG 2024-07-16 13:39:51,848 retryhandler No retry needed.
+DEBUG 2024-07-16 13:39:51,848 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:39:51,848 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x00000233DE92AD40>
+DEBUG 2024-07-16 13:39:51,848 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:39:51,848 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:39:51,848 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x00000233DE92A9E0>
+DEBUG 2024-07-16 13:39:51,848 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x00000233DE94C5E0>
+DEBUG 2024-07-16 13:39:51,848 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x00000233E3AEC430>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:39:51,848 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x00000233E3AEC3A0>>
+DEBUG 2024-07-16 13:39:51,848 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x00000233DE92AC20>
+DEBUG 2024-07-16 13:39:51,848 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:39:51,848 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T080951Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:39:51,848 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T080951Z
+20240716/eu-west-2/sqs/aws4_request
+ceb259c5ca5e862ae54803fd5cbd7bec5b5b4f21b71427bbe4d8969391cf0c0a
+DEBUG 2024-07-16 13:39:51,848 auth Signature:
+1c9c336c9b2167552e3c76bbd609676e70073ae4980ff1524a87cd74cf959a94
+DEBUG 2024-07-16 13:39:51,848 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x00000233DE94CCA0>
+DEBUG 2024-07-16 13:39:51,848 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T080951Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=1c9c336c9b2167552e3c76bbd609676e70073ae4980ff1524a87cd74cf959a94', 'amz-sdk-invocation-id': b'dc662974-dc56-42c9-b02b-2e8a7e32e8ec', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:39:51,848 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:39:54,560 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:39:54,560 parsers Response headers: {'x-amzn-RequestId': 'fc32a3da-31bf-5f28-94dc-fcca1d40b3c6', 'Date': 'Tue, 16 Jul 2024 08:09:55 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:39:54,560 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>fc32a3da-31bf-5f28-94dc-fcca1d40b3c6</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:39:54,560 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x000001646FCC8CD0>
+DEBUG 2024-07-16 13:39:54,560 retryhandler No retry needed.
+DEBUG 2024-07-16 13:39:54,560 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:39:54,560 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x000001646A20AD40>
+DEBUG 2024-07-16 13:39:54,560 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:39:54,560 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:39:54,560 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x000001646A20A9E0>
+DEBUG 2024-07-16 13:39:54,560 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x000001646A22C5E0>
+DEBUG 2024-07-16 13:39:54,560 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x000001646FCA79D0>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:39:54,560 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x000001646FCA7970>>
+DEBUG 2024-07-16 13:39:54,560 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x000001646A20AC20>
+DEBUG 2024-07-16 13:39:54,560 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:39:54,560 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T080954Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:39:54,560 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T080954Z
+20240716/eu-west-2/sqs/aws4_request
+e241c615c96a8304461a3225897d8013a2c18b5fc989a6723c3a6abde9e8abac
+DEBUG 2024-07-16 13:39:54,560 auth Signature:
+0ae0a6face56ac00d19528a50d567c1fa455439f4049cb56d076deebad7a6cb1
+DEBUG 2024-07-16 13:39:54,560 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x000001646A22CCA0>
+DEBUG 2024-07-16 13:39:54,560 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T080954Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=0ae0a6face56ac00d19528a50d567c1fa455439f4049cb56d076deebad7a6cb1', 'amz-sdk-invocation-id': b'7ba19fa3-eb0c-473f-b593-2ba333a225a2', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:39:54,560 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:40:11,991 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:40:11,991 parsers Response headers: {'x-amzn-RequestId': 'e3664d94-ad2f-5437-b350-1284803f6f3a', 'Date': 'Tue, 16 Jul 2024 08:10:12 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:40:11,991 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>e3664d94-ad2f-5437-b350-1284803f6f3a</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:40:11,991 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x00000233E3AED6F0>
+DEBUG 2024-07-16 13:40:11,991 retryhandler No retry needed.
+DEBUG 2024-07-16 13:40:11,991 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:40:11,991 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x00000233DE92AD40>
+DEBUG 2024-07-16 13:40:11,991 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:40:11,991 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:40:11,991 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x00000233DE92A9E0>
+DEBUG 2024-07-16 13:40:11,991 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x00000233DE94C5E0>
+DEBUG 2024-07-16 13:40:11,991 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x00000233E3AEC430>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:40:11,991 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x00000233E3AEC3A0>>
+DEBUG 2024-07-16 13:40:11,991 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x00000233DE92AC20>
+DEBUG 2024-07-16 13:40:11,991 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:40:11,991 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T081011Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:40:11,991 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T081011Z
+20240716/eu-west-2/sqs/aws4_request
+31337ff3a90118e1443615c84ddb0966238d706253d637609886499657ae8006
+DEBUG 2024-07-16 13:40:11,991 auth Signature:
+7f1c332f19c7b2a21a77457ae3d8a6e18d6696c000521b14181a894eff34fae3
+DEBUG 2024-07-16 13:40:11,991 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x00000233DE94CCA0>
+DEBUG 2024-07-16 13:40:11,991 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T081011Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=7f1c332f19c7b2a21a77457ae3d8a6e18d6696c000521b14181a894eff34fae3', 'amz-sdk-invocation-id': b'bc16df74-7827-4c1c-bbe8-ec6d55b9bbc2', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:40:11,991 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:40:14,710 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:40:14,710 parsers Response headers: {'x-amzn-RequestId': '5bad1135-f658-5001-876d-4e25db4bfcef', 'Date': 'Tue, 16 Jul 2024 08:10:15 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:40:14,710 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>5bad1135-f658-5001-876d-4e25db4bfcef</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:40:14,710 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x000001646FCC8CD0>
+DEBUG 2024-07-16 13:40:14,710 retryhandler No retry needed.
+DEBUG 2024-07-16 13:40:14,710 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:40:14,710 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x000001646A20AD40>
+DEBUG 2024-07-16 13:40:14,710 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:40:14,710 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:40:14,710 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x000001646A20A9E0>
+DEBUG 2024-07-16 13:40:14,710 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x000001646A22C5E0>
+DEBUG 2024-07-16 13:40:14,710 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x000001646FCA79D0>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:40:14,710 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x000001646FCA7970>>
+DEBUG 2024-07-16 13:40:14,710 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x000001646A20AC20>
+DEBUG 2024-07-16 13:40:14,710 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:40:14,710 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T081014Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:40:14,710 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T081014Z
+20240716/eu-west-2/sqs/aws4_request
+6b02ce5811e6698970b1806e267b81c3c71eb99d31a27cbba03d859a20a1cae5
+DEBUG 2024-07-16 13:40:14,710 auth Signature:
+3719673024afba44134f5d39ae2801c6ffdf54325c1ddaca82fe6debe2770a70
+DEBUG 2024-07-16 13:40:14,710 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x000001646A22CCA0>
+DEBUG 2024-07-16 13:40:14,710 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T081014Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=3719673024afba44134f5d39ae2801c6ffdf54325c1ddaca82fe6debe2770a70', 'amz-sdk-invocation-id': b'd05372f8-f9f6-4f93-af89-5dc6fd3a8dfa', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:40:14,710 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:40:32,127 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:40:32,127 parsers Response headers: {'x-amzn-RequestId': '822483a4-f5d3-51a4-9671-dcb4d8f7eaa9', 'Date': 'Tue, 16 Jul 2024 08:10:32 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:40:32,127 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>822483a4-f5d3-51a4-9671-dcb4d8f7eaa9</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:40:32,127 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x00000233E3AED6F0>
+DEBUG 2024-07-16 13:40:32,127 retryhandler No retry needed.
+DEBUG 2024-07-16 13:40:32,127 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:40:32,127 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x00000233DE92AD40>
+DEBUG 2024-07-16 13:40:32,127 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:40:32,127 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:40:32,127 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x00000233DE92A9E0>
+DEBUG 2024-07-16 13:40:32,127 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x00000233DE94C5E0>
+DEBUG 2024-07-16 13:40:32,127 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x00000233E3AEC430>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:40:32,127 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x00000233E3AEC3A0>>
+DEBUG 2024-07-16 13:40:32,127 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x00000233DE92AC20>
+DEBUG 2024-07-16 13:40:32,127 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:40:32,127 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T081032Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:40:32,127 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T081032Z
+20240716/eu-west-2/sqs/aws4_request
+802465e1402af286b819a63061feb0b028022b80e4188d13ca091d8d7cc19878
+DEBUG 2024-07-16 13:40:32,127 auth Signature:
+809098c08e4e66f5957b079ecab7af20dd3fc8e1942d0991e81dca8bdef32d86
+DEBUG 2024-07-16 13:40:32,127 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x00000233DE94CCA0>
+DEBUG 2024-07-16 13:40:32,127 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T081032Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=809098c08e4e66f5957b079ecab7af20dd3fc8e1942d0991e81dca8bdef32d86', 'amz-sdk-invocation-id': b'9214f49f-9f8b-4772-8039-5dd7887f4e17', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:40:32,127 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:40:34,849 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:40:34,849 parsers Response headers: {'x-amzn-RequestId': '820a7e5d-e2ff-5c6e-bfff-214dcfd82080', 'Date': 'Tue, 16 Jul 2024 08:10:35 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:40:34,849 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>820a7e5d-e2ff-5c6e-bfff-214dcfd82080</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:40:34,849 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x000001646FCC8CD0>
+DEBUG 2024-07-16 13:40:34,849 retryhandler No retry needed.
+DEBUG 2024-07-16 13:40:34,849 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:40:34,849 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x000001646A20AD40>
+DEBUG 2024-07-16 13:40:34,849 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:40:34,849 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:40:34,849 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x000001646A20A9E0>
+DEBUG 2024-07-16 13:40:34,849 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x000001646A22C5E0>
+DEBUG 2024-07-16 13:40:34,849 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x000001646FCA79D0>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:40:34,849 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x000001646FCA7970>>
+DEBUG 2024-07-16 13:40:34,849 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x000001646A20AC20>
+DEBUG 2024-07-16 13:40:34,849 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:40:34,849 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T081034Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:40:34,849 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T081034Z
+20240716/eu-west-2/sqs/aws4_request
+645a5c537173c53bc0de77a6be0392f95d252b33af6348088c9c88ac59e8dd1d
+DEBUG 2024-07-16 13:40:34,849 auth Signature:
+68dbdd3f38f69538c430038228f612f64b876deeab96665a7b91beb935392d64
+DEBUG 2024-07-16 13:40:34,849 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x000001646A22CCA0>
+DEBUG 2024-07-16 13:40:34,849 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T081034Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=68dbdd3f38f69538c430038228f612f64b876deeab96665a7b91beb935392d64', 'amz-sdk-invocation-id': b'e3b5909b-10e7-45bf-b683-06e7ebf24c03', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:40:34,849 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:40:52,267 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:40:52,267 parsers Response headers: {'x-amzn-RequestId': '63bf3343-63ee-5ee3-b571-6c534ed605ee', 'Date': 'Tue, 16 Jul 2024 08:10:52 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:40:52,267 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>63bf3343-63ee-5ee3-b571-6c534ed605ee</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:40:52,267 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x00000233E3AED6F0>
+DEBUG 2024-07-16 13:40:52,267 retryhandler No retry needed.
+DEBUG 2024-07-16 13:40:52,267 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:40:52,267 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x00000233DE92AD40>
+DEBUG 2024-07-16 13:40:52,267 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:40:52,267 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:40:52,267 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x00000233DE92A9E0>
+DEBUG 2024-07-16 13:40:52,267 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x00000233DE94C5E0>
+DEBUG 2024-07-16 13:40:52,267 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x00000233E3AEC430>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:40:52,267 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x00000233E3AEC3A0>>
+DEBUG 2024-07-16 13:40:52,267 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x00000233DE92AC20>
+DEBUG 2024-07-16 13:40:52,267 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:40:52,267 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T081052Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:40:52,267 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T081052Z
+20240716/eu-west-2/sqs/aws4_request
+74c4409c62a21e2965c5be012dccddce12bf55229449e19a7aee2103fe147aae
+DEBUG 2024-07-16 13:40:52,267 auth Signature:
+27bdd8d6c78fa47244e7a26cb78fa1db85474c373b5a32e0f8a71c91f8c80c69
+DEBUG 2024-07-16 13:40:52,267 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x00000233DE94CCA0>
+DEBUG 2024-07-16 13:40:52,267 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T081052Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=27bdd8d6c78fa47244e7a26cb78fa1db85474c373b5a32e0f8a71c91f8c80c69', 'amz-sdk-invocation-id': b'31f865a5-b8f3-44d7-a9df-b39c3c98e76e', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:40:52,267 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:40:54,989 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:40:54,989 parsers Response headers: {'x-amzn-RequestId': '5cb3057c-8588-56b1-87b9-5a6ca8b36a5f', 'Date': 'Tue, 16 Jul 2024 08:10:55 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:40:54,989 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>5cb3057c-8588-56b1-87b9-5a6ca8b36a5f</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:40:54,989 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x000001646FCC8CD0>
+DEBUG 2024-07-16 13:40:54,989 retryhandler No retry needed.
+DEBUG 2024-07-16 13:40:54,989 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:40:54,989 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x000001646A20AD40>
+DEBUG 2024-07-16 13:40:54,989 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:40:54,989 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:40:54,989 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x000001646A20A9E0>
+DEBUG 2024-07-16 13:40:54,989 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x000001646A22C5E0>
+DEBUG 2024-07-16 13:40:54,989 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x000001646FCA79D0>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:40:54,989 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x000001646FCA7970>>
+DEBUG 2024-07-16 13:40:54,989 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x000001646A20AC20>
+DEBUG 2024-07-16 13:40:54,989 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:40:54,989 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T081054Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:40:54,989 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T081054Z
+20240716/eu-west-2/sqs/aws4_request
+c96f28e05848ade7df3479b1f1d0ae2c4e91e920b56fe700e5775aeb2eab74f8
+DEBUG 2024-07-16 13:40:54,989 auth Signature:
+2f7022c7e698d48e99c9272d7115902ba42a4adf862f716f966477a3658ddfa3
+DEBUG 2024-07-16 13:40:54,989 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x000001646A22CCA0>
+DEBUG 2024-07-16 13:40:55,004 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T081054Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=2f7022c7e698d48e99c9272d7115902ba42a4adf862f716f966477a3658ddfa3', 'amz-sdk-invocation-id': b'17b2aa8a-3d02-4d55-a30f-827cf63645dd', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:40:55,004 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:41:12,419 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:41:12,419 parsers Response headers: {'x-amzn-RequestId': '4cde599c-4305-5205-8ff8-068c6e493908', 'Date': 'Tue, 16 Jul 2024 08:11:12 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:41:12,419 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>4cde599c-4305-5205-8ff8-068c6e493908</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:41:12,419 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x00000233E3AED6F0>
+DEBUG 2024-07-16 13:41:12,419 retryhandler No retry needed.
+DEBUG 2024-07-16 13:41:12,419 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:41:12,420 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x00000233DE92AD40>
+DEBUG 2024-07-16 13:41:12,420 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:41:12,420 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:41:12,420 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x00000233DE92A9E0>
+DEBUG 2024-07-16 13:41:12,420 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x00000233DE94C5E0>
+DEBUG 2024-07-16 13:41:12,420 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x00000233E3AEC430>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:41:12,420 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x00000233E3AEC3A0>>
+DEBUG 2024-07-16 13:41:12,420 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x00000233DE92AC20>
+DEBUG 2024-07-16 13:41:12,420 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:41:12,420 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T081112Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:41:12,420 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T081112Z
+20240716/eu-west-2/sqs/aws4_request
+b5e5c529742fd02ee22767d1c5f7ffabab65238b2d8addbf965660f17a51b72f
+DEBUG 2024-07-16 13:41:12,420 auth Signature:
+83ad7caa97270998ff4ee3dde2ee09d38501249bbc2e49a2d37d12580a519890
+DEBUG 2024-07-16 13:41:12,420 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x00000233DE94CCA0>
+DEBUG 2024-07-16 13:41:12,420 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T081112Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=83ad7caa97270998ff4ee3dde2ee09d38501249bbc2e49a2d37d12580a519890', 'amz-sdk-invocation-id': b'b36fe942-f3f3-46ea-ab71-238c8317554c', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:41:12,420 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:41:15,144 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:41:15,144 parsers Response headers: {'x-amzn-RequestId': '303963af-f6ad-5a78-9aa7-3cbfdbe27696', 'Date': 'Tue, 16 Jul 2024 08:11:15 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:41:15,145 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>303963af-f6ad-5a78-9aa7-3cbfdbe27696</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:41:15,145 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x000001646FCC8CD0>
+DEBUG 2024-07-16 13:41:15,145 retryhandler No retry needed.
+DEBUG 2024-07-16 13:41:15,145 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:41:15,145 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x000001646A20AD40>
+DEBUG 2024-07-16 13:41:15,145 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:41:15,145 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:41:15,145 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x000001646A20A9E0>
+DEBUG 2024-07-16 13:41:15,145 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x000001646A22C5E0>
+DEBUG 2024-07-16 13:41:15,145 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x000001646FCA79D0>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:41:15,145 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x000001646FCA7970>>
+DEBUG 2024-07-16 13:41:15,145 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x000001646A20AC20>
+DEBUG 2024-07-16 13:41:15,146 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:41:15,146 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T081115Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:41:15,146 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T081115Z
+20240716/eu-west-2/sqs/aws4_request
+e05df87ef359ec31b903bc539bdfe0e839f8052a7d7fedebffde01c7da2279ee
+DEBUG 2024-07-16 13:41:15,146 auth Signature:
+ebe2893b4009b681cd91df51ff85fa547e167cd18164d7841018c119e63f5eaf
+DEBUG 2024-07-16 13:41:15,146 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x000001646A22CCA0>
+DEBUG 2024-07-16 13:41:15,146 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T081115Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=ebe2893b4009b681cd91df51ff85fa547e167cd18164d7841018c119e63f5eaf', 'amz-sdk-invocation-id': b'36907dfa-8df8-4fc3-81f8-86cfe61a6d7c', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:41:15,146 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:41:32,557 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:41:32,557 parsers Response headers: {'x-amzn-RequestId': 'b7ee0614-f061-50ef-97f7-5904dd01abe2', 'Date': 'Tue, 16 Jul 2024 08:11:32 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:41:32,557 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>b7ee0614-f061-50ef-97f7-5904dd01abe2</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:41:32,557 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x00000233E3AED6F0>
+DEBUG 2024-07-16 13:41:32,557 retryhandler No retry needed.
+DEBUG 2024-07-16 13:41:32,557 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:41:32,557 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x00000233DE92AD40>
+DEBUG 2024-07-16 13:41:32,557 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:41:32,557 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:41:32,557 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x00000233DE92A9E0>
+DEBUG 2024-07-16 13:41:32,557 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x00000233DE94C5E0>
+DEBUG 2024-07-16 13:41:32,557 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x00000233E3AEC430>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:41:32,557 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x00000233E3AEC3A0>>
+DEBUG 2024-07-16 13:41:32,557 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x00000233DE92AC20>
+DEBUG 2024-07-16 13:41:32,557 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:41:32,557 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T081132Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:41:32,557 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T081132Z
+20240716/eu-west-2/sqs/aws4_request
+fe220b7adc32b4923031375dc4749aa263453eb343d9aa8593bb3ef6b8dc0143
+DEBUG 2024-07-16 13:41:32,557 auth Signature:
+a9943d6a61d37bcce788866bc3741864969d0291f928bb61818bea93be20c8bb
+DEBUG 2024-07-16 13:41:32,557 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x00000233DE94CCA0>
+DEBUG 2024-07-16 13:41:32,559 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T081132Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=a9943d6a61d37bcce788866bc3741864969d0291f928bb61818bea93be20c8bb', 'amz-sdk-invocation-id': b'9151b3f5-0fb6-4042-81bf-9fd12bde2c26', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:41:32,559 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:41:35,280 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:41:35,280 parsers Response headers: {'x-amzn-RequestId': '1a3b1c3c-ee7e-59c5-9c1f-432cc31d952b', 'Date': 'Tue, 16 Jul 2024 08:11:35 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:41:35,280 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>1a3b1c3c-ee7e-59c5-9c1f-432cc31d952b</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:41:35,280 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x000001646FCC8CD0>
+DEBUG 2024-07-16 13:41:35,280 retryhandler No retry needed.
+DEBUG 2024-07-16 13:41:35,280 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:41:35,280 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x000001646A20AD40>
+DEBUG 2024-07-16 13:41:35,280 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:41:35,280 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:41:35,280 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x000001646A20A9E0>
+DEBUG 2024-07-16 13:41:35,280 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x000001646A22C5E0>
+DEBUG 2024-07-16 13:41:35,280 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x000001646FCA79D0>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:41:35,280 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x000001646FCA7970>>
+DEBUG 2024-07-16 13:41:35,280 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x000001646A20AC20>
+DEBUG 2024-07-16 13:41:35,280 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:41:35,280 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T081135Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:41:35,280 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T081135Z
+20240716/eu-west-2/sqs/aws4_request
+d46a7d947e9f8059af53b5510e3c8d247319ffd6dcaf7c2a274e345fd03462b3
+DEBUG 2024-07-16 13:41:35,280 auth Signature:
+6c179253ddf9a684dd52d2161d4ecf9c3e89e255cddc1480d298ea86f5e0da8a
+DEBUG 2024-07-16 13:41:35,280 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x000001646A22CCA0>
+DEBUG 2024-07-16 13:41:35,280 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T081135Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=6c179253ddf9a684dd52d2161d4ecf9c3e89e255cddc1480d298ea86f5e0da8a', 'amz-sdk-invocation-id': b'e5728e05-2c4a-4e82-a614-832972cebccc', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:41:35,280 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:41:52,688 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:41:52,688 parsers Response headers: {'x-amzn-RequestId': 'a73c4ff3-b07b-5dcf-b8a4-10e39d0eb6c2', 'Date': 'Tue, 16 Jul 2024 08:11:53 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:41:52,688 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>a73c4ff3-b07b-5dcf-b8a4-10e39d0eb6c2</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:41:52,688 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x00000233E3AED6F0>
+DEBUG 2024-07-16 13:41:52,688 retryhandler No retry needed.
+DEBUG 2024-07-16 13:41:52,688 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:41:52,688 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x00000233DE92AD40>
+DEBUG 2024-07-16 13:41:52,688 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:41:52,688 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:41:52,688 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x00000233DE92A9E0>
+DEBUG 2024-07-16 13:41:52,688 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x00000233DE94C5E0>
+DEBUG 2024-07-16 13:41:52,688 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x00000233E3AEC430>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:41:52,688 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x00000233E3AEC3A0>>
+DEBUG 2024-07-16 13:41:52,688 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x00000233DE92AC20>
+DEBUG 2024-07-16 13:41:52,688 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:41:52,688 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T081152Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:41:52,688 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T081152Z
+20240716/eu-west-2/sqs/aws4_request
+03322092fd89571166c48ff8c0499dd7da80b774e834470e68e4d420a7bab263
+DEBUG 2024-07-16 13:41:52,688 auth Signature:
+c8ac99bf5087aaeb72038c9e6b45fdfff7178c9f5a60c6f4fc304adccbeb0e32
+DEBUG 2024-07-16 13:41:52,688 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x00000233DE94CCA0>
+DEBUG 2024-07-16 13:41:52,688 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T081152Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=c8ac99bf5087aaeb72038c9e6b45fdfff7178c9f5a60c6f4fc304adccbeb0e32', 'amz-sdk-invocation-id': b'14ccbbdd-b158-4c89-9f83-b8de468bc19d', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:41:52,688 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
+DEBUG 2024-07-16 13:41:55,418 connectionpool https://sqs.eu-west-2.amazonaws.com:443 "POST / HTTP/1.1" 200 240
+DEBUG 2024-07-16 13:41:55,418 parsers Response headers: {'x-amzn-RequestId': '3ac8e60a-1289-5a04-9de3-b91a3ffea6ea', 'Date': 'Tue, 16 Jul 2024 08:11:55 GMT', 'Content-Type': 'text/xml', 'Content-Length': '240', 'connection': 'keep-alive'}
+DEBUG 2024-07-16 13:41:55,418 parsers Response body:
+b'<?xml version="1.0"?><ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/"><ReceiveMessageResult/><ResponseMetadata><RequestId>3ac8e60a-1289-5a04-9de3-b91a3ffea6ea</RequestId></ResponseMetadata></ReceiveMessageResponse>'
+DEBUG 2024-07-16 13:41:55,418 hooks Event needs-retry.sqs.ReceiveMessage: calling handler <botocore.retryhandler.RetryHandler object at 0x000001646FCC8CD0>
+DEBUG 2024-07-16 13:41:55,418 retryhandler No retry needed.
+DEBUG 2024-07-16 13:41:55,418 helper_functions SQS queue polling complete. Sleeping for 20 seconds...
+DEBUG 2024-07-16 13:41:55,418 hooks Event before-parameter-build.sqs.ReceiveMessage: calling handler <function generate_idempotent_uuid at 0x000001646A20AD40>
+DEBUG 2024-07-16 13:41:55,418 regions Calling endpoint provider with parameters: {'Region': 'eu-west-2', 'UseDualStack': False, 'UseFIPS': False}
+DEBUG 2024-07-16 13:41:55,418 regions Endpoint provider result: https://sqs.eu-west-2.amazonaws.com
+DEBUG 2024-07-16 13:41:55,418 hooks Event before-call.sqs.ReceiveMessage: calling handler <function add_recursion_detection_header at 0x000001646A20A9E0>
+DEBUG 2024-07-16 13:41:55,418 hooks Event before-call.sqs.ReceiveMessage: calling handler <function inject_api_version_header_if_needed at 0x000001646A22C5E0>
+DEBUG 2024-07-16 13:41:55,418 endpoint Making request for OperationModel(name=ReceiveMessage) with params: {'url_path': '/', 'query_string': '', 'method': 'POST', 'headers': {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': 'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43'}, 'body': {'Action': 'ReceiveMessage', 'Version': '2012-11-05', 'QueueUrl': 'https://sqs.eu-west-2.amazonaws.com/710768145931/local-bulk-data-import', 'MaxNumberOfMessages': 10, 'WaitTimeSeconds': 20, 'MessageAttributeName.1': 'ExtendedPayloadSize'}, 'url': 'https://sqs.eu-west-2.amazonaws.com/', 'context': {'client_region': 'eu-west-2', 'client_config': <botocore.config.Config object at 0x000001646FCA79D0>, 'has_streaming_input': False, 'auth_type': None}}
+DEBUG 2024-07-16 13:41:55,418 hooks Event request-created.sqs.ReceiveMessage: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x000001646FCA7970>>
+DEBUG 2024-07-16 13:41:55,418 hooks Event choose-signer.sqs.ReceiveMessage: calling handler <function set_operation_specific_signer at 0x000001646A20AC20>
+DEBUG 2024-07-16 13:41:55,418 auth Calculating signature using v4 auth.
+DEBUG 2024-07-16 13:41:55,418 auth CanonicalRequest:
+POST
+/
+
+content-type:application/x-www-form-urlencoded; charset=utf-8
+host:sqs.eu-west-2.amazonaws.com
+x-amz-date:20240716T081155Z
+
+content-type;host;x-amz-date
+2f3178f42d10ef1a35132e14c55a8e3f70391ed41bce585048381f2a5d397889
+DEBUG 2024-07-16 13:41:55,418 auth StringToSign:
+AWS4-HMAC-SHA256
+20240716T081155Z
+20240716/eu-west-2/sqs/aws4_request
+4812c3a12eeeeada715f77e6ecb16bf04645ceaefcd89414d8455ea717b7c5d5
+DEBUG 2024-07-16 13:41:55,418 auth Signature:
+0a24fefed3587556eeb25020e105bfe7ccea5a6a5c79cefdebe51f92cbaa0be3
+DEBUG 2024-07-16 13:41:55,418 hooks Event request-created.sqs.ReceiveMessage: calling handler <function add_retry_headers at 0x000001646A22CCA0>
+DEBUG 2024-07-16 13:41:55,418 endpoint Sending http request: <AWSPreparedRequest stream_output=False, method=POST, url=https://sqs.eu-west-2.amazonaws.com/, headers={'Content-Type': b'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': b'Boto3/1.34.43 md/Botocore#1.34.43 ua/2.0 os/windows#10 md/arch#amd64 lang/python#3.10.0 md/pyimpl#CPython cfg/retry-mode#legacy SQSExtendedClientSession Botocore/1.34.43', 'X-Amz-Date': b'20240716T081155Z', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIA2K7IVGYFTIJ6MKKZ/20240716/eu-west-2/sqs/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=0a24fefed3587556eeb25020e105bfe7ccea5a6a5c79cefdebe51f92cbaa0be3', 'amz-sdk-invocation-id': b'40422a53-93c7-4cef-9452-315d2f434bbb', 'amz-sdk-request': b'attempt=1', 'Content-Length': '216'}>
+DEBUG 2024-07-16 13:41:55,418 httpsession Certificate path: C:\Users\AmiteshSahay\AppData\Local\Programs\Python\Python310\lib\site-packages\certifi\cacert.pem
