@@ -50,14 +50,13 @@ class Command(BaseCommand):
         pending_url = f"{GETKLOO_LOCAL_URL}/ap/erp-integration/pending_post_invoices_erp"
         # auth_token = ""
         header = {'Content-type': 'application/json'}
-
+        self.formatted_payload = []
         try:
             pending_invoice_response = requests.get(
                 pending_url,
                 # headers={"Authorization": f"Bearer {auth_token}"},
                 headers=header,
             )
-
             if pending_invoice_response.status_code == status.HTTP_200_OK:
                 api_payload = pending_invoice_response.json()
                 self.formatted_payload = api_payload["result"]
@@ -66,7 +65,6 @@ class Command(BaseCommand):
                         api_log(msg="There is no invoice payload in the API")
                     else:
                         api_log(msg=f"formatted_paylaod in CRON Invoice:: {self.formatted_payload}")
-                        exit()
                         self.process_invoices(self.formatted_payload)
                         self.retry_invoices_from_api(self.formatted_payload)
                 else:
