@@ -76,13 +76,11 @@ class InvoiceCreate(APIView):
                 )
 
             api_log(msg=f"Merge Invoice Created : {invoice_created}")
-
             invoice_table_id = invoice_data["id"]
 
             # calling function to update remote id as 'erp id' in erp_id field in invoice_line_items table
             update_invoices_table(invoice_table_id, dict(invoice_created.model))
             update_post_erp_line_items(invoice_table_id, invoice_created)
-
             # if sage attachment then create folder
             if data.get("integration_name") == "Sage Intacct":
                 merge_passthrough_service = MergePassthroughApiService(
@@ -96,7 +94,6 @@ class InvoiceCreate(APIView):
                         {"error": response["error"]},
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     )
-
                 api_log(msg=f"Sage Attachment Folder Created : {response['message']}")
 
             attachment_payload = filter_attachment_payloads(data, invoice_created)
