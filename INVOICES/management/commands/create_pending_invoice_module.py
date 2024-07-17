@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand
 from django.http import HttpRequest
 from merge_integration.helper_functions import api_log
 
+
 # import os
 # os.environ.setdefault("DJANGO_SETTINGS_MODULE", "merge_integration.settings")
 
@@ -23,6 +24,10 @@ class MockRequest(HttpRequest):
 
 class Command(BaseCommand):
     api_log(msg='Process pending invoices and retry failed ones')
+
+    def __init__(self):
+        super().__init__()
+        self.formatted_payload = []
 
     def handle(self, *args, **options):
         self.read_pending_invoice_api()
@@ -45,22 +50,25 @@ class Command(BaseCommand):
         pending_url = f"{GETKLOO_LOCAL_URL}/ap/erp-integration/pending_post_invoices_erp"
         # auth_token = ""
         header = {'Content-type': 'application/json'}
+
         try:
             pending_invoice_response = requests.get(
                 pending_url,
                 # headers={"Authorization": f"Bearer {auth_token}"},
                 headers=header,
             )
+
             if pending_invoice_response.status_code == status.HTTP_200_OK:
                 api_payload = pending_invoice_response.json()
-                formatted_paylaod = api_payload["result"]
-                if isinstance(formatted_paylaod, list):
-                    if not formatted_paylaod:
+                self.formatted_payload = api_payload["result"]
+                if isinstance(self.formatted_payload, list):
+                    if not self.formatted_payload:
                         api_log(msg="There is no invoice payload in the API")
                     else:
-                        api_log(msg=f"formatted_paylaod in CRON Invoice:: {formatted_paylaod}")
-                        self.process_invoices(formatted_paylaod)
-                        self.retry_invoices_from_api(formatted_paylaod)
+                        api_log(msg=f"formatted_paylaod in CRON Invoice:: {self.formatted_payload}")
+                        exit()
+                        self.process_invoices(self.formatted_payload)
+                        self.retry_invoices_from_api(self.formatted_payload)
                 else:
                     api_log(msg="Invalid payload format received from API")
                 return pending_invoice_response
@@ -113,8 +121,9 @@ class Command(BaseCommand):
                         else:
                             error_status = 'failed'
 
-                        api_log(msg=f"Response in the PROCESS INVOICES function in management command file::: {response} and "
-                                    f"Invoice_id is {invoice_id}")
+                        api_log(
+                            msg=f"Response in the PROCESS INVOICES function in management command file::: {response} and "
+                                f"Invoice_id is {invoice_id}")
 
                         # Append the status to the invoices list
                         invoices.append({
@@ -144,7 +153,7 @@ class Command(BaseCommand):
         from INVOICES.models import CronRetry
         retry_at = datetime.now() + retry_delay
         kloo_invoice_id = invoice_payload['model']['kloo_invoice_id']
-
+        # problem_type = invoice_payload['model']['problem_type']
         retry_entry, created = CronRetry.objects.update_or_create(
             id=uuid.uuid1(),
             kloo_invoice_id=kloo_invoice_id,
@@ -171,6 +180,7 @@ class Command(BaseCommand):
                     try:
                         response = self.create_invoice(invoice_payload)
                         retry.delete()
+                        api_log(msg="Retry deleted successfully")
                         if response:
                             self.handle_invoice_response(invoice_payload)
                     except Exception as e:
@@ -196,7 +206,7 @@ class Command(BaseCommand):
             if pending_invoice_response.status_code in [200, 201]:
                 api_log(msg=f"Successfully UPDATED the response code: {response}")
             else:
-                api_log(msg=f"Failed to update response code:::: {response}. Status Code:::: {pending_invoice_response.status_code}")
+                api_log(
+                    msg=f"Failed to update response code:::: {response}. Status Code:::: {pending_invoice_response.status_code}")
         except Exception as e:
             api_log(msg=f"Exception occurred while posting invoices: {str(e)}")
-
