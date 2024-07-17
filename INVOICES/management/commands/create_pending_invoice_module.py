@@ -67,6 +67,7 @@ class Command(BaseCommand):
                         api_log(msg=f"formatted_paylaod in CRON Invoice:: {self.formatted_payload}")
                         self.process_invoices(self.formatted_payload)
                         self.retry_invoices_from_api(self.formatted_payload)
+                        self.formatted_payload = []
                 else:
                     api_log(msg="Invalid payload format received from API")
                 return pending_invoice_response
