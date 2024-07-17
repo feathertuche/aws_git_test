@@ -116,7 +116,7 @@ class Command(BaseCommand):
                             api_log(msg=f"problem_type not found")
 
                         # Determine status based on the extracted problem_type
-                        if problem_type in ['RATE_LIMITED', 'TIMED_OUT']:
+                        if problem_type in ['RATE_LIMITED', 'TIMED_OUT', "MISSING_PERMISSION"]:
                             error_status = 'pending'
                         else:
                             error_status = 'failed'
