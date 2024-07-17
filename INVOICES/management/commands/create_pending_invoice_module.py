@@ -76,28 +76,30 @@ class Command(BaseCommand):
         kloo_invoice_ids_list = list(kloo_invoice_ids)
 
         invoices = []  # Initialize an empty list to hold the invoice statuses
-        pattern = r"'problem_type': '(\w+)'"
+        pattern = r"'problem_type': '([^']+)'"
 
         for invoice_payload in payload:
             if invoice_payload['model']['kloo_invoice_id'] not in kloo_invoice_ids_list:
                 response = self.create_invoice(invoice_payload)
                 response_str = str(response)
                 api_log(msg=f"response_str:: {response_str}")
+                api_log(msg=f"Original response:: {response}")
 
                 # Extract the status code using regex
                 status_code_match = re.search(r'status_code:\s*(\d+)', response_str)
                 status_code = int(status_code_match.group(1)) if status_code_match else None
+                api_log(msg=f"this is a STATUS CODE:::: {status_code}")
 
                 if status_code:
                     if status_code in [404, 400]:
                         api_log(
-                            msg=f"Error creating invoice: status_code: {response.status_code}, body: {response.data}")
+                            msg=f"Error creating invoice: status_code: {status_code}, body: {response}")
 
                         invoice_id = invoice_payload['model']['kloo_invoice_id']
-                        api_log(msg=f"invoice ID after rety failed:: {invoice_id}")
+                        api_log(msg=f"invoice ID after retry failed:: {invoice_id}")
 
                         # Extract problem_type using regex
-                        match = re.search(pattern, str(response))
+                        match = re.search(pattern, response['error'])
                         if match:
                             problem_type = match.group(1)
                             api_log(msg=f"problem_type:: {problem_type}")
@@ -191,8 +193,6 @@ class Command(BaseCommand):
                 headers=header,
                 json=response
             )
-            response_content = pending_invoice_response.content.decode()
-            api_log(msg=f"Response Content:=> {response_content}")
             if pending_invoice_response.status_code in [200, 201]:
                 api_log(msg=f"Successfully UPDATED the response code: {response}")
             else:
