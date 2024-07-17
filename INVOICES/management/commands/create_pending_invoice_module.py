@@ -94,6 +94,7 @@ class Command(BaseCommand):
                             msg=f"Error creating invoice: status_code: {response.status_code}, body: {response.data}")
 
                         invoice_id = invoice_payload['model']['kloo_invoice_id']
+                        api_log(msg=f"invoice ID after rety failed:: {invoice_id}")
 
                         # Extract problem_type using regex
                         match = re.search(pattern, str(response))
@@ -107,10 +108,8 @@ class Command(BaseCommand):
                         # Determine status based on the extracted problem_type
                         if problem_type in ['RATE_LIMITED', 'TIMED_OUT']:
                             error_status = 'pending'
-                        elif problem_type == 'PROVIDER_ERROR':
-                            error_status = 'failed'
                         else:
-                            error_status = 'unknown'  # Handle other cases if necessary
+                            error_status = 'failed'
 
                         api_log(msg=f"Response in the PROCESS INVOICES function in management command file::: {response} and "
                                     f"Invoice_id is {invoice_id}")
