@@ -190,7 +190,7 @@ class Command(BaseCommand):
                 pending_url,
                 # headers={"Authorization": f"Bearer {auth_token}"},
                 headers=header,
-                data=json.dumps(response)  # Convert the response list to JSON format
+                json=response
             )
             response_content = pending_invoice_response.content.decode()
             api_log(msg=f"Response Content:=> {response_content}")
