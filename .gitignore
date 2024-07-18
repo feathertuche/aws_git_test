@@ -7,4 +7,4 @@ __pycache__
 .github/
 *.pyc
 logs
-INVOICES/cron_logs/
+INVOICES/cron_logs

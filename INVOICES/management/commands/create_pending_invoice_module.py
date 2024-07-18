@@ -1,4 +1,3 @@
-import json
 import re
 import uuid
 from datetime import timedelta, datetime
@@ -6,16 +5,7 @@ from rest_framework import status
 import requests
 from django.core.management.base import BaseCommand
 from django.http import HttpRequest
-
-from INVOICES.models import InvoiceAttachmentLogs
 from merge_integration.helper_functions import api_log
-
-
-# import os
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "merge_integration.settings")
-
-# from django.core.wsgi import get_wsgi_application
-# application = get_wsgi_application()
 
 
 class MockRequest(HttpRequest):
@@ -25,16 +15,22 @@ class MockRequest(HttpRequest):
 
 
 class Command(BaseCommand):
-    api_log(msg='Process pending invoices and retry failed ones')
+    api_log(msg='..........Processing pending invoices through CRON.........')
 
     def __init__(self):
         super().__init__()
         self.formatted_payload = []
 
     def handle(self, *args, **options):
+        """
+        The entry point function for Django management command execution
+        """
         self.read_pending_invoice_api()
 
     def create_invoice(self, payload: list):
+        """
+            Function to call InvoiceCreate class to execute Invoices
+        """
         from INVOICES.views import InvoiceCreate
         api_log(msg="this is create invoice block")
         mock_request = MockRequest(data=payload)
@@ -44,18 +40,17 @@ class Command(BaseCommand):
         return response.data
 
     def read_pending_invoice_api(self):
-        from merge_integration.settings import GETKLOO_LOCAL_URL
         """
         GET API for pending list of invoices
         """
+
+        from merge_integration.settings import GETKLOO_LOCAL_URL
         api_log(msg="Fetching pending invoices from Back-end api for cron execution....")
         pending_url = f"{GETKLOO_LOCAL_URL}/ap/erp-integration/pending_post_invoices_erp"
-        # auth_token = ""
         header = {'Content-type': 'application/json'}
         try:
             pending_invoice_response = requests.get(
                 pending_url,
-                # headers={"Authorization": f"Bearer {auth_token}"},
                 headers=header,
             )
             api_log(msg=f"LARAVEL API response::: {pending_invoice_response}")
@@ -80,7 +75,13 @@ class Command(BaseCommand):
             api_log(msg=f"Error fetching pending invoices in CRON script: {str(e)}")
 
     def process_invoices(self, payload):
+        """
+        Method to execute all new Invoices and set the cron time
+        if Invoice in Pending state
+        """
+        from INVOICES.models import InvoiceAttachmentLogs
         from INVOICES.models import CronRetry
+
         kloo_invoice_ids = CronRetry.objects.values_list('kloo_invoice_id', flat=True)
         kloo_invoice_ids_list = list(kloo_invoice_ids)
 
@@ -90,7 +91,8 @@ class Command(BaseCommand):
         for invoice_payload in payload:
             if invoice_payload['model']['kloo_invoice_id'] not in kloo_invoice_ids_list:
                 response = self.create_invoice(invoice_payload)
-                api_log(msg=f"response_str:: {str(response)}")
+
+                api_log(msg=f"string type response:: {str(response)}")
                 api_log(msg=f"Original response:: {response}")
 
                 # Extract the status code using regex
@@ -104,19 +106,19 @@ class Command(BaseCommand):
                             msg=f"Error creating invoice: status_code: {status_code}, body: {response}")
 
                         invoice_id = invoice_payload['model']['kloo_invoice_id']
-                        api_log(msg=f"invoice ID after retry failed:: {invoice_id}")
+                        api_log(msg=f"invoice ID in process invoice:: {invoice_id}")
 
                         # Extract problem_type using regex
                         match = re.search(pattern, response['error'])
                         if match:
                             problem_type = match.group(1)
-                            api_log(msg=f"problem_type:: {problem_type}")
+                            api_log(msg=f"problem type:: {problem_type}")
                         else:
                             problem_type = None
-                            api_log(msg=f"problem_type not found")
+                            api_log(msg=f"problem type not found")
 
                         # Determine status based on the extracted problem_type
-                        if problem_type in ['RATE_LIMITED', 'TIMED_OUT', "MISSING_PERMISSION"]:
+                        if problem_type in ['RATE_LIMITED', 'TIMED_OUT']:
                             error_status = 'pending'
                         else:
                             error_status = 'failed'
@@ -133,37 +135,44 @@ class Command(BaseCommand):
 
                         # Update problem_type in InvoiceAttachmentLogs
                         update_invoice_id = str(invoice_id)
-                        api_log(msg=f"update_invoice_id: {update_invoice_id}")
+                        api_log(msg=f"update invoice id: {update_invoice_id}")
                         new_invoice_id = "".join(update_invoice_id.split("-"))
-                        api_log(msg=f"new_invoice_id: {new_invoice_id}")
+                        api_log(msg=f"new invoice id: {new_invoice_id}")
                         log = InvoiceAttachmentLogs.objects.filter(invoice_id=new_invoice_id).first()
                         if log:
                             log.problem_type = problem_type
                             log.save()
-                        api_log(msg=f"log prob type::: {log.problem_type}")
+                        api_log(msg=f"log problem type column value::: {log.problem_type}")
                         self.handle_invoice_response(invoice_payload)
 
         # Log or return the invoices JSON
         final_update = {"invoices": invoices}
-        api_log(msg=f"final_update JSON: {final_update}")
+        api_log(msg=f"final update JSON: {final_update}")
         self.post_response(final_update)
 
     def handle_invoice_response(self, invoice_payload: dict):
+        """
+        helper function to set cron time for different types of exception
+        """
+
         if invoice_payload["model"]["problem_type"] == "RATE_LIMITED":
             api_log(msg="setting cron execution time in table for 'RATE_LIMITED'")
             self.schedule_retry(invoice_payload, timedelta(minutes=5))
-        elif invoice_payload["model"]["problem_type"] == "MISSING_PERMISSION":
+        elif invoice_payload["model"]["problem_type"] == "TIMED_OUT":
             api_log(msg="setting cron execution time in table for 'MISSING_PERMISSION'")
             self.schedule_retry(invoice_payload, timedelta(minutes=5))
         else:
             api_log(msg=f"Error: Invoice {invoice_payload['model']['kloo_invoice_id']} not in 'RATE_LIMITED' or "
-                        f"'MISSING_PERMISSION'")
+                        f"'TIMED_OUT'")
 
     def schedule_retry(self, invoice_payload: dict, retry_delay):
+        """
+        Helper function to insert the data to erp_pending_invoices_retry table
+        """
+
         from INVOICES.models import CronRetry
         retry_at = datetime.now() + retry_delay
         kloo_invoice_id = invoice_payload['model']['kloo_invoice_id']
-        # problem_type = invoice_payload['model']['problem_type']
         retry_entry, created = CronRetry.objects.update_or_create(
             id=uuid.uuid1(),
             kloo_invoice_id=kloo_invoice_id,
@@ -175,6 +184,9 @@ class Command(BaseCommand):
             api_log(msg=f"Updated retry time for invoice {kloo_invoice_id} to {retry_at}")
 
     def retry_invoices_from_api(self, payload: list):
+        """
+        A method to execute the invoice ID defined in erp_pending_invoices_retry table
+        """
         from INVOICES.models import CronRetry
         retries = CronRetry.objects.filter(cron_execution_time__lte=datetime.now())
 
@@ -187,9 +199,6 @@ class Command(BaseCommand):
                         response = self.create_invoice(invoice_payload)
                         api_log(msg=f"Response from create invoice in RETRY INVOICES method :=> {response}")
                         api_log(msg=f"Response DATA from create invoice in RETRY INVOICES method :=> {response.data}")
-                        # if success, then  check for the status code in response and delete the row from table.
-                        # elif self.handle_invoice_response(invoice_payload)( already done below)
-                        # else(failure then delete in DB)
                         retry.delete()
                         api_log(msg="Retry deleted successfully")
                         if response:
@@ -203,14 +212,16 @@ class Command(BaseCommand):
                         retry.save()
 
     def post_response(self, response: dict):
+        """
+        A helper function to accept the request to set failed or pending state for Invoices in invoices table
+        """
+
         from merge_integration.settings import GETKLOO_LOCAL_URL
         pending_url = f"{GETKLOO_LOCAL_URL}/ap/erp-integration/update_accounting_portal_status"
-        # auth_token = ""
         header = {'Content-type': 'application/json'}
         try:
             pending_invoice_response = requests.post(
                 pending_url,
-                # headers={"Authorization": f"Bearer {auth_token}"},
                 headers=header,
                 json=response
             )
