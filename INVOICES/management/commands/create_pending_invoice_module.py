@@ -30,6 +30,12 @@ class Command(BaseCommand):
     def create_invoice(self, payload: list):
         """
             Function to call InvoiceCreate class to execute Invoices
+
+        Parameters:
+        payload (dict type): It accepts a single or series objects.
+
+        Returns:
+            return_type: Invoice data
         """
         from INVOICES.views import InvoiceCreate
         api_log(msg="this is create invoice block")
@@ -42,6 +48,8 @@ class Command(BaseCommand):
     def read_pending_invoice_api(self):
         """
         GET API for pending list of invoices
+        Returns:
+            return_type: API response
         """
 
         from merge_integration.settings import GETKLOO_LOCAL_URL
@@ -76,8 +84,13 @@ class Command(BaseCommand):
 
     def process_invoices(self, payload):
         """
-        Method to execute all new Invoices and set the cron time
-        if Invoice in Pending state
+        Method to execute all new Invoices and set the cron time if Invoice in Pending state
+
+        Parameters:
+        payload (dict type): It accepts a single or series objects.
+
+        Returns:
+            return_type: None
         """
         from INVOICES.models import InvoiceAttachmentLogs
         from INVOICES.models import CronRetry
@@ -98,7 +111,7 @@ class Command(BaseCommand):
                 # Extract the status code using regex
                 status_code_match = re.search(r'status_code:\s*(\d+)', str(response))
                 status_code = int(status_code_match.group(1)) if status_code_match else None
-                api_log(msg=f"STATUS CODE in PROCESS INVOICE:::: {status_code}")
+                api_log(msg=f"STATUS CODE in PROCESS INVOICE method:::: {status_code}")
 
                 if status_code:
                     if status_code in [404, 400]:
@@ -106,7 +119,7 @@ class Command(BaseCommand):
                             msg=f"Error creating invoice: status_code: {status_code}, body: {response}")
 
                         invoice_id = invoice_payload['model']['kloo_invoice_id']
-                        api_log(msg=f"invoice ID in process invoice:: {invoice_id}")
+                        api_log(msg=f"invoice ID in process invoice method:: {invoice_id}")
 
                         # Extract problem_type using regex
                         match = re.search(pattern, response['error'])
@@ -168,6 +181,13 @@ class Command(BaseCommand):
     def schedule_retry(self, invoice_payload: dict, retry_delay):
         """
         Helper function to insert the data to erp_pending_invoices_retry table
+
+        Parameters:
+        invoice_payload (dict type): It accepts a single or series objects.
+        retry_delay (datetime): It accepts the timedelta for cron execution.
+
+        Returns:
+            return_type: None
         """
 
         from INVOICES.models import CronRetry
@@ -186,6 +206,12 @@ class Command(BaseCommand):
     def retry_invoices_from_api(self, payload: list):
         """
         A method to execute the invoice ID defined in erp_pending_invoices_retry table
+
+        Parameters:
+        payload (array type): It accepts a list of objects
+
+        Returns:
+            return_type: None
         """
         from INVOICES.models import CronRetry
         retries = CronRetry.objects.filter(cron_execution_time__lte=datetime.now())
@@ -213,7 +239,13 @@ class Command(BaseCommand):
 
     def post_response(self, response: dict):
         """
-        A helper function to accept the request to set failed or pending state for Invoices in invoices table
+        A helper function to accept the request to set failed or pending state for Invoices in invoices table.
+
+        Parameters:
+        response (dict type): It accepts a jSON format data
+
+        Returns:
+            return_type: None
         """
 
         from merge_integration.settings import GETKLOO_LOCAL_URL
