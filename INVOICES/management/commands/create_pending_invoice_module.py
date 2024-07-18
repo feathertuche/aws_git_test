@@ -138,7 +138,7 @@ class Command(BaseCommand):
                         api_log(msg=f"new_invoice_id: {new_invoice_id}")
                         log = InvoiceAttachmentLogs.objects.filter(invoice_id=new_invoice_id).first()
                         if log:
-                            log.problem_type = invoice_payload['model']['problem_type']
+                            log.problem_type = problem_type
                             log.save()
                         api_log(msg=f"log prob type::: {log.problem_type}")
                         self.handle_invoice_response(invoice_payload)
