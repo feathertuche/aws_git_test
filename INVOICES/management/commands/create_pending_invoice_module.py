@@ -146,7 +146,7 @@ class Command(BaseCommand):
         # Log or return the invoices JSON
         final_update = {"invoices": invoices}
         api_log(msg=f"final_update JSON: {final_update}")
-        self.post_response(invoices)
+        self.post_response(final_update)
 
     def handle_invoice_response(self, invoice_payload: dict):
         if invoice_payload["model"]["problem_type"] == "RATE_LIMITED":
@@ -202,7 +202,7 @@ class Command(BaseCommand):
                         retry.cron_execution_time = datetime.now() + timedelta(minutes=5)
                         retry.save()
 
-    def post_response(self, response: list):
+    def post_response(self, response: dict):
         from merge_integration.settings import GETKLOO_LOCAL_URL
         pending_url = f"{GETKLOO_LOCAL_URL}/ap/erp-integration/update_accounting_portal_status"
         # auth_token = ""
