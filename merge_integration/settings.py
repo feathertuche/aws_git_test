@@ -13,18 +13,14 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 import boto3
-
-# from celery import Celery
 from dotenv import load_dotenv
-
 from merge_integration.utils import get_db_password
-
-# from sqs_utils.sqs_manager import start_sqs_message_processing
 
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ACCOUNT_TOKEN = os.getenv("ACCOUNT_TOKEN")
@@ -97,6 +93,7 @@ DJANGO_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "django_crontab",
     # 'django_celery_results',
     # 'django_celery_beat',
 ]
@@ -209,7 +206,46 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Cron jobs
 CRONJOBS = [
     ("*/1 * * * *", "INVOICES.scheduled_tasks.daily_get_merge_invoice.main"),
+    ('*/2 * * * *', 'django.core.management.call_command', ['create_pending_invoice_module']),
 ]
+
+# Define the path to the cron_logs directory
+CRON_LOGS_DIR = BASE_DIR / 'INVOICES' / 'cron_logs'
+
+# Ensure the cron_logs directory exists
+if not CRON_LOGS_DIR.exists():
+    CRON_LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': CRON_LOGS_DIR / 'invoices_cron.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
 
 tracking_categories_page_size = 50
 tracking_categories_batch_size = 50

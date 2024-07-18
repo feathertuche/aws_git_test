@@ -28,6 +28,11 @@ COPY . .
 # Install runtime dependencies
 RUN apk add --no-cache mariadb-connector-c
 
+# Add cron jobs to crontab
+# Add cron jobs to crontab
+RUN /bin/sh -c "source venv/bin/activate && \
+    python manage.py crontab add"
+
 # Update Python packages
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir --upgrade setuptools wheel

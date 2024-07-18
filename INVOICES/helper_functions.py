@@ -5,7 +5,7 @@ Helper functions for the INVOICES app
 import json
 import uuid
 from datetime import datetime
-
+import requests
 from merge.resources.accounting import InvoiceLineItemRequest
 
 from INVOICES.queries import (
@@ -136,6 +136,7 @@ def filter_invoice_payloads(invoice_valid_payload):
     """
     prepare invoice payload based on integration name
     """
+    
     integration_name = invoice_valid_payload.get("integration_name")
     model_data = invoice_valid_payload.get("model")
 
@@ -184,10 +185,10 @@ def create_sage_invoice_payload(invoice_validated_payload):
             "currency": line_item_payload.get("currency"),
             "exchange_rate": model_data.get("exchange_rate"),
             "description": line_item_payload.get("item"),
-            "item": line_item_payload.get("item_id"),
+            "item": line_item_payload.get("item_id") if "item_id" in line_item_payload else None,
             "quantity": line_item_payload.get("quantity"),
             "total_amount": line_item_payload.get("total_amount"),
-            "tracking_categories": line_item_payload.get("tracking_categories"),
+            "tracking_categories": line_item_payload.get("tracking_categories", None),
             "account": line_item_payload.get("account"),
             "sequence": line_item_payload.get("sequence"),
         }
@@ -207,7 +208,7 @@ def create_sage_invoice_payload(invoice_validated_payload):
         "memo": model_data.get("memo"),
         "company": model_data.get("company"),
         "currency": model_data.get("currency"),
-        "tracking_categories": model_data.get("tracking_categories"),
+        "tracking_categories": model_data.get("tracking_categories", None),
         "sub_total": model_data.get("sub_total"),
         "total_tax_amount": model_data.get("total_tax_amount"),
         "total_amount": model_data.get("total_amount"),
@@ -236,7 +237,7 @@ def create_xero_invoice_payload(invoice_validated_payload):
             "item": line_item_payload.get("item_id") if "item_id" in line_item_payload else None,
             "quantity": line_item_payload.get("quantity"),
             "created_at": line_item_payload.get("created_at"),
-            "tracking_categories": line_item_payload.get("tracking_categories"),
+            "tracking_categories": line_item_payload.get("tracking_categories", None),
             "integration_params": {
                 "tax_rate_remote_id": line_item_payload.get("tax_rate_remote_id")
             },
@@ -261,7 +262,7 @@ def create_xero_invoice_payload(invoice_validated_payload):
         "status": model_data.get("status"),
         "company": model_data.get("company"),
         "currency": model_data.get("currency"),
-        "tracking_categories": model_data.get("tracking_categories"),
+        "tracking_categories": model_data.get("tracking_categories", None),
         "sub_total": model_data.get("sub_total"),
         "total_tax_amount": model_data.get("total_tax_amount"),
         "total_amount": model_data.get("total_amount"),
@@ -314,6 +315,24 @@ def create_xero_attachment_payload(attachment_validated_payload, invoice_id):
     return attachment_payload
 
 
+def post_response(response: dict):
+    from merge_integration.settings import GETKLOO_LOCAL_URL
+    pending_url = f"{GETKLOO_LOCAL_URL}/ap/erp-integration/update_accounting_portal_status"
+    # auth_token = ""
+    header = {'Content-type': 'application/json'}
+    try:
+        pending_invoice_response = requests.post(
+            pending_url,
+            # headers={"Authorization": f"Bearer {auth_token}"},
+            headers=header,
+            json=response
+        )
+        if pending_invoice_response.status_code in [200, 201]:
+            api_log(msg=f"Successfully UPDATED the response code: {response}")
+        else:
+            api_log(msg=f"Failed to update response code:::: {response}. Status Code:::: {pending_invoice_response.status_code}")
+    except Exception as e:
+        api_log(msg=f"Exception occurred while posting invoices: {str(e)}")
 # =========================================================================================#
 # PATCH PAYLOAD#
 # =========================================================================================#
