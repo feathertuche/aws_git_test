@@ -79,12 +79,9 @@ class InvoiceCreate(APIView):
             invoice_table_id = invoice_data["id"]
 
             # calling function to update remote id as 'erp id' in erp_id field in invoice_line_items table
-            try:
-                update_invoices_table(invoice_table_id, dict(invoice_created.model))
-            except Exception as e:
-                api_log(msg=f"Exception occurred in update_invoices_table: {str(e)}")
-
+            update_invoices_table(invoice_table_id, dict(invoice_created.model))
             update_post_erp_line_items(invoice_table_id, invoice_created)
+
             # if sage attachment then create folder
             if data.get("integration_name") == "Sage Intacct":
                 merge_passthrough_service = MergePassthroughApiService(
