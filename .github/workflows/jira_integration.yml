@@ -1,0 +1,55 @@
+name: GitHub-Jira-Integration
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  jira-integration:
+    runs-on: self-hosted
+    steps:
+    - name: Code Checkout
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.9"
+
+    - name: Set up AWS Cli
+      run: |
+        echo ${{ vars.REGION }}
+        aws configure set region ${{ vars.REGION }}
+        AWS_ACCESS_KEYID=$(aws secretsmanager get-secret-value --secret-id kloo-dev-environment-variables | jq --raw-output '.SecretString' | jq -r .\"AWS_ACCESS_KEYID\")
+        echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEYID" >> .env
+        AWS_SECRET_ACCESSKEY=$(aws secretsmanager get-secret-value --secret-id kloo-dev-environment-variables | jq --raw-output '.SecretString' | jq -r .\"AWS_SECRET_ACCESSKEY\")
+        echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESSKEY" >> .env
+        echo "AWS_DEFAULT_REGION=${{ vars.REGION }}" >> .env
+        aws ecr get-login-password | sudo docker login --username AWS --password-stdin ${{ vars.DOCKER_REGISTRY }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install jira
+
+    - name: Extract PR details
+      id: extract-pr-details
+      run: |
+        echo "PR_TITLE=$(jq -r .pull_request.title "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
+        echo "PR_BODY=$(jq -r .pull_request.body "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
+
+    - name: Extract PR details
+      id: pr-details
+      run: |
+        echo "PR_TITLE=$(jq -r .pull_request.title "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
+        echo "PR_BODY=$(jq -r .pull_request.body "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
+
+    - name: Run PR check script
+      env:
+        JIRA_SERVER: ${{ secrets.JIRA_SERVER }}
+        JIRA_USERNAME: ${{ secrets.JIRA_USERNAME }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        PR_TITLE: ${{ env.PR_TITLE }}
+        PR_BODY: ${{ env.PR_BODY }}
+      run: python .github/scripts/pr_check.py
