@@ -1,6 +1,6 @@
 # Stage 1: Build environment
 FROM python:3.10 AS builder
-
+# Defining work directory 
 WORKDIR /app
 
 # Install build dependencies
