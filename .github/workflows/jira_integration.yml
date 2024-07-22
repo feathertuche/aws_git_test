@@ -52,4 +52,4 @@ jobs:
         JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
         PR_TITLE: ${{ env.PR_TITLE }}
         PR_BODY: ${{ env.PR_BODY }}
-      run: python .github/pr_check.py
+      run: python .github/scripts/pr_check.py
