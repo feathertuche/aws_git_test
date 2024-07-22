@@ -46,7 +46,7 @@ project_name = 'Kloo (Modulr) cards & payments'
 jql = f'project = "{project_name}" ORDER BY created DESC'
 
 # Get issues from Jira
-issues = jira.search_issues(jql, maxResults=1000)  # Adjust maxResults as needed
+issues = jira.search_issues(jql)  # Adjust maxResults as needed
 
 # Check if the issue_id exists in the project
 issue = None
