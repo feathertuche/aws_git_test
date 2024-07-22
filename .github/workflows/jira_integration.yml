@@ -2,8 +2,8 @@ name: GitHub-Jira-Integration
 on:
   pull_request:
     branches:
-      - main
-      - master
+      - main_old
+      - master_old
 
 jobs:
   jira-integration:
