@@ -322,7 +322,7 @@ class MergeInvoiceApiService(MergeService):
 
     def create_invoice(self, invoice_data: dict):
         """
-        create_invoice method
+        create invoice method
         """
         try:
             response = self.merge_client.accounting.invoices.create(
