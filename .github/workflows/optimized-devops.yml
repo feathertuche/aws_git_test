@@ -106,7 +106,7 @@ jobs:
           echo "New tag created: ${{ steps.new_version.outputs.new_tag }}"
 
       - name: Create GitHub Release
-        if: steps.check_tag.outputs.tag_exists == 'false' && (echo "${{ steps.fetch_labels.outputs.labels }}" | grep -q -i 'major' || echo "${{ steps.fetch_labels.outputs.labels }}" | grep -q -i 'minor' || [ -z "${{ steps.fetch_labels.outputs.labels }}" ])
+        if: steps.check_tag.outputs.tag_exists == 'false' && (echo "${{ steps.fetch_labels.outputs.labels }}" | grep -q -i 'major' || echo "${{ steps.fetch_labels.outputs.labels }}" | grep -q -i 'minor' || [ -z "${{ steps.fetch_labels.outputs.labels }}" ]) && github.ref == 'refs/heads/main'
         uses: actions/create-release@v1
         with:
           tag_name: ${{ steps.new_version.outputs.new_tag }}
@@ -134,6 +134,16 @@ jobs:
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-prod-cluster" >> $GITHUB_ENV
             echo "rds_host=mysql-kloo-prod.internal-service-kloo.com" >> $GITHUB_ENV
+
+          elif [[ "${{ github.ref }}" == "refs/heads/demo" ]]; then
+            echo "env=demo" >> $GITHUB_ENV
+            echo "secret_manager=kloo_environment_variables_demo" >> $GITHUB_ENV
+            echo "db_password=Demo_DB_Password" >> $GITHUB_ENV
+            echo "app_secret_manager=demo_merge_integration" >> $GITHUB_ENV
+            UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/demo/')
+            echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
+            echo "cluster_name=kloo-Demo-cluster" >> $GITHUB_ENV
+            echo "rds_host=mysql-kloo-demo.internal-service-kloo.com" >> $GITHUB_ENV
 
           elif [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
             echo "env=stage" >> $GITHUB_ENV
