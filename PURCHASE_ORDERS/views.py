@@ -67,7 +67,7 @@ class MergePOList(APIView):
         for po in po_data.results:
             formatted_entry = {
                 "status": po.status,
-                "issue_date": po.issue_date.isoformat() + "Z",
+                "issue_date": po.issue_date.isoformat(),
                 "purchase_order_number": po.purchase_order_number,
                 "delivery_date": po.delivery_date,
                 "delivery_address": po.delivery_address,
@@ -95,20 +95,20 @@ class MergePOList(APIView):
                         "company": line.company,
                         "remote_was_deleted": line.remote_was_deleted,
                         "id": line.id,
-                        "created_at": line.created_at.isoformat() + "Z",
-                        "modified_at": line.modified_at.isoformat() + "Z",
+                        "created_at": line.created_at.isoformat(),
+                        "modified_at": line.modified_at.isoformat(),
                     }
                     for line in po.line_items
                 ],
                 "tracking_categories": po.tracking_categories,
                 "remote_created_at": po.remote_created_at,
-                "remote_updated_at": po.remote_updated_at.isoformat() + "Z",
+                "remote_updated_at": po.remote_updated_at.isoformat(),
                 "remote_was_deleted": po.remote_was_deleted,
                 "accounting_period": po.accounting_period,
                 "id": po.id,
                 "remote_id": po.remote_id,
-                "created_at": po.created_at.isoformat() + "Z",
-                "modified_at": po.modified_at.isoformat() + "Z",
+                "created_at": po.created_at.isoformat(),
+                "modified_at": po.modified_at.isoformat(),
                 "field_mappings": field_mappings,
                 "remote_data": po.remote_data,
             }

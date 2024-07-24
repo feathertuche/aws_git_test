@@ -28,14 +28,16 @@ COPY . .
 # Install runtime dependencies
 RUN apk add --no-cache mariadb-connector-c
 
+# Add cron jobs to crontab
+# Add cron jobs to crontab
+RUN /bin/sh -c "source venv/bin/activate && \
+    python manage.py crontab add"
+
 # Update Python packages
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir --upgrade setuptools wheel
 
 EXPOSE 8000
-#CMD ["venv/bin/gunicorn", "--workers", "2", "--bind", "0.0.0.0:8000","--timeout", "60", "merge_integration.wsgi:application"]
-#CMD ["venv/bin/gunicorn", "--workers", "1", "--bind", "0.0.0.0:8000","--timeout", "60", "--log-level", "debug", "merge_integration.wsgi:application"]
-CMD ["venv/bin/gunicorn", "--workers", "2", "--threads", "4", "--bind", "0.0.0.0:8000", "--timeout", "60", "--log-level", "debug", "merge_integration.wsgi:application"]
 
-
-
+#CMD ["venv/bin/gunicorn", "--workers", "2", "--bind", "0.0.0.0:8000", "merge_integration.wsgi:application"]
+CMD ["venv/bin/gunicorn", "--workers", "2", "--threads", "4", "--bind", "0.0.0.0:8000", "--timeout", "60", "--log-level", "debug", "--limit-request-field_size", "10000", "--limit-request-fields", "100", "merge_integration.wsgi:application"]

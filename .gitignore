@@ -4,6 +4,6 @@ venv/
 __pycache__
 .env
 .git/
-.github/
 *.pyc
 logs
+INVOICES/cron_logs

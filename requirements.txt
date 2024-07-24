@@ -1,6 +1,7 @@
-djangorestframework
+﻿djangorestframework
+django
 python-dotenv
-MergePythonClient
+MergePythonClient==1.0.7
 Django
 urllib3
 requests
@@ -11,3 +12,6 @@ django-cors-headers
 boto3
 chardet
 gunicorn
+apscheduler==3.10.4
+amazon-sqs-extended-client==1.0.0
+django-crontab==0.7.1

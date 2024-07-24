@@ -2,6 +2,7 @@
 Module docstring: This module provides functions related to traceback.
 """
 
+import json
 import traceback
 
 import requests
@@ -12,7 +13,7 @@ from rest_framework.views import APIView
 
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
-from merge_integration.settings import GETKLOO_LOCAL_URL
+from merge_integration.settings import GETKLOO_LOCAL_URL, tax_rate_page_size, tax_rate_batch_size
 from merge_integration.utils import create_merge_client
 
 
@@ -21,9 +22,19 @@ class MergeTaxRatesList(APIView):
     API view for retrieving Merge Tax Rate list.
     """
 
-    def __init__(self, link_token_details=None):
+    def __init__(
+        self,
+        previous=None,
+        results=None,
+        link_token_details=None,
+        last_modified_at=None,
+    ):
         super().__init__()
         self.link_token_details = link_token_details
+        self.last_modified_at = last_modified_at
+        self.next = next
+        self.previous = previous
+        self.results = results
 
     def get_tax_rate(self):
         """
@@ -49,9 +60,36 @@ class MergeTaxRatesList(APIView):
 
         try:
             tax_data = merge_client.accounting.tax_rates.list(
-                expand="company", page_size=100000, include_remote_data=True
+                page_size=tax_rate_page_size,
+                include_remote_data=True,
+                modified_after=self.last_modified_at,
             )
-            return tax_data
+
+            all_tax_rates = []
+            while True:
+                api_log(msg=f"Adding {len(tax_data.results)} tax rates to the list.")
+
+                all_tax_rates.extend(tax_data.results)
+                if tax_data.next is None:
+                    break
+
+                tax_data = merge_client.accounting.tax_rates.list(
+                    page_size=tax_rate_page_size,
+                    include_remote_data=True,
+                    modified_after=self.last_modified_at,
+                    cursor=tax_data.next,
+                )
+
+                api_log(
+                    msg=f"Tax Rates GET:: The length of the next page account data is : {len(tax_data.results)}"
+                )
+                api_log(msg=f"Length of all_accounts: {len(tax_data.results)}")
+
+            api_log(
+                msg=f"Tax Rates GET:: The length of all account data is : {len(all_tax_rates)}"
+            )
+
+            return all_tax_rates
 
         except Exception as e:
             api_log(
@@ -75,7 +113,7 @@ class MergeTaxRatesList(APIView):
         ]
 
         formatted_list = []
-        for taxdata in tax_data.results:
+        for taxdata in tax_data:
             erp_remote_data = None
             if taxdata.remote_data is not None:
                 erp_remote_data = [
@@ -90,8 +128,8 @@ class MergeTaxRatesList(APIView):
                 "remote_was_deleted": taxdata.remote_was_deleted,
                 "id": taxdata.id,
                 "remote_id": taxdata.remote_id,
-                "created_at": taxdata.created_at.isoformat() + "Z",
-                "modified_at": taxdata.modified_at.isoformat() + "Z",
+                "created_at": taxdata.created_at.isoformat(),
+                "modified_at": taxdata.modified_at.isoformat(),
                 "field_mappings": field_map,
                 "remote_data": erp_remote_data,
             }
@@ -111,6 +149,9 @@ class MergeTaxRatesList(APIView):
         api_log(msg="Processing GET request in MergeTaxRate")
 
         tax_data = self.get_tax_rate()
+        if tax_data is None or len(tax_data) == 0:
+            return Response({"taxRates": []}, status=status.HTTP_204_NO_CONTENT)
+
         formatted_data = self.response_payload(tax_data)
 
         api_log(
@@ -163,8 +204,8 @@ class mergeTaxRatesInfo(APIView):
                 "remote_was_deleted": tax_client.remote_was_deleted,
                 "id": tax_client.id,
                 "remote_id": tax_client.remote_id,
-                "created_at": tax_client.created_at,
-                "modified_at": tax_client.modified_at,
+                "created_at": tax_client.created_at.isoformat(),
+                "modified_at": tax_client.modified_at.isoformat(),
                 "field_mappings": field_map,
                 "remote_data": tax_client.remote_data,
             }
@@ -190,9 +231,10 @@ class MergePostTaxRates(APIView):
     API view for inserting Merge Tax Rate data into the Kloo Tax Rate system.
     """
 
-    def __init__(self, link_token_details=None):
+    def __init__(self, link_token_details=None, last_modified_at=None):
         super().__init__()
         self.link_token_details = link_token_details
+        self.last_modified_at = last_modified_at
 
     def post(self, request):
         """
@@ -204,7 +246,10 @@ class MergePostTaxRates(APIView):
 
         erp_link_token_id = request.data.get("erp_link_token_id")
         org_id = request.data.get("org_id")
-        fetch_data = MergeTaxRatesList(link_token_details=self.link_token_details)
+        fetch_data = MergeTaxRatesList(
+            link_token_details=self.link_token_details,
+            last_modified_at=self.last_modified_at,
+        )
         tax_data = fetch_data.get(request=request)
 
         try:
@@ -212,20 +257,39 @@ class MergePostTaxRates(APIView):
                 tax_payload = tax_data.data
                 tax_payload["erp_link_token_id"] = erp_link_token_id
                 tax_payload["org_id"] = org_id
-                tax_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-tax-rates"
-                tax_response_data = requests.post(
-                    tax_url,
-                    json=tax_payload,
+                api_log(
+                    msg=f"Posting tax_rates data to Kloo: {json.dumps(tax_payload)}"
                 )
+                tax_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-tax-rates"
 
-                api_log(msg=f"tax_response_data: {tax_response_data}")
+                # Payload and logic for batch size
+                data = tax_payload["taxRates"]
+                payload = dict()
+                payload["erp_link_token_id"] = erp_link_token_id
+                payload["org_id"] = org_id
+
+                batch_size = tax_rate_batch_size
+                api_log(msg=f"[BATCH SIZE]:: {batch_size}")
+                for batch in range(0, len(data), batch_size):
+                    api_log(msg=f"[BATCH SIZE]:: {batch_size}")
+                    api_log(msg=f"[BATCH]:: {batch}")
+                    batch_data = data[batch:batch + batch_size]
+                    payload["taxRates"] = batch_data
+                    api_log(msg=f"[PAYLOAD]:: {batch_data}")
+
+                    tax_response_data = requests.post(
+                        tax_url,
+                        json=payload,
+                    )
+
+                    api_log(msg=f"tax_response_data: {tax_response_data}")
 
                 if tax_response_data.status_code == status.HTTP_201_CREATED:
                     api_log(
                         msg="data inserted successfully in the kloo Tax Rate system"
                     )
                     return Response(
-                        f"{tax_response_data} data inserted successfully in kloo Tax Rate system"
+                        {"message": "API Tax rate Info completed successfully"}
                     )
 
                 else:
@@ -233,6 +297,12 @@ class MergePostTaxRates(APIView):
                         {"error": "Failed to send data to Kloo Tax Rate API"},
                         status=tax_response_data.status_code,
                     )
+
+            if tax_data.status_code == status.HTTP_204_NO_CONTENT:
+                return Response(
+                    {"message": "No new data found to insert in the kloo tax system"},
+                    status=status.HTTP_204_NO_CONTENT,
+                )
 
         except Exception as e:
             error_message = f"Failed to send data to Kloo Tax Rate API. Error: {str(e)}"

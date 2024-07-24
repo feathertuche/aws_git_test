@@ -1,0 +1,42 @@
+"""
+Middleware to log `*/api/*` requests and responses.
+"""
+
+import logging
+import socket
+import time
+
+from merge_integration.helper_functions import request_log
+
+request_logger = logging.getLogger(__name__)
+
+
+class RequestLogMiddleware:
+    """Request Logging Middleware."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        request_start_time = time.time()
+        response = self.get_response(request)
+        request_end_time = time.time()
+        response_start_time = time.time()
+        response_time = response_start_time - request_start_time
+        upstream_time = response_start_time - request_end_time
+
+        log_data = {
+            "remote_address": request.META["REMOTE_ADDR"],
+            "server_hostname": socket.gethostname(),
+            "request_method": request.method,
+            "request_path": request.get_full_path(),
+            "request_headers": dict(request.headers),
+            "response_status": response.status_code,
+            "response_headers": dict(response.items()),
+            "response_time": f"{response_time:.6f} ",
+            "upstream_time": f"{upstream_time:.6f} ",
+        }
+
+        request_log(msg=log_data)
+
+        return response
