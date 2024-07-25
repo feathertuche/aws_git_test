@@ -118,26 +118,27 @@ jobs:
         if: steps.branch_check.outputs.branch_check == 'true'
         run: |
           labels="${{ steps.fetch_labels.outputs.labels }}"
-    
-          if [ "${{ steps.check_tag.outputs.tag_exists }}" = "false" ] && 
-            (echo "$labels" | grep -q -i 'major' ||
-            echo "$labels" | grep -q -i 'minor' ||
-            echo "$labels" | grep -q -i 'hotfix' ||
-            [ -z "$labels" ]); then
-            
+        
+          if [ "${{ steps.check_tag.outputs.tag_exists }}" = "false" ]; then
             if [ -z "$labels" ]; then
               # No labels provided, treat it as 'minor'
               echo "::set-output name=labels_check::true"
               echo "::set-output name=labels_type::minor"
-            else
+            elif echo "$labels" | grep -q -i 'major'; then
               echo "::set-output name=labels_check::true"
-              echo "::set-output name=labels_type::$(echo "$labels" | grep -o -i 'major\|minor\|hotfix' | head -n1)"
+              echo "::set-output name=labels_type::major"
+            elif echo "$labels" | grep -q -i 'minor'; then
+              echo "::set-output name=labels_check::true"
+              echo "::set-output name=labels_type::minor"
+            elif echo "$labels" | grep -q -i 'hotfix'; then
+              echo "::set-output name=labels_check::true"
+              echo "::set-output name=labels_type::hotfix"
+            else
+              echo "::set-output name=labels_check::false"
             fi
-            
           else
             echo "::set-output name=labels_check::false"
           fi
-
 
       - name: Create GitHub Release
         if: steps.branch_check.outputs.branch_check == 'true' && steps.label_check.outputs.labels_check == 'true'
