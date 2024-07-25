@@ -65,9 +65,8 @@ jobs:
           # Check if specific labels are present and increment accordingly
           labels="${{ steps.fetch_labels.outputs.labels }}"
           if [ -z "$labels" ]; then
-            minor=$((minor + 1))
-            patch=0
-            new_label="minor"
+            patch=$((patch + 1))
+            new_label="patch"
           elif echo "$labels" | grep -q -i 'major'; then
             major=$((major + 1))
             minor=0
@@ -77,9 +76,6 @@ jobs:
             minor=$((minor + 1))
             patch=0
             new_label="minor"
-          elif echo "$labels" | grep -q -i 'hotfix'; then
-            patch=$((patch + 1))
-            new_label="hotfix"
           else
             patch=$((patch + 1))
             new_label="${labels%% *}"  # Take the first label as the new label
@@ -95,7 +91,7 @@ jobs:
           tag_exists=$(git ls-remote --tags origin | grep "refs/tags/${{ steps.new_version.outputs.new_tag }}" || echo "false")
           echo "tag_exists=${tag_exists}"
           echo "::set-output name=tag_exists::${tag_exists}"
-
+    
       - name: Create new tag
         if: steps.check_tag.outputs.tag_exists == 'false'
         run: |
@@ -108,8 +104,43 @@ jobs:
         run: |
           echo "New tag created: ${{ steps.new_version.outputs.new_tag }}"
 
+      - name: Set branch check result
+        id: branch_check
+        run: |
+          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            echo "::set-output name=branch_check::true"
+          else
+            echo "::set-output name=branch_check::false"
+          fi
+
+      - name: Check labels
+        id: label_check
+        if: steps.branch_check.outputs.branch_check == 'true'
+        run: |
+          labels="${{ steps.fetch_labels.outputs.labels }}"
+    
+          if [ "${{ steps.check_tag.outputs.tag_exists }}" = "false" ] && 
+            (echo "$labels" | grep -q -i 'major' ||
+            echo "$labels" | grep -q -i 'minor' ||
+            echo "$labels" | grep -q -i 'hotfix' ||
+            [ -z "$labels" ]); then
+            
+            if [ -z "$labels" ]; then
+              # No labels provided, treat it as 'minor'
+              echo "::set-output name=labels_check::true"
+              echo "::set-output name=labels_type::minor"
+            else
+              echo "::set-output name=labels_check::true"
+              echo "::set-output name=labels_type::$(echo "$labels" | grep -o -i 'major\|minor\|hotfix' | head -n1)"
+            fi
+            
+          else
+            echo "::set-output name=labels_check::false"
+          fi
+
+
       - name: Create GitHub Release
-        if: steps.check_tag.outputs.tag_exists == 'false' && github.ref == 'refs/heads/main'
+        if: steps.branch_check.outputs.branch_check == 'true' && steps.check_tag.outputs.tag_exists == 'false'
         uses: actions/create-release@v1
         with:
           tag_name: ${{ steps.new_version.outputs.new_tag }}
