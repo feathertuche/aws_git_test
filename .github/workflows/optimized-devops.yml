@@ -6,6 +6,7 @@ on:
       - main
       - dev
       - stage
+      - demo
 
 jobs:
   deployment-job:
@@ -140,7 +141,7 @@ jobs:
 
 
       - name: Create GitHub Release
-        if: steps.branch_check.outputs.branch_check == 'true' && steps.label_check.outputs.labels_check == 'true'
+        if: steps.branch_check.outputs.branch_check == 'true' && steps.check_tag.outputs.tag_exists == 'false'
         uses: actions/create-release@v1
         with:
           tag_name: ${{ steps.new_version.outputs.new_tag }}
