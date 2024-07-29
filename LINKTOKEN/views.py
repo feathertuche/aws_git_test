@@ -135,30 +135,41 @@ class WebHook(APIView):
 
                 # validate webhook
                 is_valid = validate_webhook(payload)
+                print("*********", '1')
                 if not is_valid["status"]:
+                    print("*********", '2')
                     return Response(
                         {"status": is_valid["message"]},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
 
                 # check type of webhook it is
+                print("*********", '3')
                 event = payload.get("hook").get("event")
+                print("*********", '4')
                 if "synced" in event.split("."):
+                    print("*********", '5')
                     api_log(
                         msg=f"WEBHOOK: Merge module data sync data alert for End User id {end_user_origin_id} "
                         f"for module {payload.get('data').get('sync_status').get('model_name')}"
                     )
+                    print("*********", '6')
                     handle_webhook_sync_modules(linked_account_data, account_token_data)
+                    print("*********", '7')
                 elif "linked" in event.split("."):
+                    print("*********", '8')
                     api_log(
                         msg=f"WEBHOOK: Merge account linked for End User id {end_user_origin_id}"
                         f" {end_user_origin_id}"
                     )
+                    print("*********", '9')
                     handle_webhook_link_account(
                         account_token_data=account_token_data,
                         linked_account_data=linked_account_data,
                     )
+                    print("*********", '10')
                 else:
+                    print("*********", '11')
                     api_log(msg="WEBHOOK: No proper event found")
                     return Response(
                         {"status": "No proper event found"},
