@@ -1,7 +1,9 @@
 import json
 import threading
 import time
-
+import sys
+import os
+import django
 import boto3
 from sqs_extended_client import (
     SQSExtendedClientSession,
@@ -10,6 +12,9 @@ from sqs_extended_client import (
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
 from services.kloo_service import KlooService
+
+
+
 
 
 def process_message(message):
@@ -36,6 +41,14 @@ def process_message(message):
             msg="CONTACTS : send to post_contacts_data function to pass data to laravel API",
         )
         kloo_service.post_contacts_data(message_data)
+        erp_link_token_id = message_data.get("erp_link_token_id")
+        org_id = message_data.get("org_id")
+        from LINKTOKEN.model import ErpLinkToken
+        integration_name = ErpLinkToken.get_integration_name_token_by_id(erp_link_token_id)
+        if integration_name == 'Sage Intacct':
+            from TAX_SOLUTIONS.views import TaxSolutions
+            tax_solutions_instance = TaxSolutions()
+            tax_solutions_instance.get(org_id, erp_link_token_id)
         api_log(
             msg="CONTACTS : Added in Kloo Contacts API",
         )
@@ -78,7 +91,10 @@ def process_message(message):
 
 
 def poll_sqs():
-    # Initialize SQS client
+
+    api_log(msg="dhiraj kumar giri")
+    api_log(msg="--------------------------------------------------")
+
     sqs = boto3.client(
         "sqs",
         region_name=settings.AWS_DEFAULT_REGION,
@@ -86,7 +102,7 @@ def poll_sqs():
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
     )
 
-    api_log(msg="Polling SQS queue...")
+
 
     while True:
         try:

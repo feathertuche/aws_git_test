@@ -37,6 +37,21 @@ class ErpLinkToken(models.Model):
     class Meta:
         db_table = "erp_link_token"  # Set the actual table name here
 
+    @classmethod
+    def get_account_token_by_id(cls, token_id):
+        try:
+            token = cls.objects.get(id=token_id)
+            return token.account_token
+        except cls.DoesNotExist:
+            return None
+
+    @classmethod
+    def get_integration_name_token_by_id(cls, token_id):
+        try:
+            token = cls.objects.get(id=token_id)
+            return token.integration_name
+        except cls.DoesNotExist:
+            return None
 
 class DailyOrForceSyncLog(models.Model):
     id = models.CharField(max_length=36, primary_key=True)

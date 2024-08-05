@@ -281,7 +281,7 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         integration_name = linked_account_data.get("integration")
 
         modules = []
-        if integration_name == "Sage Intacct" and merge_module_name == "Account":
+        if integration_name == "Sage Intacct":
             modules.append("Contact")
             modules.append("TrackingCategory")
             modules.append("Invoice")
@@ -483,7 +483,7 @@ def store_daily_sync(linked_account_data: dict, account_token_data: dict):
         cache.delete(f"webhook_sync_{erp_link_token_id}")
 
         modules = []
-        if integration_name == "Sage Intacct" and merge_module_name == "Account":
+        if integration_name == "Sage Intacct":
             modules.append("Contact")
             modules.append("TrackingCategory")
             modules.append("Invoice")
