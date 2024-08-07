@@ -65,8 +65,9 @@ jobs:
           # Check if specific labels are present and increment accordingly
           labels="${{ steps.fetch_labels.outputs.labels }}"
           if [ -z "$labels" ]; then
-            patch=$((patch + 1))
-            new_label="patch"
+            minor=$((minor + 1))
+            patch=0
+            new_label="minor"
           elif echo "$labels" | grep -q -i 'major'; then
             major=$((major + 1))
             minor=0
@@ -76,6 +77,9 @@ jobs:
             minor=$((minor + 1))
             patch=0
             new_label="minor"
+          elif echo "$labels" | grep -q -i 'hotfix'; then
+            patch=$((patch + 1))
+            new_label="hotfix"
           else
             patch=$((patch + 1))
             new_label="${labels%% *}"  # Take the first label as the new label
@@ -138,7 +142,6 @@ jobs:
             echo "::set-output name=labels_check::false"
           fi
 
-
       - name: Create GitHub Release
         if: steps.branch_check.outputs.branch_check == 'true' && steps.check_tag.outputs.tag_exists == 'false'
         uses: actions/create-release@v1
@@ -198,57 +201,32 @@ jobs:
           echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEYID" >> .env
           AWS_SECRET_ACCESSKEY=$(aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .\"AWS_SECRET_ACCESSKEY\")
           echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESSKEY" >> .env
-          echo "AWS_DEFAULT_REGION=${{ vars.REGION }}" >> .env
+          echo "env=$env" >> .env
+          echo "db_password=$db_password" >> .env
+          echo "app_secret_manager=$app_secret_manager" >> .env
+          echo "rds_host=$rds_host" >> .env
+          echo "cluster_name=$cluster_name" >> .env
+          echo "REGION=${{ vars.REGION }}" >> .env
+          echo "MERGE_INT_ERP_FUNC_NAME=$UPDATED_FUNC_NAME" >> .env
+          echo "BULK_IMPORT_QUEUE=$UPDATED_QUEUE" >> .env
 
-      - name: DB Configure
+      - name: Set up and validate environment variables
         run: |
-          cd ./merge_integration
-          echo "DB_CONNECTION=mysql" >> .env
-          echo "RDS_HOST=${rds_host}" >> .env
-          echo "DB_PORT=3306" >> .env
-          echo "DB_USER=masterkloo" >> .env
-          echo "DB_NAME=myrdssql01" >> .env
-          DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .${db_password}`
-          echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-          echo "BULK_IMPORT_QUEUE=${UPDATED_QUEUE}" >> .env
+          echo "Env: $env"
+          echo "DB password: $db_password"
+          echo "App Secret Manager: $app_secret_manager"
+          echo "Cluster Name: $cluster_name"
+          echo "RDS Host: $rds_host"
+          echo "AWS_REGION: ${{ vars.REGION }}"
+          echo "Merge ERP Func Name: $UPDATED_FUNC_NAME"
+          echo "Bulk Import Queue: $UPDATED_QUEUE"
+          cat .env
 
-      - name: Creating Application variables
+      - name: Build and push Docker image
         run: |
-          cd ./merge_integration
-          secret_json=$(aws secretsmanager get-secret-value --secret-id ${app_secret_manager} | jq -r .'SecretString')
-          while IFS= read -r line; do
-            echo "$line" >> .env
-          done <<< "$(echo "$secret_json" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"')"
-          cp .env ../.env
+          docker build -t ${{ vars.DOCKER_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ steps.new_version.outputs.new_tag }} .
+          docker push ${{ vars.DOCKER_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ steps.new_version.outputs.new_tag }}
 
-
-      - name: Building & pushing merge integration erp image
+      - name: Deploy new version to ECS
         run: |
-          #----------------------------------------------------------------------------
-          # Building images for merge integration erp
-          #----------------------------------------------------------------------------
-          docker build -t ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest -f MERGE_INT_ERP_DOCKERFILE .
-          docker push ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest
-
-          #Pushing the Cron image:
-          docker build -t ${{ vars.DOCKER_REGISTRY }}/${env}/${{vars.MERGE_INT_ERP_APP_CRON_NAME}}:latest -f CRON_DOCKERFILE .
-          docker push ${{ vars.DOCKER_REGISTRY }}/${env}/${{vars.MERGE_INT_ERP_APP_CRON_NAME}}:latest 
-
-      - name: Deploying to non-prod environment
-        if: ${{ env.env != 'prod' }}
-        run: |
-          aws ecs update-service --cluster ${cluster_name} --service ${UPDATED_FUNC_NAME} --force-new-deployment
-
-      - name: Deploying to production
-        if: ${{ env.env == 'prod' }}
-        run: |
-
-          aws configure set region ${{ vars.REGION }}
-          AWS_ACCESS_KEYID=$(aws secretsmanager get-secret-value --secret-id kloo_environment_variable_prod | jq --raw-output '.SecretString' | jq -r .\"KLOO_PROD_AWS_ACCESS_KEYID\")
-          echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEYID" >> .env
-          AWS_SECRET_ACCESSKEY=$(aws secretsmanager get-secret-value --secret-id kloo_environment_variable_prod | jq --raw-output '.SecretString' | jq -r .\"KLOO_PROD_AWS_SECRET_ACCESSKEY\")
-          echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESSKEY" >> .env
-          echo "AWS_DEFAULT_REGION=${{ vars.REGION }}" >> .env
-
-          aws codepipeline update-pipeline --cli-input-json file://codepipeline.json
-          aws codepipeline start-pipeline-execution --name codepipeline-oauthapi
+          aws ecs update-service --cluster $cluster_name --service $UPDATED_FUNC_NAME --force-new-deployment
