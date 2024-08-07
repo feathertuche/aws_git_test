@@ -222,11 +222,33 @@ jobs:
           echo "Bulk Import Queue: $UPDATED_QUEUE"
           cat .env
 
-      - name: Build and push Docker image
+     - name: Building & pushing merge integration erp image
         run: |
-          docker build -t ${{ vars.DOCKER_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ steps.new_version.outputs.new_tag }} .
-          docker push ${{ vars.DOCKER_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ steps.new_version.outputs.new_tag }}
+          #----------------------------------------------------------------------------
+          # Building images for merge integration erp
+          #----------------------------------------------------------------------------
+          docker build -t ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest -f MERGE_INT_ERP_DOCKERFILE .
+          docker push ${{ vars.DOCKER_REGISTRY }}/${env}/${{ vars.MERGE_INT_ERP_APP_NAME }}:latest
 
-      - name: Deploy new version to ECS
+          #Pushing the Cron image:
+          docker build -t ${{ vars.DOCKER_REGISTRY }}/${env}/${{vars.MERGE_INT_ERP_APP_CRON_NAME}}:latest -f CRON_DOCKERFILE .
+          docker push ${{ vars.DOCKER_REGISTRY }}/${env}/${{vars.MERGE_INT_ERP_APP_CRON_NAME}}:latest 
+
+      - name: Deploying to non-prod environment
+        if: ${{ env.env != 'prod' }}
         run: |
-          aws ecs update-service --cluster $cluster_name --service $UPDATED_FUNC_NAME --force-new-deployment
+          aws ecs update-service --cluster ${cluster_name} --service ${UPDATED_FUNC_NAME} --force-new-deployment
+
+      - name: Deploying to production
+        if: ${{ env.env == 'prod' }}
+        run: |
+
+          aws configure set region ${{ vars.REGION }}
+          AWS_ACCESS_KEYID=$(aws secretsmanager get-secret-value --secret-id kloo_environment_variable_prod | jq --raw-output '.SecretString' | jq -r .\"KLOO_PROD_AWS_ACCESS_KEYID\")
+          echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEYID" >> .env
+          AWS_SECRET_ACCESSKEY=$(aws secretsmanager get-secret-value --secret-id kloo_environment_variable_prod | jq --raw-output '.SecretString' | jq -r .\"KLOO_PROD_AWS_SECRET_ACCESSKEY\")
+          echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESSKEY" >> .env
+          echo "AWS_DEFAULT_REGION=${{ vars.REGION }}" >> .env
+
+          aws codepipeline update-pipeline --cli-input-json file://codepipeline.json
+          aws codepipeline start-pipeline-execution --name codepipeline-oauthapi
