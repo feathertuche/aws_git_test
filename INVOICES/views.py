@@ -77,7 +77,7 @@ class InvoiceCreate(APIView):
 
             api_log(msg=f"Merge Invoice Created : {invoice_created}")
             invoice_table_id = invoice_data["id"]
-            api_log(msg=f"Merge Invoice Created")
+            api_log(msg="Merge Invoice Created")
             # calling function to update remote id as 'erp id' in erp_id field in invoice_line_items table
             update_invoices_table(invoice_table_id, dict(invoice_created.model))
             api_log(msg=f"update_invoices_table: {update_invoices_table}")
@@ -103,7 +103,7 @@ class InvoiceCreate(APIView):
             merge_api_service.create_attachment(attachment_payload)
             api_log(msg="after creation invoicesssss...")
             merge_invoice_request_create = f"Invoice created : {invoice_created}"
-            # send_slack_notification(merge_invoice_request_create)
+            send_slack_notification(merge_invoice_request_create)
 
             invoice_id = data["model"]["kloo_invoice_id"]
             api_log(msg=f"invoice_id:: {invoice_id}")
