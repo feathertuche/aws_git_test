@@ -222,7 +222,7 @@ jobs:
           echo "Bulk Import Queue: $UPDATED_QUEUE"
           cat .env
 
-     - name: Building & pushing merge integration erp image
+      - name: Building & pushing merge integration erp image
         run: |
           #----------------------------------------------------------------------------
           # Building images for merge integration erp
