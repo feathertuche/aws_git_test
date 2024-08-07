@@ -52,6 +52,111 @@ jobs:
           echo "labels=${labels}"
           echo "::set-output name=labels::${labels}"
 
+      - name: Determine new version
+        id: new_version
+        run: |
+          latest_tag="${{ steps.get_latest_tag.outputs.latest_tag }}"
+
+          IFS='.' read -r -a version_parts <<< "${latest_tag#v}"
+          major=${version_parts[0]}
+          minor=${version_parts[1]}
+          patch=${version_parts[2]}
+
+          # Check if specific labels are present and increment accordingly
+          labels="${{ steps.fetch_labels.outputs.labels }}"
+          if [ -z "$labels" ]; then
+            patch=$((patch + 1))
+            new_label="patch"
+          elif echo "$labels" | grep -q -i 'major'; then
+            major=$((major + 1))
+            minor=0
+            patch=0
+            new_label="major"
+          elif echo "$labels" | grep -q -i 'minor'; then
+            minor=$((minor + 1))
+            patch=0
+            new_label="minor"
+          else
+            patch=$((patch + 1))
+            new_label="${labels%% *}"  # Take the first label as the new label
+          fi
+
+          new_tag="v$major.$minor.$patch-${new_label}"
+          echo "new_tag=${new_tag}"
+          echo "::set-output name=new_tag::${new_tag}"
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          tag_exists=$(git ls-remote --tags origin | grep "refs/tags/${{ steps.new_version.outputs.new_tag }}" || echo "false")
+          echo "tag_exists=${tag_exists}"
+          echo "::set-output name=tag_exists::${tag_exists}"
+    
+      - name: Create new tag
+        if: steps.check_tag.outputs.tag_exists == 'false'
+        run: |
+          new_tag="${{ steps.new_version.outputs.new_tag }}"
+          git tag ${new_tag}
+          git push origin ${new_tag}
+
+      - name: Output new tag
+        if: steps.check_tag.outputs.tag_exists == 'false'
+        run: |
+          echo "New tag created: ${{ steps.new_version.outputs.new_tag }}"
+
+      - name: Set branch check result
+        id: branch_check
+        run: |
+          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            echo "::set-output name=branch_check::true"
+          else
+            echo "::set-output name=branch_check::false"
+          fi
+
+      - name: Check labels
+        id: label_check
+        if: steps.branch_check.outputs.branch_check == 'true'
+        run: |
+          labels="${{ steps.fetch_labels.outputs.labels }}"
+    
+          if [ "${{ steps.check_tag.outputs.tag_exists }}" = "false" ] && 
+            (echo "$labels" | grep -q -i 'major' ||
+            echo "$labels" | grep -q -i 'minor' ||
+            echo "$labels" | grep -q -i 'hotfix' ||
+            [ -z "$labels" ]); then
+            
+            if [ -z "$labels" ]; then
+              # No labels provided, treat it as 'minor'
+              echo "::set-output name=labels_check::true"
+              echo "::set-output name=labels_type::minor"
+            else
+              echo "::set-output name=labels_check::true"
+              echo "::set-output name=labels_type::$(echo "$labels" | grep -o -i 'major\|minor\|hotfix' | head -n1)"
+            fi
+            
+          else
+            echo "::set-output name=labels_check::false"
+          fi
+
+
+      # - name: Create GitHub Release
+      #   if: steps.branch_check.outputs.branch_check == 'true' && steps.check_tag.outputs.tag_exists == 'false'
+      #   uses: actions/create-release@v1
+      #   with:
+      #     tag_name: ${{ steps.new_version.outputs.new_tag }}
+      #     release_name: "Release ${{ steps.new_version.outputs.new_tag }}"
+      #     draft: false
+      #     prerelease: false
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.TOKEN }}
+
+      - name: Login to AWS ECR
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region ${{ vars.REGION }}
+          aws ecr get-login-password --region ${{ vars.REGION }} | docker login --username AWS --password-stdin ${{ vars.DOCKER_REGISTRY }}
+
       - name: Dynamically setting ENV variables
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
