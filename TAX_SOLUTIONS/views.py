@@ -8,15 +8,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.http import JsonResponse
 from django.views import View
-from django.utils import timezone
 import logging
 from merge_integration import settings
 import uuid
+from datetime import datetime, timezone
 from django.utils import timezone
 from datetime import datetime
 from merge_integration.utils import create_merge_client
 from .models import PassthroughTaxSolution
 from LINKTOKEN.model import ErpLinkToken
+from SYNC.models import ERPLogs
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import (
     invoices_page_size,
@@ -39,8 +40,10 @@ class TaxSolutions(APIView):
         guid = str(uuid.uuid4())
         return temp_session_id, timestamp, guid
 
-    def get(self, request, org_id=None, link_token_id=None):
-
+    @staticmethod
+    def get(org_id, link_token_id):
+        api_log(msg=f"SYNC view2: org id : {org_id}")
+        api_log(msg=f"SYNC view2: link token id : {link_token_id}")
         if org_id is None or link_token_id is None:
             api_log(msg="SYNC view2: Missing org_id or link_token_id")
             return JsonResponse({
@@ -54,10 +57,40 @@ class TaxSolutions(APIView):
         api_log(msg=f"SYNC view2: org id {org_id}")
 
         try:
+            erp_log = None
+            try:
+                # Check if a record with the same org_id and link_token_id already exists
+                existing_log = ERPLogs.objects.filter(org_id=org_id, link_token_id=link_token_id, label="TAX SOLUTIONS").first()
+                api_log(msg=f"--existing_log-------{existing_log}")
+                if not existing_log:
+                    api_log(msg=f"--no data -------")
+                    # If no such record exists, create a new one
+                    rer = ERPLogs(
+                        id=uuid.uuid4(),
+                        org_id=org_id,
+                        link_token_id=link_token_id,
+                        link_token=link_token_id,
+                        label="TAX SOLUTIONS",
+                        sync_start_time=timezone.now(),
+                        sync_end_time=timezone.now(),
+                        sync_type="sync",
+                        sync_status="in progress",
+                    ).save()
+                    api_log(msg=f"---rerrrrrrrrrr-------{rer}")
+                api_log(msg=f"---inserted tax solution to erp sync log-------{link_token_id}")
+            except Exception as e:
+                 api_log(msg=f"-----------------end---------insert TAX SOLUTIONS:{str(e)}")
+                 print(f"Error saving ERPLogs: {str(e)}")
+
+
+            api_log(msg=f"-----------------end---------insert TAX SOLUTIONS")
+            erp_log = ERPLogs.objects.get(
+                    link_token_id=link_token_id, label="TAX SOLUTIONS"
+                )
             # Extract necessary data from request or use default values
             passthrough_url = f"{MERGE_BASE_URL}/api/accounting/v1/passthrough"
             api_log(msg=f"passthrough_url {passthrough_url}")
-
+            
             payload = {
                 "method": "POST",
                 "path": "/ia/xml/xmlgw.phtml",
@@ -86,7 +119,7 @@ class TaxSolutions(APIView):
                     "<object>TAXSOLUTION</object>"
                     "<fields>*</fields>"
                     "<query></query>"
-                    "<pagesize>100</pagesize>"
+                    "<pagesize>1000</pagesize>"
                     "</readByQuery>"
                     "</function>"
                     "</content>"
@@ -142,13 +175,26 @@ class TaxSolutions(APIView):
                             'lastupdate': timezone.now()  # Replace with the actual `LASTUPDATE` if available
                         }
                     )
-
+                erp_log.sync_status = "success"
+                erp_log.error_message = (
+                        "API TAX SOLUTIONS completed successfully"
+                    )
+                erp_log.sync_end_time = timezone.now()
+                erp_log.save()
                 # Return success response
                 return JsonResponse({
                     'status': 'success',
                     'message': 'Data inserted or updated successfully.'
                 }, status=200)
             else:
+                api_log(msg="Failed to save  TAX SOLUTIONS data to Kloo")
+                        # update the sync status to failed
+                erp_log.sync_status = "failed"
+                erp_log.error_message = (
+                    "Failed to save  TAX SOLUTIONS data to Kloo"
+                )
+                erp_log.sync_end_time = timezone.now()
+                erp_log.save()
                 # Handle error
                 return JsonResponse({
                     'status': 'error',
@@ -159,5 +205,3 @@ class TaxSolutions(APIView):
                 'status': 'error',
                 'message': f"An unexpected error occurred: {str(e)}"
             }, status=500)
-
-

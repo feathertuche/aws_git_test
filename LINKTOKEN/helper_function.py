@@ -281,6 +281,7 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         integration_name = linked_account_data.get("integration")
 
         modules = []
+        api_log(msg=f"WEBHOOK:: module sync3")
         if integration_name == "Sage Intacct":
             modules.append("Contact")
             modules.append("TrackingCategory")
@@ -395,6 +396,7 @@ def store_initial_sync(linked_account_data: dict, account_token_data: dict):
         api_log(msg=f"WEBHOOK:: Total module syncing: {modules}")
         total_module_sync = f"WEBHOOK:: Total module syncing: {modules}"
         send_slack_notification(total_module_sync)
+        api_log(msg=f"WEBHOOK:: module sync3")
         if integration_name == "Sage Intacct":
             for module in modules:
                 thread = Thread(

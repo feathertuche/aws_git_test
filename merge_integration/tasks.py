@@ -41,14 +41,24 @@ def process_message(message):
             msg="CONTACTS : send to post_contacts_data function to pass data to laravel API",
         )
         kloo_service.post_contacts_data(message_data)
+        api_log(
+            msg="CONTACTS : Added in Kloo TAX SOLUTIONS API",
+        )
+        api_log(
+            msg="TAX SOLUTIONS : started execution",
+        )
+
         erp_link_token_id = message_data.get("erp_link_token_id")
         org_id = message_data.get("org_id")
+        api_log(msg=f"SYNC view2: org id : {org_id}")
+        api_log(msg=f"SYNC view2: link token id : {erp_link_token_id}")
+        api_log(msg=f"SYNC view2: link token id : {message_data}")
         from LINKTOKEN.model import ErpLinkToken
         integration_name = ErpLinkToken.get_integration_name_token_by_id(erp_link_token_id)
         if integration_name == 'Sage Intacct':
             from TAX_SOLUTIONS.views import TaxSolutions
             tax_solutions_instance = TaxSolutions()
-            tax_solutions_instance.get(org_id, erp_link_token_id)
+            tax_solutions_instance.get(org_id=org_id, link_token_id=erp_link_token_id)
         api_log(
             msg="CONTACTS : Added in Kloo Contacts API",
         )
