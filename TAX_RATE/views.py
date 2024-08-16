@@ -347,11 +347,11 @@ class SageFetchTaxDetails(APIView):
             api_log(msg=f"account token and org ID in Sage passthrough:: {account_token} --- {org_id}")
 
             # Function call to save the Tax rate data to erp_sync_logs table if not present
-            # save_tax_rate(org_id, self.erp_link_token_id)
-            #
-            # erp_log = ERPLogs.objects.get(
-            #         link_token_id=self.erp_link_token_id, label="SAGE TAX RATE"
-            #     )
+            save_tax_rate(org_id, self.erp_link_token_id)
+
+            erp_log = ERPLogs.objects.get(
+                    link_token_id=self.erp_link_token_id, label="SAGE TAX RATE"
+                )
             tax_rates_details = MergePassthroughApiService(
                 account_token, org_id, self.erp_link_token_id
             )
@@ -377,12 +377,12 @@ class SageFetchTaxDetails(APIView):
             else:
                 api_log(msg=f"There is no data in Sage passthrough API:=> {status.HTTP_204_NO_CONTENT}")
 
-            # erp_log.sync_status = "success"
-            # erp_log.error_message = (
-            #     "SAGE TAX RATE completed successfully"
-            # )
-            # erp_log.sync_end_time = timezone.now()
-            # erp_log.save()
+            erp_log.sync_status = "success"
+            erp_log.error_message = (
+                "SAGE TAX RATE completed successfully"
+            )
+            erp_log.sync_end_time = timezone.now()
+            erp_log.save()
             return Response(
                     {"success": response["status"]},
                     status=status.HTTP_200_OK,
