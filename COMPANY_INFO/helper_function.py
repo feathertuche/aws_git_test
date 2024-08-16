@@ -1,6 +1,9 @@
 """
 Helper functions for COMPANY_INFO app
 """
+from merge_integration.helper_functions import api_log
+from LINKTOKEN.model import ErpLinkToken
+from TAX_RATE.views import SageFetchTaxDetails
 
 
 def format_merge_company_data(organization_data):
@@ -56,3 +59,39 @@ def format_merge_company_data(organization_data):
         kloo_format_json = {"companies": formatted_data}
 
     return kloo_format_json
+
+
+def handle_sage_intacct(request):
+    """
+    Handles the Sage Intacct integration logic, including fetching
+    the integration name and performing necessary actions if it matches.
+    Returns a status message or error if applicable.
+    """
+
+    erp_link_token_id = request.data.get("erp_link_token_id")
+    integration_name = ErpLinkToken.get_integration_name_token_by_id(erp_link_token_id)
+    api_log(msg=f"Integration name in COMPANY INFO helper function: {integration_name}")
+
+    # check if there is any integration name at all
+    if integration_name:
+        integration_name = integration_name.strip().lower().replace("-", " ")
+        api_log(msg=f"Integration name after normalization: {integration_name}")
+
+        # Check if the integration name is Sage Intacct
+        if integration_name == "sage intacct":
+            api_log(msg="Started: SAGE TAX RATES")
+
+            try:
+                # Call Sage Tax Rate APIView class to fetch tax rate from Sage Intacct
+                sage_fetch_tax_details = SageFetchTaxDetails(erp_link_token_id=erp_link_token_id)
+                sage_tax_rate_response = sage_fetch_tax_details.post(request)
+                api_log(msg=f"sage_tax_rate_response::: {sage_tax_rate_response}")
+                api_log(msg="Ended: SAGE TAX RATES")
+                return {"status": "success", "data": sage_tax_rate_response}
+            except Exception as e:
+                api_log(msg=f"Error during Sage Intacct processing: {str(e)}")
+                return {"status": "error", "message": str(e)}
+
+    message = "Integration name is not Sage Intacct, skipping Sage Tax Rate"
+    api_log(msg=f"ignore message:: {message}")
+    return {"status": "no_action", "message": message}

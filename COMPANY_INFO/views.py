@@ -8,6 +8,8 @@ from concurrent.futures import ThreadPoolExecutor
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from COMPANY_INFO.helper_function import handle_sage_intacct
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import GETKLOO_LOCAL_URL, company_info_batch_size, company_info_page_size
 from merge_integration.utils import create_merge_client
@@ -176,6 +178,10 @@ class MergeKlooCompanyInsert(APIView):
         """
         erp_link_token_id = request.data.get("erp_link_token_id")
         org_id = request.data.get("org_id")
+
+        # function call for Sage link journey or daily sync with kloo system
+        handle_sage_intacct(request)
+
         merge_company_list = MergeCompanyInfo(
             link_token_details=self.link_token_details,
             last_modified_at=self.last_modified_at,
@@ -193,16 +199,6 @@ class MergeKlooCompanyInsert(APIView):
 
                 kloo_url = f"{GETKLOO_LOCAL_URL}/organizations/insert-erp-companies"
 
-                # Sending data in the batch of 100
-                # batch_size = company_info_batch_size
-                # api_log(msg=f"[BATCH SIZE]:: {batch_size}")
-                # for batch in range(0, len(merge_payload), batch_size):
-                #     api_log(msg=f"[BATCH SIZE]:: {batch_size}")
-                #     api_log(msg=f"[BATCH]:: {batch}")
-                #     batch_data = merge_payload[batch:batch + batch_size]
-                #     api_log(msg=f"[BATCH DATA]:: {batch_data}")
-                #
-                #     api_log(msg=f"merge_payload: {kloo_url}")
                 kloo_data_insert = requests.post(
                     kloo_url,
                     json=merge_payload,

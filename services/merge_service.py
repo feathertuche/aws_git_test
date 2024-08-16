@@ -681,3 +681,65 @@ class MergePassthroughApiService(MergeService):
 
         except Exception as e:
             return self.handle_merge_api_error("get_sage_attachment_folders", e)
+
+    def send_request_for_api_call(self, payload_data):
+        try:
+            payload = {
+                "method": "POST",
+                "path": "/ia/xml/xmlgw.phtml",
+                "request_format": "XML",
+                "headers": {
+                    "Content-Type": "application/xml"
+                },
+                "data": payload_data
+            }
+            response = self.api_call(payload)
+            if response["status"] is False:
+                return {"status": False, "error": response["error"]}
+
+            # check for any Sage error
+            sage_response = response.get("response").get("response")
+            if sage_response.get("control").get("status") == "failure":
+                api_log(
+                    msg=f"Error fetching ITG Tax Rate Details: {sage_response.get('errormessage')}"
+                )
+                return {
+                    "status": False,
+                    "error": "Error fetching ITG Tax Rate Details",
+                }
+
+            return response
+
+        except Exception as e:
+            return self.handle_merge_api_error("get_itg_tax_details", e)
+
+    def get_itg_tax_details(self):
+        session_id_payload = "<?xml version='1.0' encoding='UTF-8'?><request><control><senderid>{" \
+                             "sender_id}</senderid><password>{sender_password}</password><controlid>{" \
+                             "timestamp}</controlid><uniqueid>false</uniqueid><dtdversion>3.0</dtdversion" \
+                             "><includewhitespace>false</includewhitespace></control><operation><authentication" \
+                             "><sessionid>{temp_session_id}</sessionid></authentication><content><function " \
+                             "controlid='{guid}'><getAPISession><locationid/></getAPISession></function></content" \
+                             "></operation></request> "
+
+        session_response = self.send_request_for_api_call(session_id_payload)
+        # Extract the session ID
+        session_id = session_response['response']['response']['operation']['result']['data']['api']['sessionid']
+        sender_id = session_response['response']['response']["control"]["senderid"]
+        guid = session_response['response']['response']["control"]["controlid"]
+        timestamp = session_response['response']['response']["operation"]["authentication"]["sessiontimestamp"]
+        sender_pwd = "ekwSmg$2Mgs.VUk"
+        api_log(msg=f"SESSION id :: {session_id}")
+        api_log(msg=f"SENDER ID :: {sender_id}")
+        api_log(msg=f"GUID :: {guid}")
+        api_log(msg=f"TIMESTAMP :: {timestamp}")
+        tax_detail_payload = f"<?xml version='1.0' encoding='UTF-8'?><request><control><senderid>{sender_id}</senderid>" \
+             f"<password>{sender_pwd}</password><controlid>{timestamp}</controlid><uniqueid>false</uniqueid>" \
+             f"<dtdversion>3.0</dtdversion><includewhitespace>false</includewhitespace></control><operation>" \
+             f"<authentication><sessionid>{session_id}</sessionid></authentication><content><function " \
+             f"controlid='{guid}'><readByQuery><object>TAXDETAIL</object><fields></fields><query></query>" \
+             f"<pagesize>100</pagesize></readByQuery></function></content></operation></request>"
+
+        tax_details_response = self.send_request_for_api_call(tax_detail_payload)
+        return session_response, tax_details_response
+

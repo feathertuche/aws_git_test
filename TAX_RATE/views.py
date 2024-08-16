@@ -4,17 +4,21 @@ Module docstring: This module provides functions related to traceback.
 
 import json
 import traceback
-
 import requests
 from merge.client import Merge
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from django.utils import timezone
+from SYNC.models import ERPLogs
+from .helper_function import sage_tax_rate
+from LINKTOKEN.model import ErpLinkToken
 from merge_integration import settings
 from merge_integration.helper_functions import api_log
 from merge_integration.settings import GETKLOO_LOCAL_URL, tax_rate_page_size, tax_rate_batch_size
 from merge_integration.utils import create_merge_client
+from .queries import Insert_Sage_Tax_Rates, save_tax_rate
+from services.merge_service import MergePassthroughApiService
 
 
 class MergeTaxRatesList(APIView):
@@ -312,3 +316,78 @@ class MergePostTaxRates(APIView):
             )
 
         return Response("Failed to insert data to the kloo Tax Rate system", traceback)
+
+
+class SageFetchTaxDetails(APIView):
+    """
+    API view for inserting Merge Tax Rate data into the Kloo Tax Rate system.
+    """
+
+    def __init__(self, erp_link_token_id=None):
+        super().__init__()
+        self.erp_link_token_id = erp_link_token_id
+
+    def post(self, request):
+        """
+        Handles POST requests to insert Sage Tax Rate data into the Kloo Tax Rate system.
+
+        Returns:
+            Response indicating success or failure of data insertion.
+        """
+
+        api_log(msg="...............Entering SageFetchTaxDetails POST method.................")
+
+        try:
+            # Django ORM query to fetch org_id and account_token
+            self.erp_link_token_id = request.data.get("erp_link_token_id")
+            api_log(msg=f"erp link token ID in Sage passthrough:: {self.erp_link_token_id}")
+            filter_token = ErpLinkToken.objects.filter(id=self.erp_link_token_id)
+            lnk_token = filter_token.values_list("account_token", "org_id", flat=False)
+            account_token, org_id = lnk_token[0]
+            api_log(msg=f"account token and org ID in Sage passthrough:: {account_token} --- {org_id}")
+
+            # Function call to save the Tax rate data to erp_sync_logs table if not present
+            # save_tax_rate(org_id, self.erp_link_token_id)
+            #
+            # erp_log = ERPLogs.objects.get(
+            #         link_token_id=self.erp_link_token_id, label="SAGE TAX RATE"
+            #     )
+            tax_rates_details = MergePassthroughApiService(
+                account_token, org_id, self.erp_link_token_id
+            )
+            response = sage_tax_rate(tax_rates_details)
+            if response["status"] is False:
+                return Response(
+                    {"error": response["error"]},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+            api_log(msg=f"Sage Tax Rate fetched successfully : {response['message']}")
+
+            # fetch "data" key from the passthrough payload
+            sage_tax_details = response.get("data")
+            api_log(msg=f"Sage Tax Rate payload in API View : {sage_tax_details}")
+
+            # data insertion logic here to DB
+            if sage_tax_details:
+                for tax_fields in sage_tax_details:
+                    tax_fields["erp_link_token_id"] = self.erp_link_token_id
+                    tax_fields["organization_id"] = org_id
+                    api_log(msg=f"tax_rate_fields : {tax_fields}")
+                    Insert_Sage_Tax_Rates(tax_fields)
+            else:
+                api_log(msg=f"There is no data in Sage passthrough API:=> {status.HTTP_204_NO_CONTENT}")
+
+            # erp_log.sync_status = "success"
+            # erp_log.error_message = (
+            #     "SAGE TAX RATE completed successfully"
+            # )
+            # erp_log.sync_end_time = timezone.now()
+            # erp_log.save()
+            return Response(
+                    {"success": response["status"]},
+                    status=status.HTTP_200_OK,
+                )
+
+        except Exception as e:
+            api_log(msg=f"Error fetching sage data: {e}")
+            raise e
