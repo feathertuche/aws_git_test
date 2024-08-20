@@ -728,17 +728,19 @@ class MergePassthroughApiService(MergeService):
         sender_id = session_response['response']['response']["control"]["senderid"]
         guid = session_response['response']['response']["control"]["controlid"]
         timestamp = session_response['response']['response']["operation"]["authentication"]["sessiontimestamp"]
-        sender_pwd = "ekwSmg$2Mgs.VUk"
+
         api_log(msg=f"SESSION id :: {session_id}")
         api_log(msg=f"SENDER ID :: {sender_id}")
         api_log(msg=f"GUID :: {guid}")
         api_log(msg=f"TIMESTAMP :: {timestamp}")
-        tax_detail_payload = f"<?xml version='1.0' encoding='UTF-8'?><request><control><senderid>{sender_id}</senderid>" \
-             f"<password>{sender_pwd}</password><controlid>{timestamp}</controlid><uniqueid>false</uniqueid>" \
-             f"<dtdversion>3.0</dtdversion><includewhitespace>false</includewhitespace></control><operation>" \
-             f"<authentication><sessionid>{session_id}</sessionid></authentication><content><function " \
-             f"controlid='{guid}'><readByQuery><object>TAXDETAIL</object><fields></fields><query></query>" \
-             f"<pagesize>100</pagesize></readByQuery></function></content></operation></request>"
+        tax_detail_payload = "<?xml version='1.0' encoding='UTF-8'?><request><control><senderid>{" \
+                             "sender_id}</senderid><password>{sender_password}</password><controlid>{" \
+                             "timestamp}</controlid><uniqueid>false</uniqueid><dtdversion>3.0</dtdversion" \
+                             "><includewhitespace>false</includewhitespace></control><operation><authentication" \
+                             "><sessionid>{temp_session_id}</sessionid></authentication><content><function " \
+                             "controlid='{guid}'><readByQuery><object>TAXDETAIL</object><fields></fields><query" \
+                             "></query><pagesize>100</pagesize></readByQuery></function></content></operation" \
+                             "></request> "
 
         tax_details_response = self.send_request_for_api_call(tax_detail_payload)
         return session_response, tax_details_response
