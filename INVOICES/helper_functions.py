@@ -327,10 +327,12 @@ def post_response(response: dict):
             headers=header,
             json=response
         )
+        api_log(msg=f"pending_invoice_responseeee: {pending_invoice_response}")
         if pending_invoice_response.status_code in [200, 201]:
+            api_log(msg="This is a success laravel success bloc....")
             api_log(msg=f"Successfully UPDATED the response code: {response}")
         else:
-            api_log(msg=f"Failed to update response code:::: {response}. Status Code:::: {pending_invoice_response.status_code}")
+            api_log(msg=f"Failed to update Laravel api due to Status Code:::: {pending_invoice_response.status_code}")
     except Exception as e:
         api_log(msg=f"Exception occurred while posting invoices: {str(e)}")
 # =========================================================================================#

@@ -104,6 +104,7 @@ PROJECT_APPS = [
     "corsheaders",
     "TRACKING_CATEGORIES",
     "TAX_RATE",
+    "TAX_SOLUTIONS",
     "COMPANY_INFO",
     "PURCHASE_ORDERS",
     "CONTACTS",
