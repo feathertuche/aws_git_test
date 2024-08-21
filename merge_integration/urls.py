@@ -30,6 +30,7 @@ urlpatterns = [
     path("api/erp/comp-info/", include("COMPANY_INFO.urls")),
     path("api/v1/erp/invoice-info/", include("INVOICES.urls")),
     path("api/erp/tax-info/", include("TAX_RATE.urls")),
+    path("api/erp/tax-solutions/", include("TAX_SOLUTIONS.urls")),
     path("api/erp/health/", health_check, name="health_check"),
     path("api/erp/", include("LINKTOKEN.urls")),
     path("api/erp/tracking-info/", include("TRACKING_CATEGORIES.urls")),

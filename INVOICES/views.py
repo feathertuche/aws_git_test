@@ -77,11 +77,12 @@ class InvoiceCreate(APIView):
 
             api_log(msg=f"Merge Invoice Created : {invoice_created}")
             invoice_table_id = invoice_data["id"]
-
+            api_log(msg="Merge Invoice Created")
             # calling function to update remote id as 'erp id' in erp_id field in invoice_line_items table
             update_invoices_table(invoice_table_id, dict(invoice_created.model))
+            api_log(msg=f"update_invoices_table: {update_invoices_table}")
             update_post_erp_line_items(invoice_table_id, invoice_created)
-
+            api_log(msg=f"update_post_erp_line_items: {update_post_erp_line_items}")
             # if sage attachment then create folder
             if data.get("integration_name") == "Sage Intacct":
                 merge_passthrough_service = MergePassthroughApiService(
@@ -97,13 +98,15 @@ class InvoiceCreate(APIView):
                     )
                 api_log(msg=f"Sage Attachment Folder Created : {response['message']}")
 
+            api_log(msg="after creation...")
             attachment_payload = filter_attachment_payloads(data, invoice_created)
             merge_api_service.create_attachment(attachment_payload)
-
+            api_log(msg="after creation invoicesssss...")
             merge_invoice_request_create = f"Invoice created : {invoice_created}"
             send_slack_notification(merge_invoice_request_create)
 
             invoice_id = data["model"]["kloo_invoice_id"]
+            api_log(msg=f"invoice_id:: {invoice_id}")
             response_data = {
                 "invoices": [
                     {
@@ -112,9 +115,9 @@ class InvoiceCreate(APIView):
                     }
                 ]
             }
-
+            api_log(msg=f"{response_data}")
             post_response(response_data)
-
+            api_log(msg=f"post_response ::{post_response}")
             return Response(
                 response_data,
                 status=status.HTTP_201_CREATED

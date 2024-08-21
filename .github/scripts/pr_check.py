@@ -41,23 +41,19 @@ if not issue_id:
     print("No issue ID found in PR title.")
     exit(1)  # Fail the check if no issue ID is found
 
-# Define JQL (Jira Query Language) to find issues
-project_name = 'Kloo (Modulr) cards & payments'
-jql = f'project = "{project_name}" ORDER BY created DESC'
+# Define JQL (Jira Query Language) to find the specific issue
+jql = f'id = "{issue_id}"'
 
-# Get issues from Jira
+# Get the issue from Jira
 issues = jira.search_issues(jql)  # Adjust maxResults as needed
 
 # Check if the issue_id exists in the project
-issue = None
-for i in issues:
-    if i.key == issue_id:
-        issue = i
-        break
+if not issues:
+    print(f"Issue ID {issue_id} not found.")
+    exit(1)  # Fail the check if the issue ID is not found
 
-if not issue:
-    print(f"Issue ID {issue_id} not found in project {project_name}.")
-    exit(1)  # Fail the check if the issue ID is not found in the project
+# Since we're looking for a specific issue, there should only be one result
+issue = issues[0]
 
 # Prepare code change information
 code_change_info = (f"A pull request has been created: {os.getenv('GITHUB_SERVER_URL')}/"
