@@ -62,11 +62,11 @@ def validate_webhook(payload):
     if account_token_data.get(
         "integration_name"
     ) == "Sage Intacct" and "synced" in event.split("."):
-        if account_token_data.get("sync_status").get("model_name") != "Account":
-            return {
-                "status": False,
-                "message": "WEBHOOK: Webhook event not found",
-            }
+        # if account_token_data.get("sync_status").get("model_name") != "Account":
+        #     return {
+        #         "status": False,
+        #         "message": "WEBHOOK: Webhook event not found",
+        #     }
         daily_or_force_sync = daily_or_force_sync_log(
             {
                 "link_token_id": end_user_origin_id,
