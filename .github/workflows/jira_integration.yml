@@ -44,6 +44,9 @@ jobs:
       run: |
         echo "PR_TITLE=$(jq -r .pull_request.title "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
         echo "PR_BODY=$(jq -r .pull_request.body "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
+        echo "PR_NUMBER=$(jq -r .pull_request.number "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
+        echo "REPO_OWNER=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 1)" >> $GITHUB_ENV
+        echo "REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
 
     - name: Run PR check script
       env:
