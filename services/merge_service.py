@@ -739,7 +739,7 @@ class MergePassthroughApiService(MergeService):
                              "><includewhitespace>false</includewhitespace></control><operation><authentication" \
                              "><sessionid>{temp_session_id}</sessionid></authentication><content><function " \
                              "controlid='{guid}'><readByQuery><object>TAXDETAIL</object><fields></fields><query" \
-                             "></query><pagesize>100</pagesize></readByQuery></function></content></operation" \
+                             "></query><pagesize>1000</pagesize></readByQuery></function></content></operation" \
                              "></request> "
 
         tax_details_response = self.send_request_for_api_call(tax_detail_payload)
