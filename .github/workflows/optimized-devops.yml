@@ -169,9 +169,9 @@ jobs:
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-prod-cluster" >> $GITHUB_ENV
             echo "rds_host=mysql-kloo-prod.internal-service-kloo.com" >> $GITHUB_ENV
-            echo "REQUEST_CLOUDWATCH_LOG_GROUP=erp-django-prod-request-log"  >> .env
-            echo "API_CLOUDWATCH_LOG_GROUP=erp-django-prod-apilog"  >> .env
-            echo "CLOUDWATCH_LOG_STREAM=erp-django-prod"  >> .env
+            echo "REQUEST_CLOUDWATCH_LOG_GROUP=erp-django-prod-request-log"  >> $GITHUB_ENV
+            echo "API_CLOUDWATCH_LOG_GROUP=erp-django-prod-apilog"  >> $GITHUB_ENV
+            echo "CLOUDWATCH_LOG_STREAM=erp-django-prod"  >> $GITHUB_ENV
 
           elif [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
             echo "env=stage" >> $GITHUB_ENV
