@@ -139,16 +139,16 @@ jobs:
           fi
 
 
-      # - name: Create GitHub Release
-      #   if: steps.branch_check.outputs.branch_check == 'true' && steps.check_tag.outputs.tag_exists == 'false'
-      #   uses: actions/create-release@v1
-      #   with:
-      #     tag_name: ${{ steps.new_version.outputs.new_tag }}
-      #     release_name: "Release ${{ steps.new_version.outputs.new_tag }}"
-      #     draft: false
-      #     prerelease: false
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      - name: Create GitHub Release
+        if: steps.branch_check.outputs.branch_check == 'true' && steps.check_tag.outputs.tag_exists == 'false' 
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.new_version.outputs.new_tag }}
+          release_name: "Release ${{ steps.new_version.outputs.new_tag }}"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
       - name: Login to AWS ECR
         run: |
@@ -168,6 +168,9 @@ jobs:
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-prod-cluster" >> $GITHUB_ENV
             echo "rds_host=mysql-kloo-prod.internal-service-kloo.com" >> $GITHUB_ENV
+            echo "REQUEST_CLOUDWATCH_LOG_GROUP=erp-django-prod-request-log"  >> .env
+            echo "API_CLOUDWATCH_LOG_GROUP=erp-django-prod-apilog"  >> .env
+            echo "CLOUDWATCH_LOG_STREAM=erp-django-prod"  >> .env
 
           elif [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
             echo "env=stage" >> $GITHUB_ENV
@@ -178,6 +181,9 @@ jobs:
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-stage-cluster" >> $GITHUB_ENV
             echo "rds_host=mysql-kloo-stage.internal-service-kloo.com" >> $GITHUB_ENV
+            echo "REQUEST_CLOUDWATCH_LOG_GROUP=erp-django-stage-request-log"  >> $GITHUB_ENV
+            echo "API_CLOUDWATCH_LOG_GROUP=erp-django-stage-apilog"  >> $GITHUB_ENV
+            echo "CLOUDWATCH_LOG_STREAM=erp-django-stage"  >> $GITHUB_ENV
 
           else
             echo "env=dev" >> $GITHUB_ENV
@@ -190,6 +196,9 @@ jobs:
             echo "rds_host=mysql-kloo-dev.internal-service-kloo.com" >> $GITHUB_ENV
             QUEUE=$(echo "${{ vars.BULK_IMPORT_QUEUE }}" | sed 's/env/dev/')
             echo "UPDATED_QUEUE=$QUEUE" >> $GITHUB_ENV
+            echo "REQUEST_CLOUDWATCH_LOG_GROUP=erp-django-dev-request-log"  >> $GITHUB_ENV
+            echo "API_CLOUDWATCH_LOG_GROUP=erp-django-dev-apilog"  >> $GITHUB_ENV
+            echo "CLOUDWATCH_LOG_STREAM=erp-django-dev"  >> $GITHUB_ENV
           fi
 
       - name: Setting up AWS CLI
@@ -219,6 +228,9 @@ jobs:
           while IFS= read -r line; do
             echo "$line" >> .env
           done <<< "$(echo "$secret_json" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"')"
+          echo "REQUEST_CLOUDWATCH_LOG_GROUP=${REQUEST_CLOUDWATCH_LOG_GROUP}"  >> .env
+          echo "API_CLOUDWATCH_LOG_GROUP=${API_CLOUDWATCH_LOG_GROUP}"  >> .env
+          echo "CLOUDWATCH_LOG_STREAM=${CLOUDWATCH_LOG_STREAM}"  >> .env
           cp .env ../.env
 
 
