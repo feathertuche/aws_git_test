@@ -6,6 +6,7 @@ on:
       - main
       - dev
       - stage
+      - master
 
 jobs:
   deployment-job:
