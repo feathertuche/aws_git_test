@@ -362,7 +362,7 @@ class MergeInvoiceApiService(MergeService):
             api_log(msg=f"MERGE : Invoice model status field::: {invoice_status}")
             self.create_or_update_log(
                 {
-                    "id": uuid.uuid4(),
+                    "id": str(uuid.uuid4()),
                     "invoice_id": invoice_data.get("id"),
                     "type": "invoice",
                     "status": "success",
@@ -387,7 +387,7 @@ class MergeInvoiceApiService(MergeService):
             api_log(msg=f"MERGE EXCEPTION: Error creating invoice: {str(e)}")
             self.create_or_update_log(
                 {
-                    "id": uuid.uuid4(),
+                    "id": str(uuid.uuid4()),
                     "invoice_id": invoice_data.get("id"),
                     "type": "invoice",
                     "status": "failed",
@@ -455,7 +455,7 @@ class MergeInvoiceApiService(MergeService):
 
             self.create_or_update_log(
                 {
-                    "id": uuid.uuid4(),
+                    "id": str(uuid.uuid4()),
                     "invoice_id": attachment_data.get("id"),
                     "type": "attachment",
                     "status": "success",
@@ -470,7 +470,7 @@ class MergeInvoiceApiService(MergeService):
             api_log(msg=f"MERGE EXCEPTION: Error creating attachment: {str(e)}")
             self.create_or_update_log(
                 {
-                    "id": uuid.uuid4(),
+                    "id": str(uuid.uuid4()),
                     "invoice_id": attachment_data.get("id"),
                     "type": "attachment",
                     "status": "failed",

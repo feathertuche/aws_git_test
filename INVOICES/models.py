@@ -25,8 +25,8 @@ class InvoiceStatusEnum(models.TextChoices):
 
 
 class InvoiceAttachmentLogs(models.Model):
-    id = models.UUIDField(primary_key=True, editable=False)
-    invoice_id = models.UUIDField()
+    id = models.UUIDField(primary_key=True, editable=False, max_length=36)
+    invoice_id = models.CharField(max_length=36)
     attachment_id = models.UUIDField(blank=True, null=True)
     type = models.CharField(max_length=20, choices=TypeEnum.choices)
     status = models.CharField(max_length=20, choices=StatusEnum.choices)
