@@ -48,3 +48,6 @@ class CronRetry(models.Model):
 
     class Meta:
         db_table = "erp_pending_invoices_retry"
+
+    def __str__(self):
+        return f"{self.kloo_invoice_id}"
