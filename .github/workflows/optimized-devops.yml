@@ -237,16 +237,16 @@ jobs:
           echo "DB_PASSWORD=$DB_PASSWORD" >> .env
           echo "BULK_IMPORT_QUEUE=${UPDATED_QUEUE}" >> .env
       
-      - name: DB configure for Demo
+      - name: DB Configure for demo
         run: |
-          cd ./merge_integration
-          secret_json=$(aws secretsmanager get-secret-value --secret-id kloo-demo-rds-creds | jq -r '.SecretString')
-          while IFS= read -r line; do
-            # Replace RDS_HOST with DB_HOST in the key before appending to .env
-            modified_line=$(echo "$line" | sed 's/^RDS_HOST/DB_HOST/')
-            # Append the modified line to the .env file
-            echo "$modified_line" >> .env
-          done <<< "$secret_json"
+          if [[ "${{ github.ref }}" == "refs/heads/demo" ]]; then
+            secret_json=$(aws secretsmanager get-secret-value --secret-id kloo-demo-rds-creds --query 'SecretString' --output text)
+            while IFS= read -r line; do
+              modified_line=$(echo "$line" | sed 's/^RDS_HOST/DB_HOST/')
+              echo "$modified_line" >> .env
+            done <<< "$secret_json"
+          fi
+
 
       - name: Creating Application variables
         run: |
