@@ -192,7 +192,7 @@ jobs:
             echo "secret_manager=kloo_environment_variables_demo" >> $GITHUB_ENV
             echo "db_password=kloo-demo-rds-creds" >> $GITHUB_ENV
             echo "app_secret_manager=non_prod_merge_integration" >> $GITHUB_ENV
-            UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/-env//')
+            UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/env/demo/')
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
             echo "cluster_name=kloo-demo-cluster" >> $GITHUB_ENV
             QUEUE=$(echo "${{ vars.BULK_IMPORT_QUEUE }}" | sed 's/env/demo/')
@@ -234,7 +234,7 @@ jobs:
             echo "DB_PORT=3306" >> .env
             echo "DB_USER=masterkloo" >> .env
             echo "DB_NAME=myrdssql01" >> .env
-            DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id ${secret_manager} | --query 'SecretString' --output text)`
+            DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .${db_password}`
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
             echo "BULK_IMPORT_QUEUE=${UPDATED_QUEUE}" >> .env
           fi
