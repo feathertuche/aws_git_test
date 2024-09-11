@@ -7,6 +7,7 @@ on:
       - dev
       - stage
       - master
+      - demo
 
 jobs:
   deployment-job:
