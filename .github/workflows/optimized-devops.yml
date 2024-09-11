@@ -238,11 +238,11 @@ jobs:
           echo "BULK_IMPORT_QUEUE=${UPDATED_QUEUE}" >> .env
       
       - name: DB configure for Demo
-          run:
-            cd ./merge_integration
-            while IFS= read -r line; do
-              echo "$line" >> .env
-            done <<< "$(echo "$secret_json" | jq -r 'to_entries | .[] | "\((if .key == \"RDS_HOST\" then \"DB_HOST\" else .key end))=\(.value)"')"
+        run:
+          cd ./merge_integration
+          while IFS= read -r line; do
+            echo "$line" >> .env
+          done <<< "$(echo "$secret_json" | jq -r 'to_entries | .[] | "\((if .key == \"RDS_HOST\" then \"DB_HOST\" else .key end))=\(.value)"')"
 
 
       - name: Creating Application variables
