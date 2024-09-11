@@ -238,18 +238,16 @@ jobs:
           echo "BULK_IMPORT_QUEUE=${UPDATED_QUEUE}" >> .env
       
       - name: DB configure for Demo
-        run:
+        run: |
           cd ./merge_integration
           secret_json=$(aws secretsmanager get-secret-value --secret-id $db_password | jq -r '.SecretString')
-    
-          # Loop through each line of the secret
           while IFS= read -r line; do
             # Replace RDS_HOST with DB_HOST in the key before appending to .env
             modified_line=$(echo "$line" | sed 's/^RDS_HOST/DB_HOST/')
             # Append the modified line to the .env file
             echo "$modified_line" >> .env
           done <<< "$secret_json"
-          
+
       - name: Creating Application variables
         run: |
           cd ./merge_integration
