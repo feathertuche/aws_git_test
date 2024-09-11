@@ -194,13 +194,12 @@ jobs:
             echo "app_secret_manager=non_prod_merge_integration" >> $GITHUB_ENV
             UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/-env//')
             echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
-            echo "cluster_name=kloo-dev-cluster" >> $GITHUB_ENV
-            echo "rds_host=mysql-kloo-dev.internal-service-kloo.com" >> $GITHUB_ENV
-            QUEUE=$(echo "${{ vars.BULK_IMPORT_QUEUE }}" | sed 's/env/dev/')
+            echo "cluster_name=kloo-demo-cluster" >> $GITHUB_ENV
+            QUEUE=$(echo "${{ vars.BULK_IMPORT_QUEUE }}" | sed 's/env/demo/')
             echo "UPDATED_QUEUE=$QUEUE" >> $GITHUB_ENV
-            echo "REQUEST_CLOUDWATCH_LOG_GROUP=erp-django-dev-request-log"  >> $GITHUB_ENV
-            echo "API_CLOUDWATCH_LOG_GROUP=erp-django-dev-apilog"  >> $GITHUB_ENV
-            echo "CLOUDWATCH_LOG_STREAM=erp-django-dev"  >> $GITHUB_ENV
+            echo "REQUEST_CLOUDWATCH_LOG_GROUP=erp-django-demo-request-log"  >> $GITHUB_ENV
+            echo "API_CLOUDWATCH_LOG_GROUP=erp-django-demo-apilog"  >> $GITHUB_ENV
+            echo "CLOUDWATCH_LOG_STREAM=erp-django-demo"  >> $GITHUB_ENV
 
           else
             echo "env=dev" >> $GITHUB_ENV
@@ -241,6 +240,7 @@ jobs:
       - name: DB configure for Demo
         run:
           cd ./merge_integration
+          secret_json=$(aws secretsmanager get-secret-value --secret-id $db_password | jq -r .'SecretString')
           while IFS= read -r line; do
             echo "$line" >> .env
           done <<< "$(echo "$secret_json" | jq -r 'to_entries | .[] | "\((if .key == \"RDS_HOST\" then \"DB_HOST\" else .key end))=\(.value)"')"
