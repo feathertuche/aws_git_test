@@ -240,7 +240,7 @@ jobs:
       - name: DB configure for Demo
         run: |
           cd ./merge_integration
-          secret_json=$(aws secretsmanager get-secret-value --secret-id $db_password | jq -r '.SecretString')
+          secret_json=$(aws secretsmanager get-secret-value --secret-id kloo-demo-rds-creds | jq -r '.SecretString')
           while IFS= read -r line; do
             # Replace RDS_HOST with DB_HOST in the key before appending to .env
             modified_line=$(echo "$line" | sed 's/^RDS_HOST/DB_HOST/')
