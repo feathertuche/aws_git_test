@@ -7,6 +7,7 @@ on:
       - dev
       - stage
       - master
+      - demo
 
 jobs:
   deployment-job:
@@ -185,6 +186,20 @@ jobs:
             echo "REQUEST_CLOUDWATCH_LOG_GROUP=erp-django-stage-request-log"  >> $GITHUB_ENV
             echo "API_CLOUDWATCH_LOG_GROUP=erp-django-stage-apilog"  >> $GITHUB_ENV
             echo "CLOUDWATCH_LOG_STREAM=erp-django-stage"  >> $GITHUB_ENV
+          
+          elif [[ "${{ github.ref }}" == "refs/heads/demo" ]]; then
+            echo "env=demo" >> $GITHUB_ENV
+            echo "secret_manager=kloo_environment_variables_demo" >> $GITHUB_ENV
+            echo "db_password=kloo-demo-rds-creds" >> $GITHUB_ENV
+            echo "app_secret_manager=non_prod_merge_integration" >> $GITHUB_ENV
+            UPDATED_FUNC_NAME=$(echo "${{ vars.MERGE_INT_ERP_FUNC_NAME }}" | sed 's/-env//')
+            echo "UPDATED_FUNC_NAME=$UPDATED_FUNC_NAME" >> $GITHUB_ENV
+            echo "cluster_name=kloo-demo-cluster" >> $GITHUB_ENV
+            QUEUE=$(echo "${{ vars.BULK_IMPORT_QUEUE }}" | sed 's/env/demo/')
+            echo "UPDATED_QUEUE=$QUEUE" >> $GITHUB_ENV
+            echo "REQUEST_CLOUDWATCH_LOG_GROUP=erp-django-demo-request-log"  >> $GITHUB_ENV
+            echo "API_CLOUDWATCH_LOG_GROUP=erp-django-demo-apilog"  >> $GITHUB_ENV
+            echo "CLOUDWATCH_LOG_STREAM=erp-django-demo"  >> $GITHUB_ENV
 
           else
             echo "env=dev" >> $GITHUB_ENV
@@ -212,15 +227,27 @@ jobs:
 
       - name: DB Configure
         run: |
-          cd ./merge_integration
-          echo "DB_CONNECTION=mysql" >> .env
-          echo "RDS_HOST=${rds_host}" >> .env
-          echo "DB_PORT=3306" >> .env
-          echo "DB_USER=masterkloo" >> .env
-          echo "DB_NAME=myrdssql01" >> .env
-          DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id ${secret_manager} | jq --raw-output '.SecretString' | jq -r .${db_password}`
-          echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-          echo "BULK_IMPORT_QUEUE=${UPDATED_QUEUE}" >> .env
+          if [[ "${{ github.ref }}" != "refs/heads/demo" ]]; then
+            cd ./merge_integration
+            echo "DB_CONNECTION=mysql" >> .env
+            echo "RDS_HOST=${rds_host}" >> .env
+            echo "DB_PORT=3306" >> .env
+            echo "DB_USER=masterkloo" >> .env
+            echo "DB_NAME=myrdssql01" >> .env
+            DB_PASSWORD=`aws secretsmanager get-secret-value --secret-id ${secret_manager} | --query 'SecretString' --output text)`
+            echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+            echo "BULK_IMPORT_QUEUE=${UPDATED_QUEUE}" >> .env
+          fi
+      
+      - name: DB Configure for demo
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/demo" ]]; then
+            secret_json=$(aws secretsmanager get-secret-value --secret-id kloo-demo-rds-creds --query 'SecretString' --output text)
+            while IFS= read -r line; do
+              modified_line=$(echo "$line" | sed 's/^RDS_HOST/DB_HOST/')
+              echo "$modified_line" >> .env
+            done <<< "$secret_json"
+          fi
 
       - name: Creating Application variables
         run: |
