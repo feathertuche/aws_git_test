@@ -96,7 +96,7 @@ request_logger = logger_object.configure_logger(
 
 api_logger = logger_object.configure_logger(
     "api_logger", 
-    log_file="api.log",  # File logging enabled for API logger
+    log_file="None",  # File logging enabled for API logger
     enable_console=True, 
     enable_cloudwatch=True
 )
