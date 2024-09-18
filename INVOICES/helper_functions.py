@@ -250,7 +250,7 @@ def create_xero_invoice_payload(invoice_validated_payload):
     # sort line items by sequence
     line_items_data = sorted(line_items_data, key=lambda x: x["sequence"])
     company_id = model_data.get("company")
-    status = 'DRAFT' if company_id == '2f2a2220-7975-4608-a336-f0fa2e6854b8' else model_data.get("status")
+    status = 'DRAFT' if company_id == '56698b32-44e0-48c6-8df5-235f038ced45' else model_data.get("status")
 
     # prepare invoice data
     invoice_data = {
