@@ -315,14 +315,14 @@ def start_sync_process_sage(
                                 f"API {module} failed from merge side with"
                                 f" status {sync_filter_array.status}"
                             )
-                            log_sync_status(
-                                sync_status="Failed",
-                                message=error_message,
-                                label=module_name,
-                                org_id=org_id,
-                                erp_link_token_id=erp_link_token_id,
-                                account_token=account_token,
-                            )
+                            # log_sync_status(
+                            #     sync_status="Failed",
+                            #     message=error_message,
+                            #     label=module_name,
+                            #     org_id=org_id,
+                            #     erp_link_token_id=erp_link_token_id,
+                            #     account_token=account_token,
+                            # )
                             update_logs_for_daily_sync(
                                 erp_link_token_id,
                                 "failed",
